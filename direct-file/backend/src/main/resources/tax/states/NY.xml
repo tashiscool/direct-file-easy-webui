@@ -34,6 +34,15 @@
       </Derived>
     </Fact>
 
+    <Fact path="/nyStdDeductionHOH">
+      <Name>NY Standard Deduction HOH</Name>
+      <Description>NY standard deduction for HOH ($11,200 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>11200</Dollar>
+      </Derived>
+    </Fact>
+
     <Fact path="/nyStandardDeduction">
       <Name>NY Standard Deduction</Name>
       <Description>New York standard deduction based on filing status.</Description>
@@ -47,6 +56,15 @@
               </Equal>
             </When>
             <Then><Dependency path="/nyStdDeductionMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>HOH</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/nyStdDeductionHOH" /></Then>
           </Case>
           <Default><Dependency path="/nyStdDeductionSingle" /></Default>
         </Switch>
@@ -129,6 +147,26 @@
               </Add>
             </Then>
           </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nyTaxableIncome" /></Left>
+                <Right><Dollar>80650</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>600</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nyTaxableIncome" />
+                    <Dollar>13900</Dollar>
+                  </Subtract>
+                  <Decimal>0.0585</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
           <Default>
             <Multiply>
               <Dependency path="/nyTaxableIncome" />
@@ -139,15 +177,363 @@
       </Derived>
     </Fact>
 
+    <!-- ======================= -->
+    <!-- NY EITC (30% of Federal) -->
+    <!-- ======================= -->
+    <Fact path="/nyEITCRate">
+      <Name>NY EITC Rate</Name>
+      <Description>New York EITC as percentage of federal (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyEarnedIncomeCredit">
+      <Name>NY Earned Income Credit</Name>
+      <Description>New York Earned Income Credit (30% of federal EIC).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/earnedIncomeCredit" />
+          <Dependency path="/nyEITCRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NY CHILD AND DEPENDENT CARE CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/nyChildCareAGIThreshold">
+      <Name>NY Child Care AGI Threshold</Name>
+      <Description>NY AGI threshold for child care credit calculation ($65,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>65000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyChildCareCreditRate">
+      <Name>NY Child Care Credit Rate</Name>
+      <Description>New York Child and Dependent Care Credit rate (110% of federal for AGI under $65k, scales down).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                <Right><Dependency path="/nyChildCareAGIThreshold" /></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Decimal>1.10</Decimal></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Decimal>0.75</Decimal></Then>
+          </Case>
+          <Default><Decimal>0.20</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyChildCareCredit">
+      <Name>NY Child and Dependent Care Credit</Name>
+      <Description>New York Child and Dependent Care Credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/childAndDependentCareCredit" />
+          <Dependency path="/nyChildCareCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NY COLLEGE TUITION CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/nyCollegeTuitionPaid">
+      <Name>NY College Tuition Paid</Name>
+      <Description>Qualified college tuition expenses paid for NY residents.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/nyCollegeTuitionMaxExpenses">
+      <Name>NY College Tuition Max Expenses</Name>
+      <Description>Maximum qualifying tuition for NY credit ($10,000 per student).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyCollegeTuitionCreditRate">
+      <Name>NY College Tuition Credit Rate</Name>
+      <Description>NY college tuition credit rate (4%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.04</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyCollegeTuitionCredit">
+      <Name>NY College Tuition Credit</Name>
+      <Description>New York College Tuition Credit (max $400 per student).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/nyCollegeTuitionPaid" />
+            <Dependency path="/nyCollegeTuitionMaxExpenses" />
+          </Min>
+          <Dependency path="/nyCollegeTuitionCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NYC SCHOOL TAX CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/nyIsNYCResident">
+      <Name>NY Is NYC Resident</Name>
+      <Description>Whether taxpayer is a New York City resident.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/nycSchoolTaxCreditSingle">
+      <Name>NYC School Tax Credit Single</Name>
+      <Description>NYC School Tax Credit for single filers ($63).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>63</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nycSchoolTaxCreditMFJ">
+      <Name>NYC School Tax Credit MFJ</Name>
+      <Description>NYC School Tax Credit for MFJ filers ($125).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>125</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nycSchoolTaxCreditAGILimit">
+      <Name>NYC School Tax Credit AGI Limit</Name>
+      <Description>NYC School Tax Credit AGI limit ($250,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>250000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nycSchoolTaxCreditEligible">
+      <Name>NYC School Tax Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for NYC School Tax Credit.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/nyIsNYCResident" />
+          <LessThan>
+            <Left><Dependency path="/adjustedGrossIncome" /></Left>
+            <Right><Dependency path="/nycSchoolTaxCreditAGILimit" /></Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nycSchoolTaxCredit">
+      <Name>NYC School Tax Credit</Name>
+      <Description>New York City School Tax Credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/nycSchoolTaxCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/nycSchoolTaxCreditMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/nycSchoolTaxCreditSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NY REAL PROPERTY TAX CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/nyRealPropertyTaxPaid">
+      <Name>NY Real Property Tax Paid</Name>
+      <Description>Real property taxes paid on NY residence.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/nyRPTCAGILimitSingle">
+      <Name>NY RPTC AGI Limit Single</Name>
+      <Description>NY Real Property Tax Credit AGI limit for single ($18,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>18000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyRPTCAGILimitMFJ">
+      <Name>NY RPTC AGI Limit MFJ</Name>
+      <Description>NY Real Property Tax Credit AGI limit for MFJ ($32,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>32000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyRPTCMaxCredit">
+      <Name>NY RPTC Max Credit</Name>
+      <Description>NY Real Property Tax Credit maximum amount ($350).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>350</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyRealPropertyTaxCreditEligible">
+      <Name>NY Real Property Tax Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for NY Real Property Tax Credit.</Description>
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left><Dependency path="/nyRealPropertyTaxPaid" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <Switch>
+            <Case>
+              <When>
+                <Equal>
+                  <Left><Dependency path="/filingStatus" /></Left>
+                  <Right><String>MFJ</String></Right>
+                </Equal>
+              </When>
+              <Then>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                  <Right><Dependency path="/nyRPTCAGILimitMFJ" /></Right>
+                </LessThanOrEqual>
+              </Then>
+            </Case>
+            <Default>
+              <LessThanOrEqual>
+                <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                <Right><Dependency path="/nyRPTCAGILimitSingle" /></Right>
+              </LessThanOrEqual>
+            </Default>
+          </Switch>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyExcessPropertyTax">
+      <Name>NY Excess Property Tax</Name>
+      <Description>Property tax exceeding 6% of income for RPTC calculation.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/nyRealPropertyTaxPaid" />
+            <Multiply>
+              <Dependency path="/adjustedGrossIncome" />
+              <Decimal>0.06</Decimal>
+            </Multiply>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyRealPropertyTaxCredit">
+      <Name>NY Real Property Tax Credit</Name>
+      <Description>New York Real Property Tax Credit for homeowners with low income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/nyRealPropertyTaxCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Min>
+              <Dependency path="/nyRPTCMaxCredit" />
+              <Multiply>
+                <Dependency path="/nyExcessPropertyTax" />
+                <Decimal>0.50</Decimal>
+              </Multiply>
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NY TOTAL CREDITS -->
+    <!-- ======================= -->
+    <Fact path="/nyTotalCredits">
+      <Name>NY Total Credits</Name>
+      <Description>Total New York tax credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/nyEarnedIncomeCredit" />
+          <Add>
+            <Dependency path="/nyChildCareCredit" />
+            <Add>
+              <Dependency path="/nyCollegeTuitionCredit" />
+              <Add>
+                <Dependency path="/nycSchoolTaxCredit" />
+                <Dependency path="/nyRealPropertyTaxCredit" />
+              </Add>
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
     <!-- NY Net Tax -->
     <Fact path="/nyNetTax">
       <Name>NY Net Tax</Name>
       <Description>New York net tax after credits.</Description>
+      <Export mef="true" />
       <Derived>
         <Max>
-          <Dependency path="/nyIncomeTax" />
+          <Subtract>
+            <Dependency path="/nyIncomeTax" />
+            <Dependency path="/nyTotalCredits" />
+          </Subtract>
           <Dollar>0</Dollar>
         </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NY Refundable Credits (EITC is refundable) -->
+    <Fact path="/nyRefundableCredits">
+      <Name>NY Refundable Credits</Name>
+      <Description>Total New York refundable credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/nyEarnedIncomeCredit" />
+          <Dependency path="/nyRealPropertyTaxCredit" />
+        </Add>
       </Derived>
     </Fact>
 

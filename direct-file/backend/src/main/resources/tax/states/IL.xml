@@ -124,7 +124,7 @@
     <!-- IL Line 12 - Illinois Income Tax -->
     <Fact path="/ilLine12">
       <Name>IL Line 12</Name>
-      <Description>Illinois income tax (Line 11 × 4.95%).</Description>
+      <Description>Illinois income tax (Line 11 x 4.95%).</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
         <Multiply>
@@ -134,7 +134,9 @@
       </Derived>
     </Fact>
 
-    <!-- IL EIC - 20% of federal EIC -->
+    <!-- ======================= -->
+    <!-- IL EITC - 20% of Federal EIC -->
+    <!-- ======================= -->
     <Fact path="/ilEICRate">
       <Name>IL EIC Rate</Name>
       <Description>Illinois EIC as percentage of federal (20%).</Description>
@@ -146,7 +148,8 @@
 
     <Fact path="/ilEarnedIncomeCredit">
       <Name>IL Earned Income Credit</Name>
-      <Description>Illinois Earned Income Credit.</Description>
+      <Description>Illinois Earned Income Credit (20% of federal EIC).</Description>
+      <Export mef="true" />
       <Derived>
         <Multiply>
           <Dependency path="/earnedIncomeCredit" />
@@ -155,12 +158,173 @@
       </Derived>
     </Fact>
 
-    <!-- IL Total Credits -->
+    <!-- ======================= -->
+    <!-- IL PROPERTY TAX CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/ilPropertyTaxPaid">
+      <Name>IL Property Tax Paid</Name>
+      <Description>Property taxes paid on principal residence in Illinois.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/ilPropertyTaxCreditRate">
+      <Name>IL Property Tax Credit Rate</Name>
+      <Description>Illinois property tax credit rate (5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.05</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilPropertyTaxCredit">
+      <Name>IL Property Tax Credit</Name>
+      <Description>Illinois Property Tax Credit (5% of property taxes paid on principal residence).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/ilPropertyTaxPaid" />
+          <Dependency path="/ilPropertyTaxCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- IL EDUCATION EXPENSE CREDIT (K-12) -->
+    <!-- ======================= -->
+    <Fact path="/ilK12Expenses">
+      <Name>IL K-12 Education Expenses</Name>
+      <Description>Qualified K-12 education expenses for Illinois residents.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/ilEducationExpenseMaxPerStudent">
+      <Name>IL Education Expense Max Per Student</Name>
+      <Description>Maximum qualifying K-12 expenses per student ($750).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>750</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilEducationExpenseCreditRate">
+      <Name>IL Education Expense Credit Rate</Name>
+      <Description>Illinois K-12 education expense credit rate (25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.25</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilNumberOfK12Students">
+      <Name>IL Number of K-12 Students</Name>
+      <Description>Number of K-12 students in household.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/ilEducationExpenseMaxTotal">
+      <Name>IL Education Expense Max Total</Name>
+      <Description>Total maximum qualifying K-12 expenses.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/ilEducationExpenseMaxPerStudent" />
+          <Dependency path="/ilNumberOfK12Students" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilEducationExpenseCredit">
+      <Name>IL Education Expense Credit</Name>
+      <Description>Illinois K-12 Education Expense Credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/ilK12Expenses" />
+            <Dependency path="/ilEducationExpenseMaxTotal" />
+          </Min>
+          <Dependency path="/ilEducationExpenseCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- IL ADOPTION CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/ilAdoptionExpenses">
+      <Name>IL Adoption Expenses</Name>
+      <Description>Qualified adoption expenses paid in Illinois.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/ilAdoptedChild">
+      <Name>IL Adopted Child</Name>
+      <Description>Whether taxpayer legally adopted a child during the tax year.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/ilAdoptionCreditMaxAmount">
+      <Name>IL Adoption Credit Max Amount</Name>
+      <Description>Maximum Illinois Adoption Credit ($5,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilAdoptionCreditEligible">
+      <Name>IL Adoption Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for Illinois Adoption Credit.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/ilAdoptedChild" />
+          <GreaterThan>
+            <Left><Dependency path="/ilAdoptionExpenses" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilAdoptionCredit">
+      <Name>IL Adoption Credit</Name>
+      <Description>Illinois Adoption Credit for qualified adoption expenses.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/ilAdoptionCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Min>
+              <Dependency path="/ilAdoptionExpenses" />
+              <Dependency path="/ilAdoptionCreditMaxAmount" />
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- IL TOTAL CREDITS -->
+    <!-- ======================= -->
     <Fact path="/ilTotalCredits">
       <Name>IL Total Credits</Name>
       <Description>Total Illinois credits.</Description>
+      <Export mef="true" />
       <Derived>
-        <Dependency path="/ilEarnedIncomeCredit" />
+        <Add>
+          <Dependency path="/ilEarnedIncomeCredit" />
+          <Add>
+            <Dependency path="/ilPropertyTaxCredit" />
+            <Add>
+              <Dependency path="/ilEducationExpenseCredit" />
+              <Dependency path="/ilAdoptionCredit" />
+            </Add>
+          </Add>
+        </Add>
       </Derived>
     </Fact>
 
@@ -168,6 +332,7 @@
     <Fact path="/ilNetTax">
       <Name>IL Net Tax</Name>
       <Description>Illinois net tax after credits.</Description>
+      <Export mef="true" />
       <Derived>
         <Max>
           <Subtract>
@@ -176,6 +341,16 @@
           </Subtract>
           <Dollar>0</Dollar>
         </Max>
+      </Derived>
+    </Fact>
+
+    <!-- IL Refundable Credits (IL EIC is refundable) -->
+    <Fact path="/ilRefundableCredits">
+      <Name>IL Refundable Credits</Name>
+      <Description>Total Illinois refundable credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/ilEarnedIncomeCredit" />
       </Derived>
     </Fact>
 

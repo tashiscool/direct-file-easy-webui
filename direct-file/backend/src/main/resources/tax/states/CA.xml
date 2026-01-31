@@ -185,7 +185,8 @@
     <!-- CA Mental Health Tax (1% on income over $1M) -->
     <Fact path="/caMentalHealthTax">
       <Name>CA Mental Health Tax</Name>
-      <Description>California 1% mental health tax on income over $1M.</Description>
+      <Description>California 1% mental health services tax on income over $1M.</Description>
+      <Export mef="true" />
       <Derived>
         <Switch>
           <Case>
@@ -210,10 +211,381 @@
       </Derived>
     </Fact>
 
+    <!-- ======================= -->
+    <!-- CA RENTER'S CREDIT -->
+    <!-- ======================= -->
+    <!-- CA Renter's Credit - $60 single / $120 MFJ if AGI below threshold -->
+    <Fact path="/caRentersIsRenter">
+      <Name>CA Is Renter</Name>
+      <Description>Whether taxpayer rents their primary residence in California.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/caRentersCreditAmountSingle">
+      <Name>CA Renter's Credit Single Amount</Name>
+      <Description>California Renter's Credit amount for single filers ($60).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>60</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caRentersCreditAmountMFJ">
+      <Name>CA Renter's Credit MFJ Amount</Name>
+      <Description>California Renter's Credit amount for MFJ filers ($120).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>120</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caRentersCreditAGILimitSingle">
+      <Name>CA Renter's Credit AGI Limit Single</Name>
+      <Description>California Renter's Credit AGI limit for single filers ($50,746).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50746</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caRentersCreditAGILimitMFJ">
+      <Name>CA Renter's Credit AGI Limit MFJ</Name>
+      <Description>California Renter's Credit AGI limit for MFJ filers ($101,492).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>101492</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caRentersCreditEligible">
+      <Name>CA Renter's Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for California Renter's Credit.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/caRentersIsRenter" />
+          <Switch>
+            <Case>
+              <When>
+                <Equal>
+                  <Left><Dependency path="/filingStatus" /></Left>
+                  <Right><String>MFJ</String></Right>
+                </Equal>
+              </When>
+              <Then>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                  <Right><Dependency path="/caRentersCreditAGILimitMFJ" /></Right>
+                </LessThanOrEqual>
+              </Then>
+            </Case>
+            <Default>
+              <LessThanOrEqual>
+                <Left><Dependency path="/adjustedGrossIncome" /></Left>
+                <Right><Dependency path="/caRentersCreditAGILimitSingle" /></Right>
+              </LessThanOrEqual>
+            </Default>
+          </Switch>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caRentersCredit">
+      <Name>CA Renter's Credit</Name>
+      <Description>California Renter's Credit amount.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/caRentersCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/caRentersCreditAmountMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/caRentersCreditAmountSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- CA CHILD AND DEPENDENT CARE CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/caChildCareExpenses">
+      <Name>CA Child Care Expenses</Name>
+      <Description>Qualified child and dependent care expenses for California.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/caChildCareMaxExpensesSingle">
+      <Name>CA Child Care Max Expenses Single</Name>
+      <Description>Maximum qualifying expenses for one dependent ($3,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caChildCareMaxExpensesTwo">
+      <Name>CA Child Care Max Expenses Two+</Name>
+      <Description>Maximum qualifying expenses for two or more dependents ($6,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caChildCareCreditRate">
+      <Name>CA Child Care Credit Rate</Name>
+      <Description>California Child and Dependent Care Credit rate (50% of federal rate).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caChildCareCredit">
+      <Name>CA Child and Dependent Care Credit</Name>
+      <Description>California Child and Dependent Care Credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/childAndDependentCareCredit" />
+          <Dependency path="/caChildCareCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- CA EITC (California Earned Income Tax Credit) -->
+    <!-- ======================= -->
+    <Fact path="/caEITCMaxIncome">
+      <Name>CA EITC Max Income</Name>
+      <Description>California EITC maximum earned income threshold ($31,950 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>31950</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCMaxCreditNoKids">
+      <Name>CA EITC Max Credit No Kids</Name>
+      <Description>California EITC maximum credit with no qualifying children ($298).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>298</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCMaxCreditOneKid">
+      <Name>CA EITC Max Credit One Kid</Name>
+      <Description>California EITC maximum credit with one qualifying child ($1,893).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1893</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCMaxCreditTwoKids">
+      <Name>CA EITC Max Credit Two Kids</Name>
+      <Description>California EITC maximum credit with two qualifying children ($3,131).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3131</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCMaxCreditThreePlusKids">
+      <Name>CA EITC Max Credit Three+ Kids</Name>
+      <Description>California EITC maximum credit with three+ qualifying children ($3,529).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3529</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCEligible">
+      <Name>CA EITC Eligible</Name>
+      <Description>Whether taxpayer is eligible for California Earned Income Tax Credit.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasCA540" />
+          <LessThanOrEqual>
+            <Left><Dependency path="/earnedIncome" /></Left>
+            <Right><Dependency path="/caEITCMaxIncome" /></Right>
+          </LessThanOrEqual>
+          <GreaterThan>
+            <Left><Dependency path="/earnedIncome" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEITCMaxCreditAmount">
+      <Name>CA EITC Max Credit Amount</Name>
+      <Description>California EITC maximum credit based on number of qualifying children.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/qualifyingChildrenForEIC" /></Left>
+                <Right><Integer>3</Integer></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then><Dependency path="/caEITCMaxCreditThreePlusKids" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/qualifyingChildrenForEIC" /></Left>
+                <Right><Integer>2</Integer></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/caEITCMaxCreditTwoKids" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/qualifyingChildrenForEIC" /></Left>
+                <Right><Integer>1</Integer></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/caEITCMaxCreditOneKid" /></Then>
+          </Case>
+          <Default><Dependency path="/caEITCMaxCreditNoKids" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caEarnedIncomeCredit">
+      <Name>CA Earned Income Credit</Name>
+      <Description>California Earned Income Tax Credit (CalEITC).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/caEITCEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Min>
+              <Dependency path="/caEITCMaxCreditAmount" />
+              <Multiply>
+                <Dependency path="/earnedIncome" />
+                <Decimal>0.085</Decimal>
+              </Multiply>
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- CA YOUNG CHILD TAX CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/caYCTCHasYoungChild">
+      <Name>CA YCTC Has Young Child</Name>
+      <Description>Whether taxpayer has a qualifying child under age 6.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/caYCTCMaxCredit">
+      <Name>CA YCTC Max Credit</Name>
+      <Description>California Young Child Tax Credit maximum amount ($1,117).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1117</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caYCTCEligible">
+      <Name>CA YCTC Eligible</Name>
+      <Description>Whether taxpayer is eligible for Young Child Tax Credit (requires CalEITC eligibility and child under 6).</Description>
+      <Derived>
+        <All>
+          <Dependency path="/caEITCEligible" />
+          <Dependency path="/caYCTCHasYoungChild" />
+          <GreaterThan>
+            <Left><Dependency path="/caEarnedIncomeCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caYoungChildTaxCredit">
+      <Name>CA Young Child Tax Credit</Name>
+      <Description>California Young Child Tax Credit for families with children under 6.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/caYCTCEligible" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/caYCTCMaxCredit" />
+                <Max>
+                  <Subtract>
+                    <Dependency path="/caYCTCMaxCredit" />
+                    <Multiply>
+                      <Subtract>
+                        <Dependency path="/earnedIncome" />
+                        <Dollar>25000</Dollar>
+                      </Subtract>
+                      <Decimal>0.05</Decimal>
+                    </Multiply>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </Max>
+              </Min>
+            </Then>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- CA TOTAL CREDITS -->
+    <!-- ======================= -->
+    <Fact path="/caTotalCredits">
+      <Name>CA Total Credits</Name>
+      <Description>Total California tax credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/caExemptionCredit" />
+          <Add>
+            <Dependency path="/caRentersCredit" />
+            <Add>
+              <Dependency path="/caChildCareCredit" />
+              <Add>
+                <Dependency path="/caEarnedIncomeCredit" />
+                <Dependency path="/caYoungChildTaxCredit" />
+              </Add>
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
     <!-- CA Total Tax -->
     <Fact path="/caTotalTax">
       <Name>CA Total Tax</Name>
-      <Description>Total California tax.</Description>
+      <Description>Total California tax before credits.</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
         <Add>
@@ -226,15 +598,29 @@
     <!-- CA Net Tax After Credits -->
     <Fact path="/caNetTax">
       <Name>CA Net Tax</Name>
-      <Description>California net tax after exemption credit.</Description>
+      <Description>California net tax after all credits.</Description>
+      <Export mef="true" />
       <Derived>
         <Max>
           <Subtract>
             <Dependency path="/caTotalTax" />
-            <Dependency path="/caExemptionCredit" />
+            <Dependency path="/caTotalCredits" />
           </Subtract>
           <Dollar>0</Dollar>
         </Max>
+      </Derived>
+    </Fact>
+
+    <!-- CA Refundable Credits (CalEITC and YCTC are refundable) -->
+    <Fact path="/caRefundableCredits">
+      <Name>CA Refundable Credits</Name>
+      <Description>Total California refundable credits (CalEITC + YCTC).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/caEarnedIncomeCredit" />
+          <Dependency path="/caYoungChildTaxCredit" />
+        </Add>
       </Derived>
     </Fact>
 

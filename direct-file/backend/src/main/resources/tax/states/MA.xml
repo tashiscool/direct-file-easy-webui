@@ -54,6 +54,15 @@
       </Derived>
     </Fact>
 
+    <Fact path="/maPersonalExemptionHOH">
+      <Name>MA Personal Exemption HOH</Name>
+      <Description>Massachusetts personal exemption HOH ($6,800).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6800</Dollar>
+      </Derived>
+    </Fact>
+
     <Fact path="/maPersonalExemption">
       <Name>MA Personal Exemption</Name>
       <Description>Massachusetts personal exemption based on filing status.</Description>
@@ -68,8 +77,87 @@
             </When>
             <Then><Dependency path="/maPersonalExemptionMFJ" /></Then>
           </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>HOH</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maPersonalExemptionHOH" /></Then>
+          </Case>
           <Default><Dependency path="/maPersonalExemptionSingle" /></Default>
         </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- MA NO TAX STATUS -->
+    <!-- ======================= -->
+    <Fact path="/maNoTaxStatusThresholdSingle">
+      <Name>MA No Tax Status Threshold Single</Name>
+      <Description>Massachusetts no tax status income threshold for single ($8,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maNoTaxStatusThresholdMFJ">
+      <Name>MA No Tax Status Threshold MFJ</Name>
+      <Description>Massachusetts no tax status income threshold for MFJ ($14,400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14400</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maNoTaxStatusThresholdHOH">
+      <Name>MA No Tax Status Threshold HOH</Name>
+      <Description>Massachusetts no tax status income threshold for HOH ($14,400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14400</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maNoTaxStatusThreshold">
+      <Name>MA No Tax Status Threshold</Name>
+      <Description>Massachusetts no tax status threshold based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maNoTaxStatusThresholdMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>HOH</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maNoTaxStatusThresholdHOH" /></Then>
+          </Case>
+          <Default><Dependency path="/maNoTaxStatusThresholdSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maNoTaxStatusEligible">
+      <Name>MA No Tax Status Eligible</Name>
+      <Description>Whether taxpayer qualifies for Massachusetts no tax status.</Description>
+      <Export mef="true" />
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/adjustedGrossIncome" /></Left>
+          <Right><Dependency path="/maNoTaxStatusThreshold" /></Right>
+        </LessThanOrEqual>
       </Derived>
     </Fact>
 
@@ -78,13 +166,23 @@
       <Name>MA Taxable Income</Name>
       <Description>Massachusetts taxable income.</Description>
       <Derived>
-        <Max>
-          <Subtract>
-            <Dependency path="/adjustedGrossIncome" />
-            <Dependency path="/maPersonalExemption" />
-          </Subtract>
-          <Dollar>0</Dollar>
-        </Max>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/maNoTaxStatusEligible" />
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Max>
+              <Subtract>
+                <Dependency path="/adjustedGrossIncome" />
+                <Dependency path="/maPersonalExemption" />
+              </Subtract>
+              <Dollar>0</Dollar>
+            </Max>
+          </Default>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -128,16 +226,304 @@
       </Derived>
     </Fact>
 
-    <!-- MA Total Tax -->
+    <!-- MA Total Tax (before credits) -->
     <Fact path="/maTotalTax">
       <Name>MA Total Tax</Name>
-      <Description>Massachusetts total income tax.</Description>
+      <Description>Massachusetts total income tax before credits.</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
         <Add>
           <Dependency path="/maBaseTax" />
           <Dependency path="/maMillionaireTax" />
         </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- MA DEPENDENT CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/maDependentCreditPerDependent">
+      <Name>MA Dependent Credit Per Dependent</Name>
+      <Description>Massachusetts credit per dependent ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maDependentCredit">
+      <Name>MA Dependent Credit</Name>
+      <Description>Massachusetts Dependent Credit ($1,000 per dependent).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/numberOfDependents" />
+          <Dependency path="/maDependentCreditPerDependent" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- MA SENIOR CIRCUIT BREAKER CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/maSeniorAge">
+      <Name>MA Senior Age</Name>
+      <Description>Taxpayer age for senior circuit breaker (must be 65+).</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/maSeniorPropertyTaxPaid">
+      <Name>MA Senior Property Tax Paid</Name>
+      <Description>Property taxes paid on principal residence (for circuit breaker).</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/maSeniorRentPaid">
+      <Name>MA Senior Rent Paid</Name>
+      <Description>Rent paid on principal residence (25% counted as property tax for circuit breaker).</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/maSeniorIsHomeowner">
+      <Name>MA Senior Is Homeowner</Name>
+      <Description>Whether senior taxpayer is a homeowner.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerMaxCredit">
+      <Name>MA Circuit Breaker Max Credit</Name>
+      <Description>Maximum senior circuit breaker credit ($2,590).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2590</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerAGILimitSingle">
+      <Name>MA Circuit Breaker AGI Limit Single</Name>
+      <Description>AGI limit for single seniors ($69,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>69000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerAGILimitMFJ">
+      <Name>MA Circuit Breaker AGI Limit MFJ</Name>
+      <Description>AGI limit for MFJ seniors ($103,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>103000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerAGILimitHOH">
+      <Name>MA Circuit Breaker AGI Limit HOH</Name>
+      <Description>AGI limit for HOH seniors ($86,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>86000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerAGILimit">
+      <Name>MA Circuit Breaker AGI Limit</Name>
+      <Description>AGI limit for circuit breaker based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maCircuitBreakerAGILimitMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>HOH</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maCircuitBreakerAGILimitHOH" /></Then>
+          </Case>
+          <Default><Dependency path="/maCircuitBreakerAGILimitSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerEligible">
+      <Name>MA Circuit Breaker Eligible</Name>
+      <Description>Whether taxpayer is eligible for senior circuit breaker credit.</Description>
+      <Derived>
+        <All>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/maSeniorAge" /></Left>
+            <Right><Integer>65</Integer></Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="/adjustedGrossIncome" /></Left>
+            <Right><Dependency path="/maCircuitBreakerAGILimit" /></Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maSeniorPropertyTaxEquivalent">
+      <Name>MA Senior Property Tax Equivalent</Name>
+      <Description>Property tax or 25% of rent for circuit breaker calculation.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/maSeniorIsHomeowner" />
+            </When>
+            <Then><Dependency path="/maSeniorPropertyTaxPaid" /></Then>
+          </Case>
+          <Default>
+            <Multiply>
+              <Dependency path="/maSeniorRentPaid" />
+              <Decimal>0.25</Decimal>
+            </Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maCircuitBreakerThreshold">
+      <Name>MA Circuit Breaker Threshold</Name>
+      <Description>10% of income threshold for circuit breaker.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/adjustedGrossIncome" />
+          <Decimal>0.10</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maSeniorCircuitBreakerCredit">
+      <Name>MA Senior Circuit Breaker Credit</Name>
+      <Description>Massachusetts Senior Circuit Breaker Credit for property tax relief.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/maCircuitBreakerEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Min>
+              <Dependency path="/maCircuitBreakerMaxCredit" />
+              <Max>
+                <Subtract>
+                  <Dependency path="/maSeniorPropertyTaxEquivalent" />
+                  <Dependency path="/maCircuitBreakerThreshold" />
+                </Subtract>
+                <Dollar>0</Dollar>
+              </Max>
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- MA SEPTIC SYSTEM CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/maSepticRepairExpenses">
+      <Name>MA Septic Repair Expenses</Name>
+      <Description>Expenses paid for septic system repair or replacement.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/maSepticCreditMaxAnnual">
+      <Name>MA Septic Credit Max Annual</Name>
+      <Description>Maximum annual septic system credit ($1,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maSepticCreditRate">
+      <Name>MA Septic Credit Rate</Name>
+      <Description>Septic system credit rate (40% of expenses).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maSepticSystemCredit">
+      <Name>MA Septic System Credit</Name>
+      <Description>Massachusetts Septic System Credit for repair or replacement.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/maSepticCreditMaxAnnual" />
+          <Multiply>
+            <Dependency path="/maSepticRepairExpenses" />
+            <Dependency path="/maSepticCreditRate" />
+          </Multiply>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- MA TOTAL CREDITS -->
+    <!-- ======================= -->
+    <Fact path="/maTotalCredits">
+      <Name>MA Total Credits</Name>
+      <Description>Total Massachusetts tax credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/maDependentCredit" />
+          <Add>
+            <Dependency path="/maSeniorCircuitBreakerCredit" />
+            <Dependency path="/maSepticSystemCredit" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- MA Net Tax After Credits -->
+    <Fact path="/maNetTax">
+      <Name>MA Net Tax</Name>
+      <Description>Massachusetts net tax after credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/maNoTaxStatusEligible" />
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Max>
+              <Subtract>
+                <Dependency path="/maTotalTax" />
+                <Dependency path="/maTotalCredits" />
+              </Subtract>
+              <Dollar>0</Dollar>
+            </Max>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MA Refundable Credits (Circuit Breaker is refundable) -->
+    <Fact path="/maRefundableCredits">
+      <Name>MA Refundable Credits</Name>
+      <Description>Total Massachusetts refundable credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/maSeniorCircuitBreakerCredit" />
       </Derived>
     </Fact>
 
@@ -149,7 +535,7 @@
           <Not><Dependency path="/hasMA1" /></Not>
           <All>
             <Dependency path="/hasMA1" />
-            <IsComplete><Dependency path="/maTotalTax" /></IsComplete>
+            <IsComplete><Dependency path="/maNetTax" /></IsComplete>
           </All>
         </Any>
       </Derived>

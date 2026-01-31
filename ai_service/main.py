@@ -45,6 +45,7 @@ app = FastAPI(
     - **Chat**: Conversational tax assistance
     - **Document Scanning**: OCR for W-2, 1099, and other tax documents
     - **Brokerage Import**: CSV import from major brokerages for Form 8949
+    - **Cryptocurrency**: Import from exchanges, calculate gains/losses, Form 8949 generation
     - **Cost Basis Tracking**: Multi-year investment tracking
     - **What-If Scenarios**: Tax impact analysis for financial decisions
     - **Prior Year Import**: Import prior year data with carry-forward
@@ -80,10 +81,16 @@ app.add_middleware(
 from .routes.explainer import router as explainer_router
 from .routes.documents import router as documents_router
 from .routes.planning import router as planning_router
+from .routes.crypto import router as crypto_router
+from .routes.state_forms import router as state_forms_router
+from .routes.efile import router as efile_router
 
 app.include_router(explainer_router)
 app.include_router(documents_router)
 app.include_router(planning_router)
+app.include_router(crypto_router)
+app.include_router(state_forms_router)
+app.include_router(efile_router)
 
 
 @app.get("/")

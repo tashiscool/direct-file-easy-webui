@@ -81,6 +81,46 @@
               </Add>
             </Then>
           </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/njTaxableIncome" /></Left>
+                <Right><Dollar>40000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>543</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/njTaxableIncome" />
+                    <Dollar>35000</Dollar>
+                  </Subtract>
+                  <Decimal>0.035</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/njTaxableIncome" /></Left>
+                <Right><Dollar>75000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>718</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/njTaxableIncome" />
+                    <Dollar>40000</Dollar>
+                  </Subtract>
+                  <Decimal>0.05525</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
           <Default>
             <Multiply>
               <Dependency path="/njTaxableIncome" />
@@ -91,15 +131,390 @@
       </Derived>
     </Fact>
 
+    <!-- ======================= -->
+    <!-- NJ EITC - 40% of Federal EIC -->
+    <!-- ======================= -->
+    <Fact path="/njEITCRate">
+      <Name>NJ EITC Rate</Name>
+      <Description>New Jersey EITC as percentage of federal (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njEarnedIncomeCredit">
+      <Name>NJ Earned Income Credit</Name>
+      <Description>New Jersey Earned Income Tax Credit (40% of federal EIC).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/earnedIncomeCredit" />
+          <Dependency path="/njEITCRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NJ PROPERTY TAX DEDUCTION/CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/njPropertyTaxPaid">
+      <Name>NJ Property Tax Paid</Name>
+      <Description>Property taxes paid on principal residence in New Jersey.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/njRentPaid">
+      <Name>NJ Rent Paid</Name>
+      <Description>Rent paid for principal residence in New Jersey.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/njIsHomeowner">
+      <Name>NJ Is Homeowner</Name>
+      <Description>Whether taxpayer is a homeowner in New Jersey.</Description>
+      <Placeholder>false</Placeholder>
+    </Fact>
+
+    <Fact path="/njPropertyTaxDeductionMax">
+      <Name>NJ Property Tax Deduction Max</Name>
+      <Description>Maximum NJ property tax deduction ($15,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>15000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPropertyTaxDeduction">
+      <Name>NJ Property Tax Deduction</Name>
+      <Description>New Jersey property tax deduction (up to $15,000).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/njIsHomeowner" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/njPropertyTaxPaid" />
+                <Dependency path="/njPropertyTaxDeductionMax" />
+              </Min>
+            </Then>
+          </Case>
+          <Default>
+            <!-- Renters can deduct 18% of rent as property tax equivalent -->
+            <Min>
+              <Multiply>
+                <Dependency path="/njRentPaid" />
+                <Decimal>0.18</Decimal>
+              </Multiply>
+              <Dependency path="/njPropertyTaxDeductionMax" />
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Property Tax Credit (for those with income under $150,000) -->
+    <Fact path="/njPropertyTaxCreditAGILimit">
+      <Name>NJ Property Tax Credit AGI Limit</Name>
+      <Description>AGI limit for NJ property tax credit ($150,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>150000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPropertyTaxCreditMaxHomeowner">
+      <Name>NJ Property Tax Credit Max Homeowner</Name>
+      <Description>Maximum NJ property tax credit for homeowners ($50).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPropertyTaxCreditMaxRenter">
+      <Name>NJ Property Tax Credit Max Renter</Name>
+      <Description>Maximum NJ property tax credit for renters ($50).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPropertyTaxCreditEligible">
+      <Name>NJ Property Tax Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for NJ property tax credit.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/adjustedGrossIncome" /></Left>
+          <Right><Dependency path="/njPropertyTaxCreditAGILimit" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPropertyTaxCredit">
+      <Name>NJ Property Tax Credit</Name>
+      <Description>New Jersey property tax credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/njPropertyTaxCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/njIsHomeowner" />
+            </When>
+            <Then><Dependency path="/njPropertyTaxCreditMaxHomeowner" /></Then>
+          </Case>
+          <Default><Dependency path="/njPropertyTaxCreditMaxRenter" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NJ CHILD AND DEPENDENT CARE CREDIT -->
+    <!-- ======================= -->
+    <Fact path="/njChildCareAGILimit">
+      <Name>NJ Child Care AGI Limit</Name>
+      <Description>AGI limit for NJ child care credit ($60,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>60000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njChildCareCreditRate">
+      <Name>NJ Child Care Credit Rate</Name>
+      <Description>New Jersey Child and Dependent Care Credit rate (50% of federal).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njChildCareCreditEligible">
+      <Name>NJ Child Care Credit Eligible</Name>
+      <Description>Whether taxpayer is eligible for NJ child care credit.</Description>
+      <Derived>
+        <All>
+          <LessThanOrEqual>
+            <Left><Dependency path="/adjustedGrossIncome" /></Left>
+            <Right><Dependency path="/njChildCareAGILimit" /></Right>
+          </LessThanOrEqual>
+          <GreaterThan>
+            <Left><Dependency path="/childAndDependentCareCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njChildCareCredit">
+      <Name>NJ Child and Dependent Care Credit</Name>
+      <Description>New Jersey Child and Dependent Care Credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/njChildCareCreditEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Multiply>
+              <Dependency path="/childAndDependentCareCredit" />
+              <Dependency path="/njChildCareCreditRate" />
+            </Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NJ PENSION EXCLUSION -->
+    <!-- ======================= -->
+    <Fact path="/njPensionIncome">
+      <Name>NJ Pension Income</Name>
+      <Description>Pension, annuity, and retirement income received.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/njTaxpayerAge">
+      <Name>NJ Taxpayer Age</Name>
+      <Description>Taxpayer's age at end of tax year.</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/njSpouseAge">
+      <Name>NJ Spouse Age</Name>
+      <Description>Spouse's age at end of tax year (if MFJ).</Description>
+      <Placeholder>0</Placeholder>
+    </Fact>
+
+    <Fact path="/njPensionExclusionAGILimit">
+      <Name>NJ Pension Exclusion AGI Limit</Name>
+      <Description>AGI limit for pension exclusion ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPensionExclusionMaxSingle">
+      <Name>NJ Pension Exclusion Max Single</Name>
+      <Description>Maximum pension exclusion for single filers age 62+ ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPensionExclusionMaxMFJ">
+      <Name>NJ Pension Exclusion Max MFJ</Name>
+      <Description>Maximum pension exclusion for MFJ filers ($150,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>150000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPensionExclusionEligible">
+      <Name>NJ Pension Exclusion Eligible</Name>
+      <Description>Whether taxpayer is eligible for NJ pension exclusion (age 62+).</Description>
+      <Derived>
+        <All>
+          <LessThanOrEqual>
+            <Left><Dependency path="/adjustedGrossIncome" /></Left>
+            <Right><Dependency path="/njPensionExclusionAGILimit" /></Right>
+          </LessThanOrEqual>
+          <Any>
+            <GreaterThanOrEqual>
+              <Left><Dependency path="/njTaxpayerAge" /></Left>
+              <Right><Integer>62</Integer></Right>
+            </GreaterThanOrEqual>
+            <All>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/njSpouseAge" /></Left>
+                <Right><Integer>62</Integer></Right>
+              </GreaterThanOrEqual>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPensionExclusionMax">
+      <Name>NJ Pension Exclusion Max</Name>
+      <Description>Maximum pension exclusion based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/njPensionExclusionMaxMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/njPensionExclusionMaxSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/njPensionExclusion">
+      <Name>NJ Pension Exclusion</Name>
+      <Description>New Jersey pension income exclusion for seniors.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/njPensionExclusionEligible" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Default>
+            <Min>
+              <Dependency path="/njPensionIncome" />
+              <Dependency path="/njPensionExclusionMax" />
+            </Min>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Adjusted Taxable Income (after deductions and exclusions) -->
+    <Fact path="/njAdjustedTaxableIncome">
+      <Name>NJ Adjusted Taxable Income</Name>
+      <Description>New Jersey taxable income after deductions and exclusions.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/njTaxableIncome" />
+            <Add>
+              <Dependency path="/njPropertyTaxDeduction" />
+              <Dependency path="/njPensionExclusion" />
+            </Add>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ======================= -->
+    <!-- NJ TOTAL CREDITS -->
+    <!-- ======================= -->
+    <Fact path="/njTotalCredits">
+      <Name>NJ Total Credits</Name>
+      <Description>Total New Jersey credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/njEarnedIncomeCredit" />
+          <Add>
+            <Dependency path="/njPropertyTaxCredit" />
+            <Dependency path="/njChildCareCredit" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
     <!-- NJ Net Tax -->
     <Fact path="/njNetTax">
       <Name>NJ Net Tax</Name>
-      <Description>New Jersey net tax.</Description>
+      <Description>New Jersey net tax after credits.</Description>
+      <Export mef="true" />
       <Derived>
         <Max>
-          <Dependency path="/njIncomeTax" />
+          <Subtract>
+            <Dependency path="/njIncomeTax" />
+            <Dependency path="/njTotalCredits" />
+          </Subtract>
           <Dollar>0</Dollar>
         </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Refundable Credits (NJ EIC is refundable) -->
+    <Fact path="/njRefundableCredits">
+      <Name>NJ Refundable Credits</Name>
+      <Description>Total New Jersey refundable credits.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/njEarnedIncomeCredit" />
       </Derived>
     </Fact>
 
