@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Florida: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFLReturn">
+      <Name>Has FL Return</Name>
+      <Description>Florida has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flNoIncomeTax">
+      <Name>FL No Income Tax</Name>
+      <Description>Florida does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>FL</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flFilingRequired">
+      <Name>FL Filing Required</Name>
+      <Description>No state filing required for Florida residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,432 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K-1 (Form 1041): Beneficiary's Share of Income, Deductions, Credits, etc. -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- BENEFICIARY INFORMATION (Part I)            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasScheduleK11041">
+      <Name>Has Schedule K-1</Name>
+      <Description>Whether taxpayer received Schedule K-1 from estate/trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/beneficiaryTIN">
+      <Name>Beneficiary TIN</Name>
+      <Description>Beneficiary's identifying number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/beneficiaryName">
+      <Name>Beneficiary Name</Name>
+      <Description>Beneficiary's name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/beneficiaryAddress">
+      <Name>Beneficiary Address</Name>
+      <Description>Beneficiary's address.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isForeignBeneficiary">
+      <Name>Is Foreign Beneficiary</Name>
+      <Description>Whether beneficiary is a foreign person.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ESTATE/TRUST INFORMATION (Part II)          -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryTIN">
+      <Name>Fiduciary TIN</Name>
+      <Description>Estate's or trust's EIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryName">
+      <Name>Fiduciary Name</Name>
+      <Description>Estate's or trust's name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isDecedentsEstate">
+      <Name>Is Decedent's Estate</Name>
+      <Description>Whether this is from a decedent's estate.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isSimpleTrust">
+      <Name>Is Simple Trust</Name>
+      <Description>Whether this is a simple trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isComplexTrust">
+      <Name>Is Complex Trust</Name>
+      <Description>Whether this is a complex trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isGrantorTrust">
+      <Name>Is Grantor Trust</Name>
+      <Description>Whether this is a grantor trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isBankruptcyEstate">
+      <Name>Is Bankruptcy Estate</Name>
+      <Description>Whether this is a bankruptcy estate.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isFinalK1">
+      <Name>Is Final K-1</Name>
+      <Description>Whether this is the final K-1 from this fiduciary.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: BENEFICIARY'S SHARE OF INCOME     -->
+    <!-- ============================================ -->
+
+    <Fact path="/k11041Interest">
+      <Name>Interest Income</Name>
+      <Description>Interest income (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041OrdinaryDividends">
+      <Name>Ordinary Dividends</Name>
+      <Description>Ordinary dividends (Line 2a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041QualifiedDividends">
+      <Name>Qualified Dividends</Name>
+      <Description>Qualified dividends (Line 2b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041NetShortTermCapGain">
+      <Name>Net Short-Term Capital Gain</Name>
+      <Description>Net short-term capital gain (Line 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041NetLongTermCapGain">
+      <Name>Net Long-Term Capital Gain</Name>
+      <Description>Net long-term capital gain (Line 4a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041Sec1250Gain">
+      <Name>Unrecaptured Section 1250 Gain</Name>
+      <Description>Unrecaptured section 1250 gain (Line 4b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041CollectiblesGain">
+      <Name>Collectibles Gain</Name>
+      <Description>28% rate gain (Line 4c).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041OtherPortfolioIncome">
+      <Name>Other Portfolio Income</Name>
+      <Description>Other portfolio and nonbusiness income (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041OrdinaryBusinessIncome">
+      <Name>Ordinary Business Income</Name>
+      <Description>Ordinary business income (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041NetRentalRealEstate">
+      <Name>Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041OtherRentalIncome">
+      <Name>Other Rental Income</Name>
+      <Description>Other rental income (Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041DirectlyApportionedDeductions">
+      <Name>Directly Apportioned Deductions</Name>
+      <Description>Directly apportioned deductions (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041EstateOrTrustDeductions">
+      <Name>Estate/Trust Deductions</Name>
+      <Description>Estate tax deduction (including section 691(c)) (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041FinalYearDeductions">
+      <Name>Final Year Deductions</Name>
+      <Description>Final year deductions (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT ADJUSTMENTS                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/k11041AMTAdjustment">
+      <Name>AMT Adjustment</Name>
+      <Description>Alternative minimum tax adjustment (Line 12).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDITS                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/k11041ForeignTaxCredit">
+      <Name>Foreign Tax Credit</Name>
+      <Description>Credits for foreign taxes (Line 13a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041EstimatedTaxPayments">
+      <Name>Estimated Tax Payments</Name>
+      <Description>Credit for estimated tax payments (Line 13b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041WithholdingFromFormW2">
+      <Name>Tax Withheld</Name>
+      <Description>Credit for backup withholding (Line 13c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041OtherCredits">
+      <Name>Other Credits</Name>
+      <Description>Other credits and payments (Line 13d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OTHER INFORMATION                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/k11041TaxExemptInterest">
+      <Name>Tax-Exempt Interest</Name>
+      <Description>Tax-exempt interest (Line 14a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041ForeignSourceIncome">
+      <Name>Foreign Source Income</Name>
+      <Description>Foreign source income (Line 14b).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041Section199AQBI">
+      <Name>Section 199A QBI</Name>
+      <Description>Qualified business income (Line 14c).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k11041NetInvestmentIncome">
+      <Name>Net Investment Income</Name>
+      <Description>Net investment income for NIIT (Line 14d).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL INCOME FOR BENEFICIARY                -->
+    <!-- ============================================ -->
+
+    <Fact path="/k11041TotalIncome">
+      <Name>Total Income from K-1</Name>
+      <Description>Total income from Schedule K-1 (Form 1041).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/k11041Interest" />
+              <Dependency path="/k11041OrdinaryDividends" />
+            </Add>
+            <Add>
+              <Dependency path="/k11041NetShortTermCapGain" />
+              <Dependency path="/k11041NetLongTermCapGain" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/k11041OtherPortfolioIncome" />
+              <Dependency path="/k11041OrdinaryBusinessIncome" />
+            </Add>
+            <Add>
+              <Dependency path="/k11041NetRentalRealEstate" />
+              <Dependency path="/k11041OtherRentalIncome" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleK11041IsDone">
+      <Name>Schedule K-1 Is Done</Name>
+      <Description>Whether Schedule K-1 (1041) is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasScheduleK11041" /></Not>
+          <All>
+            <Dependency path="/hasScheduleK11041" />
+            <IsComplete><Dependency path="/k11041TotalIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleK11041">
+      <Name>Include Schedule K-1 in PDF</Name>
+      <Description>Whether to include Schedule K-1 (1041) in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasScheduleK11041" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

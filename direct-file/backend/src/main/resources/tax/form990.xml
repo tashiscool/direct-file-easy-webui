@@ -1,0 +1,1118 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 990: Return of Organization Exempt From Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ORGANIZATION INFORMATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/isNonProfit">
+      <Name>Is Non-Profit Organization</Name>
+      <Description>Whether entity is a tax-exempt organization.</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency module="form1120" path="/entityType" /></Left>
+          <Right><Enum>nonProfit</Enum></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <Fact path="/organizationName">
+      <Name>Organization Name</Name>
+      <Description>Legal name of the organization.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/organizationEIN">
+      <Name>Organization EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/organizationAddress">
+      <Name>Organization Address</Name>
+      <Description>Principal address of the organization.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptStatusCode">
+      <Name>Exempt Status Code</Name>
+      <Description>IRC section under which organization is exempt.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>501c3</EnumOption>
+          <EnumOption>501c4</EnumOption>
+          <EnumOption>501c5</EnumOption>
+          <EnumOption>501c6</EnumOption>
+          <EnumOption>501c7</EnumOption>
+          <EnumOption>501c8</EnumOption>
+          <EnumOption>501c9</EnumOption>
+          <EnumOption>501c10</EnumOption>
+          <EnumOption>501c13</EnumOption>
+          <EnumOption>501c19</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/is501c3">
+      <Name>Is 501(c)(3)</Name>
+      <Description>Whether organization is exempt under 501(c)(3).</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency path="/exemptStatusCode" /></Left>
+          <Right><Enum>501c3</Enum></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <Fact path="/organizationType501c3">
+      <Name>501(c)(3) Organization Type</Name>
+      <Description>Type of 501(c)(3) organization.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>publicCharity170b1Avi</EnumOption>
+          <EnumOption>publicCharity170b1Avii</EnumOption>
+          <EnumOption>publicCharity509a1</EnumOption>
+          <EnumOption>publicCharity509a2</EnumOption>
+          <EnumOption>publicCharity509a3SupportingOrg</EnumOption>
+          <EnumOption>privateFoundation</EnumOption>
+          <EnumOption>privateOperatingFoundation</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isPrivateFoundation">
+      <Name>Is Private Foundation</Name>
+      <Description>Whether organization is a private foundation.</Description>
+      <Derived>
+        <Any>
+          <Equals>
+            <Left><Dependency path="/organizationType501c3" /></Left>
+            <Right><Enum>privateFoundation</Enum></Right>
+          </Equals>
+          <Equals>
+            <Left><Dependency path="/organizationType501c3" /></Left>
+            <Right><Enum>privateOperatingFoundation</Enum></Right>
+          </Equals>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/yearFormed">
+      <Name>Year Formed</Name>
+      <Description>Year organization was formed.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1800</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateOfLegalDomicile">
+      <Name>State of Legal Domicile</Name>
+      <Description>State of legal domicile.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfEmployees">
+      <Name>Number of Employees</Name>
+      <Description>Number of employees at end of year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfVolunteers">
+      <Name>Number of Volunteers</Name>
+      <Description>Number of volunteers.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REVENUE                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/npoContributionsGiftsGrants">
+      <Name>Contributions, Gifts, Grants</Name>
+      <Description>Contributions, gifts, grants, and similar amounts (Part VIII, Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoFederatedCampaigns">
+      <Name>Federated Campaigns</Name>
+      <Description>Federated campaigns (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoMembershipDues">
+      <Name>Membership Dues</Name>
+      <Description>Membership dues (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoFundraisingEvents">
+      <Name>Fundraising Events</Name>
+      <Description>Fundraising events (Line 1c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoRelatedOrganizations">
+      <Name>Related Organizations</Name>
+      <Description>Related organizations (Line 1d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoGovernmentGrants">
+      <Name>Government Grants</Name>
+      <Description>Government grants (Line 1e).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOtherContributions">
+      <Name>Other Contributions</Name>
+      <Description>All other contributions, gifts, grants (Line 1f).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoNoncashContributions">
+      <Name>Noncash Contributions</Name>
+      <Description>Noncash contributions (included in 1f) (Line 1g).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoProgramServiceRevenue">
+      <Name>Program Service Revenue</Name>
+      <Description>Program service revenue (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoInvestmentIncome">
+      <Name>Investment Income</Name>
+      <Description>Investment income (Line 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoIncomeFromInvestments">
+      <Name>Income from Investments</Name>
+      <Description>Income from investments in tax-exempt bonds (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoRoyalties">
+      <Name>Royalties</Name>
+      <Description>Royalties (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoGrossRents">
+      <Name>Gross Rents</Name>
+      <Description>Gross rents (Line 6a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoRentalExpenses">
+      <Name>Rental Expenses</Name>
+      <Description>Rental expenses (Line 6b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoNetRentalIncome">
+      <Name>Net Rental Income</Name>
+      <Description>Net rental income (Line 6c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoGrossRents" />
+          <Dependency path="/npoRentalExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoGrossSalesAssets">
+      <Name>Gross Sales of Assets</Name>
+      <Description>Gross amount from sales of assets (Line 7a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoCostBasisAssets">
+      <Name>Cost Basis of Assets</Name>
+      <Description>Cost or other basis and sales expenses (Line 7b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoGainLossAssets">
+      <Name>Gain or Loss from Assets</Name>
+      <Description>Gain or loss from sale of assets (Line 7c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoGrossSalesAssets" />
+          <Dependency path="/npoCostBasisAssets" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoGrossFundraisingEvents">
+      <Name>Gross Fundraising Events</Name>
+      <Description>Gross income from fundraising events (Line 8a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoFundraisingExpenses">
+      <Name>Fundraising Expenses</Name>
+      <Description>Fundraising expenses (Line 8b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoNetFundraisingIncome">
+      <Name>Net Fundraising Income</Name>
+      <Description>Net income from fundraising events (Line 8c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoGrossFundraisingEvents" />
+          <Dependency path="/npoFundraisingExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoOtherRevenue">
+      <Name>Other Revenue</Name>
+      <Description>Other revenue (Line 11).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTotalRevenue">
+      <Name>Total Revenue</Name>
+      <Description>Total revenue (Line 12).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Dependency path="/npoContributionsGiftsGrants" />
+                        <Dependency path="/npoProgramServiceRevenue" />
+                      </Add>
+                      <Dependency path="/npoInvestmentIncome" />
+                    </Add>
+                    <Dependency path="/npoIncomeFromInvestments" />
+                  </Add>
+                  <Dependency path="/npoRoyalties" />
+                </Add>
+                <Dependency path="/npoNetRentalIncome" />
+              </Add>
+              <Dependency path="/npoGainLossAssets" />
+            </Add>
+            <Dependency path="/npoNetFundraisingIncome" />
+          </Add>
+          <Dependency path="/npoOtherRevenue" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXPENSES                                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/npoGrantsToOrganizations">
+      <Name>Grants to Organizations</Name>
+      <Description>Grants and other assistance to governments and organizations (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoGrantsToIndividuals">
+      <Name>Grants to Individuals</Name>
+      <Description>Grants and other assistance to individuals (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoBenefitsPaidToMembers">
+      <Name>Benefits Paid to Members</Name>
+      <Description>Benefits paid to or for members (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoCompensationCurrentOfficers">
+      <Name>Compensation - Current Officers</Name>
+      <Description>Compensation of current officers, directors, trustees (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoCompensationDisqualified">
+      <Name>Compensation - Disqualified Persons</Name>
+      <Description>Compensation not included above to disqualified persons (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOtherSalariesWages">
+      <Name>Other Salaries and Wages</Name>
+      <Description>Other salaries and wages (Line 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoPensionPlanContributions">
+      <Name>Pension Plan Contributions</Name>
+      <Description>Pension plan accruals and contributions (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOtherEmployeeBenefits">
+      <Name>Other Employee Benefits</Name>
+      <Description>Other employee benefits (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoPayrollTaxes">
+      <Name>Payroll Taxes</Name>
+      <Description>Payroll taxes (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoFeesForServices">
+      <Name>Fees for Services</Name>
+      <Description>Fees for services (non-employees) (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoAdvertisingPromotion">
+      <Name>Advertising and Promotion</Name>
+      <Description>Advertising and promotion (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOfficeExpenses">
+      <Name>Office Expenses</Name>
+      <Description>Office expenses (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoInformationTechnology">
+      <Name>Information Technology</Name>
+      <Description>Information technology (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoRoyaltiesExpense">
+      <Name>Royalties Expense</Name>
+      <Description>Royalties (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOccupancy">
+      <Name>Occupancy</Name>
+      <Description>Occupancy (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTravel">
+      <Name>Travel</Name>
+      <Description>Travel (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoConferencesMeetings">
+      <Name>Conferences and Meetings</Name>
+      <Description>Payments of travel or entertainment expenses for public officials (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoInterestExpense">
+      <Name>Interest Expense</Name>
+      <Description>Interest (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoDepreciationDepletion">
+      <Name>Depreciation and Depletion</Name>
+      <Description>Depreciation, depletion, and amortization (Line 22).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoInsurance">
+      <Name>Insurance</Name>
+      <Description>Insurance (Line 23).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoOtherExpenses">
+      <Name>Other Expenses</Name>
+      <Description>Other expenses (Line 24).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTotalFunctionalExpenses">
+      <Name>Total Functional Expenses</Name>
+      <Description>Total functional expenses (Line 25).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Add>
+                                  <Add>
+                                    <Add>
+                                      <Add>
+                                        <Add>
+                                          <Add>
+                                            <Add>
+                                              <Add>
+                                                <Add>
+                                                  <Dependency path="/npoGrantsToOrganizations" />
+                                                  <Dependency path="/npoGrantsToIndividuals" />
+                                                </Add>
+                                                <Dependency path="/npoBenefitsPaidToMembers" />
+                                              </Add>
+                                              <Dependency path="/npoCompensationCurrentOfficers" />
+                                            </Add>
+                                            <Dependency path="/npoCompensationDisqualified" />
+                                          </Add>
+                                          <Dependency path="/npoOtherSalariesWages" />
+                                        </Add>
+                                        <Dependency path="/npoPensionPlanContributions" />
+                                      </Add>
+                                      <Dependency path="/npoOtherEmployeeBenefits" />
+                                    </Add>
+                                    <Dependency path="/npoPayrollTaxes" />
+                                  </Add>
+                                  <Dependency path="/npoFeesForServices" />
+                                </Add>
+                                <Dependency path="/npoAdvertisingPromotion" />
+                              </Add>
+                              <Dependency path="/npoOfficeExpenses" />
+                            </Add>
+                            <Dependency path="/npoInformationTechnology" />
+                          </Add>
+                          <Dependency path="/npoRoyaltiesExpense" />
+                        </Add>
+                        <Dependency path="/npoOccupancy" />
+                      </Add>
+                      <Dependency path="/npoTravel" />
+                    </Add>
+                    <Dependency path="/npoConferencesMeetings" />
+                  </Add>
+                  <Dependency path="/npoInterestExpense" />
+                </Add>
+                <Dependency path="/npoDepreciationDepletion" />
+              </Add>
+              <Dependency path="/npoInsurance" />
+            </Add>
+            <Dependency path="/npoOtherExpenses" />
+          </Add>
+          <Dollar>0</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NET ASSETS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/npoRevenueMinusExpenses">
+      <Name>Revenue Less Expenses</Name>
+      <Description>Revenue less expenses (Line 19).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoTotalRevenue" />
+          <Dependency path="/npoTotalFunctionalExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoTotalAssetsBeginning">
+      <Name>Total Assets - Beginning</Name>
+      <Description>Total assets at beginning of year (Line 20, Col A).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTotalAssetsEnd">
+      <Name>Total Assets - End</Name>
+      <Description>Total assets at end of year (Line 20, Col B).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTotalLiabilitiesBeginning">
+      <Name>Total Liabilities - Beginning</Name>
+      <Description>Total liabilities at beginning of year (Line 21, Col A).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoTotalLiabilitiesEnd">
+      <Name>Total Liabilities - End</Name>
+      <Description>Total liabilities at end of year (Line 21, Col B).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoNetAssetsBeginning">
+      <Name>Net Assets - Beginning</Name>
+      <Description>Net assets at beginning of year (Line 22, Col A).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoTotalAssetsBeginning" />
+          <Dependency path="/npoTotalLiabilitiesBeginning" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoNetAssetsEnd">
+      <Name>Net Assets - End</Name>
+      <Description>Net assets at end of year (Line 22, Col B).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/npoTotalAssetsEnd" />
+          <Dependency path="/npoTotalLiabilitiesEnd" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PUBLIC CHARITY SUPPORT TEST                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/npoPublicSupport">
+      <Name>Public Support</Name>
+      <Description>Public support for public charity test.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/npoContributionsGiftsGrants" />
+            <Dependency path="/npoGovernmentGrants" />
+          </Add>
+          <Dependency path="/npoProgramServiceRevenue" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoPublicSupportPercentage">
+      <Name>Public Support Percentage</Name>
+      <Description>Public support as percentage of total support.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/npoTotalRevenue" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Divide>
+                  <Dependency path="/npoPublicSupport" />
+                  <Dependency path="/npoTotalRevenue" />
+                </Divide>
+                <Decimal>100</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Decimal>0</Decimal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoMeetsPublicSupportTest">
+      <Name>Meets Public Support Test</Name>
+      <Description>Whether organization meets 33 1/3% public support test.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/npoPublicSupportPercentage" /></Left>
+          <Right><Decimal>33.33</Decimal></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- UNRELATED BUSINESS INCOME TAX (UBIT)        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasUnrelatedBusinessIncome">
+      <Name>Has Unrelated Business Income</Name>
+      <Description>Whether organization has unrelated business income.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoUnrelatedBusinessGrossIncome">
+      <Name>Unrelated Business Gross Income</Name>
+      <Description>Gross income from unrelated business (Form 990-T).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoUnrelatedBusinessDeductions">
+      <Name>Unrelated Business Deductions</Name>
+      <Description>Deductions directly connected with unrelated business.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/npoUnrelatedBusinessTaxableIncome">
+      <Name>Unrelated Business Taxable Income</Name>
+      <Description>Unrelated business taxable income (UBTI).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/npoUnrelatedBusinessGrossIncome" />
+              <Dependency path="/npoUnrelatedBusinessDeductions" />
+            </Subtract>
+            <!-- $1,000 specific deduction -->
+            <Dollar>1000</Dollar>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/npoUBIT">
+      <Name>Unrelated Business Income Tax</Name>
+      <Description>Tax on unrelated business income (21% rate).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasUnrelatedBusinessIncome" />
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/npoUnrelatedBusinessTaxableIncome" />
+                  <Decimal>0.21</Decimal>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM REQUIREMENTS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/requiresForm990">
+      <Name>Requires Form 990</Name>
+      <Description>Whether organization must file Form 990 (gross receipts > $200K or assets > $500K).</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/npoTotalRevenue" /></Left>
+            <Right><Dollar>200000</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/npoTotalAssetsEnd" /></Left>
+            <Right><Dollar>500000</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/requiresForm990EZ">
+      <Name>Requires Form 990-EZ</Name>
+      <Description>Whether organization can file Form 990-EZ (receipts $50K-$200K, assets < $500K).</Description>
+      <Derived>
+        <All>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/npoTotalRevenue" /></Left>
+            <Right><Dollar>50000</Dollar></Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="/npoTotalRevenue" /></Left>
+            <Right><Dollar>200000</Dollar></Right>
+          </LessThanOrEqual>
+          <LessThan>
+            <Left><Dependency path="/npoTotalAssetsEnd" /></Left>
+            <Right><Dollar>500000</Dollar></Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/requiresForm990N">
+      <Name>Requires Form 990-N (e-Postcard)</Name>
+      <Description>Whether organization can file Form 990-N (gross receipts normally ≤ $50K).</Description>
+      <Derived>
+        <LessThan>
+          <Left><Dependency path="/npoTotalRevenue" /></Left>
+          <Right><Dollar>50000</Dollar></Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form990IsDone">
+      <Name>Form 990 Is Done</Name>
+      <Description>Whether Form 990 is complete.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isNonProfit" />
+          <IsComplete>
+            <Dependency path="/organizationName" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/organizationEIN" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/exemptStatusCode" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm990">
+      <Name>Include Form 990 in PDF</Name>
+      <Description>Whether to include Form 990 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isNonProfit" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm990T">
+      <Name>Include Form 990-T in PDF</Name>
+      <Description>Whether to include Form 990-T (UBIT) in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isNonProfit" />
+          <Dependency path="/hasUnrelatedBusinessIncome" />
+          <GreaterThan>
+            <Left><Dependency path="/npoUnrelatedBusinessGrossIncome" /></Left>
+            <Right><Dollar>1000</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

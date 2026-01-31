@@ -1,0 +1,77 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 990-N: Electronic Notice (e-Postcard) for Tax-Exempt Organizations -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm990N">
+      <Name>Has Form 990-N</Name>
+      <Description>Small exempt organization (gross receipts ≤ $50,000) annual e-postcard.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Organization Information -->
+    <Fact path="/exemptOrgEIN990N">
+      <Name>Organization EIN</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/exemptOrgLegalName">
+      <Name>Legal Name of Organization</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/exemptOrgDBAName">
+      <Name>Doing Business As Name</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/exemptOrgMailingAddress">
+      <Name>Mailing Address</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/exemptOrgWebsiteURL">
+      <Name>Website URL</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <!-- Principal Officer -->
+    <Fact path="/principalOfficerName">
+      <Name>Principal Officer Name</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/principalOfficerAddress">
+      <Name>Principal Officer Address</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <!-- Tax Year Information -->
+    <Fact path="/taxYearBeginDate990N">
+      <Name>Tax Year Beginning</Name>
+      <Writable><Date /></Writable>
+    </Fact>
+    <Fact path="/taxYearEndDate990N">
+      <Name>Tax Year Ending</Name>
+      <Writable><Date /></Writable>
+    </Fact>
+    <!-- Gross Receipts Confirmation -->
+    <Fact path="/grossReceiptsUnder50000">
+      <Name>Gross Receipts Under $50,000</Name>
+      <Description>Confirmation that organization's gross receipts are normally $50,000 or less.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Termination -->
+    <Fact path="/hasTerminated990N">
+      <Name>Organization Terminated</Name>
+      <Description>Has the organization terminated or is terminating?</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Form Completion Status -->
+    <Fact path="/form990NIsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm990N" /></Not>
+          <All>
+            <IsComplete><Dependency path="/exemptOrgEIN990N" /></IsComplete>
+            <IsComplete><Dependency path="/exemptOrgLegalName" /></IsComplete>
+            <IsComplete><Dependency path="/principalOfficerName" /></IsComplete>
+            <IsComplete><Dependency path="/grossReceiptsUnder50000" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

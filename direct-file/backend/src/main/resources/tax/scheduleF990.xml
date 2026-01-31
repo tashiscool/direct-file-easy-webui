@@ -1,0 +1,218 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule F (Form 990): Statement of Activities Outside the United States -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FOREIGN ACTIVITIES                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignActivities">
+      <Name>Has Foreign Activities</Name>
+      <Description>Whether organization has activities outside the US.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfCountries">
+      <Name>Number of Countries</Name>
+      <Description>Number of countries with activities (Part I, Line 1).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: GENERAL ACTIVITIES                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/maintainsForeignOffice">
+      <Name>Maintains Foreign Office</Name>
+      <Description>Whether organization maintains foreign offices (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignEmployees">
+      <Name>Foreign Employees</Name>
+      <Description>Number of employees working outside the US (Line 3).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAgentsAmount">
+      <Name>Foreign Agents Amount</Name>
+      <Description>Amounts paid to independent contractors outside US.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: GRANTS AND ASSISTANCE              -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalForeignGrants">
+      <Name>Total Foreign Grants</Name>
+      <Description>Total grants and assistance to foreign organizations.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignGrantsToGovernments">
+      <Name>Foreign Grants to Governments</Name>
+      <Description>Grants to foreign governments.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignGrantsToIndividuals">
+      <Name>Foreign Grants to Individuals</Name>
+      <Description>Grants to foreign individuals.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: ACTIVITIES BY REGION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/centralAmericaCaribbean">
+      <Name>Central America/Caribbean Expenditures</Name>
+      <Description>Expenditures in Central America and Caribbean.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/southAmericaExpenditures">
+      <Name>South America Expenditures</Name>
+      <Description>Expenditures in South America.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/europeExpenditures">
+      <Name>Europe Expenditures</Name>
+      <Description>Expenditures in Europe.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/africaExpenditures">
+      <Name>Africa Expenditures</Name>
+      <Description>Expenditures in Sub-Saharan Africa.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/asiaExpenditures">
+      <Name>Asia Expenditures</Name>
+      <Description>Expenditures in Asia.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignExpenditures">
+      <Name>Total Foreign Expenditures</Name>
+      <Description>Total expenditures outside the United States.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/centralAmericaCaribbean" />
+            <Dependency path="/southAmericaExpenditures" />
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/europeExpenditures" />
+              <Dependency path="/africaExpenditures" />
+            </Add>
+            <Dependency path="/asiaExpenditures" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleF990IsDone">
+      <Name>Schedule F (990) Is Done</Name>
+      <Description>Whether Schedule F is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForeignActivities" /></Not>
+          <All>
+            <Dependency path="/hasForeignActivities" />
+            <IsComplete><Dependency path="/totalForeignExpenditures" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleF990">
+      <Name>Include Schedule F (990) in PDF</Name>
+      <Description>Whether to include Schedule F in the return.</Description>
+      <Derived>
+        <Dependency path="/hasForeignActivities" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

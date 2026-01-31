@@ -1,0 +1,32 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8865: Return of U.S. Persons With Respect to Certain Foreign Partnerships -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8865">
+      <Name>Has Form 8865</Name>
+      <Description>Whether taxpayer has interest in foreign partnership.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/foreignPartnershipName">
+      <Name>Foreign Partnership Name</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/foreignPartnershipCountry">
+      <Name>Foreign Partnership Country</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/ownershipPercentage8865">
+      <Name>Ownership Percentage</Name>
+      <Writable><Decimal><Limit operation="Min" level="ERROR"><Decimal>0</Decimal></Limit></Decimal></Writable>
+    </Fact>
+    <Fact path="/form8865IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8865" /></Not>
+          <IsComplete><Dependency path="/foreignPartnershipName" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,220 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule EIC: Earned Income Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- QUALIFYING CHILDREN                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasQualifyingChildrenEIC">
+      <Name>Has Qualifying Children EIC</Name>
+      <Description>Whether taxpayer has qualifying children for EIC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Child 1 -->
+    <Fact path="/child1Name">
+      <Name>Child 1 Name</Name>
+      <Description>Name of first qualifying child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1YearOfBirth">
+      <Name>Child 1 Year of Birth</Name>
+      <Description>Year of birth of child 1.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1SSN">
+      <Name>Child 1 SSN</Name>
+      <Description>Social Security number of child 1.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1Relationship">
+      <Name>Child 1 Relationship</Name>
+      <Description>Relationship to child 1.</Description>
+      <Writable>
+        <Enum>
+          <Option value="SON">Son</Option>
+          <Option value="DAUGHTER">Daughter</Option>
+          <Option value="STEPSON">Stepson</Option>
+          <Option value="STEPDAUGHTER">Stepdaughter</Option>
+          <Option value="FOSTER">Foster child</Option>
+          <Option value="GRANDCHILD">Grandchild</Option>
+          <Option value="SIBLING">Brother/Sister</Option>
+          <Option value="NEPHEW_NIECE">Nephew/Niece</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1MonthsLived">
+      <Name>Child 1 Months Lived</Name>
+      <Description>Number of months child 1 lived with you.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1IsStudent">
+      <Name>Child 1 Is Student</Name>
+      <Description>Whether child 1 was a full-time student.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child1IsDisabled">
+      <Name>Child 1 Is Disabled</Name>
+      <Description>Whether child 1 is permanently disabled.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Child 2 -->
+    <Fact path="/child2Name">
+      <Name>Child 2 Name</Name>
+      <Description>Name of second qualifying child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child2YearOfBirth">
+      <Name>Child 2 Year of Birth</Name>
+      <Description>Year of birth of child 2.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child2Relationship">
+      <Name>Child 2 Relationship</Name>
+      <Description>Relationship to child 2.</Description>
+      <Writable>
+        <Enum>
+          <Option value="SON">Son</Option>
+          <Option value="DAUGHTER">Daughter</Option>
+          <Option value="STEPSON">Stepson</Option>
+          <Option value="STEPDAUGHTER">Stepdaughter</Option>
+          <Option value="FOSTER">Foster child</Option>
+          <Option value="GRANDCHILD">Grandchild</Option>
+          <Option value="SIBLING">Brother/Sister</Option>
+          <Option value="NEPHEW_NIECE">Nephew/Niece</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/child2MonthsLived">
+      <Name>Child 2 Months Lived</Name>
+      <Description>Number of months child 2 lived with you.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- Child 3 -->
+    <Fact path="/child3Name">
+      <Name>Child 3 Name</Name>
+      <Description>Name of third qualifying child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child3YearOfBirth">
+      <Name>Child 3 Year of Birth</Name>
+      <Description>Year of birth of child 3.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/child3MonthsLived">
+      <Name>Child 3 Months Lived</Name>
+      <Description>Number of months child 3 lived with you.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFYING CHILD COUNT                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfQualifyingChildrenEIC">
+      <Name>Number of Qualifying Children EIC</Name>
+      <Description>Total number of qualifying children for EIC.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>3</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleEICIsDone">
+      <Name>Schedule EIC Is Done</Name>
+      <Description>Whether Schedule EIC is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasQualifyingChildrenEIC" /></Not>
+          <All>
+            <Dependency path="/hasQualifyingChildrenEIC" />
+            <IsComplete><Dependency path="/numberOfQualifyingChildrenEIC" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleEIC">
+      <Name>Include Schedule EIC in PDF</Name>
+      <Description>Whether to include Schedule EIC in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/numberOfQualifyingChildrenEIC" /></Left>
+          <Right><Int>0</Int></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

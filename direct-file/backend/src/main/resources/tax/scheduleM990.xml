@@ -1,0 +1,302 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule M (Form 990): Noncash Contributions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- NONCASH CONTRIBUTIONS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasNoncashContributions">
+      <Name>Has Noncash Contributions</Name>
+      <Description>Whether organization received noncash contributions over $25,000.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TYPES OF PROPERTY                   -->
+    <!-- ============================================ -->
+
+    <!-- Art and Collectibles -->
+    <Fact path="/artworkContributions">
+      <Name>Artwork Contributions</Name>
+      <Description>Art - Works of art (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/artworkContributionsCount">
+      <Name>Artwork Contributions Count</Name>
+      <Description>Number of contributions of artwork (Line 1).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/historicalTreasures">
+      <Name>Historical Treasures</Name>
+      <Description>Art - Historical treasures (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedConservationContributions">
+      <Name>Qualified Conservation Contributions</Name>
+      <Description>Art - Qualified conservation contribution (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Books and Publications -->
+    <Fact path="/booksContributions">
+      <Name>Books Contributions</Name>
+      <Description>Books and publications (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Clothing and Household -->
+    <Fact path="/clothingHouseholdContributions">
+      <Name>Clothing/Household Contributions</Name>
+      <Description>Clothing and household goods (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Cars and Vehicles -->
+    <Fact path="/carsContributions">
+      <Name>Cars Contributions</Name>
+      <Description>Cars and other vehicles (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/boatsContributions">
+      <Name>Boats Contributions</Name>
+      <Description>Boats and planes (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Securities -->
+    <Fact path="/publiclyTradedSecurities">
+      <Name>Publicly Traded Securities</Name>
+      <Description>Publicly traded securities (Line 9).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/closelyHeldStock">
+      <Name>Closely Held Stock</Name>
+      <Description>Closely held stock (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Real Property -->
+    <Fact path="/realEstateCommercial">
+      <Name>Real Estate Commercial</Name>
+      <Description>Real estate - Commercial (Line 13).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/realEstateResidential">
+      <Name>Real Estate Residential</Name>
+      <Description>Real estate - Residential (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Other Property -->
+    <Fact path="/foodInventory">
+      <Name>Food Inventory</Name>
+      <Description>Food inventory (Line 22).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/drugsAndMedicalSupplies">
+      <Name>Drugs and Medical Supplies</Name>
+      <Description>Drugs and medical supplies (Line 23).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherNoncashContributions">
+      <Name>Other Noncash Contributions</Name>
+      <Description>Other noncash contributions (Line 29).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalNoncashContributions">
+      <Name>Total Noncash Contributions</Name>
+      <Description>Total noncash contributions (Line 30).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/artworkContributions" />
+              <Dependency path="/clothingHouseholdContributions" />
+            </Add>
+            <Add>
+              <Dependency path="/publiclyTradedSecurities" />
+              <Dependency path="/realEstateCommercial" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/foodInventory" />
+              <Dependency path="/drugsAndMedicalSupplies" />
+            </Add>
+            <Dependency path="/otherNoncashContributions" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: MISCELLANEOUS                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/acceptedContributionsForm8283">
+      <Name>Accepted Contributions Form 8283</Name>
+      <Description>Whether accepted contributions requiring Form 8283 (Line 31).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/providedForm8282">
+      <Name>Provided Form 8282</Name>
+      <Description>Whether provided Form 8282 to donors (Line 32).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasWrittenPolicyOnProperty">
+      <Name>Has Written Policy on Property</Name>
+      <Description>Whether has written policy on noncash property acceptance (Line 33).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleM990IsDone">
+      <Name>Schedule M Is Done</Name>
+      <Description>Whether Schedule M is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNoncashContributions" /></Not>
+          <All>
+            <Dependency path="/hasNoncashContributions" />
+            <IsComplete><Dependency path="/totalNoncashContributions" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleM990">
+      <Name>Include Schedule M in PDF</Name>
+      <Description>Whether to include Schedule M (990) in output.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalNoncashContributions" /></Left>
+          <Right><Dollar>25000</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

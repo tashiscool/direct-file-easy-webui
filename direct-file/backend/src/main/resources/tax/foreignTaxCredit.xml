@@ -1,0 +1,561 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1116: Foreign Tax Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FOREIGN INCOME AND TAXES                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignTaxes">
+      <Name>Has Foreign Taxes Paid</Name>
+      <Description>Whether the taxpayer paid or accrued foreign taxes.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditMethod">
+      <Name>Foreign Tax Credit Method</Name>
+      <Description>Whether to claim credit or deduction for foreign taxes.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>credit</EnumOption>
+          <EnumOption>deduction</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Foreign Income Categories -->
+    <Fact path="/foreignIncomePassive">
+      <Name>Foreign Passive Category Income</Name>
+      <Description>Foreign source income in passive category (dividends, interest, etc.).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignIncomeGeneral">
+      <Name>Foreign General Category Income</Name>
+      <Description>Foreign source income in general category (wages, business income).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignIncomeBranch">
+      <Name>Foreign Branch Income</Name>
+      <Description>Foreign source income from foreign branches.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignIncome">
+      <Name>Total Foreign Source Income</Name>
+      <Description>Total income from foreign sources.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/foreignIncomePassive" />
+            <Dependency path="/foreignIncomeGeneral" />
+          </Add>
+          <Dependency path="/foreignIncomeBranch" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Foreign Taxes Paid by Category -->
+    <Fact path="/foreignTaxesPaidPassive">
+      <Name>Foreign Taxes Paid - Passive</Name>
+      <Description>Foreign taxes paid or accrued on passive category income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxesPaidGeneral">
+      <Name>Foreign Taxes Paid - General</Name>
+      <Description>Foreign taxes paid or accrued on general category income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxesPaidBranch">
+      <Name>Foreign Taxes Paid - Branch</Name>
+      <Description>Foreign taxes paid on branch income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignTaxesPaid">
+      <Name>Total Foreign Taxes Paid</Name>
+      <Description>Total foreign taxes paid or accrued.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/foreignTaxesPaidPassive" />
+            <Dependency path="/foreignTaxesPaidGeneral" />
+          </Add>
+          <Dependency path="/foreignTaxesPaidBranch" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SIMPLIFIED LIMITATION ELECTION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiesForSimplifiedFTC">
+      <Name>Qualifies for Simplified FTC</Name>
+      <Description>Whether taxpayer can use simplified limitation (Form 1116 not required).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <!-- Only passive category income -->
+          <Equals>
+            <Left><Dependency path="/totalForeignIncome" /></Left>
+            <Right><Dependency path="/foreignIncomePassive" /></Right>
+          </Equals>
+          <!-- Foreign taxes under $300 ($600 MFJ) -->
+          <LessThanOrEqual>
+            <Left><Dependency path="/totalForeignTaxesPaid" /></Left>
+            <Right>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                  </When>
+                  <Then>
+                    <Dollar>600</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>300</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Right>
+          </LessThanOrEqual>
+          <!-- All foreign taxes are qualified (legally owed, on income taxes) -->
+          <!-- Assuming true for simplicity -->
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FTC LIMITATION CALCULATION                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/worldwideIncome">
+      <Name>Worldwide Taxable Income</Name>
+      <Description>Total taxable income from all sources.</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxableIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/usTaxBeforeCredits">
+      <Name>US Tax Before Credits</Name>
+      <Description>US income tax liability before credits.</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxBeforeCredits" />
+      </Derived>
+    </Fact>
+
+    <!-- Passive Category Limitation -->
+    <Fact path="/passiveCategoryFTCLimit">
+      <Name>Passive Category FTC Limitation</Name>
+      <Description>Maximum FTC for passive category income.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/worldwideIncome" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/usTaxBeforeCredits" />
+                <Divide>
+                  <Dependency path="/foreignIncomePassive" />
+                  <Dependency path="/worldwideIncome" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- General Category Limitation -->
+    <Fact path="/generalCategoryFTCLimit">
+      <Name>General Category FTC Limitation</Name>
+      <Description>Maximum FTC for general category income.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/worldwideIncome" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/usTaxBeforeCredits" />
+                <Divide>
+                  <Dependency path="/foreignIncomeGeneral" />
+                  <Dependency path="/worldwideIncome" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Branch Category Limitation -->
+    <Fact path="/branchCategoryFTCLimit">
+      <Name>Branch Category FTC Limitation</Name>
+      <Description>Maximum FTC for branch income.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/worldwideIncome" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/usTaxBeforeCredits" />
+                <Divide>
+                  <Dependency path="/foreignIncomeBranch" />
+                  <Dependency path="/worldwideIncome" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ALLOWABLE FTC BY CATEGORY                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/allowableFTCPassive">
+      <Name>Allowable FTC - Passive</Name>
+      <Description>FTC allowed for passive category (lesser of taxes paid or limit).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/foreignTaxesPaidPassive" />
+          <Dependency path="/passiveCategoryFTCLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowableFTCGeneral">
+      <Name>Allowable FTC - General</Name>
+      <Description>FTC allowed for general category.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/foreignTaxesPaidGeneral" />
+          <Dependency path="/generalCategoryFTCLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowableFTCBranch">
+      <Name>Allowable FTC - Branch</Name>
+      <Description>FTC allowed for branch category.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/foreignTaxesPaidBranch" />
+          <Dependency path="/branchCategoryFTCLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CARRYFORWARD/CARRYBACK                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/ftcCarryforwardPassive">
+      <Name>FTC Carryforward - Passive</Name>
+      <Description>Unused passive FTC from prior years (10-year carryforward).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ftcCarryforwardGeneral">
+      <Name>FTC Carryforward - General</Name>
+      <Description>Unused general FTC from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/carryforwardUsedPassive">
+      <Name>Carryforward Used - Passive</Name>
+      <Description>Prior year FTC carryforward used this year.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/ftcCarryforwardPassive" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/passiveCategoryFTCLimit" />
+              <Dependency path="/foreignTaxesPaidPassive" />
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carryforwardUsedGeneral">
+      <Name>Carryforward Used - General</Name>
+      <Description>Prior year general FTC carryforward used this year.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/ftcCarryforwardGeneral" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/generalCategoryFTCLimit" />
+              <Dependency path="/foreignTaxesPaidGeneral" />
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- Excess FTC for Carryforward -->
+    <Fact path="/excessFTCPassive">
+      <Name>Excess FTC - Passive</Name>
+      <Description>Unused passive FTC to carry forward.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/foreignTaxesPaidPassive" />
+            <Dependency path="/passiveCategoryFTCLimit" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessFTCGeneral">
+      <Name>Excess FTC - General</Name>
+      <Description>Unused general FTC to carry forward.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/foreignTaxesPaidGeneral" />
+            <Dependency path="/generalCategoryFTCLimit" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL FOREIGN TAX CREDIT                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/foreignTaxCredit">
+      <Name>Foreign Tax Credit</Name>
+      <Description>Total allowable foreign tax credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasForeignTaxes" />
+                <Equals>
+                  <Left><Dependency path="/foreignTaxCreditMethod" /></Left>
+                  <Right><Enum>credit</Enum></Right>
+                </Equals>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Dependency path="/allowableFTCPassive" />
+                        <Dependency path="/allowableFTCGeneral" />
+                      </Add>
+                      <Dependency path="/allowableFTCBranch" />
+                    </Add>
+                    <Dependency path="/carryforwardUsedPassive" />
+                  </Add>
+                  <Dependency path="/carryforwardUsedGeneral" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Foreign Tax Deduction (if elected instead of credit) -->
+    <Fact path="/foreignTaxDeduction">
+      <Name>Foreign Tax Deduction</Name>
+      <Description>Foreign taxes claimed as itemized deduction instead of credit.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasForeignTaxes" />
+                <Equals>
+                  <Left><Dependency path="/foreignTaxCreditMethod" /></Left>
+                  <Right><Enum>deduction</Enum></Right>
+                </Equals>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/totalForeignTaxesPaid" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/foreignTaxCreditIsDone">
+      <Name>Foreign Tax Credit Is Done</Name>
+      <Description>Whether foreign tax credit section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No foreign taxes -->
+          <Not>
+            <Dependency path="/hasForeignTaxes" />
+          </Not>
+          <!-- Has foreign taxes and method selected -->
+          <All>
+            <Dependency path="/hasForeignTaxes" />
+            <IsComplete>
+              <Dependency path="/foreignTaxCreditMethod" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/totalForeignTaxesPaid" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1116">
+      <Name>Include Form 1116 in PDF</Name>
+      <Description>Whether to include Form 1116 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left><Dependency path="/foreignTaxCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <Not>
+            <Dependency path="/qualifiesForSimplifiedFTC" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

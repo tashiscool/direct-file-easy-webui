@@ -1,0 +1,85 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8962: Premium Tax Credit (PTC) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMarketplaceCoverage">
+      <Name>Has Marketplace Health Coverage</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/received1095A">
+      <Name>Received Form 1095-A</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/totalEnrollmentPremiums">
+      <Name>Total Enrollment Premiums</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/totalSLCSP">
+      <Name>Total SLCSP Premiums</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/totalAdvancePTC">
+      <Name>Total Advance PTC Received</Name>
+      <Export mef="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/householdSizeForPTC">
+      <Name>Household Size for PTC</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>1</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/modifiedAGIForPTC">
+      <Name>Modified AGI for PTC</Name>
+      <Derived>
+        <Sum>
+          <Dependency path="/adjustedGrossIncome" />
+          <Dependency path="/taxExemptInterest" />
+        </Sum>
+      </Derived>
+    </Fact>
+    <Fact path="/premiumTaxCredit">
+      <Name>Premium Tax Credit</Name>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/totalSLCSP" />
+            <Multiply><Dependency path="/modifiedAGIForPTC" /><Decimal>0.085</Decimal></Multiply>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+    <Fact path="/excessAPTC">
+      <Name>Excess Advance PTC</Name>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/totalAdvancePTC" />
+            <Dependency path="/premiumTaxCredit" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+    <Fact path="/netPremiumTaxCredit">
+      <Name>Net Premium Tax Credit</Name>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Max><Subtract><Dependency path="/premiumTaxCredit" /><Dependency path="/totalAdvancePTC" /></Subtract><Dollar>0</Dollar></Max>
+          <Dependency path="/excessAPTC" />
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8962IsDone">
+      <Name>Form 8962 Complete</Name>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMarketplaceCoverage" /></Not>
+          <IsComplete><Dependency path="/totalSLCSP" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

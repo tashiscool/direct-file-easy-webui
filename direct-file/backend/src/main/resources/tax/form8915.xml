@@ -1,0 +1,166 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8915: Qualified Disaster Retirement Plan Distributions and Repayments -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasQualifiedDisasterDistribution">
+      <Name>Has Qualified Disaster Distribution</Name>
+      <Description>Whether taxpayer has qualified disaster retirement distribution.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disasterType">
+      <Name>Disaster Type</Name>
+      <Description>Type of federally declared disaster.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disasterDate">
+      <Name>Disaster Date</Name>
+      <Description>Date of disaster.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/femaDisasterNumber">
+      <Name>FEMA Disaster Number</Name>
+      <Description>FEMA disaster declaration number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Qualified Distributions -->
+    <Fact path="/totalDisasterDistributions">
+      <Name>Total Disaster Distributions</Name>
+      <Description>Total qualified disaster distributions received (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxQualifiedDistribution">
+      <Name>Max Qualified Distribution</Name>
+      <Description>Maximum qualified disaster distribution ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedDistributions8915">
+      <Name>Qualified Distributions</Name>
+      <Description>Qualified distributions (lesser of actual or max).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/totalDisasterDistributions" />
+          <Dependency path="/maxQualifiedDistribution" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: 3-Year Spread -->
+    <Fact path="/useThreeYearSpread">
+      <Name>Use Three-Year Spread</Name>
+      <Description>Whether to spread income over 3 years.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearOneIncome">
+      <Name>Year One Income</Name>
+      <Description>Amount included in year 1 income.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/useThreeYearSpread" />
+            </When>
+            <Then>
+              <Divide>
+                <Dependency path="/qualifiedDistributions8915" />
+                <Int>3</Int>
+              </Divide>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency path="/qualifiedDistributions8915" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Part III: Repayments -->
+    <Fact path="/repaymentsMade">
+      <Name>Repayments Made</Name>
+      <Description>Repayments of qualified distributions (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/repaymentPeriodYears">
+      <Name>Repayment Period Years</Name>
+      <Description>Repayment period (3 years).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>3</Int>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableDisasterDistribution">
+      <Name>Taxable Disaster Distribution</Name>
+      <Description>Taxable amount of disaster distribution.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/yearOneIncome" />
+            <Dependency path="/repaymentsMade" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8915IsDone">
+      <Name>Form 8915 Is Done</Name>
+      <Description>Whether Form 8915 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasQualifiedDisasterDistribution" /></Not>
+          <All>
+            <Dependency path="/hasQualifiedDisasterDistribution" />
+            <IsComplete><Dependency path="/taxableDisasterDistribution" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8915">
+      <Name>Include Form 8915 in PDF</Name>
+      <Description>Whether to include Form 8915.</Description>
+      <Derived>
+        <Dependency path="/hasQualifiedDisasterDistribution" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

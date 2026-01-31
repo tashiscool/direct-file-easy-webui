@@ -1,0 +1,92 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8910: Alternative Motor Vehicle Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8910">
+      <Name>Has Form 8910</Name>
+      <Description>Whether taxpayer claims alternative vehicle credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleVIN8910">
+      <Name>Vehicle VIN</Name>
+      <Description>VIN of qualified vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleType8910">
+      <Name>Vehicle Type</Name>
+      <Description>Type of alternative motor vehicle.</Description>
+      <Writable>
+        <Enum>
+          <Option>fuelCell</Option>
+          <Option>advancedLeanBurn</Option>
+          <Option>qualifiedHybrid</Option>
+          <Option>qualifiedAlternativeFuel</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tentativeCredit8910">
+      <Name>Tentative Credit</Name>
+      <Description>Tentative credit for vehicle.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/personalUsePercentage8910">
+      <Name>Personal Use Percentage</Name>
+      <Description>Percentage of personal use.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/altVehicleCredit8910">
+      <Name>Alternative Vehicle Credit</Name>
+      <Description>Alternative motor vehicle credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/tentativeCredit8910" />
+          <Divide>
+            <Dependency path="/personalUsePercentage8910" />
+            <Decimal>100</Decimal>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8910IsDone">
+      <Name>Form 8910 Is Done</Name>
+      <Description>Whether Form 8910 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8910" /></Not>
+          <All>
+            <Dependency path="/hasForm8910" />
+            <IsComplete><Dependency path="/altVehicleCredit8910" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

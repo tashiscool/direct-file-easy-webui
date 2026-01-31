@@ -1,0 +1,98 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5498-SA: HSA, Archer MSA, or Medicare Advantage MSA Information -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm5498SA">
+      <Name>Has Form 5498-SA</Name>
+      <Description>Whether taxpayer received Form 5498-SA.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/trusteeName5498SA">
+      <Name>Trustee Name</Name>
+      <Description>Name of HSA/MSA trustee.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/employerContributions5498SA">
+      <Name>Employer Contributions</Name>
+      <Description>Employer contributions (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalContributions5498SA">
+      <Name>Total Contributions</Name>
+      <Description>Total contributions made (Box 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rolloverContributions5498SA">
+      <Name>Rollover Contributions</Name>
+      <Description>Rollover contributions (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvAccount5498SA">
+      <Name>FMV of Account</Name>
+      <Description>Fair market value of HSA (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountType5498SA">
+      <Name>Account Type</Name>
+      <Description>Type of account (HSA, Archer MSA, MA MSA).</Description>
+      <Writable>
+        <Enum>
+          <Option>HSA</Option>
+          <Option>ArcherMSA</Option>
+          <Option>MedicareAdvMSA</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form5498SAIsDone">
+      <Name>Form 5498-SA Is Done</Name>
+      <Description>Whether Form 5498-SA is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm5498SA" /></Not>
+          <All>
+            <Dependency path="/hasForm5498SA" />
+            <IsComplete><Dependency path="/totalContributions5498SA" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

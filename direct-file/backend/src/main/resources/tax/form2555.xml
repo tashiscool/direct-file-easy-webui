@@ -1,0 +1,388 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 2555: Foreign Earned Income -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: GENERAL INFORMATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsForeignEarnedIncomeExclusion">
+      <Name>Claims Foreign Earned Income Exclusion</Name>
+      <Description>Whether taxpayer claims foreign earned income exclusion.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCountryOfResidence">
+      <Name>Foreign Country of Residence</Name>
+      <Description>Foreign country of residence.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCountryOfEmployer">
+      <Name>Foreign Country of Employer</Name>
+      <Description>Country where employer is located.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: QUALIFYING TESTS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/usesBonafideResidenceTest">
+      <Name>Uses Bona Fide Residence Test</Name>
+      <Description>Whether taxpayer qualifies under bona fide residence test.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usesPhysicalPresenceTest">
+      <Name>Uses Physical Presence Test</Name>
+      <Description>Whether taxpayer qualifies under physical presence test.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifyingDaysAbroad">
+      <Name>Qualifying Days Abroad</Name>
+      <Description>Number of qualifying days in foreign country.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/meetsPhysicalPresenceTest">
+      <Name>Meets Physical Presence Test</Name>
+      <Description>Whether taxpayer meets 330 days physical presence test.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/usesPhysicalPresenceTest" />
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/qualifyingDaysAbroad" /></Left>
+            <Right><Int>330</Int></Right>
+          </GreaterThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiesForExclusion">
+      <Name>Qualifies for Exclusion</Name>
+      <Description>Whether taxpayer qualifies for FEIE.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/usesBonafideResidenceTest" />
+          <Dependency path="/meetsPhysicalPresenceTest" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: FOREIGN EARNED INCOME              -->
+    <!-- ============================================ -->
+
+    <Fact path="/foreignWagesSalaries">
+      <Name>Foreign Wages and Salaries</Name>
+      <Description>Wages, salaries, bonuses, etc. (Line 19).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignSelfEmploymentIncome">
+      <Name>Foreign Self-Employment Income</Name>
+      <Description>Net self-employment earnings (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nonCashForeignIncome">
+      <Name>Noncash Foreign Income</Name>
+      <Description>Noncash income (meals, lodging, car) (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherForeignEarnedIncome">
+      <Name>Other Foreign Earned Income</Name>
+      <Description>Other foreign earned income (Line 22).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignEarnedIncome">
+      <Name>Total Foreign Earned Income</Name>
+      <Description>Total foreign earned income (Line 23).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/foreignWagesSalaries" />
+            <Dependency path="/foreignSelfEmploymentIncome" />
+          </Add>
+          <Add>
+            <Dependency path="/nonCashForeignIncome" />
+            <Dependency path="/otherForeignEarnedIncome" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: FOREIGN EARNED INCOME EXCLUSION     -->
+    <!-- ============================================ -->
+
+    <Fact path="/feieMaximum2025">
+      <Name>FEIE Maximum 2025</Name>
+      <Description>Maximum foreign earned income exclusion ($130,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>130000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/daysInQualifyingPeriod">
+      <Name>Days in Qualifying Period</Name>
+      <Description>Number of days in qualifying period (Line 31).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/proratedFEIEMaximum">
+      <Name>Prorated FEIE Maximum</Name>
+      <Description>Prorated exclusion maximum based on qualifying days (Line 32).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/feieMaximum2025" />
+          <Divide>
+            <Dependency path="/daysInQualifyingPeriod" />
+            <Int>365</Int>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeExclusion">
+      <Name>Foreign Earned Income Exclusion</Name>
+      <Description>Smaller of total foreign earned income or maximum exclusion (Line 33).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/qualifiesForExclusion" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/totalForeignEarnedIncome" />
+                <Dependency path="/proratedFEIEMaximum" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VI: FOREIGN HOUSING EXCLUSION          -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsForeignHousingExclusion">
+      <Name>Claims Foreign Housing Exclusion</Name>
+      <Description>Whether taxpayer claims housing exclusion/deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalHousingExpenses">
+      <Name>Total Housing Expenses</Name>
+      <Description>Total qualified housing expenses (Line 25).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/housingBaseAmount2025">
+      <Name>Housing Base Amount</Name>
+      <Description>Base housing amount (16% of FEIE max = $20,800 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/feieMaximum2025" />
+          <Decimal>0.16</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/proratedHousingBase">
+      <Name>Prorated Housing Base</Name>
+      <Description>Prorated base housing amount (Line 26).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/housingBaseAmount2025" />
+          <Divide>
+            <Dependency path="/daysInQualifyingPeriod" />
+            <Int>365</Int>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/housingMaximum2025">
+      <Name>Housing Maximum</Name>
+      <Description>Maximum housing amount (30% of FEIE max = $39,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/feieMaximum2025" />
+          <Decimal>0.30</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedHousingExpenses">
+      <Name>Qualified Housing Expenses</Name>
+      <Description>Qualified housing expenses (Line 27).</Description>
+      <Derived>
+        <Min>
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/totalHousingExpenses" />
+              <Dependency path="/proratedHousingBase" />
+            </Subtract>
+          </Max>
+          <Subtract>
+            <Dependency path="/housingMaximum2025" />
+            <Dependency path="/proratedHousingBase" />
+          </Subtract>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignHousingExclusion">
+      <Name>Foreign Housing Exclusion</Name>
+      <Description>Foreign housing exclusion amount (Line 29).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/claimsForeignHousingExclusion" />
+                <Dependency path="/qualifiesForExclusion" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/qualifiedHousingExpenses" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL EXCLUSION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalForeignExclusion">
+      <Name>Total Foreign Exclusion</Name>
+      <Description>Total foreign earned income and housing exclusion.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/foreignEarnedIncomeExclusion" />
+          <Dependency path="/foreignHousingExclusion" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form2555IsDone">
+      <Name>Form 2555 Is Done</Name>
+      <Description>Whether Form 2555 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/claimsForeignEarnedIncomeExclusion" /></Not>
+          <All>
+            <Dependency path="/claimsForeignEarnedIncomeExclusion" />
+            <Dependency path="/qualifiesForExclusion" />
+            <IsComplete><Dependency path="/totalForeignEarnedIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm2555">
+      <Name>Include Form 2555 in PDF</Name>
+      <Description>Whether to include Form 2555 in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/claimsForeignEarnedIncomeExclusion" />
+          <GreaterThan>
+            <Left><Dependency path="/totalForeignExclusion" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

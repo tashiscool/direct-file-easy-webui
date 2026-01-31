@@ -1,0 +1,121 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8853: Archer MSAs and Long-Term Care Insurance Contracts -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8853">
+      <Name>Has Form 8853</Name>
+      <Description>Whether taxpayer has Archer MSA or LTC contracts.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/archerMSAContributions">
+      <Name>Archer MSA Contributions</Name>
+      <Description>Contributions to Archer MSA.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/archerMSADistributions">
+      <Name>Archer MSA Distributions</Name>
+      <Description>Distributions from Archer MSA.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/archerMSAQualifiedExpenses">
+      <Name>Archer MSA Qualified Expenses</Name>
+      <Description>Qualified medical expenses paid.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/archerMSATaxableAmount">
+      <Name>Archer MSA Taxable Amount</Name>
+      <Description>Taxable Archer MSA distributions.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/archerMSADistributions" />
+            <Dependency path="/archerMSAQualifiedExpenses" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ltcContractPayments">
+      <Name>LTC Contract Payments</Name>
+      <Description>Long-term care insurance contract payments received.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ltcPerDiemLimit2025">
+      <Name>LTC Per Diem Limit</Name>
+      <Description>Per diem limitation for LTC ($420/day for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>420</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/archerMSADeduction">
+      <Name>Archer MSA Deduction</Name>
+      <Description>Deduction for Archer MSA contributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/archerMSAContributions" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8853IsDone">
+      <Name>Form 8853 Is Done</Name>
+      <Description>Whether Form 8853 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8853" /></Not>
+          <All>
+            <Dependency path="/hasForm8853" />
+            <Any>
+              <IsComplete><Dependency path="/archerMSADeduction" /></IsComplete>
+              <IsComplete><Dependency path="/ltcContractPayments" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8853">
+      <Name>Include Form 8853 in PDF</Name>
+      <Description>Whether to include Form 8853.</Description>
+      <Derived>
+        <Dependency path="/hasForm8853" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

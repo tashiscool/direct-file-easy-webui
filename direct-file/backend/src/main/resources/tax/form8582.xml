@@ -1,0 +1,383 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8582: Passive Activity Loss Limitations -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: RENTAL ACTIVITIES                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasPassiveActivities">
+      <Name>Has Passive Activities</Name>
+      <Description>Whether taxpayer has passive activities.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalActivityIncome">
+      <Name>Rental Activity Income</Name>
+      <Description>Net income from all rental activities (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalActivityLoss">
+      <Name>Rental Activity Loss</Name>
+      <Description>Net loss from all rental activities (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearUnallowedRentalLoss">
+      <Name>Prior Year Unallowed Rental Loss</Name>
+      <Description>Prior year unallowed losses from rental activities (Line 1c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netRentalActivityAmount">
+      <Name>Net Rental Activity Amount</Name>
+      <Description>Net income or loss from rental activities (Line 1d).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/rentalActivityIncome" />
+            <Dependency path="/rentalActivityLoss" />
+          </Add>
+          <Dependency path="/priorYearUnallowedRentalLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: OTHER PASSIVE ACTIVITIES            -->
+    <!-- ============================================ -->
+
+    <Fact path="/otherPassiveIncome">
+      <Name>Other Passive Income</Name>
+      <Description>Net income from other passive activities (Line 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherPassiveLoss">
+      <Name>Other Passive Loss</Name>
+      <Description>Net loss from other passive activities (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearUnallowedOtherLoss">
+      <Name>Prior Year Unallowed Other Loss</Name>
+      <Description>Prior year unallowed losses from other passive activities (Line 2c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netOtherPassiveAmount">
+      <Name>Net Other Passive Amount</Name>
+      <Description>Net income or loss from other passive activities (Line 2d).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/otherPassiveIncome" />
+            <Dependency path="/otherPassiveLoss" />
+          </Add>
+          <Dependency path="/priorYearUnallowedOtherLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalPassiveIncomeLoss">
+      <Name>Total Passive Income/Loss</Name>
+      <Description>Total passive income or loss (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/netRentalActivityAmount" />
+          <Dependency path="/netOtherPassiveAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: SPECIAL ALLOWANCE                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/isActiveParticipantInRental">
+      <Name>Is Active Participant in Rental</Name>
+      <Description>Whether taxpayer actively participates in rental activities.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/specialAllowanceMaximum">
+      <Name>Special Allowance Maximum</Name>
+      <Description>Maximum special allowance ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specialAllowancePhaseoutStart">
+      <Name>Special Allowance Phaseout Start</Name>
+      <Description>AGI at which phaseout begins ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/modifiedAGIFor8582">
+      <Name>Modified AGI for 8582</Name>
+      <Description>Modified AGI for passive activity purposes (Line 6).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessAGIOverThreshold">
+      <Name>Excess AGI Over Threshold</Name>
+      <Description>AGI in excess of $100,000 (Line 7).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/modifiedAGIFor8582" />
+            <Dependency path="/specialAllowancePhaseoutStart" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specialAllowanceReduction">
+      <Name>Special Allowance Reduction</Name>
+      <Description>Reduction to special allowance (50% of excess) (Line 8).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessAGIOverThreshold" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/reducedSpecialAllowance">
+      <Name>Reduced Special Allowance</Name>
+      <Description>Special allowance after reduction (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/specialAllowanceMaximum" />
+            <Dependency path="/specialAllowanceReduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specialAllowanceAllowed">
+      <Name>Special Allowance Allowed</Name>
+      <Description>Smaller of Line 5 or Line 9 (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/isActiveParticipantInRental" />
+                <LessThan>
+                  <Left><Dependency path="/netRentalActivityAmount" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </LessThan>
+              </All>
+            </When>
+            <Then>
+              <Min>
+                <Multiply>
+                  <Dependency path="/netRentalActivityAmount" />
+                  <Int>-1</Int>
+                </Multiply>
+                <Dependency path="/reducedSpecialAllowance" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: TOTAL LOSSES ALLOWED              -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalPassiveLossesAllowed">
+      <Name>Total Passive Losses Allowed</Name>
+      <Description>Total passive losses allowed for the year.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/totalPassiveIncomeLoss" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Add>
+                  <Dependency path="/rentalActivityLoss" />
+                  <Add>
+                    <Dependency path="/otherPassiveLoss" />
+                    <Add>
+                      <Dependency path="/priorYearUnallowedRentalLoss" />
+                      <Dependency path="/priorYearUnallowedOtherLoss" />
+                    </Add>
+                  </Add>
+                </Add>
+                <Int>-1</Int>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Add>
+                  <Dependency path="/rentalActivityIncome" />
+                  <Dependency path="/otherPassiveIncome" />
+                </Add>
+                <Dependency path="/specialAllowanceAllowed" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unallowedPassiveLossCarryover">
+      <Name>Unallowed Passive Loss Carryover</Name>
+      <Description>Passive losses disallowed and carried forward.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Multiply>
+              <Dependency path="/totalPassiveIncomeLoss" />
+              <Int>-1</Int>
+            </Multiply>
+            <Dependency path="/totalPassiveLossesAllowed" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REAL ESTATE PROFESSIONAL                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/isRealEstateProfessional">
+      <Name>Is Real Estate Professional</Name>
+      <Description>Whether taxpayer qualifies as real estate professional.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hoursInRealEstateActivities">
+      <Name>Hours in Real Estate Activities</Name>
+      <Description>Hours spent in real estate activities.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/meetsRealEstateProfessionalTest">
+      <Name>Meets Real Estate Professional Test</Name>
+      <Description>Whether taxpayer meets 750+ hours and material participation tests.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isRealEstateProfessional" />
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/hoursInRealEstateActivities" /></Left>
+            <Right><Int>750</Int></Right>
+          </GreaterThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8582IsDone">
+      <Name>Form 8582 Is Done</Name>
+      <Description>Whether Form 8582 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPassiveActivities" /></Not>
+          <All>
+            <Dependency path="/hasPassiveActivities" />
+            <IsComplete><Dependency path="/totalPassiveIncomeLoss" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8582">
+      <Name>Include Form 8582 in PDF</Name>
+      <Description>Whether to include Form 8582 in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasPassiveActivities" />
+          <LessThan>
+            <Left><Dependency path="/totalPassiveIncomeLoss" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

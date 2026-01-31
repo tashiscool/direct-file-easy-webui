@@ -1,0 +1,298 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule J: Income Averaging for Farmers and Fishermen -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FARM/FISHING INCOME AVERAGING               -->
+    <!-- ============================================ -->
+
+    <Fact path="/electsIncomeAveraging">
+      <Name>Elects Income Averaging</Name>
+      <Description>Whether taxpayer elects to use income averaging.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearElectedFarmIncome">
+      <Name>Current Year Elected Farm Income</Name>
+      <Description>Amount of current year farming income to average (Line 2a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearElectedFishingIncome">
+      <Name>Current Year Elected Fishing Income</Name>
+      <Description>Amount of current year fishing income to average (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalElectedFarmFishingIncome">
+      <Name>Total Elected Farm/Fishing Income</Name>
+      <Description>Total elected farm and fishing income (Line 2c).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/currentYearElectedFarmIncome" />
+          <Dependency path="/currentYearElectedFishingIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BASE YEAR INFORMATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/baseYear1TaxableIncome">
+      <Name>Base Year 1 Taxable Income</Name>
+      <Description>Taxable income from first base year (3 years prior).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseYear2TaxableIncome">
+      <Name>Base Year 2 Taxable Income</Name>
+      <Description>Taxable income from second base year (2 years prior).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseYear3TaxableIncome">
+      <Name>Base Year 3 Taxable Income</Name>
+      <Description>Taxable income from third base year (1 year prior).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseYear1Tax">
+      <Name>Base Year 1 Tax</Name>
+      <Description>Tax liability from first base year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseYear2Tax">
+      <Name>Base Year 2 Tax</Name>
+      <Description>Tax liability from second base year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseYear3Tax">
+      <Name>Base Year 3 Tax</Name>
+      <Description>Tax liability from third base year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AVERAGING CALCULATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/oneThirdElectedIncome">
+      <Name>One-Third Elected Income</Name>
+      <Description>One-third of elected farm/fishing income.</Description>
+      <Derived>
+        <Divide>
+          <Dependency path="/totalElectedFarmFishingIncome" />
+          <Int>3</Int>
+        </Divide>
+      </Derived>
+    </Fact>
+
+    <Fact path="/baseYear1AdjustedIncome">
+      <Name>Base Year 1 Adjusted Income</Name>
+      <Description>Base year 1 taxable income plus 1/3 of elected income.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/baseYear1TaxableIncome" />
+          <Dependency path="/oneThirdElectedIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/baseYear2AdjustedIncome">
+      <Name>Base Year 2 Adjusted Income</Name>
+      <Description>Base year 2 taxable income plus 1/3 of elected income.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/baseYear2TaxableIncome" />
+          <Dependency path="/oneThirdElectedIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/baseYear3AdjustedIncome">
+      <Name>Base Year 3 Adjusted Income</Name>
+      <Description>Base year 3 taxable income plus 1/3 of elected income.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/baseYear3TaxableIncome" />
+          <Dependency path="/oneThirdElectedIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX BENEFIT CALCULATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxOnCurrentYearWithoutAveraging">
+      <Name>Tax Without Averaging</Name>
+      <Description>Tax that would be owed without income averaging.</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxBeforeCredits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnReducedCurrentYear">
+      <Name>Tax on Reduced Current Year</Name>
+      <Description>Tax on current year income minus elected income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalTaxBaseYear1">
+      <Name>Additional Tax - Base Year 1</Name>
+      <Description>Additional tax from adding 1/3 to base year 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalTaxBaseYear2">
+      <Name>Additional Tax - Base Year 2</Name>
+      <Description>Additional tax from adding 1/3 to base year 2.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalTaxBaseYear3">
+      <Name>Additional Tax - Base Year 3</Name>
+      <Description>Additional tax from adding 1/3 to base year 3.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAdditionalTax">
+      <Name>Total Additional Tax</Name>
+      <Description>Sum of additional tax from all base years.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/additionalTaxBaseYear1" />
+            <Dependency path="/additionalTaxBaseYear2" />
+          </Add>
+          <Dependency path="/additionalTaxBaseYear3" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxWithAveraging">
+      <Name>Tax With Averaging</Name>
+      <Description>Total tax using income averaging method.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/taxOnReducedCurrentYear" />
+          <Dependency path="/totalAdditionalTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/incomeAveragingBenefit">
+      <Name>Income Averaging Benefit</Name>
+      <Description>Tax savings from income averaging.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/taxOnCurrentYearWithoutAveraging" />
+            <Dependency path="/taxWithAveraging" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleJIsDone">
+      <Name>Schedule J Is Done</Name>
+      <Description>Whether Schedule J is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/electsIncomeAveraging" /></Not>
+          <All>
+            <Dependency path="/electsIncomeAveraging" />
+            <IsComplete><Dependency path="/totalElectedFarmFishingIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleJ">
+      <Name>Include Schedule J in PDF</Name>
+      <Description>Whether to include Schedule J in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/electsIncomeAveraging" />
+          <GreaterThan>
+            <Left><Dependency path="/incomeAveragingBenefit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

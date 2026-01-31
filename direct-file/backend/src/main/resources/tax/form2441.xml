@@ -1,0 +1,371 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 2441: Child and Dependent Care Expenses -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: PERSONS OR ORGANIZATIONS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasDependentCareExpenses">
+      <Name>Has Dependent Care Expenses</Name>
+      <Description>Whether taxpayer has dependent care expenses.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/careProvider1Amount">
+      <Name>Care Provider 1 Amount</Name>
+      <Description>Amount paid to care provider 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/careProvider2Amount">
+      <Name>Care Provider 2 Amount</Name>
+      <Description>Amount paid to care provider 2.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCareProviderPayments">
+      <Name>Total Care Provider Payments</Name>
+      <Description>Total amounts paid to all care providers.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/careProvider1Amount" />
+          <Dependency path="/careProvider2Amount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: CREDIT CALCULATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfQualifyingPersons">
+      <Name>Number of Qualifying Persons</Name>
+      <Description>Number of qualifying persons for care (Line 2).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>10</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedExpenseLimit1Person">
+      <Name>Qualified Expense Limit - 1 Person</Name>
+      <Description>Maximum qualified expenses for 1 qualifying person ($3,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedExpenseLimit2OrMore">
+      <Name>Qualified Expense Limit - 2+ Persons</Name>
+      <Description>Maximum qualified expenses for 2+ qualifying persons ($6,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedExpenseLimit">
+      <Name>Qualified Expense Limit</Name>
+      <Description>Applicable expense limit based on number of qualifying persons (Line 3).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/numberOfQualifyingPersons" /></Left>
+                <Right><Int>0</Int></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/numberOfQualifyingPersons" /></Left>
+                <Right><Int>1</Int></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/qualifiedExpenseLimit1Person" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/qualifiedExpenseLimit2OrMore" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedExpensesEntered">
+      <Name>Qualified Expenses Entered</Name>
+      <Description>Qualified expenses entered by taxpayer (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dependentCareBenefitsReceived">
+      <Name>Dependent Care Benefits Received</Name>
+      <Description>Dependent care benefits received from employer (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dependentCareBenefitsExclusion">
+      <Name>Dependent Care Benefits Exclusion</Name>
+      <Description>Maximum dependent care benefits exclusion ($5,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excludableDependentCareBenefits">
+      <Name>Excludable Dependent Care Benefits</Name>
+      <Description>Excludable dependent care benefits (Line 24).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/dependentCareBenefitsReceived" />
+          <Dependency path="/dependentCareBenefitsExclusion" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableDependentCareBenefits">
+      <Name>Taxable Dependent Care Benefits</Name>
+      <Description>Taxable dependent care benefits (Line 26).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/dependentCareBenefitsReceived" />
+            <Dependency path="/excludableDependentCareBenefits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedExpensesForCredit">
+      <Name>Qualified Expenses for Credit</Name>
+      <Description>Qualified expenses for credit calculation (Line 27).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Min>
+              <Dependency path="/qualifiedExpensesEntered" />
+              <Dependency path="/qualifiedExpenseLimit" />
+            </Min>
+            <Dependency path="/excludableDependentCareBenefits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EARNED INCOME LIMITATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerEarnedIncome">
+      <Name>Taxpayer Earned Income</Name>
+      <Description>Your earned income (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseEarnedIncome">
+      <Name>Spouse Earned Income</Name>
+      <Description>Spouse's earned income (if MFJ) (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/smallerEarnedIncome">
+      <Name>Smaller Earned Income</Name>
+      <Description>Smaller of taxpayer or spouse earned income (Line 7).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/taxpayerEarnedIncome" />
+          <Dependency path="/spouseEarnedIncome" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/expensesAfterEarnedIncomeLimit">
+      <Name>Expenses After Earned Income Limit</Name>
+      <Description>Expenses limited by earned income (Line 8).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/qualifiedExpensesForCredit" />
+          <Dependency path="/smallerEarnedIncome" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT PERCENTAGE                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/creditPercentageBase">
+      <Name>Credit Percentage Base</Name>
+      <Description>Base credit percentage (35%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.35</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditPercentageFloor">
+      <Name>Credit Percentage Floor</Name>
+      <Description>Minimum credit percentage (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditPercentagePhaseoutStart">
+      <Name>Credit Percentage Phaseout Start</Name>
+      <Description>AGI at which credit percentage starts reducing ($15,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>15000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/agiForDependentCareCredit">
+      <Name>AGI for Dependent Care Credit</Name>
+      <Description>AGI for credit percentage calculation (Line 9).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditPercentageReduction">
+      <Name>Credit Percentage Reduction</Name>
+      <Description>Reduction in credit percentage (1% per $2,000 over $15,000).</Description>
+      <Derived>
+        <Multiply>
+          <Max>
+            <Int>0</Int>
+            <Divide>
+              <Subtract>
+                <Dependency path="/agiForDependentCareCredit" />
+                <Dependency path="/creditPercentagePhaseoutStart" />
+              </Subtract>
+              <Dollar>2000</Dollar>
+            </Divide>
+          </Max>
+          <Decimal>0.01</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appliedCreditPercentage">
+      <Name>Applied Credit Percentage</Name>
+      <Description>Credit percentage after reduction (Line 10).</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/creditPercentageFloor" />
+          <Subtract>
+            <Dependency path="/creditPercentageBase" />
+            <Dependency path="/creditPercentageReduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT CALCULATION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/dependentCareCredit">
+      <Name>Dependent Care Credit</Name>
+      <Description>Child and dependent care credit (Line 11).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/expensesAfterEarnedIncomeLimit" />
+          <Dependency path="/appliedCreditPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form2441IsDone">
+      <Name>Form 2441 Is Done</Name>
+      <Description>Whether Form 2441 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDependentCareExpenses" /></Not>
+          <All>
+            <Dependency path="/hasDependentCareExpenses" />
+            <IsComplete><Dependency path="/dependentCareCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm2441">
+      <Name>Include Form 2441 in PDF</Name>
+      <Description>Whether to include Form 2441 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/dependentCareCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/taxableDependentCareBenefits" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

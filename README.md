@@ -1,33 +1,147 @@
-# Direct File
-[Direct File](https://directfile.irs.gov) is a service from the United States Government that provides taxpayers the option to electronically file their federal tax return for free, directly with the Internal Revenue Service (IRS). Direct File is an interview-based service that is intended to work as well on a mobile phone as it does on a laptop, tablet, or desktop computer. It is available in English and Spanish and is designed to be accessible to taxpayers who have a variety of attitudes, aptitudes, abilities, and access needs.
+# Direct File Easy WebUI
 
-Direct File interprets the United States' [Internal Revenue Code (26 USC)](https://www.irs.gov/privacy-disclosure/tax-code-regulations-and-official-guidance) as plain language questions, the answers to which should be known to taxpayers without need of external instructions or publications. Taxpayers' answers are then translated into standard tax forms and transmitted to the IRS's [Modernized e-File (MeF)](https://www.irs.gov/e-file-providers/modernized-e-file-program-information) API, which is available for authorized public use. These questions and logic, developed in close collaboration with the IRS [Office of Chief Counsel](https://www.irs.gov/about-irs/office-of-chief-counsel-at-a-glance), as well as the associated test cases and scenarios, may be useful for others working on products that need to accurately interpret United States tax law as of Tax Year 2024.
+A tax filing platform built on the IRS Direct File open-source codebase, enhanced with AI-powered document analysis and tax optimization features.
 
-Direct File also incorporates the Fact Graph, a declarative, XML-based knowledge graph data structure that is designed to reason about incomplete information, such as a partially completed tax return. The Fact Graph is written in the Scala programming language; it runs on the JVM on the backend and is transpiled via [Scala.js](https://www.scala-js.org) to run on the client as well. Direct File's Fact Graph is not domain-specific, and it may be useful to revenue agencies and as a reference for business rules engine implementations.
+**Current Tax Year: 2025**
 
-Although Direct File only files federal tax returns, United States taxpayers also have state and local filing obligations. Direct File facilitates the completion of these obligations by enabling taxpayers to optionally import their federal return data into a third-party tool that can file state and/or local taxes, without needing to reenter information. This transaction is enabled via a State API, which transfers both standard MeF XML as well as an enriched JSON format that includes additional data elements that were identified as being useful to state revenue agencies to streamline the state tax experience.
+## Overview
 
-Direct File was developed by an in-house team of technologists at the IRS. The blended, cross-agency team included support from [USDS](https://www.usds.gov) and [GSA](https://www.gsa.gov/), as well as vendor teams [TrussWorks](https://truss.works), [Coforma](https://coforma.io), and [ATI](https://atisolutions.us/).
+Direct File Easy WebUI combines the official IRS Direct File tax engine with a modern AI-powered interface to help users prepare and file their federal tax returns. The platform supports standard deduction filers with W-2 income, unemployment, interest income, and various credits and deductions.
 
-For a more details on the program and its history see https://www.irs.gov/pub/irs-pdf/p5969.pdf and https://www.irs.gov/filing/irs-direct-file-for-free
+## Tax Year 2025 Features
 
-## Where do I start?
-See [ONBOARDING.md](/ONBOARDING.md) if you want to jump into running Direct File locally
+### Fully Supported
 
-## Exempted Code
-Not all source code, documentation and metadata used in the development of Direct File is included in this repository. Specifically, any code or data that is considered Personally Identifiable Information (PII), Federal Tax Information (FTI),
-Sensitive But Unclassified (SBU), or source code developed for National Security Systems (NSS), as defined in 40 U.S.C. § 11103, is exempt. Due to these restrictions, certain pieces of functionality have been removed or rewritten.
+| Feature | Description |
+|---------|-------------|
+| **OBBBA Deductions** | New 2025 provisions: overtime exemption, tip exemption, auto loan interest, senior bonus |
+| **Standard Deduction** | $15,750 (Single), $31,500 (MFJ), $23,625 (HOH) |
+| **Child Tax Credit** | $2,200 per qualifying child |
+| **EITC** | Full 2025 thresholds and phase-outs |
+| **HSA** | $4,300 (self), $8,550 (family) contribution limits |
+| **Education** | Educator expenses, student loan interest deduction |
+| **Retirement** | Saver's Credit, 1099-R processing |
 
-# Authorities
-Legal foundations for work include:
-* Source code Harmonization And Reuse in Information Technology Act" of 2024, Public Law 118 - 187
-* OMB Memorandum M-16-21, “Federal Source Code Policy: Achieving Efficiency,
-Transparency, and Innovation through Reusable and Open Source Software,” August 8,
-2016
-* Federal Acquisition Regulation (FAR) Part 27 – Patents, Data, and Copyrights
-* Digital Government Strategy: “Digital Government: Building a 21st Century Platform to
-Better Serve the American People,” May 23, 2012
-* Federal Information Technology Acquisition Reform Act (FITARA), December 2014
-(National Defense Authorization Act for Fiscal Year 2015, Title VIII, Subtitle D)
-* E-Government Act of 2002, Public Law 107-347
-* Clinger-Cohen Act of 1996, Public Law 104-106
+### New for 2025: Schedule 1-A (OBBBA)
+
+The One Big Beautiful Bill Act of 2025 introduced new above-the-line deductions:
+
+| Deduction | Cap | Phase-out |
+|-----------|-----|-----------|
+| Overtime Income Exemption | $12,500 / $25,000 | $150K / $300K |
+| Tip Income Exemption | $25,000 | $150K / $300K |
+| Auto Loan Interest (US-made) | $10,000 | $100K / $200K |
+| Senior Bonus (65+) | $6,000 each | $75K / $150K |
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Direct File Easy WebUI                    │
+├─────────────────┬─────────────────────┬────────────────────┤
+│   df-client     │    Backend (JVM)    │    AI Service      │
+│   (React/TS)    │    (Spring/Scala)   │    (Python)        │
+├─────────────────┼─────────────────────┼────────────────────┤
+│ • Tax Wizard    │ • Fact Graph Engine │ • Document Analysis│
+│ • Flow Engine   │ • Tax Calculations  │ • Tax Optimization │
+│ • Localization  │ • MeF XML Export    │ • IRS Data RAG     │
+└─────────────────┴─────────────────────┴────────────────────┘
+```
+
+### Core Components
+
+- **Fact Graph**: Declarative XML-based tax calculation engine (Scala)
+- **df-client**: React/TypeScript tax filing wizard
+- **AI Service**: Python-based document analysis and recommendations
+- **State API**: Integration for state tax return handoff
+
+## Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/direct-file-easy-webui.git
+cd direct-file-easy-webui
+
+# Install dependencies
+cd direct-file/df-client/df-client-app && npm install
+cd ../../..
+cd ai_service && pip install -r requirements.txt
+
+# Start development servers
+# See ONBOARDING.md for detailed instructions
+```
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [ONBOARDING.md](./ONBOARDING.md) | Getting started guide |
+| [PROJECT_PLAN.md](./PROJECT_PLAN.md) | Project plan & 2025 implementation status |
+| [docs/engineering/](./docs/engineering/) | Technical documentation |
+| [docs/adr/](./docs/adr/) | Architecture Decision Records |
+
+## Project Structure
+
+```
+direct-file-easy-webui/
+├── ai_service/                 # AI-powered analysis (Python)
+├── direct-file/               # IRS Direct File core
+│   ├── backend/               # JVM backend with Fact Graph
+│   │   └── src/main/resources/tax/  # Tax calculation XMLs
+│   ├── df-client/             # React frontend
+│   ├── fact-graph-scala/      # Scala calculation engine
+│   └── state-api/             # State integration API
+├── docs/                      # Documentation
+└── *.md                       # Project docs
+```
+
+## Key Implementation Files
+
+### Tax Year 2025 Constants
+- `direct-file/backend/src/main/resources/tax/constants.xml`
+- `direct-file/backend/src/main/resources/tax/standardDeduction.xml`
+- `direct-file/backend/src/main/resources/tax/taxCalculations.xml`
+
+### OBBBA 2025 Provisions
+- `direct-file/backend/src/main/resources/tax/schedule1A.xml`
+- `direct-file/df-client/df-client-app/src/flow/flow-chunks/income/OBBBAIncomeSubcategory.tsx`
+
+### Credits & Deductions
+- `direct-file/backend/src/main/resources/tax/eitc.xml`
+- `direct-file/backend/src/main/resources/tax/ctcOdc.xml`
+- `direct-file/backend/src/main/resources/tax/studentLoanAdjustment.xml`
+
+## Planned for Future Implementation
+
+The following are on the roadmap for future releases:
+
+| Phase | Features |
+|-------|----------|
+| **Phase 5** | Schedule A (itemized), Schedule B (dividends), Schedule D (capital gains), Education Credits, Clean Vehicle Credit, Adoption Credit |
+| **Phase 6** | Schedule C (self-employment), Schedule E (rental), QBI Deduction, Home Energy Credits |
+| **Phase 7** | Foreign Tax Credit, K-1 Processing, AMT |
+
+See [PROJECT_PLAN.md](./PROJECT_PLAN.md) for the complete implementation roadmap.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+## License
+
+This project incorporates open-source code from the IRS Direct File project.
+
+## References
+
+- [IRS Direct File](https://directfile.irs.gov)
+- [IRS Publication 5969](https://www.irs.gov/pub/irs-pdf/p5969.pdf) - Direct File Overview
+- [Internal Revenue Code (26 USC)](https://www.irs.gov/privacy-disclosure/tax-code-regulations-and-official-guidance)
+- [Modernized e-File (MeF)](https://www.irs.gov/e-file-providers/modernized-e-file-program-information)
+
+## Authorities
+
+Legal foundations for this work include:
+- Source Code Harmonization And Reuse in Information Technology Act of 2024 (P.L. 118-187)
+- OMB Memorandum M-16-21 (Federal Source Code Policy)
+- Federal Acquisition Regulation Part 27
+- E-Government Act of 2002 (P.L. 107-347)

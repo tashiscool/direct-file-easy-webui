@@ -1,0 +1,195 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-C: Cancellation of Debt -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- DEBT CANCELLATION                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099C">
+      <Name>Has 1099-C</Name>
+      <Description>Whether taxpayer received Form 1099-C.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditor1Name">
+      <Name>Creditor 1 Name</Name>
+      <Description>Name of first creditor.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1CancelledAmount">
+      <Name>Debt 1 Cancelled Amount</Name>
+      <Description>Amount of debt cancelled (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1InterestIncluded">
+      <Name>Debt 1 Interest Included</Name>
+      <Description>Interest included in Box 2 (Box 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1Description">
+      <Name>Debt 1 Description</Name>
+      <Description>Description of debt (Box 4).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1IdentifiableEventCode">
+      <Name>Debt 1 Identifiable Event Code</Name>
+      <Description>Identifiable event code (Box 6).</Description>
+      <Writable>
+        <Enum>
+          <Option value="A">Bankruptcy</Option>
+          <Option value="B">Other judicial discharge</Option>
+          <Option value="C">Statute of limitations</Option>
+          <Option value="D">Foreclosure election</Option>
+          <Option value="E">Debt relief from probate</Option>
+          <Option value="F">Agreement between parties</Option>
+          <Option value="G">Decision to discontinue collection</Option>
+          <Option value="H">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1FMVOfProperty">
+      <Name>Debt 1 FMV of Property</Name>
+      <Description>Fair market value of property (Box 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Second 1099-C -->
+    <Fact path="/debt2CancelledAmount">
+      <Name>Debt 2 Cancelled Amount</Name>
+      <Description>Second 1099-C cancelled amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXCLUSIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/debt1Excluded">
+      <Name>Debt 1 Excluded</Name>
+      <Description>Whether debt 1 is excluded from income.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1ExclusionReason">
+      <Name>Debt 1 Exclusion Reason</Name>
+      <Description>Reason for exclusion.</Description>
+      <Writable>
+        <Enum>
+          <Option value="BANKRUPTCY">Discharged in bankruptcy</Option>
+          <Option value="INSOLVENCY">Insolvency exclusion</Option>
+          <Option value="QUALIFIED_FARM">Qualified farm indebtedness</Option>
+          <Option value="QUALIFIED_REAL_PROPERTY">Qualified real property business debt</Option>
+          <Option value="QUALIFIED_PRINCIPAL">Qualified principal residence indebtedness</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/debt1ExcludedAmount">
+      <Name>Debt 1 Excluded Amount</Name>
+      <Description>Amount of debt 1 excluded from income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalCancelledDebt">
+      <Name>Total Cancelled Debt</Name>
+      <Description>Total cancelled debt from all 1099-C.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/debt1CancelledAmount" />
+          <Dependency path="/debt2CancelledAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalExcludedDebt">
+      <Name>Total Excluded Debt</Name>
+      <Description>Total cancelled debt excluded from income.</Description>
+      <Derived>
+        <Dependency path="/debt1ExcludedAmount" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableCancelledDebt">
+      <Name>Taxable Cancelled Debt</Name>
+      <Description>Cancelled debt includible in income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalCancelledDebt" />
+            <Dependency path="/totalExcludedDebt" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099CIsDone">
+      <Name>Form 1099-C Is Done</Name>
+      <Description>Whether 1099-C entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099C" /></Not>
+          <All>
+            <Dependency path="/has1099C" />
+            <IsComplete><Dependency path="/totalCancelledDebt" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

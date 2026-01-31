@@ -1,0 +1,437 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule SE: Self-Employment Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYMENT INCOME SOURCES              -->
+    <!-- ============================================ -->
+
+    <Fact path="/netProfitScheduleC">
+      <Name>Net Profit from Schedule C</Name>
+      <Description>Net profit or loss from Schedule C (Line 1a).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="scheduleC" path="/hasSelfEmploymentIncome" />
+            </When>
+            <Then>
+              <Dependency module="scheduleC" path="/businessNetProfitLoss" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netProfitScheduleF">
+      <Name>Net Profit from Schedule F</Name>
+      <Description>Net profit or loss from Schedule F (Line 1b).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasFarmIncome" />
+            </When>
+            <Then>
+              <Dependency path="/farmNetProfitLoss" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/partnershipSEEarnings">
+      <Name>Partnership SE Earnings</Name>
+      <Description>Partner's share of partnership SE earnings (Line 1b).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="scheduleK1" path="/hasScheduleK1" />
+            </When>
+            <Then>
+              <Dependency module="scheduleK1" path="/k1SelfEmploymentEarnings" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ministerHousingAllowance">
+      <Name>Minister Housing Allowance</Name>
+      <Description>Ministerial earnings subject to SE tax (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/combinedSEIncome">
+      <Name>Combined SE Income</Name>
+      <Description>Combined self-employment income from all sources (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/netProfitScheduleC" />
+              <Dependency path="/netProfitScheduleF" />
+            </Add>
+            <Dependency path="/partnershipSEEarnings" />
+          </Add>
+          <Dependency path="/ministerHousingAllowance" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SE TAX THRESHOLD                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/seThreshold">
+      <Name>SE Tax Threshold</Name>
+      <Description>Minimum net earnings for SE tax ($400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>400</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/subjectToSETax">
+      <Name>Subject to SE Tax</Name>
+      <Description>Whether net SE earnings exceed threshold.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/combinedSEIncome" /></Left>
+          <Right><Dependency path="/seThreshold" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NET EARNINGS FROM SELF-EMPLOYMENT           -->
+    <!-- ============================================ -->
+
+    <Fact path="/seMultiplier">
+      <Name>SE Multiplier</Name>
+      <Description>Multiply SE income by 92.35% (Line 4).</Description>
+      <Derived>
+        <Decimal>0.9235</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netSEEarnings">
+      <Name>Net Earnings from Self-Employment</Name>
+      <Description>Net earnings subject to SE tax (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/subjectToSETax" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/combinedSEIncome" />
+                <Dependency path="/seMultiplier" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SOCIAL SECURITY PORTION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/socialSecurityWageBase2025">
+      <Name>Social Security Wage Base</Name>
+      <Description>Maximum earnings subject to Social Security tax.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>176100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wagesSubjectToSS">
+      <Name>Wages Subject to Social Security</Name>
+      <Description>Social Security wages from employment (W-2) (Line 8a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/unreportedTipsSubjectToSS">
+      <Name>Unreported Tips Subject to SS</Name>
+      <Description>Unreported tips subject to Social Security (Line 8b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalWagesSubjectToSS">
+      <Name>Total Wages Subject to SS</Name>
+      <Description>Total wages already subject to SS tax (Line 8c).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/wagesSubjectToSS" />
+          <Dependency path="/unreportedTipsSubjectToSS" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/remainingSSWageBase">
+      <Name>Remaining SS Wage Base</Name>
+      <Description>Wage base remaining for SE tax (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/socialSecurityWageBase2025" />
+            <Dependency path="/totalWagesSubjectToSS" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seTaxableForSS">
+      <Name>SE Earnings Taxable for SS</Name>
+      <Description>SE earnings subject to Social Security tax (Line 10).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/netSEEarnings" />
+          <Dependency path="/remainingSSWageBase" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX CALCULATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/socialSecurityTaxRate">
+      <Name>Social Security Tax Rate</Name>
+      <Description>SE Social Security tax rate (12.4%).</Description>
+      <Derived>
+        <Decimal>0.124</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicareTaxRate">
+      <Name>Medicare Tax Rate</Name>
+      <Description>SE Medicare tax rate (2.9%).</Description>
+      <Derived>
+        <Decimal>0.029</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxRate">
+      <Name>Additional Medicare Tax Rate</Name>
+      <Description>Additional Medicare tax rate (0.9%).</Description>
+      <Derived>
+        <Decimal>0.009</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seSocialSecurityTax">
+      <Name>Social Security Tax</Name>
+      <Description>Social Security portion of SE tax (Line 11).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/seTaxableForSS" />
+          <Dependency path="/socialSecurityTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seMedicareTax">
+      <Name>Medicare Tax</Name>
+      <Description>Medicare portion of SE tax (Line 12).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/netSEEarnings" />
+          <Dependency path="/medicareTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareThreshold">
+      <Name>Additional Medicare Threshold</Name>
+      <Description>Threshold for additional Medicare tax.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then><Dollar>250000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then><Dollar>125000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>200000</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seAdditionalMedicareTax">
+      <Name>Additional Medicare Tax</Name>
+      <Description>Additional Medicare tax on SE earnings (Line 13).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/netSEEarnings" /></Left>
+                <Right><Dependency path="/additionalMedicareThreshold" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/netSEEarnings" />
+                  <Dependency path="/additionalMedicareThreshold" />
+                </Subtract>
+                <Dependency path="/additionalMedicareTaxRate" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSETax">
+      <Name>Total Self-Employment Tax</Name>
+      <Description>Total SE tax (Line 14).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Add>
+              <Dependency path="/seSocialSecurityTax" />
+              <Dependency path="/seMedicareTax" />
+            </Add>
+            <Dependency path="/seAdditionalMedicareTax" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIBLE PORTION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/deductibleSETax">
+      <Name>Deductible SE Tax</Name>
+      <Description>Deductible portion of SE tax (50%) (Line 15).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Add>
+            <Dependency path="/seSocialSecurityTax" />
+            <Dependency path="/seMedicareTax" />
+          </Add>
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OPTIONAL METHODS                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/usesOptionalMethod">
+      <Name>Uses Optional Method</Name>
+      <Description>Whether taxpayer uses optional method for SE tax.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmOptionalMethodLimit">
+      <Name>Farm Optional Method Limit</Name>
+      <Description>Maximum for farm optional method ($6,920 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6920</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nonfarmOptionalMethodLimit">
+      <Name>Non-Farm Optional Method Limit</Name>
+      <Description>Maximum for non-farm optional method ($6,920 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6920</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleSEIsDone">
+      <Name>Schedule SE Is Done</Name>
+      <Description>Whether Schedule SE is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/subjectToSETax" /></Not>
+          <All>
+            <Dependency path="/subjectToSETax" />
+            <IsComplete><Dependency path="/combinedSEIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleSE">
+      <Name>Include Schedule SE in PDF</Name>
+      <Description>Whether to include Schedule SE in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalSETax" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -28,6 +28,7 @@ import { SignSubcategory } from './flow-chunks/sign-and-submit/SignSubcategory.j
 import { SubmitSubcategory } from './flow-chunks/sign-and-submit/SubmitSubcategory.js';
 import { PrintAndMailSubcategory } from './flow-chunks/sign-and-submit/PrintAndMailSubcategory.js';
 import { TotalIncomeSummarySubcategory } from './flow-chunks/income/TotalIncomeSummarySubcategory.js';
+import { OBBBAIncomeSubcategory } from './flow-chunks/income/OBBBAIncomeSubcategory.js';
 
 /**
  * Welcome to the flow!
@@ -66,6 +67,8 @@ const flowNodes = (
       {PreReleaseRetirementSubcategory}
       {RetirementIncomeSubcategory}
       {SocialSecurityIncomeSubcategory}
+      {/* OBBBA 2025 Additional Deductions (overtime, tips, auto loan interest) */}
+      {OBBBAIncomeSubcategory}
       {/* This must always be the last subcategory in income */}
       {TotalIncomeSummarySubcategory}
     </Category>

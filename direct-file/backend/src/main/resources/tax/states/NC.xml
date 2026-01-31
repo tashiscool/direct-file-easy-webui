@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- North Carolina Form D-400: Individual Income Tax Return -->
+<!-- North Carolina has a flat 4.75% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNCD400">
+      <Name>Has NC Form D-400</Name>
+      <Description>Whether taxpayer files North Carolina Form D-400.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NC</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- NC Tax Rate (flat) -->
+    <Fact path="/ncTaxRate">
+      <Name>North Carolina Tax Rate</Name>
+      <Description>North Carolina flat income tax rate (4.75%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0475</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- NC Standard Deduction -->
+    <Fact path="/ncStdDeductionSingle">
+      <Name>NC Standard Deduction Single</Name>
+      <Description>NC standard deduction for single ($12,750).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>12750</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ncStdDeductionMFJ">
+      <Name>NC Standard Deduction MFJ</Name>
+      <Description>NC standard deduction for MFJ ($25,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ncStandardDeduction">
+      <Name>NC Standard Deduction</Name>
+      <Description>NC standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/ncStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/ncStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NC Taxable Income -->
+    <Fact path="/ncTaxableIncome">
+      <Name>NC Taxable Income</Name>
+      <Description>North Carolina taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/ncStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NC Income Tax -->
+    <Fact path="/ncIncomeTax">
+      <Name>NC Income Tax</Name>
+      <Description>North Carolina income tax (flat 4.75%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/ncTaxableIncome" />
+          <Dependency path="/ncTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ncd400IsDone">
+      <Name>NC Form D-400 Is Done</Name>
+      <Description>Whether NC Form D-400 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNCD400" /></Not>
+          <All>
+            <Dependency path="/hasNCD400" />
+            <IsComplete><Dependency path="/ncIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNCD400">
+      <Name>Include NC Form D-400 in PDF</Name>
+      <Description>Whether to include NC Form D-400.</Description>
+      <Derived>
+        <Dependency path="/hasNCD400" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

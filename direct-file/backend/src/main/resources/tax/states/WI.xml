@@ -1,0 +1,170 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Wisconsin Form 1: Individual Income Tax Return -->
+<!-- Wisconsin has progressive rates from 3.5% to 7.65% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasWI1">
+      <Name>Has WI Form 1</Name>
+      <Description>Whether taxpayer files Wisconsin Form 1.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>WI</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- WI Standard Deduction -->
+    <Fact path="/wiStdDeductionSingle">
+      <Name>WI Standard Deduction Single</Name>
+      <Description>Wisconsin standard deduction for single ($13,100).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>13100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wiStdDeductionMFJ">
+      <Name>WI Standard Deduction MFJ</Name>
+      <Description>Wisconsin standard deduction for MFJ ($24,230).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24230</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wiStandardDeduction">
+      <Name>WI Standard Deduction</Name>
+      <Description>Wisconsin standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/wiStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/wiStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- WI Taxable Income -->
+    <Fact path="/wiTaxableIncome">
+      <Name>WI Taxable Income</Name>
+      <Description>Wisconsin taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/wiStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- WI Income Tax (progressive) -->
+    <Fact path="/wiIncomeTax">
+      <Name>WI Income Tax</Name>
+      <Description>Wisconsin income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/wiTaxableIncome" /></Left>
+                <Right><Dollar>14320</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/wiTaxableIncome" />
+                <Decimal>0.035</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/wiTaxableIncome" /></Left>
+                <Right><Dollar>28640</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>501</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/wiTaxableIncome" />
+                    <Dollar>14320</Dollar>
+                  </Subtract>
+                  <Decimal>0.044</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/wiTaxableIncome" /></Left>
+                <Right><Dollar>315310</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>1131</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/wiTaxableIncome" />
+                    <Dollar>28640</Dollar>
+                  </Subtract>
+                  <Decimal>0.053</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>16324</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/wiTaxableIncome" />
+                  <Dollar>315310</Dollar>
+                </Subtract>
+                <Decimal>0.0765</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wi1IsDone">
+      <Name>WI Form 1 Is Done</Name>
+      <Description>Whether WI Form 1 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasWI1" /></Not>
+          <All>
+            <Dependency path="/hasWI1" />
+            <IsComplete><Dependency path="/wiIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeWI1">
+      <Name>Include WI Form 1 in PDF</Name>
+      <Description>Whether to include WI Form 1.</Description>
+      <Derived>
+        <Dependency path="/hasWI1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

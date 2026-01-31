@@ -1,0 +1,225 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1116: Foreign Tax Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForeignTaxCredit">
+      <Name>Has Foreign Tax Credit</Name>
+      <Description>Whether taxpayer claims foreign tax credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignIncomeCategory">
+      <Name>Foreign Income Category</Name>
+      <Description>Category of foreign income.</Description>
+      <Writable>
+        <Enum>
+          <Option value="GENERAL">General category income</Option>
+          <Option value="PASSIVE">Passive category income</Option>
+          <Option value="FOREIGN_BRANCH">Foreign branch income</Option>
+          <Option value="SECTION_901J">Section 901(j) income</Option>
+          <Option value="CERTAIN_INCOME">Certain income re-sourced by treaty</Option>
+          <Option value="LUMP_SUM">Lump-sum distributions</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Taxable Income or Loss From Sources Outside US -->
+    <Fact path="/foreignGrossIncome">
+      <Name>Foreign Gross Income</Name>
+      <Description>Gross income from sources outside US (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignDeductions">
+      <Name>Foreign Deductions</Name>
+      <Description>Deductions definitely related to foreign income (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/proRataShareOfDeductions">
+      <Name>Pro Rata Share of Deductions</Name>
+      <Description>Pro rata share of other deductions (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableForeignIncome">
+      <Name>Taxable Foreign Income</Name>
+      <Description>Taxable income from sources outside US (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/foreignGrossIncome" />
+          <Add>
+            <Dependency path="/foreignDeductions" />
+            <Dependency path="/proRataShareOfDeductions" />
+          </Add>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: Foreign Taxes Paid or Accrued -->
+    <Fact path="/foreignTaxesPaidInForeignCurrency">
+      <Name>Foreign Taxes in Foreign Currency</Name>
+      <Description>Foreign taxes paid in foreign currency (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxesPaidInUSD">
+      <Name>Foreign Taxes in USD</Name>
+      <Description>Foreign taxes converted to USD (Line 9).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignTaxesPaid">
+      <Name>Total Foreign Taxes Paid</Name>
+      <Description>Total foreign taxes paid or accrued (Line 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Part III: Figuring the Credit -->
+    <Fact path="/totalTaxableIncome">
+      <Name>Total Taxable Income</Name>
+      <Description>Total taxable income from all sources (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditLimit">
+      <Name>Foreign Tax Credit Limit</Name>
+      <Description>Foreign tax credit limit (Line 21).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/totalTaxableIncome" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Divide>
+                  <Max><Dollar>0</Dollar><Dependency path="/taxableForeignIncome" /></Max>
+                  <Dependency path="/totalTaxableIncome" />
+                </Divide>
+                <Dependency path="/usRegularTaxLiability" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usRegularTaxLiability">
+      <Name>US Regular Tax Liability</Name>
+      <Description>US regular tax liability before credits (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditAllowed">
+      <Name>Foreign Tax Credit Allowed</Name>
+      <Description>Foreign tax credit allowed (Line 22).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/totalForeignTaxesPaid" />
+          <Dependency path="/foreignTaxCreditLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- Carryover -->
+    <Fact path="/foreignTaxCreditCarryback">
+      <Name>Foreign Tax Credit Carryback</Name>
+      <Description>Foreign tax credit carryback (1 year).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalForeignTaxesPaid" />
+            <Dependency path="/foreignTaxCreditAllowed" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1116IsDone">
+      <Name>Form 1116 Is Done</Name>
+      <Description>Whether Form 1116 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForeignTaxCredit" /></Not>
+          <All>
+            <Dependency path="/hasForeignTaxCredit" />
+            <IsComplete><Dependency path="/foreignTaxCreditAllowed" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1116">
+      <Name>Include Form 1116 in PDF</Name>
+      <Description>Whether to include Form 1116.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/foreignTaxCreditAllowed" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

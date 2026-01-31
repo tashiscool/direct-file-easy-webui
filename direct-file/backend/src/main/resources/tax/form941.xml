@@ -1,0 +1,446 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 941: Employer's Quarterly Federal Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EMPLOYER INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEmployeesForm941">
+      <Name>Has Employees</Name>
+      <Description>Whether employer has employees subject to 941.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/quarterReported">
+      <Name>Quarter Reported</Name>
+      <Description>Quarter being reported (1-4).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>4</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfEmployees">
+      <Name>Number of Employees</Name>
+      <Description>Number of employees who received wages (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 1: WAGES AND TIPS                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/wagesAndTips941">
+      <Name>Wages, Tips, and Other Compensation</Name>
+      <Description>Wages, tips, and other compensation (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalIncomeTaxWithheld941">
+      <Name>Federal Income Tax Withheld</Name>
+      <Description>Federal income tax withheld (Line 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesSubjectToSS941">
+      <Name>Wages Subject to Social Security</Name>
+      <Description>Wages subject to Social Security tax (Line 5a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityTaxRate941">
+      <Name>Social Security Tax Rate</Name>
+      <Description>Combined employer/employee SS rate (12.4%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.124</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityTax941">
+      <Name>Social Security Tax</Name>
+      <Description>Social Security tax (Line 5a Column 2).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesSubjectToSS941" />
+          <Dependency path="/socialSecurityTaxRate941" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipsSubjectToSS941">
+      <Name>Tips Subject to Social Security</Name>
+      <Description>Qualified sick leave wages (Line 5a(i)).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesSubjectToMedicare941">
+      <Name>Wages Subject to Medicare</Name>
+      <Description>Wages subject to Medicare tax (Line 5c).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/medicareTaxRate941">
+      <Name>Medicare Tax Rate</Name>
+      <Description>Combined employer/employee Medicare rate (2.9%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.029</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicareTax941">
+      <Name>Medicare Tax</Name>
+      <Description>Medicare tax (Line 5c Column 2).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesSubjectToMedicare941" />
+          <Dependency path="/medicareTaxRate941" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wagesSubjectToAdditionalMedicare941">
+      <Name>Wages Subject to Additional Medicare</Name>
+      <Description>Wages subject to Additional Medicare Tax (Line 5d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalMedicareTax941">
+      <Name>Additional Medicare Tax</Name>
+      <Description>Additional Medicare Tax withheld (Line 5d Column 2).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesSubjectToAdditionalMedicare941" />
+          <Decimal>0.009</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSSMedicareTaxes941">
+      <Name>Total SS and Medicare Taxes</Name>
+      <Description>Total Social Security and Medicare taxes (Line 5e).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/socialSecurityTax941" />
+            <Dependency path="/medicareTax941" />
+          </Add>
+          <Dependency path="/additionalMedicareTax941" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 1: TOTAL TAXES                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalTaxesBeforeAdjustments941">
+      <Name>Total Taxes Before Adjustments</Name>
+      <Description>Total taxes before adjustments (Line 6).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/federalIncomeTaxWithheld941" />
+          <Dependency path="/totalSSMedicareTaxes941" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/currentQuarterAdjustments">
+      <Name>Current Quarter Adjustments</Name>
+      <Description>Adjustments for current quarter (Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sickPayAdjustment">
+      <Name>Sick Pay Adjustment</Name>
+      <Description>Adjustment for sick pay (Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tipsGroupTermLifeAdjustment">
+      <Name>Tips/Group Term Life Adjustment</Name>
+      <Description>Adjustment for tips and group-term life insurance (Line 9).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxAfterAdjustments941">
+      <Name>Total Tax After Adjustments</Name>
+      <Description>Total tax after adjustments (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalTaxesBeforeAdjustments941" />
+            <Dependency path="/currentQuarterAdjustments" />
+          </Add>
+          <Add>
+            <Dependency path="/sickPayAdjustment" />
+            <Dependency path="/tipsGroupTermLifeAdjustment" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 1: TAX CREDITS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedSmallBusinessPayrollCredit">
+      <Name>Qualified Small Business Payroll Credit</Name>
+      <Description>Credit for qualified small business payroll (Line 11a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxAfterCredits941">
+      <Name>Total Tax After Credits</Name>
+      <Description>Total tax after adjustments and credits (Line 12).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalTaxAfterAdjustments941" />
+            <Dependency path="/qualifiedSmallBusinessPayrollCredit" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 2: DEPOSITS                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalDepositsForQuarter">
+      <Name>Total Deposits for Quarter</Name>
+      <Description>Total deposits for the quarter (Line 13a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/cobrandedDeferralPayment">
+      <Name>COBRA Premium Assistance</Name>
+      <Description>COBRA premium assistance credit (Line 13b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDepositsAndCredits941">
+      <Name>Total Deposits and Credits</Name>
+      <Description>Total deposits and credits (Line 13).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/totalDepositsForQuarter" />
+          <Dependency path="/cobrandedDeferralPayment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 2: BALANCE DUE OR OVERPAYMENT          -->
+    <!-- ============================================ -->
+
+    <Fact path="/balanceDue941">
+      <Name>Balance Due</Name>
+      <Description>Balance due (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalTaxAfterCredits941" />
+            <Dependency path="/totalDepositsAndCredits941" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overpayment941">
+      <Name>Overpayment</Name>
+      <Description>Overpayment (Line 15).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalDepositsAndCredits941" />
+            <Dependency path="/totalTaxAfterCredits941" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEPOSIT SCHEDULE                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/depositSchedule">
+      <Name>Deposit Schedule</Name>
+      <Description>Deposit schedule (monthly or semiweekly).</Description>
+      <Writable>
+        <Enum>
+          <Option value="MONTHLY">Monthly</Option>
+          <Option value="SEMIWEEKLY">Semiweekly</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/month1Liability">
+      <Name>Month 1 Liability</Name>
+      <Description>Tax liability for first month of quarter.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/month2Liability">
+      <Name>Month 2 Liability</Name>
+      <Description>Tax liability for second month of quarter.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/month3Liability">
+      <Name>Month 3 Liability</Name>
+      <Description>Tax liability for third month of quarter.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLiabilityForQuarter">
+      <Name>Total Liability for Quarter</Name>
+      <Description>Total tax liability for the quarter.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/month1Liability" />
+            <Dependency path="/month2Liability" />
+          </Add>
+          <Dependency path="/month3Liability" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form941IsDone">
+      <Name>Form 941 Is Done</Name>
+      <Description>Whether Form 941 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasEmployeesForm941" /></Not>
+          <All>
+            <Dependency path="/hasEmployeesForm941" />
+            <IsComplete><Dependency path="/totalTaxAfterCredits941" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm941">
+      <Name>Include Form 941 in PDF</Name>
+      <Description>Whether to include Form 941 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasEmployeesForm941" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

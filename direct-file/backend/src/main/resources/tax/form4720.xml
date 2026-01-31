@@ -1,0 +1,115 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4720: Return of Certain Excise Taxes Under Chapters 41 and 42 of the IRC -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm4720">
+      <Name>Has Form 4720</Name>
+      <Description>Whether taxpayer has private foundation or political organization excise taxes.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Part I: Taxes on Self-Dealing (Section 4941) -->
+    <Fact path="/selfDealingTaxableAmount">
+      <Name>Self-Dealing Taxable Amount</Name>
+      <Description>Amount involved in acts of self-dealing with disqualified persons.</Description>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/selfDealingInitialTax">
+      <Name>Self-Dealing Initial Tax (10%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/selfDealingTaxableAmount" /><Decimal>0.10</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part II: Taxes on Failure to Distribute Income (Section 4942) -->
+    <Fact path="/undistributedIncome">
+      <Name>Undistributed Income</Name>
+      <Description>Required minimum distribution not made.</Description>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/undistributedIncomeTax">
+      <Name>Undistributed Income Tax (30%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/undistributedIncome" /><Decimal>0.30</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part III: Taxes on Excess Business Holdings (Section 4943) -->
+    <Fact path="/excessBusinessHoldingsValue">
+      <Name>Excess Business Holdings Value</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/excessBusinessHoldingsTax">
+      <Name>Excess Business Holdings Tax (10%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/excessBusinessHoldingsValue" /><Decimal>0.10</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part IV: Taxes on Jeopardizing Investments (Section 4944) -->
+    <Fact path="/jeopardizingInvestmentsAmount">
+      <Name>Jeopardizing Investments Amount</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/jeopardizingInvestmentsTax">
+      <Name>Jeopardizing Investments Tax (10%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/jeopardizingInvestmentsAmount" /><Decimal>0.10</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part V: Taxes on Taxable Expenditures (Section 4945) -->
+    <Fact path="/taxableExpendituresAmount">
+      <Name>Taxable Expenditures Amount</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/taxableExpendituresTax">
+      <Name>Taxable Expenditures Tax (20%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/taxableExpendituresAmount" /><Decimal>0.20</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part VI: Taxes on Political Expenditures (Section 4955) -->
+    <Fact path="/politicalExpendituresAmount">
+      <Name>Political Expenditures Amount</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/politicalExpendituresTax">
+      <Name>Political Expenditures Tax (10%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/politicalExpendituresAmount" /><Decimal>0.10</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Part VII: Taxes on Disqualifying Lobbying Expenditures (Section 4911) -->
+    <Fact path="/excessLobbyingExpenditures">
+      <Name>Excess Lobbying Expenditures</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/lobbyingExpendituresTax">
+      <Name>Lobbying Expenditures Tax (25%)</Name>
+      <Derived>
+        <Multiply><Dependency path="/excessLobbyingExpenditures" /><Decimal>0.25</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <!-- Total Chapter 41/42 Excise Taxes -->
+    <Fact path="/totalChapter4142ExciseTax">
+      <Name>Total Chapter 41/42 Excise Tax</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Sum>
+          <Dependency path="/selfDealingInitialTax" />
+          <Dependency path="/undistributedIncomeTax" />
+          <Dependency path="/excessBusinessHoldingsTax" />
+          <Dependency path="/jeopardizingInvestmentsTax" />
+          <Dependency path="/taxableExpendituresTax" />
+          <Dependency path="/politicalExpendituresTax" />
+          <Dependency path="/lobbyingExpendituresTax" />
+        </Sum>
+      </Derived>
+    </Fact>
+    <Fact path="/form4720IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm4720" /></Not>
+          <IsComplete><Dependency path="/totalChapter4142ExciseTax" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

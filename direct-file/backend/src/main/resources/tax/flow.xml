@@ -698,6 +698,8 @@
             <Dependency module="cdcc" path="/dependentCareBenefitsIsComplete" />
             <Dependency module="hsa" path="/isHsaSectionComplete" />
             <Dependency module="income" path="/flowHasSeenTotalIncomeSummary" />
+            <!-- OBBBA 2025: Schedule 1-A Additional Deductions section -->
+            <Dependency module="schedule1A" path="/obbbaDeductionsIsDone" />
           </All>
         </Not>
       </Derived>

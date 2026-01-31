@@ -1,0 +1,119 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4547: Trump Savings Account (New for 2025 - OBBBA Provision) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm4547">
+      <Name>Has Form 4547</Name>
+      <Description>Whether taxpayer has Trump Savings Account.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/trumpSavingsContributions">
+      <Name>Trump Savings Contributions</Name>
+      <Description>Total contributions to Trump Savings Account.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxTrumpSavingsContribution">
+      <Name>Max Trump Savings Contribution</Name>
+      <Description>Maximum annual contribution ($5,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/trumpSavingsDistributions">
+      <Name>Trump Savings Distributions</Name>
+      <Description>Distributions from Trump Savings Account.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/trumpSavingsQualifiedExpenses">
+      <Name>Trump Savings Qualified Expenses</Name>
+      <Description>Qualified education, first home, or business expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/trumpSavingsTaxableAmount">
+      <Name>Trump Savings Taxable Amount</Name>
+      <Description>Taxable portion of Trump Savings distributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/trumpSavingsDistributions" />
+            <Dependency path="/trumpSavingsQualifiedExpenses" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/trumpSavingsDeduction">
+      <Name>Trump Savings Deduction</Name>
+      <Description>Deduction for Trump Savings contributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/trumpSavingsContributions" />
+          <Dependency path="/maxTrumpSavingsContribution" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4547IsDone">
+      <Name>Form 4547 Is Done</Name>
+      <Description>Whether Form 4547 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm4547" /></Not>
+          <All>
+            <Dependency path="/hasForm4547" />
+            <IsComplete><Dependency path="/trumpSavingsDeduction" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4547">
+      <Name>Include Form 4547 in PDF</Name>
+      <Description>Whether to include Form 4547.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/trumpSavingsContributions" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/trumpSavingsDistributions" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

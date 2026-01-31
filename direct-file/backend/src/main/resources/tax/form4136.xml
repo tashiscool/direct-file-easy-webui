@@ -1,0 +1,140 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4136: Credit for Federal Tax Paid on Fuels -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFuelTaxCredit">
+      <Name>Has Fuel Tax Credit</Name>
+      <Description>Whether taxpayer claims fuel tax credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/nontaxableUseOfGasoline">
+      <Name>Nontaxable Use of Gasoline</Name>
+      <Description>Gasoline for nontaxable use (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gasolineCreditRate">
+      <Name>Gasoline Credit Rate</Name>
+      <Description>Credit rate per gallon for gasoline ($0.183).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.183</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gasolineCredit">
+      <Name>Gasoline Credit</Name>
+      <Description>Credit for gasoline.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/nontaxableUseOfGasoline" />
+          <Dependency path="/gasolineCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nontaxableUseOfDiesel">
+      <Name>Nontaxable Use of Diesel</Name>
+      <Description>Diesel fuel for nontaxable use (Line 2).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dieselCreditRate">
+      <Name>Diesel Credit Rate</Name>
+      <Description>Credit rate per gallon for diesel ($0.243).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.243</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dieselCredit">
+      <Name>Diesel Credit</Name>
+      <Description>Credit for diesel.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/nontaxableUseOfDiesel" />
+          <Dependency path="/dieselCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aviationGasoline">
+      <Name>Aviation Gasoline</Name>
+      <Description>Aviation gasoline (Line 4).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alternativeFuels">
+      <Name>Alternative Fuels</Name>
+      <Description>Alternative fuel used (Line 5).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFuelTaxCredit">
+      <Name>Total Fuel Tax Credit</Name>
+      <Description>Total fuel tax credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/gasolineCredit" />
+          <Dependency path="/dieselCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4136IsDone">
+      <Name>Form 4136 Is Done</Name>
+      <Description>Whether Form 4136 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFuelTaxCredit" /></Not>
+          <All>
+            <Dependency path="/hasFuelTaxCredit" />
+            <IsComplete><Dependency path="/totalFuelTaxCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4136">
+      <Name>Include Form 4136 in PDF</Name>
+      <Description>Whether to include Form 4136.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalFuelTaxCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

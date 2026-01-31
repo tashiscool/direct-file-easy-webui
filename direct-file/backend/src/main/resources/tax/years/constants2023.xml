@@ -1,0 +1,159 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year 2023 Constants -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Tax Year -->
+    <Fact path="/taxYear2023">
+      <Name>Tax Year 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Int>2023</Int></Derived>
+    </Fact>
+
+    <!-- Standard Deductions 2023 -->
+    <Fact path="/stdDeductionSingle2023">
+      <Name>Standard Deduction Single 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>13850</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFJ2023">
+      <Name>Standard Deduction MFJ 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>27700</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionHOH2023">
+      <Name>Standard Deduction HOH 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>20800</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFS2023">
+      <Name>Standard Deduction MFS 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>13850</Dollar></Derived>
+    </Fact>
+
+    <!-- Additional Standard Deduction for Age/Blindness 2023 -->
+    <Fact path="/additionalStdDeductionSingle2023">
+      <Name>Additional Std Deduction Single 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>1850</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/additionalStdDeductionMFJ2023">
+      <Name>Additional Std Deduction MFJ 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>1500</Dollar></Derived>
+    </Fact>
+
+    <!-- Child Tax Credit 2023 -->
+    <Fact path="/ctcPerChild2023">
+      <Name>CTC Per Child 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>2000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/actcRefundable2023">
+      <Name>ACTC Refundable 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>1600</Dollar></Derived>
+    </Fact>
+
+    <!-- EITC Amounts 2023 -->
+    <Fact path="/eitcMax0Children2023">
+      <Name>EITC Max 0 Children 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>600</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax1Child2023">
+      <Name>EITC Max 1 Child 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>3995</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax2Children2023">
+      <Name>EITC Max 2 Children 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>6604</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax3Children2023">
+      <Name>EITC Max 3+ Children 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>7430</Dollar></Derived>
+    </Fact>
+
+    <!-- HSA Limits 2023 -->
+    <Fact path="/hsaSelfLimit2023">
+      <Name>HSA Self-Only Limit 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>3850</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/hsaFamilyLimit2023">
+      <Name>HSA Family Limit 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>7750</Dollar></Derived>
+    </Fact>
+
+    <!-- Tax Bracket Thresholds 2023 (Single) -->
+    <Fact path="/bracket10Threshold2023">
+      <Name>10% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>11000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket12Threshold2023">
+      <Name>12% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>44725</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket22Threshold2023">
+      <Name>22% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>95375</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket24Threshold2023">
+      <Name>24% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>182100</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket32Threshold2023">
+      <Name>32% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>231250</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket35Threshold2023">
+      <Name>35% Bracket Threshold 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>578125</Dollar></Derived>
+    </Fact>
+
+    <!-- Social Security Wage Base 2023 -->
+    <Fact path="/ssWageBase2023">
+      <Name>SS Wage Base 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>160200</Dollar></Derived>
+    </Fact>
+
+    <!-- Foreign Earned Income Exclusion 2023 -->
+    <Fact path="/feiExclusion2023">
+      <Name>Foreign Earned Income Exclusion 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>120000</Dollar></Derived>
+    </Fact>
+
+    <!-- SALT Deduction Cap 2023 -->
+    <Fact path="/saltCap2023">
+      <Name>SALT Cap 2023</Name>
+      <TaxYear>2023</TaxYear>
+      <Derived><Dollar>10000</Dollar></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

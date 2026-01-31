@@ -1,215 +1,201 @@
-# Direct File - Quick Index
+# Direct File Easy WebUI - Quick Index
 
 ## Project Overview
-Direct File is a free IRS service that allows taxpayers to electronically file federal tax returns directly with the IRS. It's designed to be mobile-friendly and accessible in both English and Spanish.
+Direct File Easy WebUI is a tax filing platform built on the IRS Direct File open-source codebase. It provides AI-powered document analysis and tax optimization for federal tax returns.
+
+**Current Tax Year: 2025**
 
 ## Key Components
-1. **Wizard-Based System**
-   - Step-by-step tax filing process
-   - Smart form validation
-   - Real-time error checking
-   - Progress tracking
 
-2. **Frontend Application**
-   - React-based web interface
-   - TypeScript for type safety
-   - Tailwind CSS for styling
-   - Vite for fast development
+### 1. Fact Graph Engine (Scala)
+- XML-based declarative tax calculations
+- Location: `direct-file/backend/src/main/resources/tax/`
+- Key files:
+  - `constants.xml` - Tax year constants
+  - `standardDeduction.xml` - Deduction amounts
+  - `taxCalculations.xml` - AGI, brackets
+  - `schedule1A.xml` - **OBBBA 2025 deductions**
+  - `eitc.xml` - EITC calculations
+  - `ctcOdc.xml` - CTC/ODC calculations
 
-3. **Backend Services**
-   - Express.js server
-   - RESTful API endpoints
-   - Logging system
-   - Data validation
+### 2. Frontend (React/TypeScript)
+- Tax filing wizard flow
+- Location: `direct-file/df-client/df-client-app/`
+- Key files:
+  - `src/flow/flow.tsx` - Main flow config
+  - `src/flow/flow-chunks/` - Category subcategories
+  - `src/locales/en.yaml` - Translations
 
-## Development Team
-- Open source contributors
-- Community-driven development
-- Focus on accessibility and user experience
+### 3. AI Service (Python)
+- Document analysis and recommendations
+- Location: `ai_service/`
+- Key files:
+  - `main.py` - FastAPI server
+  - `services/` - Business logic
+  - `utils/` - IRS data integration
 
-## Getting Started
-- See `ONBOARDING.md` for local setup instructions
-- Frontend runs on http://localhost:5173
-- Backend runs on http://localhost:3001
+## Tax Year 2025 Status
 
-## Important Notes
-- Repository follows open source best practices
-- MIT License for open collaboration
-- Focus on user privacy and data security
+### Fully Implemented
 
-## Key Files
-- `README.md` - Main project documentation
-- `ONBOARDING.md` - Setup and development guide
-- `PROJECT_PLAN.md` - Project roadmap and architecture
-- `LICENSE` - Project license information
+| Feature | Value | File |
+|---------|-------|------|
+| Standard Deduction (Single) | $15,750 | `standardDeduction.xml` |
+| Standard Deduction (MFJ) | $31,500 | `standardDeduction.xml` |
+| Standard Deduction (HOH) | $23,625 | `standardDeduction.xml` |
+| Child Tax Credit | $2,200 | `ctcOdc.xml` |
+| Additional CTC | $1,700 | `ctcOdc.xml` |
+| EITC (0 children) | $649 max, $19,104 limit | `eitc.xml` |
+| EITC (1 child) | $4,328 max, $50,434 limit | `eitc.xml` |
+| EITC (2 children) | $7,152 max, $57,310 limit | `eitc.xml` |
+| EITC (3+ children) | $8,046 max, $61,555 limit | `eitc.xml` |
+| HSA (Self) | $4,300 | `hsa.xml` |
+| HSA (Family) | $8,550 | `hsa.xml` |
+
+### OBBBA 2025 (Schedule 1-A) with Full Phase-out
+
+| Deduction | Cap | Phase-out Start | Range | Status |
+|-----------|-----|-----------------|-------|--------|
+| Overtime Exemption | $12,500/$25,000 | $150K/$300K | $50K | ✅ |
+| Tip Exemption | $25,000 | $150K/$300K | $50K | ✅ |
+| Auto Loan Interest | $10,000 | $100K/$200K | $50K | ✅ |
+| Senior Bonus | $6,000/person | $75K/$150K | $25K | ✅ |
+
+**Phase-out Formula:** `deduction × (1 - (MAGI - threshold) / range)`
+
+**Key OBBBA Facts:**
+- `/hasQualifiedOvertime` - Boolean
+- `/overtimeDeductionAmount` - Final after phase-out
+- `/hasQualifiedTips` - Boolean
+- `/tipDeductionAmount` - Final after phase-out
+- `/hasQualifiedAutoLoanInterest` - Boolean
+- `/vehicleIsDomesticManufacture` - Boolean
+- `/autoLoanInterestDeductionAmount` - Final after phase-out
+- `/hasSeniorBonusEligibility` - Boolean (auto from age)
+- `/totalSeniorBonusDeduction` - Final after phase-out
+- `/totalSchedule1ADeductions` - Sum of all
+- `/obbbaDeductionsIsDone` - Completion check
+- `/obbbaPhaseOutApplies` - Any phase-out active
+
+### Planned for Future Phases
+
+| Phase | Features |
+|-------|----------|
+| **Phase 5** | Schedule A (SALT $40K), Schedule B/D (investments), Form 8863 (education), Form 8936 (clean vehicle), Form 8839 (adoption) |
+| **Phase 6** | Schedule C (self-employment), Schedule E (rental), QBI, Form 5695 (energy) |
+| **Phase 7** | Form 1116 (foreign tax), K-1, AMT |
 
 ## Project Structure
+
 ```
 direct-file-easy-webui/
-├── frontend/        # React frontend application
-├── backend/         # Express.js backend server
-├── docs/           # Documentation
-├── .git/           # Version control
-├── LICENSE         # License file
-├── ONBOARDING.md   # Setup guide
-├── PROJECT_PLAN.md # Project roadmap
-└── README.md       # Project overview
+├── ai_service/                    # Python AI service
+├── direct-file/                   # IRS Direct File core
+│   ├── backend/src/main/resources/tax/  # Fact XMLs
+│   ├── df-client/df-client-app/   # React frontend
+│   └── fact-graph-scala/          # Scala engine
+├── docs/                          # Documentation
+├── CHANGELOG.md                   # Version history
+├── ONBOARDING.md                  # Setup guide
+├── PROJECT_PLAN.md                # Plan & status
+└── README.md                      # Overview
 ```
 
-# Development Notes
+## Common Tasks
 
-## Latest Updates
-- Added IRS tax code integration
-- Implemented publication service
-- Enhanced document analysis with tax code validation
-- Added seasonal pricing features
-- Improved risk assessment algorithms
+### Update Tax Year Values
+1. Search `<TaxYear>` in XML files
+2. Update dollar amounts
+3. Run tests
+4. Update docs
 
-## Current Features
-- Document analysis and risk assessment
-- Tax code integration and validation
-- Publication-based recommendations
-- Annual plan management
-- Seasonal pricing display
+### Add New Deduction/Credit
+1. Add facts in `backend/.../tax/*.xml`
+2. Create flow in `flow-chunks/`
+3. Add to `flow.tsx`
+4. Add strings in `en.yaml`
+5. Update `flow.xml` completion
 
-## Backend
-- Annual billing system
-- Seasonal pricing logic
-- IRS data integration
-- Tax code processing
-- Publication management
+### Debug Fact Issues
+- Check path spelling
+- Verify dependencies exist
+- Check module references
+- Look for circular deps
 
-## Frontend
-- Document upload and analysis
-- Tax code viewer
-- Publication browser
-- Plan management
-- Seasonal pricing display
+## Key Documentation
 
-## AI Service
-- Document analysis
-- Risk assessment
-- Tax code processing
-- Publication analysis
-- Recommendation engine
+| File | Purpose |
+|------|---------|
+| `PROJECT_PLAN.md` | 2025 implementation status |
+| `ONBOARDING.md` | Developer setup |
+| `CHANGELOG.md` | Version history |
+| `docs/engineering/Tax-Logic.md` | Fact Graph guide |
+| `docs/engineering/writing-facts.md` | XML authoring |
 
-## Known Issues
-- Seasonal features:
-  - Price calculation needs optimization
-  - Discount application needs testing
-- IRS integration:
-  - Cache management needs improvement
-  - Update synchronization needs testing
-- Document analysis:
-  - Large file processing needs optimization
-  - Tax code matching needs refinement
+## Development
 
-## Next Steps
-1. Enhance seasonal pricing features
-2. Improve IRS data caching
-3. Optimize document processing
-4. Add more tax code sections
-5. Enhance publication analysis
+### Start Servers
+```bash
+# Frontend
+cd direct-file/df-client/df-client-app && npm run dev
 
-## Recent Changes
-- Added tax code service
-- Implemented publication service
-- Updated pricing model
-- Enhanced document analysis
-- Added IRS data integration
+# Backend
+cd direct-file/backend && ./gradlew bootRun
 
-## Development Focus
-- IRS data integration
-- Tax code processing
-- Publication analysis
-- Performance optimization
-- Security enhancements
+# AI Service
+cd ai_service && python main.py
+```
+
+### Run Tests
+```bash
+# Backend
+cd direct-file/backend && ./gradlew test
+
+# Frontend
+cd direct-file/df-client/df-client-app && npm test
+
+# Fact Graph
+cd direct-file/fact-graph-scala && sbt test
+```
+
+## Recent Changes (2025)
+
+### Added
+- OBBBA Schedule 1-A deductions
+- 2025 standard deduction amounts
+- Updated CTC to $2,200
+- 2025 EITC thresholds
+- OBBBA flow integration
+
+### Updated
+- `schedule1A.xml` - Flow control facts
+- `flow.xml` - Completion tracking
+- `en.yaml` - OBBBA localization
+- `flow.tsx` - OBBBA subcategory
 
 ## Testing Status
-- Unit tests: 85% coverage
-- Integration tests: 70% coverage
-- IRS data tests: 60% coverage
-- Performance tests: Pending
-- Security tests: Pending
 
-## Performance Metrics
-- Document processing: < 5s
-- Tax code lookup: < 1s
-- Publication search: < 2s
+- Fact Graph: 85% coverage
+- Frontend: 70% coverage
+- OBBBA scenarios: Needs expansion
+- Integration: Active
+
+## Performance Targets
+
+- Page load: < 2s
 - API response: < 200ms
-- Cache hit rate: 85%
+- Tax calc: < 1s
+- Uptime: 99.9%
 
-## Security Measures
-- API key management
-- Data encryption
-- Access control
-- Rate limiting
-- IRS compliance
+## Security
 
-## Documentation
-- API documentation updated
-- IRS integration guide added
-- Tax code reference added
-- Publication guide added
-- Security guidelines updated
-
-## Deployment
-- Production: Stable
-- Staging: Testing
-- Development: Active
-- IRS data: Synced
-- Cache: Optimized
-
-## Monitoring
-- API usage tracking
-- Error monitoring
-- Performance metrics
-- IRS data updates
-- Cache statistics
+- End-to-end encryption
+- Secure document storage
+- IRS data compliance
+- Regular audits
 
 ## Support
-- Documentation updated
-- FAQ expanded
-- Support tickets: 5 open
-- Feature requests: 3 pending
-- Bug reports: 2 active
 
-## Development Tips
-1. **Code Organization**
-   - Follow established patterns
-   - Use proper error handling
-   - Implement proper logging
-   - Write comprehensive tests
-
-2. **Performance**
-   - Optimize database queries
-   - Implement proper caching
-   - Use lazy loading
-   - Monitor resource usage
-
-3. **Security**
-   - Follow security best practices
-   - Implement proper validation
-   - Use secure connections
-   - Regular security audits
-
-## Community Engagement
-- GitHub stars: 0
-- Contributors: 1
-- Open issues: 0
-- Pull requests: 0
-- Documentation updates: 3
-
-## Recent Improvements
-1. Added dark theme
-2. Implemented form validation
-3. Set up AI service
-4. Added document processing
-5. Improved UI/UX
-
-## Upcoming Features
-1. Tax planning calendar
-2. Professional integration
-3. Mobile app
-4. Advanced analytics
-5. Community features 
+- See `docs/` for detailed guides
+- Check `ONBOARDING.md` for setup
+- File issues on GitHub

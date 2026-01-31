@@ -1,0 +1,83 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8846: Credit for Employer Social Security and Medicare Taxes Paid on Certain Employee Tips -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8846">
+      <Name>Has Form 8846</Name>
+      <Description>Whether taxpayer claims credit for employer tip taxes.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tipsInExcessOfMinWage">
+      <Name>Tips in Excess of Minimum Wage</Name>
+      <Description>Tips that exceed minimum wage equivalent.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/employerSSRate">
+      <Name>Employer Social Security Rate</Name>
+      <Description>Employer portion of Social Security (6.2%).</Description>
+      <Derived>
+        <Decimal>0.062</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/employerMedicareRate">
+      <Name>Employer Medicare Rate</Name>
+      <Description>Employer portion of Medicare (1.45%).</Description>
+      <Derived>
+        <Decimal>0.0145</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/employerTipTaxCredit">
+      <Name>Employer Tip Tax Credit</Name>
+      <Description>Credit for employer FICA on tips.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/tipsInExcessOfMinWage" />
+          <Add>
+            <Dependency path="/employerSSRate" />
+            <Dependency path="/employerMedicareRate" />
+          </Add>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8846IsDone">
+      <Name>Form 8846 Is Done</Name>
+      <Description>Whether Form 8846 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8846" /></Not>
+          <All>
+            <Dependency path="/hasForm8846" />
+            <IsComplete><Dependency path="/employerTipTaxCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8846">
+      <Name>Include Form 8846 in PDF</Name>
+      <Description>Whether to include Form 8846.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/employerTipTaxCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

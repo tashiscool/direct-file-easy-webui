@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Washington: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasWAReturn">
+      <Name>Has WA Return</Name>
+      <Description>Washington has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/waNoIncomeTax">
+      <Name>WA No Income Tax</Name>
+      <Description>Washington does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>WA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/waFilingRequired">
+      <Name>WA Filing Required</Name>
+      <Description>No state filing required for Washington residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

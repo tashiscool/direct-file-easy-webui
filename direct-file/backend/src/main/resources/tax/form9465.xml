@@ -1,0 +1,242 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 9465: Installment Agreement Request -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INSTALLMENT AGREEMENT REQUEST               -->
+    <!-- ============================================ -->
+
+    <Fact path="/requestsInstallmentAgreement">
+      <Name>Requests Installment Agreement</Name>
+      <Description>Whether requesting installment payment plan.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearForInstallment">
+      <Name>Tax Year for Installment</Name>
+      <Description>Tax year(s) for which requesting installment.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMOUNT OWED                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/amountOwed9465">
+      <Name>Amount Owed</Name>
+      <Description>Total amount owed (Line 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalBalancesOwed">
+      <Name>Additional Balances Owed</Name>
+      <Description>Additional balances from other tax years (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAmountOwed">
+      <Name>Total Amount Owed</Name>
+      <Description>Total amount owed (Line 12).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/amountOwed9465" />
+          <Dependency path="/additionalBalancesOwed" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PAYMENT TERMS                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/proposedMonthlyPayment">
+      <Name>Proposed Monthly Payment</Name>
+      <Description>Proposed monthly payment amount (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/paymentDueDate">
+      <Name>Payment Due Date</Name>
+      <Description>Day of month for payment (1-28).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>28</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfMonthsToPayoff">
+      <Name>Number of Months to Payoff</Name>
+      <Description>Estimated months to pay off balance.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/proposedMonthlyPayment" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Divide>
+                <Dependency path="/totalAmountOwed" />
+                <Dependency path="/proposedMonthlyPayment" />
+              </Divide>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Int>0</Int></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STREAMLINED CRITERIA                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/streamlinedThreshold">
+      <Name>Streamlined Threshold</Name>
+      <Description>Threshold for streamlined agreement ($50,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiesForStreamlined">
+      <Name>Qualifies for Streamlined</Name>
+      <Description>Whether qualifies for streamlined installment agreement.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/totalAmountOwed" /></Left>
+          <Right><Dependency path="/streamlinedThreshold" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/streamlinedMaxMonths">
+      <Name>Streamlined Max Months</Name>
+      <Description>Maximum months for streamlined (72 months).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>72</Int>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DIRECT DEBIT                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/usesDirectDebit">
+      <Name>Uses Direct Debit</Name>
+      <Description>Whether to use direct debit for payments.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/routingNumber9465">
+      <Name>Routing Number</Name>
+      <Description>Bank routing number for direct debit.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountNumber9465">
+      <Name>Account Number</Name>
+      <Description>Bank account number for direct debit.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FEES                                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/installmentSetupFee">
+      <Name>Installment Setup Fee</Name>
+      <Description>Setup fee for installment agreement.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>225</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/directDebitSetupFee">
+      <Name>Direct Debit Setup Fee</Name>
+      <Description>Setup fee with direct debit (reduced).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>107</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lowIncomeSetupFee">
+      <Name>Low Income Setup Fee</Name>
+      <Description>Setup fee for low-income taxpayers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>43</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form9465IsDone">
+      <Name>Form 9465 Is Done</Name>
+      <Description>Whether Form 9465 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/requestsInstallmentAgreement" /></Not>
+          <All>
+            <Dependency path="/requestsInstallmentAgreement" />
+            <IsComplete><Dependency path="/proposedMonthlyPayment" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm9465">
+      <Name>Include Form 9465 in PDF</Name>
+      <Description>Whether to include Form 9465 in the return.</Description>
+      <Derived>
+        <Dependency path="/requestsInstallmentAgreement" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

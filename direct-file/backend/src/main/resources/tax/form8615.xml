@@ -1,0 +1,114 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8615: Tax for Certain Children Who Have Unearned Income (Kiddie Tax) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8615">
+      <Name>Has Form 8615</Name>
+      <Description>Whether child is subject to kiddie tax.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/childUnearnedIncome">
+      <Name>Child's Unearned Income</Name>
+      <Description>Child's investment and other unearned income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/kiddieThreshold2025">
+      <Name>Kiddie Tax Threshold</Name>
+      <Description>Unearned income threshold for kiddie tax ($2,700 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/parentTaxableIncome">
+      <Name>Parent's Taxable Income</Name>
+      <Description>Parent's taxable income for kiddie tax calculation.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/parentMarginalRate">
+      <Name>Parent's Marginal Rate</Name>
+      <Description>Parent's marginal tax rate.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>0.37</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netUnearnedIncome8615">
+      <Name>Net Unearned Income</Name>
+      <Description>Unearned income subject to kiddie tax.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/childUnearnedIncome" />
+            <Dependency path="/kiddieThreshold2025" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/kiddieTax">
+      <Name>Kiddie Tax</Name>
+      <Description>Additional tax at parent's rate.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/netUnearnedIncome8615" />
+          <Dependency path="/parentMarginalRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615IsDone">
+      <Name>Form 8615 Is Done</Name>
+      <Description>Whether Form 8615 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8615" /></Not>
+          <All>
+            <Dependency path="/hasForm8615" />
+            <IsComplete><Dependency path="/kiddieTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8615">
+      <Name>Include Form 8615 in PDF</Name>
+      <Description>Whether to include Form 8615.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/kiddieTax" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

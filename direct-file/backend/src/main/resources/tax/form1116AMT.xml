@@ -1,0 +1,78 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1116 AMT: Foreign Tax Credit for AMT -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1116AMT">
+      <Name>Has Form 1116 AMT</Name>
+      <Description>Whether taxpayer has foreign tax credit for AMT.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxPaidAMT">
+      <Name>Foreign Tax Paid AMT</Name>
+      <Description>Foreign taxes paid/accrued for AMT.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignSourceIncomeAMT">
+      <Name>Foreign Source Income AMT</Name>
+      <Description>Foreign source income for AMT.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amtiForeignIncome">
+      <Name>AMTI Foreign Income</Name>
+      <Description>AMTI attributable to foreign income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditLimitAMT">
+      <Name>Foreign Tax Credit Limit AMT</Name>
+      <Description>Foreign tax credit limitation for AMT.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1116AMTIsDone">
+      <Name>Form 1116 AMT Is Done</Name>
+      <Description>Whether Form 1116 AMT is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1116AMT" /></Not>
+          <All>
+            <Dependency path="/hasForm1116AMT" />
+            <IsComplete><Dependency path="/foreignTaxCreditLimitAMT" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

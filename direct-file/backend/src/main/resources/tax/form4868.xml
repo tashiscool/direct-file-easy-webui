@@ -1,0 +1,177 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4868: Application for Automatic Extension of Time to File U.S. Individual Income Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EXTENSION REQUEST                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/requestsExtension">
+      <Name>Requests Extension</Name>
+      <Description>Whether taxpayer is requesting an extension.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/extensionDueDate">
+      <Name>Extension Due Date</Name>
+      <Description>Extended due date (October 15).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <String>October 15, 2026</String>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOutOfCountry">
+      <Name>Is Out of Country</Name>
+      <Description>Whether taxpayer is out of the country on regular due date.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX ESTIMATE                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/estimatedTotalTaxLiability">
+      <Name>Estimated Total Tax Liability</Name>
+      <Description>Estimate of total tax liability (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPaymentsAndCredits">
+      <Name>Total Payments and Credits</Name>
+      <Description>Total payments already made (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/balanceDueWithExtension">
+      <Name>Balance Due with Extension</Name>
+      <Description>Balance due with extension request (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/estimatedTotalTaxLiability" />
+            <Dependency path="/totalPaymentsAndCredits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amountPayingWithExtension">
+      <Name>Amount Paying with Extension</Name>
+      <Description>Amount you are paying with extension (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SPECIAL SITUATIONS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/isUSCitizenAbroad">
+      <Name>Is US Citizen Abroad</Name>
+      <Description>Whether taxpayer is US citizen/resident living abroad.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectsToMeetPhysicalPresenceTest">
+      <Name>Expects to Meet Physical Presence Test</Name>
+      <Description>Whether taxpayer expects to meet physical presence test.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectsToMeetBonafideResidenceTest">
+      <Name>Expects to Meet Bona Fide Residence Test</Name>
+      <Description>Whether taxpayer expects to meet bona fide residence test.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTY INFORMATION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/lateFilingPenaltyRate">
+      <Name>Late Filing Penalty Rate</Name>
+      <Description>Late filing penalty rate (5% per month, up to 25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.05</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/latePaymentPenaltyRate">
+      <Name>Late Payment Penalty Rate</Name>
+      <Description>Late payment penalty rate (0.5% per month, up to 25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.005</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/interestRateOnUnpaidTax">
+      <Name>Interest Rate on Unpaid Tax</Name>
+      <Description>Current interest rate on unpaid taxes (federal short-term rate + 3%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.08</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form4868IsDone">
+      <Name>Form 4868 Is Done</Name>
+      <Description>Whether Form 4868 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/requestsExtension" /></Not>
+          <All>
+            <Dependency path="/requestsExtension" />
+            <IsComplete><Dependency path="/estimatedTotalTaxLiability" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4868">
+      <Name>Include Form 4868 in PDF</Name>
+      <Description>Whether to include Form 4868 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/requestsExtension" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,70 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1098-E: Student Loan Interest Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1098E">
+      <Name>Has Form 1098-E</Name>
+      <Description>Whether taxpayer received Form 1098-E.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lenderName1098E">
+      <Name>Lender Name</Name>
+      <Description>Name of lender.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/studentLoanInterest1098E">
+      <Name>Student Loan Interest Received</Name>
+      <Description>Student loan interest received (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxStudentLoanDed1098E">
+      <Name>Maximum Student Loan Deduction</Name>
+      <Description>Maximum student loan interest deduction ($2,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanDeductible1098E">
+      <Name>Student Loan Interest Deductible</Name>
+      <Description>Deductible student loan interest.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/studentLoanInterest1098E" />
+          <Dependency path="/maxStudentLoanDed1098E" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098EIsDone">
+      <Name>Form 1098-E Is Done</Name>
+      <Description>Whether Form 1098-E is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1098E" /></Not>
+          <All>
+            <Dependency path="/hasForm1098E" />
+            <IsComplete><Dependency path="/studentLoanInterest1098E" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

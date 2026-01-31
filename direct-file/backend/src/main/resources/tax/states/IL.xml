@@ -1,0 +1,204 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Illinois IL-1040: Individual Income Tax Return -->
+<!-- Illinois uses a flat 4.95% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasIL1040">
+      <Name>Has IL-1040</Name>
+      <Description>Whether taxpayer files Illinois IL-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>IL</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Illinois Tax Rate (flat) -->
+    <Fact path="/ilTaxRate">
+      <Name>Illinois Tax Rate</Name>
+      <Description>Illinois flat income tax rate (4.95%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0495</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- Illinois Exemption Amount -->
+    <Fact path="/ilExemptionSingle">
+      <Name>IL Exemption Single</Name>
+      <Description>Illinois personal exemption for single filers ($2,625).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2625</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilExemptionMFJ">
+      <Name>IL Exemption MFJ</Name>
+      <Description>Illinois personal exemption for MFJ ($5,250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilDependentExemption">
+      <Name>IL Dependent Exemption</Name>
+      <Description>Illinois dependent exemption ($2,625 each).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2625</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 1 - Federal AGI -->
+    <Fact path="/ilLine1">
+      <Name>IL Line 1</Name>
+      <Description>Federal adjusted gross income.</Description>
+      <Derived>
+        <Dependency path="/adjustedGrossIncome" />
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 5 - Social Security Subtraction (IL doesn't tax SS) -->
+    <Fact path="/ilLine5">
+      <Name>IL Line 5</Name>
+      <Description>Social Security benefits and retirement income subtraction.</Description>
+      <Derived>
+        <Dependency path="/taxableSocialSecurity" />
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 9 - Illinois Base Income -->
+    <Fact path="/ilLine9">
+      <Name>IL Line 9</Name>
+      <Description>Illinois base income after subtractions.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/ilLine1" />
+            <Dependency path="/ilLine5" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 10 - Exemption Allowance -->
+    <Fact path="/ilLine10">
+      <Name>IL Line 10</Name>
+      <Description>Illinois exemption allowance.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/ilExemptionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/ilExemptionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 11 - Net Income -->
+    <Fact path="/ilLine11">
+      <Name>IL Line 11</Name>
+      <Description>Illinois net income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/ilLine9" />
+            <Dependency path="/ilLine10" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- IL Line 12 - Illinois Income Tax -->
+    <Fact path="/ilLine12">
+      <Name>IL Line 12</Name>
+      <Description>Illinois income tax (Line 11 × 4.95%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/ilLine11" />
+          <Dependency path="/ilTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- IL EIC - 20% of federal EIC -->
+    <Fact path="/ilEICRate">
+      <Name>IL EIC Rate</Name>
+      <Description>Illinois EIC as percentage of federal (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ilEarnedIncomeCredit">
+      <Name>IL Earned Income Credit</Name>
+      <Description>Illinois Earned Income Credit.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/earnedIncomeCredit" />
+          <Dependency path="/ilEICRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- IL Total Credits -->
+    <Fact path="/ilTotalCredits">
+      <Name>IL Total Credits</Name>
+      <Description>Total Illinois credits.</Description>
+      <Derived>
+        <Dependency path="/ilEarnedIncomeCredit" />
+      </Derived>
+    </Fact>
+
+    <!-- IL Net Tax -->
+    <Fact path="/ilNetTax">
+      <Name>IL Net Tax</Name>
+      <Description>Illinois net tax after credits.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/ilLine12" />
+            <Dependency path="/ilTotalCredits" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/il1040IsDone">
+      <Name>IL-1040 Is Done</Name>
+      <Description>Whether IL-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasIL1040" /></Not>
+          <All>
+            <Dependency path="/hasIL1040" />
+            <IsComplete><Dependency path="/ilNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeIL1040">
+      <Name>Include IL-1040 in PDF</Name>
+      <Description>Whether to include IL-1040.</Description>
+      <Derived>
+        <Dependency path="/hasIL1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

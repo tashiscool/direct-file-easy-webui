@@ -1,0 +1,75 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Colorado Form DR 0104: Individual Income Tax Return -->
+<!-- Colorado has a flat 4.4% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasCODR0104">
+      <Name>Has CO Form DR 0104</Name>
+      <Description>Whether taxpayer files Colorado Form DR 0104.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>CO</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- CO Tax Rate (flat) -->
+    <Fact path="/coTaxRate">
+      <Name>Colorado Tax Rate</Name>
+      <Description>Colorado flat income tax rate (4.4%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.044</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- CO Taxable Income (based on federal taxable income) -->
+    <Fact path="/coTaxableIncome">
+      <Name>CO Taxable Income</Name>
+      <Description>Colorado taxable income (federal taxable income with adjustments).</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/taxableIncome" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- CO Income Tax -->
+    <Fact path="/coIncomeTax">
+      <Name>CO Income Tax</Name>
+      <Description>Colorado income tax (flat 4.4%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/coTaxableIncome" />
+          <Dependency path="/coTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/codr0104IsDone">
+      <Name>CO Form DR 0104 Is Done</Name>
+      <Description>Whether CO Form DR 0104 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCODR0104" /></Not>
+          <All>
+            <Dependency path="/hasCODR0104" />
+            <IsComplete><Dependency path="/coIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeCODR0104">
+      <Name>Include CO Form DR 0104 in PDF</Name>
+      <Description>Whether to include CO Form DR 0104.</Description>
+      <Derived>
+        <Dependency path="/hasCODR0104" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

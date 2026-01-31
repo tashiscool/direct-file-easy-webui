@@ -1,0 +1,31 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8822: Change of Address -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8822">
+      <Name>Has Form 8822</Name>
+      <Description>Whether taxpayer is changing address with IRS.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/oldAddress8822">
+      <Name>Old Address</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/newAddress8822">
+      <Name>New Address</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8822IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8822" /></Not>
+          <All>
+            <Dependency path="/hasForm8822" />
+            <IsComplete><Dependency path="/newAddress8822" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

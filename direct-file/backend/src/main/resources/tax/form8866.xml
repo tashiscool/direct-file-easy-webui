@@ -1,0 +1,65 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8866: Interest on Installment Sale -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8866">
+      <Name>Has Form 8866</Name>
+      <Description>Whether taxpayer has interest on deferred installment sale.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/deferredGainAmount">
+      <Name>Deferred Gain Amount</Name>
+      <Description>Amount of deferred gain.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/applicableFederalRate">
+      <Name>Applicable Federal Rate</Name>
+      <Description>AFR for computation.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestDue8866">
+      <Name>Interest Due</Name>
+      <Description>Interest on deferred tax liability.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/deferredGainAmount" />
+          <Dependency path="/applicableFederalRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8866IsDone">
+      <Name>Form 8866 Is Done</Name>
+      <Description>Whether Form 8866 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8866" /></Not>
+          <All>
+            <Dependency path="/hasForm8866" />
+            <IsComplete><Dependency path="/interestDue8866" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

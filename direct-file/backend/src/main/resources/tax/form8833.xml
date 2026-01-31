@@ -1,0 +1,31 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8833: Treaty-Based Return Position Disclosure -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8833">
+      <Name>Has Form 8833</Name>
+      <Description>Whether taxpayer is disclosing treaty-based position.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/treatyCountry">
+      <Name>Treaty Country</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/treatyArticle">
+      <Name>Treaty Article</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8833IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8833" /></Not>
+          <All>
+            <IsComplete><Dependency path="/treatyCountry" /></IsComplete>
+            <IsComplete><Dependency path="/treatyArticle" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

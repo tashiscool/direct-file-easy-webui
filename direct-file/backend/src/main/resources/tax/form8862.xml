@@ -1,0 +1,103 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8862: Information To Claim Certain Credits After Disallowance -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8862">
+      <Name>Has Form 8862</Name>
+      <Description>Whether taxpayer must file Form 8862 to reclaim credits.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcPreviouslyDisallowed">
+      <Name>EITC Previously Disallowed</Name>
+      <Description>Whether EITC was previously disallowed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/ctcPreviouslyDisallowed">
+      <Name>CTC Previously Disallowed</Name>
+      <Description>Whether CTC was previously disallowed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/aotcPreviouslyDisallowed">
+      <Name>AOTC Previously Disallowed</Name>
+      <Description>Whether American Opportunity Credit was previously disallowed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearCreditDisallowed">
+      <Name>Year Credit Disallowed</Name>
+      <Description>Tax year when credit was disallowed.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2000</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>2025</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimingEitc8862">
+      <Name>Claiming EITC on 8862</Name>
+      <Description>Whether reclaiming EITC on this return.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimingCtc8862">
+      <Name>Claiming CTC on 8862</Name>
+      <Description>Whether reclaiming CTC on this return.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimingAotc8862">
+      <Name>Claiming AOTC on 8862</Name>
+      <Description>Whether reclaiming AOTC on this return.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8862IsDone">
+      <Name>Form 8862 Is Done</Name>
+      <Description>Whether Form 8862 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8862" /></Not>
+          <All>
+            <Dependency path="/hasForm8862" />
+            <Any>
+              <Dependency path="/claimingEitc8862" />
+              <Dependency path="/claimingCtc8862" />
+              <Dependency path="/claimingAotc8862" />
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8862">
+      <Name>Include Form 8862 in PDF</Name>
+      <Description>Whether to include Form 8862.</Description>
+      <Derived>
+        <Dependency path="/hasForm8862" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

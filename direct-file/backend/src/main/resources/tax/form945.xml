@@ -1,0 +1,101 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 945: Annual Return of Withheld Federal Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm945">
+      <Name>Has Form 945</Name>
+      <Description>Whether entity has backup withholding to report.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalIncomeTaxWithheld945">
+      <Name>Federal Income Tax Withheld</Name>
+      <Description>Federal income tax withheld (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustmentFractions945">
+      <Name>Adjustment for Fractions of Cents</Name>
+      <Description>Adjustment for fractions of cents (Line 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedFederalTax945">
+      <Name>Adjusted Federal Tax</Name>
+      <Description>Adjusted federal income tax (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/federalIncomeTaxWithheld945" />
+          <Dependency path="/adjustmentFractions945" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalDeposits945">
+      <Name>Total Deposits</Name>
+      <Description>Total deposits for the year (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/balanceDue945">
+      <Name>Balance Due</Name>
+      <Description>Balance due (Line 5).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/adjustedFederalTax945" />
+            <Dependency path="/totalDeposits945" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overpayment945">
+      <Name>Overpayment</Name>
+      <Description>Overpayment (Line 6).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalDeposits945" />
+            <Dependency path="/adjustedFederalTax945" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form945IsDone">
+      <Name>Form 945 Is Done</Name>
+      <Description>Whether Form 945 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm945" /></Not>
+          <All>
+            <Dependency path="/hasForm945" />
+            <IsComplete><Dependency path="/federalIncomeTaxWithheld945" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,585 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8829: Expenses for Business Use of Your Home -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: BUSINESS USE PERCENTAGE             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasHomeOffice">
+      <Name>Has Home Office</Name>
+      <Description>Whether taxpayer uses home for business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessUseSquareFootage">
+      <Name>Business Use Square Footage</Name>
+      <Description>Square footage used regularly and exclusively for business (Line 1).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalHomeSquareFootage">
+      <Name>Total Home Square Footage</Name>
+      <Description>Total area of home (Line 2).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessUsePercentage">
+      <Name>Business Use Percentage</Name>
+      <Description>Percentage of home used for business (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Decimal>1.0</Decimal>
+          <Divide>
+            <Dependency path="/businessUseSquareFootage" />
+            <Dependency path="/totalHomeSquareFootage" />
+          </Divide>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/daysUsedForBusiness">
+      <Name>Days Used for Business</Name>
+      <Description>Number of days home was used for business (Line 4).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/daysUsedForDaycare">
+      <Name>Days Used for Daycare</Name>
+      <Description>Days home used for daycare (if applicable) (Line 5).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hoursOfDaycareUse">
+      <Name>Hours of Daycare Use</Name>
+      <Description>Hours per day home is used for daycare.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>24</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: GROSS INCOME LIMITATION            -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossIncomeFromBusiness">
+      <Name>Gross Income from Business</Name>
+      <Description>Gross income from business use of home (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/carryoverFromPriorYear">
+      <Name>Carryover from Prior Year</Name>
+      <Description>Carryover of unallowed expenses from prior year (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: DIRECT EXPENSES                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/directMortgageInterest">
+      <Name>Direct Mortgage Interest</Name>
+      <Description>Mortgage interest attributable to business use (Line 10a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/directRealEstateTaxes">
+      <Name>Direct Real Estate Taxes</Name>
+      <Description>Real estate taxes attributable to business use (Line 11a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: INDIRECT EXPENSES                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalMortgageInterest">
+      <Name>Total Mortgage Interest</Name>
+      <Description>Total deductible mortgage interest (Line 10b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectMortgageInterest">
+      <Name>Indirect Mortgage Interest</Name>
+      <Description>Mortgage interest allocable to business use (Line 10c).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalMortgageInterest" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRealEstateTaxes">
+      <Name>Total Real Estate Taxes</Name>
+      <Description>Total deductible real estate taxes (Line 11b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectRealEstateTaxes">
+      <Name>Indirect Real Estate Taxes</Name>
+      <Description>Real estate taxes allocable to business use (Line 11c).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalRealEstateTaxes" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OTHER EXPENSES                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/homeInsurance">
+      <Name>Home Insurance</Name>
+      <Description>Homeowners insurance (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectHomeInsurance">
+      <Name>Indirect Home Insurance</Name>
+      <Description>Insurance allocable to business use.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/homeInsurance" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/repairsAndMaintenance">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectRepairs">
+      <Name>Indirect Repairs</Name>
+      <Description>Repairs allocable to business use.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/repairsAndMaintenance" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/utilities">
+      <Name>Utilities</Name>
+      <Description>Utilities (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectUtilities">
+      <Name>Indirect Utilities</Name>
+      <Description>Utilities allocable to business use.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/utilities" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rentExpense">
+      <Name>Rent Expense</Name>
+      <Description>Rent expense if renting (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectRent">
+      <Name>Indirect Rent</Name>
+      <Description>Rent allocable to business use.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/rentExpense" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherExpenses">
+      <Name>Other Expenses</Name>
+      <Description>Other expenses (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indirectOtherExpenses">
+      <Name>Indirect Other Expenses</Name>
+      <Description>Other expenses allocable to business use.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/otherExpenses" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL INDIRECT EXPENSES                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalIndirectExpenses">
+      <Name>Total Indirect Expenses</Name>
+      <Description>Total indirect expenses for business use (Line 22).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/indirectMortgageInterest" />
+              <Dependency path="/indirectRealEstateTaxes" />
+            </Add>
+            <Add>
+              <Dependency path="/indirectHomeInsurance" />
+              <Dependency path="/indirectRepairs" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/indirectUtilities" />
+              <Dependency path="/indirectRent" />
+            </Add>
+            <Dependency path="/indirectOtherExpenses" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: DEPRECIATION                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/homeAdjustedBasis">
+      <Name>Home Adjusted Basis</Name>
+      <Description>Adjusted basis of home (Line 36).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/landValue">
+      <Name>Land Value</Name>
+      <Description>Value of land (not depreciable) (Line 37).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciableBasis">
+      <Name>Depreciable Basis</Name>
+      <Description>Basis of building for depreciation (Line 38).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/homeAdjustedBasis" />
+            <Dependency path="/landValue" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessDepreciableBasis">
+      <Name>Business Depreciable Basis</Name>
+      <Description>Business portion of depreciable basis (Line 39).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/depreciableBasis" />
+          <Dependency path="/businessUsePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/residentialDepreciationRate">
+      <Name>Residential Depreciation Rate</Name>
+      <Description>Depreciation percentage for residential property (39 years, SL).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.02564</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/homeOfficeDepreciation">
+      <Name>Home Office Depreciation</Name>
+      <Description>Depreciation allowable for business use (Line 40).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/businessDepreciableBasis" />
+          <Dependency path="/residentialDepreciationRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ALLOWABLE DEDUCTION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalExpensesBeforeLimit">
+      <Name>Total Expenses Before Limit</Name>
+      <Description>Total home office expenses before income limit.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/directMortgageInterest" />
+            <Dependency path="/directRealEstateTaxes" />
+          </Add>
+          <Add>
+            <Dependency path="/totalIndirectExpenses" />
+            <Add>
+              <Dependency path="/homeOfficeDepreciation" />
+              <Dependency path="/carryoverFromPriorYear" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowableHomeOfficeDeduction">
+      <Name>Allowable Home Office Deduction</Name>
+      <Description>Allowable home office deduction (limited by gross income).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/totalExpensesBeforeLimit" />
+          <Dependency path="/grossIncomeFromBusiness" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessHomeOfficeExpenses">
+      <Name>Excess Home Office Expenses</Name>
+      <Description>Excess expenses to carry forward.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalExpensesBeforeLimit" />
+            <Dependency path="/grossIncomeFromBusiness" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SIMPLIFIED METHOD                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/usesSimplifiedMethod">
+      <Name>Uses Simplified Method</Name>
+      <Description>Whether taxpayer uses simplified method.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/simplifiedMethodRate">
+      <Name>Simplified Method Rate</Name>
+      <Description>Rate per square foot for simplified method ($5).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/simplifiedMethodMaxSqFt">
+      <Name>Simplified Method Max Square Feet</Name>
+      <Description>Maximum square feet for simplified method (300).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>300</Int>
+      </Derived>
+    </Fact>
+
+    <Fact path="/simplifiedMethodDeduction">
+      <Name>Simplified Method Deduction</Name>
+      <Description>Deduction using simplified method.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/businessUseSquareFootage" />
+            <Dependency path="/simplifiedMethodMaxSqFt" />
+          </Min>
+          <Dependency path="/simplifiedMethodRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/homeOfficeDeductionFinal">
+      <Name>Home Office Deduction Final</Name>
+      <Description>Final home office deduction (regular or simplified).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/usesSimplifiedMethod" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/simplifiedMethodDeduction" />
+                <Dependency path="/grossIncomeFromBusiness" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency path="/allowableHomeOfficeDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8829IsDone">
+      <Name>Form 8829 Is Done</Name>
+      <Description>Whether Form 8829 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasHomeOffice" /></Not>
+          <All>
+            <Dependency path="/hasHomeOffice" />
+            <IsComplete><Dependency path="/homeOfficeDeductionFinal" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8829">
+      <Name>Include Form 8829 in PDF</Name>
+      <Description>Whether to include Form 8829 in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasHomeOffice" />
+          <GreaterThan>
+            <Left><Dependency path="/homeOfficeDeductionFinal" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

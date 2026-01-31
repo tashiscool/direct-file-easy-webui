@@ -1,0 +1,162 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8582-CR: Passive Activity Credit Limitations -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasPassiveActivityCredits">
+      <Name>Has Passive Activity Credits</Name>
+      <Description>Whether taxpayer has passive activity credits.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Passive Activity Credits -->
+    <Fact path="/creditsFromWorksheet1">
+      <Name>Credits from Worksheet 1</Name>
+      <Description>Credits from Worksheet 1 (rental activities).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditsFromWorksheet2">
+      <Name>Credits from Worksheet 2</Name>
+      <Description>Credits from Worksheet 2 (other passive activities).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPassiveActivityCredits">
+      <Name>Total Passive Activity Credits</Name>
+      <Description>Total passive activity credits (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/creditsFromWorksheet1" />
+          <Dependency path="/creditsFromWorksheet2" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: Special Allowance for Rental Real Estate Activities -->
+    <Fact path="/rentalRealEstateCredits">
+      <Name>Rental Real Estate Credits</Name>
+      <Description>Credits from rental real estate activities (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/modifiedAGI8582CR">
+      <Name>Modified AGI</Name>
+      <Description>Modified AGI for passive activity credit calculation.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/passiveCreditAGIThreshold">
+      <Name>Passive Credit AGI Threshold</Name>
+      <Description>AGI threshold for rental real estate allowance ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveCreditPhaseoutRate">
+      <Name>Passive Credit Phaseout Rate</Name>
+      <Description>Phaseout rate (50% of excess over threshold).</Description>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specialAllowanceLimit">
+      <Name>Special Allowance Limit</Name>
+      <Description>Maximum special allowance ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowedRentalCredits">
+      <Name>Allowed Rental Credits</Name>
+      <Description>Allowed rental real estate credits after phaseout.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/rentalRealEstateCredits" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/specialAllowanceLimit" />
+              <Multiply>
+                <Max>
+                  <Dollar>0</Dollar>
+                  <Subtract>
+                    <Dependency path="/modifiedAGI8582CR" />
+                    <Dependency path="/passiveCreditAGIThreshold" />
+                  </Subtract>
+                </Max>
+                <Dependency path="/passiveCreditPhaseoutRate" />
+              </Multiply>
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAllowedPassiveCredits">
+      <Name>Total Allowed Passive Credits</Name>
+      <Description>Total allowed passive activity credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/allowedRentalCredits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8582CRIsDone">
+      <Name>Form 8582-CR Is Done</Name>
+      <Description>Whether Form 8582-CR is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPassiveActivityCredits" /></Not>
+          <All>
+            <Dependency path="/hasPassiveActivityCredits" />
+            <IsComplete><Dependency path="/totalAllowedPassiveCredits" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8582CR">
+      <Name>Include Form 8582-CR in PDF</Name>
+      <Description>Whether to include Form 8582-CR.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalAllowedPassiveCredits" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

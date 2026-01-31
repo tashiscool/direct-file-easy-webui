@@ -1,0 +1,222 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 2210: Underpayment of Estimated Tax by Individuals, Estates, and Trusts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- UNDERPAYMENT CALCULATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasUnderpaymentPenalty">
+      <Name>Has Underpayment Penalty</Name>
+      <Description>Whether taxpayer may owe underpayment penalty.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxFor2210">
+      <Name>Total Tax for 2210</Name>
+      <Description>Total tax for the year (Line 1).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/totalTax" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/withholdingAndEstimatedPayments">
+      <Name>Withholding and Estimated Payments</Name>
+      <Description>Withholding and estimated tax payments (Line 2).</Description>
+      <Derived>
+        <Add>
+          <Dependency module="formW2s" path="/totalFederalWithheld" />
+          <Dependency module="estimatedPayments" path="/totalEstimatedPayments" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/underpaymentAmount">
+      <Name>Underpayment Amount</Name>
+      <Description>Amount of underpayment (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalTaxFor2210" />
+            <Dependency path="/withholdingAndEstimatedPayments" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SAFE HARBOR RULES                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/priorYearTax">
+      <Name>Prior Year Tax</Name>
+      <Description>Total tax from prior year (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/safeHarborPercent">
+      <Name>Safe Harbor Percent</Name>
+      <Description>Safe harbor percentage (90% current or 100%/110% prior).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.90</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/requiredAnnualPayment">
+      <Name>Required Annual Payment</Name>
+      <Description>Required annual payment (smaller of Lines 7 or 8).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/totalTaxFor2210" />
+            <Dependency path="/safeHarborPercent" />
+          </Multiply>
+          <Dependency path="/priorYearTax" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsExceptionNoUnderpayment">
+      <Name>Meets Exception - No Underpayment</Name>
+      <Description>Whether penalty exception applies (payments >= required).</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/withholdingAndEstimatedPayments" /></Left>
+          <Right><Dependency path="/requiredAnnualPayment" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTY THRESHOLDS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/underpaymentThreshold">
+      <Name>Underpayment Threshold</Name>
+      <Description>Minimum underpayment to trigger penalty ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/penaltyApplies">
+      <Name>Penalty Applies</Name>
+      <Description>Whether underpayment penalty applies.</Description>
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left><Dependency path="/underpaymentAmount" /></Left>
+            <Right><Dependency path="/underpaymentThreshold" /></Right>
+          </GreaterThan>
+          <Not><Dependency path="/meetsExceptionNoUnderpayment" /></Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTY CALCULATION (SIMPLIFIED)            -->
+    <!-- ============================================ -->
+
+    <Fact path="/annualizedInterestRate">
+      <Name>Annualized Interest Rate</Name>
+      <Description>Underpayment interest rate (federal short-term + 3%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.08</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/estimatedPenalty">
+      <Name>Estimated Penalty</Name>
+      <Description>Estimated underpayment penalty.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/penaltyApplies" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/underpaymentAmount" />
+                <Multiply>
+                  <Dependency path="/annualizedInterestRate" />
+                  <Decimal>0.5</Decimal>
+                </Multiply>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- WAIVER REQUEST                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/requestsPenaltyWaiver">
+      <Name>Requests Penalty Waiver</Name>
+      <Description>Whether requesting waiver of penalty.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/waiverReason">
+      <Name>Waiver Reason</Name>
+      <Description>Reason for requesting waiver.</Description>
+      <Writable>
+        <Enum>
+          <Option value="CASUALTY">Casualty, disaster, or unusual circumstance</Option>
+          <Option value="RETIRED">Retired or disabled during tax year</Option>
+          <Option value="OTHER">Other reasonable cause</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form2210IsDone">
+      <Name>Form 2210 Is Done</Name>
+      <Description>Whether Form 2210 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasUnderpaymentPenalty" /></Not>
+          <All>
+            <Dependency path="/hasUnderpaymentPenalty" />
+            <IsComplete><Dependency path="/estimatedPenalty" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm2210">
+      <Name>Include Form 2210 in PDF</Name>
+      <Description>Whether to include Form 2210 in the return.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/penaltyApplies" />
+          <Dependency path="/requestsPenaltyWaiver" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

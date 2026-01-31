@@ -1,0 +1,388 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4797: Sales of Business Property -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: SECTION 1231 GAINS/LOSSES           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSection1231Sales">
+      <Name>Has Section 1231 Sales</Name>
+      <Description>Whether taxpayer has section 1231 property sales.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1231GainsFromForm4797Line2">
+      <Name>Section 1231 Gains Line 2</Name>
+      <Description>Section 1231 gains from Form 4797, line 2 (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1231Gains">
+      <Name>Section 1231 Gains</Name>
+      <Description>Total section 1231 gains (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1231Losses">
+      <Name>Section 1231 Losses</Name>
+      <Description>Total section 1231 losses (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netSection1231GainLoss">
+      <Name>Net Section 1231 Gain/Loss</Name>
+      <Description>Net section 1231 gain or loss (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/section1231Gains" />
+          <Dependency path="/section1231Losses" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nonrecapturedSection1231Losses">
+      <Name>Nonrecaptured Section 1231 Losses</Name>
+      <Description>Nonrecaptured section 1231 losses from prior years (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1231GainTreatedAsOrdinary">
+      <Name>Section 1231 Gain Treated as Ordinary</Name>
+      <Description>Section 1231 gain treated as ordinary income (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/netSection1231GainLoss" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/netSection1231GainLoss" />
+                <Dependency path="/nonrecapturedSection1231Losses" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section1231GainTreatedAsLTCG">
+      <Name>Section 1231 Gain as LTCG</Name>
+      <Description>Section 1231 gain treated as long-term capital gain.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/netSection1231GainLoss" />
+            <Dependency path="/section1231GainTreatedAsOrdinary" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: ORDINARY GAINS/LOSSES              -->
+    <!-- ============================================ -->
+
+    <Fact path="/ordinaryGainsFromSection1245">
+      <Name>Ordinary Gains - Section 1245</Name>
+      <Description>Ordinary gains from section 1245 property (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryGainsFromSection1250">
+      <Name>Ordinary Gains - Section 1250</Name>
+      <Description>Ordinary gains from section 1250 property (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryGainsFromSection1252">
+      <Name>Ordinary Gains - Section 1252</Name>
+      <Description>Ordinary gains from section 1252 (farm) property (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryGainsFromSection1254">
+      <Name>Ordinary Gains - Section 1254</Name>
+      <Description>Ordinary gains from section 1254 (oil/gas/geothermal) property (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryGainsFromSection1255">
+      <Name>Ordinary Gains - Section 1255</Name>
+      <Description>Ordinary gains from section 1255 (cost-sharing) property (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalOrdinaryGainsPartII">
+      <Name>Total Ordinary Gains - Part II</Name>
+      <Description>Total ordinary gains from Part II (Line 16).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/ordinaryGainsFromSection1245" />
+              <Dependency path="/ordinaryGainsFromSection1250" />
+            </Add>
+            <Dependency path="/ordinaryGainsFromSection1252" />
+          </Add>
+          <Add>
+            <Dependency path="/ordinaryGainsFromSection1254" />
+            <Dependency path="/ordinaryGainsFromSection1255" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: GAIN FROM DISPOSITION             -->
+    <!-- ============================================ -->
+
+    <Fact path="/section1245PropertyGross">
+      <Name>Section 1245 Property - Gross Sales</Name>
+      <Description>Gross sales price of section 1245 property (Line 19a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1245PropertyCost">
+      <Name>Section 1245 Property - Cost</Name>
+      <Description>Cost or other basis of section 1245 property (Line 19b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1245PropertyDepreciation">
+      <Name>Section 1245 Property - Depreciation</Name>
+      <Description>Depreciation allowed on section 1245 property (Line 19c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1245RecaptureGain">
+      <Name>Section 1245 Recapture Gain</Name>
+      <Description>Section 1245 recapture gain (Line 19d).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/section1245PropertyDepreciation" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/section1245PropertyGross" />
+              <Dependency path="/section1245PropertyCost" />
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section1250PropertyGross">
+      <Name>Section 1250 Property - Gross Sales</Name>
+      <Description>Gross sales price of section 1250 property (Line 20a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1250PropertyCost">
+      <Name>Section 1250 Property - Cost</Name>
+      <Description>Cost or other basis of section 1250 property (Line 20b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1250AdditionalDepreciation">
+      <Name>Section 1250 Additional Depreciation</Name>
+      <Description>Additional depreciation for section 1250 (Line 20c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrecapturedSection1250Gain">
+      <Name>Unrecaptured Section 1250 Gain</Name>
+      <Description>Unrecaptured section 1250 gain (taxed at 25%).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: RECAPTURE UNDER SECTIONS 179/280F  -->
+    <!-- ============================================ -->
+
+    <Fact path="/section179RecaptureAmount">
+      <Name>Section 179 Recapture Amount</Name>
+      <Description>Section 179 expense deduction recapture (Line 32).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section280FRecaptureAmount">
+      <Name>Section 280F Recapture Amount</Name>
+      <Description>Section 280F recapture for listed property (Line 33).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUMMARY                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalOrdinaryGainLoss">
+      <Name>Total Ordinary Gain/Loss</Name>
+      <Description>Total ordinary gain or loss from Form 4797.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/section1231GainTreatedAsOrdinary" />
+            <Dependency path="/totalOrdinaryGainsPartII" />
+          </Add>
+          <Add>
+            <Dependency path="/section179RecaptureAmount" />
+            <Dependency path="/section280FRecaptureAmount" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form4797IsDone">
+      <Name>Form 4797 Is Done</Name>
+      <Description>Whether Form 4797 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasSection1231Sales" /></Not>
+          <All>
+            <Dependency path="/hasSection1231Sales" />
+            <IsComplete><Dependency path="/netSection1231GainLoss" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4797">
+      <Name>Include Form 4797 in PDF</Name>
+      <Description>Whether to include Form 4797 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasSection1231Sales" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

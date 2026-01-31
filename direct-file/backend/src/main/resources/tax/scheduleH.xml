@@ -1,0 +1,310 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule H: Household Employment Taxes -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- HOUSEHOLD EMPLOYEE INFORMATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasHouseholdEmployees">
+      <Name>Has Household Employees</Name>
+      <Description>Whether taxpayer has household employees.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/householdWagesPaid">
+      <Name>Cash Wages Paid</Name>
+      <Description>Total cash wages paid to household employees (Line A).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/householdWageThreshold2025">
+      <Name>Household Wage Threshold</Name>
+      <Description>Threshold for Social Security and Medicare taxes ($2,700 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdFUTAThreshold2025">
+      <Name>FUTA Wage Threshold</Name>
+      <Description>Threshold for FUTA taxes ($1,000 in any quarter).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsSSMedicareThreshold">
+      <Name>Meets SS/Medicare Threshold</Name>
+      <Description>Whether wages meet Social Security/Medicare threshold.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/householdWagesPaid" /></Left>
+          <Right><Dependency path="/householdWageThreshold2025" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SOCIAL SECURITY AND MEDICARE TAXES          -->
+    <!-- ============================================ -->
+
+    <Fact path="/householdSSWages">
+      <Name>Social Security Wages</Name>
+      <Description>Social security wages paid (Line 1).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/meetsSSMedicareThreshold" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/householdWagesPaid" />
+                <Dependency module="scheduleC" path="/socialSecurityWageBase" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdSSTax">
+      <Name>Social Security Tax</Name>
+      <Description>Social security tax (12.4%) (Line 2).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/householdSSWages" />
+          <Decimal>0.124</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdMedicareWages">
+      <Name>Medicare Wages</Name>
+      <Description>Medicare wages paid (Line 3).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/meetsSSMedicareThreshold" />
+            </When>
+            <Then>
+              <Dependency path="/householdWagesPaid" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdMedicareTax">
+      <Name>Medicare Tax</Name>
+      <Description>Medicare tax (2.9%) (Line 4).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/householdMedicareWages" />
+          <Decimal>0.029</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdAdditionalMedicareWages">
+      <Name>Additional Medicare Wages</Name>
+      <Description>Wages subject to additional Medicare tax (over $200K).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/householdMedicareWages" />
+            <Dollar>200000</Dollar>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdAdditionalMedicareTax">
+      <Name>Additional Medicare Tax</Name>
+      <Description>Additional Medicare tax (0.9%) (Line 5).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/householdAdditionalMedicareWages" />
+          <Decimal>0.009</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdTotalSSMedicareTax">
+      <Name>Total SS/Medicare Tax</Name>
+      <Description>Total Social Security and Medicare taxes (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/householdSSTax" />
+            <Dependency path="/householdMedicareTax" />
+          </Add>
+          <Dependency path="/householdAdditionalMedicareTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FEDERAL UNEMPLOYMENT TAX (FUTA)             -->
+    <!-- ============================================ -->
+
+    <Fact path="/householdFUTAWages">
+      <Name>FUTA Wages</Name>
+      <Description>Total cash wages subject to FUTA tax (Line 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/householdFUTAWageLimit">
+      <Name>FUTA Wage Limit</Name>
+      <Description>First $7,000 of wages per employee subject to FUTA.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>7000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdFUTATaxableWages">
+      <Name>FUTA Taxable Wages</Name>
+      <Description>Wages subject to FUTA (first $7,000 per employee).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/householdFUTAWages" />
+          <Dependency path="/householdFUTAWageLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/stateUnemploymentPaid">
+      <Name>State Unemployment Tax Paid</Name>
+      <Description>State unemployment contributions paid.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/householdFUTARate">
+      <Name>FUTA Tax Rate</Name>
+      <Description>FUTA tax rate (6.0% minus state credit).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.006</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/householdFUTATax">
+      <Name>FUTA Tax</Name>
+      <Description>Federal unemployment tax (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/householdFUTATaxableWages" />
+          <Dependency path="/householdFUTARate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME TAX WITHHELD                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/householdWithheldIncomeTax">
+      <Name>Withheld Income Tax</Name>
+      <Description>Federal income tax withheld from employees (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL HOUSEHOLD EMPLOYMENT TAXES            -->
+    <!-- ============================================ -->
+
+    <Fact path="/householdTotalTax">
+      <Name>Total Household Employment Tax</Name>
+      <Description>Total household employment taxes (Line 16).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/householdTotalSSMedicareTax" />
+            <Dependency path="/householdFUTATax" />
+          </Add>
+          <Dependency path="/householdWithheldIncomeTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleHIsDone">
+      <Name>Schedule H Is Done</Name>
+      <Description>Whether Schedule H is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasHouseholdEmployees" /></Not>
+          <All>
+            <Dependency path="/hasHouseholdEmployees" />
+            <IsComplete><Dependency path="/householdWagesPaid" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleH">
+      <Name>Include Schedule H in PDF</Name>
+      <Description>Whether to include Schedule H in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasHouseholdEmployees" />
+          <Dependency path="/meetsSSMedicareThreshold" />
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

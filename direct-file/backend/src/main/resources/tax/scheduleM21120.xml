@@ -1,0 +1,266 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule M-2 (Form 1120): Analysis of Unappropriated Retained Earnings per Books -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- BEGINNING BALANCE                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/retainedEarningsBOYM2">
+      <Name>Retained Earnings - Beginning of Year</Name>
+      <Description>Balance at beginning of year (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ADDITIONS (Lines 2-3)                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/netIncomePerBooksM2">
+      <Name>Net Income Per Books</Name>
+      <Description>Net income per books (Line 2).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Dependency module="scheduleM11120" path="/netIncomePerBooksCorp" />
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherIncreasesRE">
+      <Name>Other Increases</Name>
+      <Description>Other increases (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAdditionsRE">
+      <Name>Total Additions to Retained Earnings</Name>
+      <Description>Total of lines 1 through 3 (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/retainedEarningsBOYM2" />
+            <Dependency path="/netIncomePerBooksM2" />
+          </Add>
+          <Dependency path="/otherIncreasesRE" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REDUCTIONS (Lines 5-7)                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/dividendsCash">
+      <Name>Cash Dividends</Name>
+      <Description>Cash dividends (Line 5a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsStock">
+      <Name>Stock Dividends</Name>
+      <Description>Stock dividends (Line 5b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsProperty">
+      <Name>Property Dividends</Name>
+      <Description>Property dividends (Line 5c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDividendsPaid">
+      <Name>Total Dividends Paid</Name>
+      <Description>Total dividends paid (Line 5).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/dividendsCash" />
+            <Dependency path="/dividendsStock" />
+          </Add>
+          <Dependency path="/dividendsProperty" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netLossPerBooksM2">
+      <Name>Net Loss Per Books</Name>
+      <Description>Net loss per books (Line 6).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Multiply>
+            <Dependency module="scheduleM11120" path="/netIncomePerBooksCorp" />
+            <Int>-1</Int>
+          </Multiply>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherDecreasesRE">
+      <Name>Other Decreases</Name>
+      <Description>Other decreases (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalReductionsRE">
+      <Name>Total Reductions to Retained Earnings</Name>
+      <Description>Total of lines 5 through 7 (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalDividendsPaid" />
+            <Dependency path="/netLossPerBooksM2" />
+          </Add>
+          <Dependency path="/otherDecreasesRE" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ENDING BALANCE                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/retainedEarningsEOYM2">
+      <Name>Retained Earnings - End of Year</Name>
+      <Description>Balance at end of year (Line 9).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalAdditionsRE" />
+          <Dependency path="/totalReductionsRE" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RECONCILIATION WITH SCHEDULE L              -->
+    <!-- ============================================ -->
+
+    <Fact path="/retainedEarningsReconcilesBOY">
+      <Name>Retained Earnings Reconciles - Beginning of Year</Name>
+      <Description>Whether M-2 BOY equals Schedule L.</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency path="/retainedEarningsBOYM2" /></Left>
+          <Right><Dependency module="scheduleL1120" path="/retainedEarningsCorpBOY" /></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <Fact path="/retainedEarningsReconcilesEOY">
+      <Name>Retained Earnings Reconciles - End of Year</Name>
+      <Description>Whether M-2 EOY equals Schedule L.</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency path="/retainedEarningsEOYM2" /></Left>
+          <Right><Dependency module="scheduleL1120" path="/retainedEarningsCorpEOY" /></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ACCUMULATED EARNINGS TAX ANALYSIS           -->
+    <!-- ============================================ -->
+
+    <Fact path="/reasonableBusinessNeeds">
+      <Name>Reasonable Business Needs</Name>
+      <Description>Amount accumulated for reasonable business needs.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedTaxableIncome">
+      <Name>Accumulated Taxable Income</Name>
+      <Description>Accumulated taxable income for potential AET.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/retainedEarningsEOYM2" />
+            <Add>
+              <Dependency module="scheduleK1120" path="/accumulatedEarningsThreshold" />
+              <Dependency path="/reasonableBusinessNeeds" />
+            </Add>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/potentialAETLiability">
+      <Name>Potential AET Liability</Name>
+      <Description>Potential accumulated earnings tax liability (20%).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/accumulatedTaxableIncome" />
+          <Decimal>0.20</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleM2CorpIsDone">
+      <Name>Schedule M-2 Is Done</Name>
+      <Description>Whether Schedule M-2 is complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/retainedEarningsBOYM2" /></IsComplete>
+          <IsComplete><Dependency path="/retainedEarningsEOYM2" /></IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleM21120">
+      <Name>Include Schedule M-2 in PDF</Name>
+      <Description>Whether to include Schedule M-2 in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

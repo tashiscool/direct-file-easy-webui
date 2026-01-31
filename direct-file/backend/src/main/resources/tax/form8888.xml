@@ -1,0 +1,171 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8888: Allocation of Refund -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8888">
+      <Name>Has Form 8888</Name>
+      <Description>Whether taxpayer wants to split refund.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Account 1 -->
+    <Fact path="/amount1Form8888">
+      <Name>Amount to Account 1</Name>
+      <Description>Amount to deposit to first account (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/routingNumber1">
+      <Name>Routing Number 1</Name>
+      <Description>Routing number for first account (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountNumber1">
+      <Name>Account Number 1</Name>
+      <Description>Account number for first account (Line 1c).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountType1">
+      <Name>Account Type 1</Name>
+      <Description>Type of first account (Line 1d).</Description>
+      <Writable>
+        <Enum>
+          <Option>checking</Option>
+          <Option>savings</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Account 2 -->
+    <Fact path="/amount2Form8888">
+      <Name>Amount to Account 2</Name>
+      <Description>Amount to deposit to second account (Line 2a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/routingNumber2">
+      <Name>Routing Number 2</Name>
+      <Description>Routing number for second account.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountNumber2">
+      <Name>Account Number 2</Name>
+      <Description>Account number for second account.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- Account 3 -->
+    <Fact path="/amount3Form8888">
+      <Name>Amount to Account 3</Name>
+      <Description>Amount to deposit to third account (Line 3a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/routingNumber3">
+      <Name>Routing Number 3</Name>
+      <Description>Routing number for third account.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountNumber3">
+      <Name>Account Number 3</Name>
+      <Description>Account number for third account.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- Savings Bond -->
+    <Fact path="/savingsBondAmount">
+      <Name>Savings Bond Amount</Name>
+      <Description>Amount for Series I savings bonds (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAllocation8888">
+      <Name>Total Allocation</Name>
+      <Description>Total allocated refund (Line 5).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/amount1Form8888" />
+            <Dependency path="/amount2Form8888" />
+          </Add>
+          <Add>
+            <Dependency path="/amount3Form8888" />
+            <Dependency path="/savingsBondAmount" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888IsDone">
+      <Name>Form 8888 Is Done</Name>
+      <Description>Whether Form 8888 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8888" /></Not>
+          <All>
+            <Dependency path="/hasForm8888" />
+            <IsComplete><Dependency path="/totalAllocation8888" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8888">
+      <Name>Include Form 8888 in PDF</Name>
+      <Description>Whether to include Form 8888.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalAllocation8888" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

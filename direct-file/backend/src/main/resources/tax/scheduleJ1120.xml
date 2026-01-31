@@ -1,0 +1,432 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule J (Form 1120): Tax Computation and Payment -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: TAX COMPUTATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableIncomeFromForm1120">
+      <Name>Taxable Income from Form 1120</Name>
+      <Description>Taxable income from Form 1120, line 30 (Line 1).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency module="form1120" path="/taxableIncomeBeforeNOL" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/corporateTaxRate">
+      <Name>Corporate Tax Rate</Name>
+      <Description>Flat corporate tax rate (21%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.21</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/incomeTaxBeforeCredits">
+      <Name>Income Tax Before Credits</Name>
+      <Description>Income tax computed (Line 2).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Multiply>
+            <Dependency path="/taxableIncomeFromForm1120" />
+            <Dependency path="/corporateTaxRate" />
+          </Multiply>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: TAX CREDITS                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/foreignTaxCredit">
+      <Name>Foreign Tax Credit</Name>
+      <Description>Foreign tax credit (Form 1118) (Line 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/generalBusinessCredit">
+      <Name>General Business Credit</Name>
+      <Description>General business credit (Form 3800) (Line 5b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/previouslyOwnedCleanVehicleCredit">
+      <Name>Previously Owned Clean Vehicle Credit</Name>
+      <Description>Credit for previously owned clean vehicles (Line 5c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondCredits">
+      <Name>Bond Credits</Name>
+      <Description>Credit from Form 8912 (Line 5d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCredits">
+      <Name>Total Credits</Name>
+      <Description>Total credits (Line 5e).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/foreignTaxCredit" />
+            <Dependency path="/generalBusinessCredit" />
+          </Add>
+          <Add>
+            <Dependency path="/previouslyOwnedCleanVehicleCredit" />
+            <Dependency path="/bondCredits" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxAfterCredits">
+      <Name>Tax After Credits</Name>
+      <Description>Tax minus credits (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/incomeTaxBeforeCredits" />
+            <Dependency path="/totalCredits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: OTHER TAXES                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/personalHoldingCompanyTax">
+      <Name>Personal Holding Company Tax</Name>
+      <Description>Personal holding company tax (Schedule PH) (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/recaptureOfInvestmentCredit">
+      <Name>Recapture of Investment Credit</Name>
+      <Description>Recapture of investment credit (Line 8a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/recaptureOfLowIncomeHousingCredit">
+      <Name>Recapture of Low-Income Housing Credit</Name>
+      <Description>Recapture of low-income housing credit (Line 8b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestOnDeferredTax">
+      <Name>Interest on Deferred Tax</Name>
+      <Description>Interest due under look-back method (Line 8c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestOnSection453ALiabilities">
+      <Name>Interest on Section 453A(c) Liabilities</Name>
+      <Description>Interest due under section 453A(c) (Line 8d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseErosionMinimumTax">
+      <Name>Base Erosion Minimum Tax</Name>
+      <Description>Base erosion minimum tax (Form 8991) (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalOtherTaxes">
+      <Name>Total Other Taxes</Name>
+      <Description>Total other taxes (Lines 7-9).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/personalHoldingCompanyTax" />
+            <Add>
+              <Dependency path="/recaptureOfInvestmentCredit" />
+              <Dependency path="/recaptureOfLowIncomeHousingCredit" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/interestOnDeferredTax" />
+              <Dependency path="/interestOnSection453ALiabilities" />
+            </Add>
+            <Dependency path="/baseErosionMinimumTax" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalTax">
+      <Name>Total Tax</Name>
+      <Description>Total tax (Line 10).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/taxAfterCredits" />
+          <Dependency path="/totalOtherTaxes" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: PAYMENTS AND REFUNDABLE CREDITS   -->
+    <!-- ============================================ -->
+
+    <Fact path="/estimatedTaxPayments">
+      <Name>Estimated Tax Payments</Name>
+      <Description>Estimated tax payments (Line 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/extensionPayment">
+      <Name>Extension Payment</Name>
+      <Description>Payment with extension (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/withholdingFromForms1099">
+      <Name>Withholding from Forms 1099</Name>
+      <Description>Tax deposited with Forms 1099 (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundableFuelTaxCredits">
+      <Name>Refundable Fuel Tax Credits</Name>
+      <Description>Refundable credits from Form 4136 (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherRefundableCredits">
+      <Name>Other Refundable Credits</Name>
+      <Description>Other refundable credits (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPaymentsAndCredits">
+      <Name>Total Payments and Credits</Name>
+      <Description>Total payments and refundable credits (Line 16).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/estimatedTaxPayments" />
+            <Dependency path="/extensionPayment" />
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/withholdingFromForms1099" />
+              <Dependency path="/refundableFuelTaxCredits" />
+            </Add>
+            <Dependency path="/otherRefundableCredits" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: TAX DUE OR OVERPAYMENT            -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxDue">
+      <Name>Tax Due</Name>
+      <Description>Amount owed (Line 17).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalTax" />
+            <Dependency path="/totalPaymentsAndCredits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overpayment">
+      <Name>Overpayment</Name>
+      <Description>Overpayment amount (Line 18).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalPaymentsAndCredits" />
+            <Dependency path="/totalTax" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditedToNextYear">
+      <Name>Credited to Next Year</Name>
+      <Description>Amount to be credited to next year estimated tax (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundAmount">
+      <Name>Refund Amount</Name>
+      <Description>Amount to be refunded (Line 20).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/overpayment" />
+            <Dependency path="/creditedToNextYear" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ESTIMATED TAX PENALTY                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/estimatedTaxPenalty">
+      <Name>Estimated Tax Penalty</Name>
+      <Description>Estimated tax penalty (Form 2220) (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/owesEstimatedTaxPenalty">
+      <Name>Owes Estimated Tax Penalty</Name>
+      <Description>Whether corporation owes estimated tax penalty.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/estimatedTaxPenalty" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleJIsDone">
+      <Name>Schedule J Is Done</Name>
+      <Description>Whether Schedule J is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/totalTax" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleJ1120">
+      <Name>Include Schedule J in PDF</Name>
+      <Description>Whether to include Schedule J in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

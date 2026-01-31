@@ -1,0 +1,176 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- New York Form IT-201: Resident Income Tax Return -->
+<!-- New York has progressive rates from 4% to 10.9% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNYIT201">
+      <Name>Has NY IT-201</Name>
+      <Description>Whether taxpayer files New York IT-201.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NY</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- NY Standard Deduction -->
+    <Fact path="/nyStdDeductionSingle">
+      <Name>NY Standard Deduction Single</Name>
+      <Description>NY standard deduction for single ($8,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyStdDeductionMFJ">
+      <Name>NY Standard Deduction MFJ</Name>
+      <Description>NY standard deduction for MFJ ($16,050 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>16050</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyStandardDeduction">
+      <Name>NY Standard Deduction</Name>
+      <Description>New York standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/nyStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/nyStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NY Taxable Income -->
+    <Fact path="/nyTaxableIncome">
+      <Name>NY Taxable Income</Name>
+      <Description>New York taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/nyStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NY Income Tax (simplified progressive calculation) -->
+    <Fact path="/nyIncomeTax">
+      <Name>NY Income Tax</Name>
+      <Description>New York state income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nyTaxableIncome" /></Left>
+                <Right><Dollar>8500</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/nyTaxableIncome" />
+                <Decimal>0.04</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nyTaxableIncome" /></Left>
+                <Right><Dollar>11700</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>340</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nyTaxableIncome" />
+                    <Dollar>8500</Dollar>
+                  </Subtract>
+                  <Decimal>0.045</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nyTaxableIncome" /></Left>
+                <Right><Dollar>13900</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>484</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nyTaxableIncome" />
+                    <Dollar>11700</Dollar>
+                  </Subtract>
+                  <Decimal>0.0525</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Multiply>
+              <Dependency path="/nyTaxableIncome" />
+              <Decimal>0.0685</Decimal>
+            </Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NY Net Tax -->
+    <Fact path="/nyNetTax">
+      <Name>NY Net Tax</Name>
+      <Description>New York net tax after credits.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/nyIncomeTax" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nyit201IsDone">
+      <Name>NY IT-201 Is Done</Name>
+      <Description>Whether NY IT-201 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNYIT201" /></Not>
+          <All>
+            <Dependency path="/hasNYIT201" />
+            <IsComplete><Dependency path="/nyNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNYIT201">
+      <Name>Include NY IT-201 in PDF</Name>
+      <Description>Whether to include NY IT-201.</Description>
+      <Derived>
+        <Dependency path="/hasNYIT201" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

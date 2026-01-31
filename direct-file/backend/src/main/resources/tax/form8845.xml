@@ -1,0 +1,90 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8845: Indian Employment Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8845">
+      <Name>Has Form 8845</Name>
+      <Description>Whether taxpayer claims Indian employment credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedIndianWages">
+      <Name>Qualified Wages</Name>
+      <Description>Qualified wages and health insurance for enrolled tribal members.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearIndianWages">
+      <Name>Prior Year Wages</Name>
+      <Description>Prior year qualified wages and insurance.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/indianCreditRate">
+      <Name>Indian Credit Rate</Name>
+      <Description>Credit rate (20%).</Description>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/indianEmploymentCredit">
+      <Name>Indian Employment Credit</Name>
+      <Description>Credit for employment on Indian reservations.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Max>
+            <Subtract>
+              <Dependency path="/qualifiedIndianWages" />
+              <Dependency path="/priorYearIndianWages" />
+            </Subtract>
+            <Dollar>0</Dollar>
+          </Max>
+          <Dependency path="/indianCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8845IsDone">
+      <Name>Form 8845 Is Done</Name>
+      <Description>Whether Form 8845 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8845" /></Not>
+          <All>
+            <Dependency path="/hasForm8845" />
+            <IsComplete><Dependency path="/indianEmploymentCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8845">
+      <Name>Include Form 8845 in PDF</Name>
+      <Description>Whether to include Form 8845.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/indianEmploymentCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

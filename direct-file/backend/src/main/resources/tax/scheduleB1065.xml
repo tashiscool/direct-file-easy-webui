@@ -1,0 +1,379 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule B (Form 1065): Other Information -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PARTNERSHIP TYPE AND METHOD                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/partnershipType">
+      <Name>Partnership Type</Name>
+      <Description>Type of partnership entity.</Description>
+      <Writable>
+        <Enum>
+          <Option value="GENERAL">General Partnership</Option>
+          <Option value="LIMITED">Limited Partnership</Option>
+          <Option value="LLP">Limited Liability Partnership</Option>
+          <Option value="LLC">Limited Liability Company</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountingMethod">
+      <Name>Accounting Method</Name>
+      <Description>Method of accounting used by partnership.</Description>
+      <Writable>
+        <Enum>
+          <Option value="CASH">Cash</Option>
+          <Option value="ACCRUAL">Accrual</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfScheduleK1s">
+      <Name>Number of Schedule K-1s</Name>
+      <Description>Number of Schedules K-1 attached to return.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BUSINESS ACTIVITY                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/principalBusinessActivity">
+      <Name>Principal Business Activity</Name>
+      <Description>Principal business activity code.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/principalProductOrService">
+      <Name>Principal Product or Service</Name>
+      <Description>Principal product or service.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessActivityCode">
+      <Name>Business Activity Code</Name>
+      <Description>Six-digit NAICS code.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 1: PUBLICLY TRADED PARTNERSHIP     -->
+    <!-- ============================================ -->
+
+    <Fact path="/isPubliclyTradedPartnership">
+      <Name>Publicly Traded Partnership</Name>
+      <Description>Is partnership a publicly traded partnership (PTP)?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 2: TAX SHELTER                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/isTaxShelter">
+      <Name>Tax Shelter</Name>
+      <Description>Is partnership a tax shelter per section 6662(d)(2)(C)(ii)?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxShelterRegistrationNumber">
+      <Name>Tax Shelter Registration Number</Name>
+      <Description>Tax shelter registration number if applicable.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 3: FOREIGN PARTNERS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignPartners">
+      <Name>Has Foreign Partners</Name>
+      <Description>Does partnership have any foreign partners?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignPartnerCount">
+      <Name>Foreign Partner Count</Name>
+      <Description>Number of foreign partners.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasForeignPartners" />
+            </When>
+            <Then>
+              <Dependency path="/numberOfForeignPartners" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Int>0</Int></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/numberOfForeignPartners">
+      <Name>Number of Foreign Partners</Name>
+      <Description>Total number of foreign partners.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 4: RELATED PARTIES                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRelatedPartyTransactions">
+      <Name>Has Related Party Transactions</Name>
+      <Description>Did partnership have transactions with related parties?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 5: SECTION 754 ELECTION            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSection754Election">
+      <Name>Section 754 Election</Name>
+      <Description>Has partnership made section 754 election?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/section754ElectionYear">
+      <Name>Section 754 Election Year</Name>
+      <Description>Tax year section 754 election was made.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 6: QUALIFIED OPPORTUNITY FUND      -->
+    <!-- ============================================ -->
+
+    <Fact path="/isQualifiedOpportunityFund">
+      <Name>Qualified Opportunity Fund</Name>
+      <Description>Is partnership a qualified opportunity fund?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qofInvestmentAmount">
+      <Name>QOF Investment Amount</Name>
+      <Description>Total invested in qualified opportunity zone property.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isQualifiedOpportunityFund" />
+            </When>
+            <Then>
+              <Dependency path="/qofPropertyInvestment" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qofPropertyInvestment">
+      <Name>QOF Property Investment</Name>
+      <Description>Investment in qualified opportunity zone property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 7: PARTNER DISTRIBUTIONS           -->
+    <!-- ============================================ -->
+
+    <Fact path="/madeDistributionsToPartners">
+      <Name>Made Distributions to Partners</Name>
+      <Description>Did partnership make distributions to partners?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPartnerDistributions">
+      <Name>Total Partner Distributions</Name>
+      <Description>Total distributions made to partners.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 8: LIABILITIES                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRecourseDebt">
+      <Name>Has Recourse Debt</Name>
+      <Description>Does partnership have recourse debt?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasNonrecourseDebt">
+      <Name>Has Nonrecourse Debt</Name>
+      <Description>Does partnership have nonrecourse debt?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasQualifiedNonrecourseDebt">
+      <Name>Has Qualified Nonrecourse Debt</Name>
+      <Description>Does partnership have qualified nonrecourse financing?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 9: BUILT-IN GAIN/LOSS              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasContributedPropertyWithBuiltInGain">
+      <Name>Has Contributed Property With Built-In Gain</Name>
+      <Description>Did partners contribute property with built-in gain/loss?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 10: FOREIGN TRANSACTIONS           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignTransactions">
+      <Name>Has Foreign Transactions</Name>
+      <Description>Did partnership have foreign transactions?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/paidForeignTaxes">
+      <Name>Paid Foreign Taxes</Name>
+      <Description>Did partnership pay or accrue foreign taxes?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignFinancialAccounts">
+      <Name>Has Foreign Financial Accounts</Name>
+      <Description>Does partnership have foreign bank/financial accounts?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 11: AGGREGATIONS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/isAggregator">
+      <Name>Is Aggregator</Name>
+      <Description>Is partnership an aggregator for section 199A?</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasMultipleRPEActivities">
+      <Name>Has Multiple RPE Activities</Name>
+      <Description>Does partnership have multiple RPE activities?</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleBIsDone">
+      <Name>Schedule B Is Done</Name>
+      <Description>Whether Schedule B is complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/partnershipType" /></IsComplete>
+          <IsComplete><Dependency path="/accountingMethod" /></IsComplete>
+          <IsComplete><Dependency path="/numberOfScheduleK1s" /></IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleB1065">
+      <Name>Include Schedule B in PDF</Name>
+      <Description>Whether to include Schedule B in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

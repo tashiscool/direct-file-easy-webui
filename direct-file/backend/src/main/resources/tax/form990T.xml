@@ -1,0 +1,270 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 990-T: Exempt Organization Business Income Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- UNRELATED BUSINESS INCOME                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasUnrelatedBusinessIncome">
+      <Name>Has Unrelated Business Income</Name>
+      <Description>Whether organization has unrelated business income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptUnderSection">
+      <Name>Exempt Under Section</Name>
+      <Description>IRC section under which organization is exempt.</Description>
+      <Writable>
+        <Enum>
+          <Option value="501C3">501(c)(3)</Option>
+          <Option value="501C4">501(c)(4)</Option>
+          <Option value="501C5">501(c)(5)</Option>
+          <Option value="501C6">501(c)(6)</Option>
+          <Option value="501C7">501(c)(7)</Option>
+          <Option value="OTHER">Other 501(c)</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: UNRELATED TRADE OR BUSINESS INCOME  -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossReceiptsOrSales990T">
+      <Name>Gross Receipts or Sales</Name>
+      <Description>Gross receipts or sales (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/costOfGoodsSold990T">
+      <Name>Cost of Goods Sold</Name>
+      <Description>Cost of goods sold (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossProfit990T">
+      <Name>Gross Profit</Name>
+      <Description>Gross profit (Line 3).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/grossReceiptsOrSales990T" />
+          <Dependency path="/costOfGoodsSold990T" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/capitalGain990T">
+      <Name>Capital Gain</Name>
+      <Description>Capital gain net income (Line 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentIncome990T">
+      <Name>Rent Income</Name>
+      <Description>Income from rents (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherIncome990T">
+      <Name>Other Income</Name>
+      <Description>Other income (Line 12).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalUnrelatedBusinessIncome">
+      <Name>Total Unrelated Business Income</Name>
+      <Description>Total unrelated business income (Line 13).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/grossProfit990T" />
+            <Dependency path="/capitalGain990T" />
+          </Add>
+          <Add>
+            <Dependency path="/rentIncome990T" />
+            <Dependency path="/otherIncome990T" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: DEDUCTIONS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/compensationDeduction990T">
+      <Name>Compensation Deduction</Name>
+      <Description>Compensation of officers, directors (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/salariesWagesDeduction990T">
+      <Name>Salaries and Wages Deduction</Name>
+      <Description>Salaries and wages (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherDeductions990T">
+      <Name>Other Deductions</Name>
+      <Description>Other deductions (Line 28).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDeductions990T">
+      <Name>Total Deductions</Name>
+      <Description>Total deductions (Line 29).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/compensationDeduction990T" />
+            <Dependency path="/salariesWagesDeduction990T" />
+          </Add>
+          <Dependency path="/otherDeductions990T" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- UNRELATED BUSINESS TAXABLE INCOME           -->
+    <!-- ============================================ -->
+
+    <Fact path="/ubiBeforeNOL">
+      <Name>UBI Before NOL</Name>
+      <Description>Unrelated business taxable income before NOL (Line 30).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalUnrelatedBusinessIncome" />
+          <Dependency path="/totalDeductions990T" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specificDeduction">
+      <Name>Specific Deduction</Name>
+      <Description>Specific deduction ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unrelatedBusinessTaxableIncome">
+      <Name>Unrelated Business Taxable Income</Name>
+      <Description>UBTI (Line 34).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/ubiBeforeNOL" />
+            <Dependency path="/specificDeduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: TAX COMPUTATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/corporateTaxRate990T">
+      <Name>Corporate Tax Rate</Name>
+      <Description>Corporate tax rate (21%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.21</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unrelatedBusinessIncomeTax">
+      <Name>Unrelated Business Income Tax</Name>
+      <Description>Tax on UBTI (Line 35).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/unrelatedBusinessTaxableIncome" />
+          <Dependency path="/corporateTaxRate990T" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form990TIsDone">
+      <Name>Form 990-T Is Done</Name>
+      <Description>Whether Form 990-T is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasUnrelatedBusinessIncome" /></Not>
+          <All>
+            <Dependency path="/hasUnrelatedBusinessIncome" />
+            <IsComplete><Dependency path="/unrelatedBusinessIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm990T">
+      <Name>Include Form 990-T in PDF</Name>
+      <Description>Whether to include Form 990-T in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/unrelatedBusinessTaxableIncome" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

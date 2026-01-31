@@ -1,0 +1,203 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Maryland Form 502: Resident Income Tax Return -->
+<!-- Maryland has progressive rates from 2% to 5.75% plus county taxes -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMD502">
+      <Name>Has MD Form 502</Name>
+      <Description>Whether taxpayer files Maryland Form 502.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MD</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MD Standard Deduction -->
+    <Fact path="/mdStdDeductionSingle">
+      <Name>MD Standard Deduction Single</Name>
+      <Description>Maryland standard deduction for single ($2,550).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2550</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mdStdDeductionMFJ">
+      <Name>MD Standard Deduction MFJ</Name>
+      <Description>Maryland standard deduction for MFJ ($5,150).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5150</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mdStandardDeduction">
+      <Name>MD Standard Deduction</Name>
+      <Description>Maryland standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/mdStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/mdStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MD Personal Exemption -->
+    <Fact path="/mdPersonalExemption">
+      <Name>MD Personal Exemption</Name>
+      <Description>Maryland personal exemption ($3,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3200</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- MD Taxable Income -->
+    <Fact path="/mdTaxableIncome">
+      <Name>MD Taxable Income</Name>
+      <Description>Maryland taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/mdStandardDeduction" />
+            </Subtract>
+            <Dependency path="/mdPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MD Income Tax (progressive) -->
+    <Fact path="/mdIncomeTax">
+      <Name>MD Income Tax</Name>
+      <Description>Maryland income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mdTaxableIncome" /></Left>
+                <Right><Dollar>1000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/mdTaxableIncome" />
+                <Decimal>0.02</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mdTaxableIncome" /></Left>
+                <Right><Dollar>2000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>20</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/mdTaxableIncome" />
+                    <Dollar>1000</Dollar>
+                  </Subtract>
+                  <Decimal>0.03</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mdTaxableIncome" /></Left>
+                <Right><Dollar>3000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>50</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/mdTaxableIncome" />
+                    <Dollar>2000</Dollar>
+                  </Subtract>
+                  <Decimal>0.04</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mdTaxableIncome" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>90</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/mdTaxableIncome" />
+                    <Dollar>3000</Dollar>
+                  </Subtract>
+                  <Decimal>0.0475</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>4698</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/mdTaxableIncome" />
+                  <Dollar>100000</Dollar>
+                </Subtract>
+                <Decimal>0.0575</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/md502IsDone">
+      <Name>MD Form 502 Is Done</Name>
+      <Description>Whether MD Form 502 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMD502" /></Not>
+          <All>
+            <Dependency path="/hasMD502" />
+            <IsComplete><Dependency path="/mdIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMD502">
+      <Name>Include MD Form 502 in PDF</Name>
+      <Description>Whether to include MD Form 502.</Description>
+      <Derived>
+        <Dependency path="/hasMD502" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,150 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Rhode Island Form RI-1040: Resident Individual Income Tax Return -->
+<!-- Rhode Island has progressive rates from 3.75% to 5.99% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasRI1040">
+      <Name>Has RI Form RI-1040</Name>
+      <Description>Whether taxpayer files Rhode Island Form RI-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>RI</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- RI Standard Deduction -->
+    <Fact path="/riStdDeductionSingle">
+      <Name>RI Standard Deduction Single</Name>
+      <Description>Rhode Island standard deduction for single ($10,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/riStdDeductionMFJ">
+      <Name>RI Standard Deduction MFJ</Name>
+      <Description>Rhode Island standard deduction for MFJ ($20,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>20000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/riStandardDeduction">
+      <Name>RI Standard Deduction</Name>
+      <Description>Rhode Island standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/riStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/riStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- RI Taxable Income -->
+    <Fact path="/riTaxableIncome">
+      <Name>RI Taxable Income</Name>
+      <Description>Rhode Island taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/riStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- RI Income Tax (progressive) -->
+    <Fact path="/riIncomeTax">
+      <Name>RI Income Tax</Name>
+      <Description>Rhode Island income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/riTaxableIncome" /></Left>
+                <Right><Dollar>73450</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/riTaxableIncome" />
+                <Decimal>0.0375</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/riTaxableIncome" /></Left>
+                <Right><Dollar>166950</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>2754</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/riTaxableIncome" />
+                    <Dollar>73450</Dollar>
+                  </Subtract>
+                  <Decimal>0.0475</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>7195</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/riTaxableIncome" />
+                  <Dollar>166950</Dollar>
+                </Subtract>
+                <Decimal>0.0599</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ri1040IsDone">
+      <Name>RI Form RI-1040 Is Done</Name>
+      <Description>Whether RI Form RI-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasRI1040" /></Not>
+          <All>
+            <Dependency path="/hasRI1040" />
+            <IsComplete><Dependency path="/riIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeRI1040">
+      <Name>Include RI Form RI-1040 in PDF</Name>
+      <Description>Whether to include RI Form RI-1040.</Description>
+      <Derived>
+        <Dependency path="/hasRI1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

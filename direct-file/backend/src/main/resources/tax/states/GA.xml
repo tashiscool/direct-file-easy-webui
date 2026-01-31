@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Georgia Form 500: Individual Income Tax Return -->
+<!-- Georgia has a flat 5.49% rate (transitioning to flat tax) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasGA500">
+      <Name>Has GA Form 500</Name>
+      <Description>Whether taxpayer files Georgia Form 500.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>GA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- GA Tax Rate (flat as of 2024) -->
+    <Fact path="/gaTaxRate">
+      <Name>Georgia Tax Rate</Name>
+      <Description>Georgia flat income tax rate (5.49%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0549</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- GA Standard Deduction -->
+    <Fact path="/gaStdDeductionSingle">
+      <Name>GA Standard Deduction Single</Name>
+      <Description>Georgia standard deduction for single ($12,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>12000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gaStdDeductionMFJ">
+      <Name>GA Standard Deduction MFJ</Name>
+      <Description>Georgia standard deduction for MFJ ($24,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gaStandardDeduction">
+      <Name>GA Standard Deduction</Name>
+      <Description>Georgia standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/gaStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/gaStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- GA Taxable Income -->
+    <Fact path="/gaTaxableIncome">
+      <Name>GA Taxable Income</Name>
+      <Description>Georgia taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/gaStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- GA Income Tax -->
+    <Fact path="/gaIncomeTax">
+      <Name>GA Income Tax</Name>
+      <Description>Georgia income tax (flat 5.49%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/gaTaxableIncome" />
+          <Dependency path="/gaTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ga500IsDone">
+      <Name>GA Form 500 Is Done</Name>
+      <Description>Whether GA Form 500 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasGA500" /></Not>
+          <All>
+            <Dependency path="/hasGA500" />
+            <IsComplete><Dependency path="/gaIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeGA500">
+      <Name>Include GA Form 500 in PDF</Name>
+      <Description>Whether to include GA Form 500.</Description>
+      <Derived>
+        <Dependency path="/hasGA500" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

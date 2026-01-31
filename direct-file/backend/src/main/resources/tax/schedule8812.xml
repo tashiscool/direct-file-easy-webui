@@ -1,0 +1,151 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule 8812: Credits for Qualifying Children and Other Dependents -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasSchedule8812">
+      <Name>Has Schedule 8812</Name>
+      <Description>Whether taxpayer files Schedule 8812.</Description>
+      <Export mef="true" />
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/numQualifyingChildren" /></Left>
+          <Right><Int>0</Int></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/numQualifyingChildren">
+      <Name>Number of Qualifying Children</Name>
+      <Description>Number of children qualifying for CTC.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numOtherDependents">
+      <Name>Number of Other Dependents</Name>
+      <Description>Number of other dependents.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ctcPerChild2025">
+      <Name>CTC Per Child 2025</Name>
+      <Description>Child tax credit per qualifying child ($2,200 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/odcPerDependent2025">
+      <Name>ODC Per Dependent 2025</Name>
+      <Description>Other dependent credit ($500 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcPhaseoutThresholdSingle">
+      <Name>CTC Phaseout Threshold Single</Name>
+      <Description>Phase-out threshold for single filers ($200,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcPhaseoutThresholdMFJ">
+      <Name>CTC Phaseout Threshold MFJ</Name>
+      <Description>Phase-out threshold for MFJ ($400,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>400000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/initialChildTaxCredit">
+      <Name>Initial Child Tax Credit</Name>
+      <Description>Initial CTC before phase-out.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/numQualifyingChildren" />
+          <Dependency path="/ctcPerChild2025" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/initialOtherDependentCredit">
+      <Name>Initial Other Dependent Credit</Name>
+      <Description>Initial ODC before phase-out.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/numOtherDependents" />
+          <Dependency path="/odcPerDependent2025" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalChildAndDependentCredit">
+      <Name>Total Child and Dependent Credit</Name>
+      <Description>Combined CTC and ODC from Schedule 8812.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/initialChildTaxCredit" />
+          <Dependency path="/initialOtherDependentCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refundableActcAmount">
+      <Name>Refundable ACTC Amount</Name>
+      <Description>Additional Child Tax Credit (refundable portion, $1,700 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/numQualifyingChildren" />
+            <Dollar>1700</Dollar>
+          </Multiply>
+          <Dependency path="/initialChildTaxCredit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule8812IsDone">
+      <Name>Schedule 8812 Is Done</Name>
+      <Description>Whether Schedule 8812 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasSchedule8812" /></Not>
+          <All>
+            <Dependency path="/hasSchedule8812" />
+            <IsComplete><Dependency path="/totalChildAndDependentCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeSchedule8812">
+      <Name>Include Schedule 8812 in PDF</Name>
+      <Description>Whether to include Schedule 8812.</Description>
+      <Derived>
+        <Dependency path="/hasSchedule8812" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

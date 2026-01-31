@@ -1,0 +1,216 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-LTC: Long-Term Care and Accelerated Death Benefits -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- LONG-TERM CARE BENEFITS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099LTC">
+      <Name>Has 1099-LTC</Name>
+      <Description>Whether taxpayer received Form 1099-LTC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/payer1099LTCName">
+      <Name>Payer Name</Name>
+      <Description>Name of insurance company (payer).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BENEFIT INFORMATION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossLTCBenefits">
+      <Name>Gross LTC Benefits</Name>
+      <Description>Gross long-term care benefits paid (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/acceleratedDeathBenefits">
+      <Name>Accelerated Death Benefits</Name>
+      <Description>Accelerated death benefits paid (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/perDiemPayments">
+      <Name>Per Diem Payments</Name>
+      <Description>Whether benefits are per diem or indemnity (Box 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reimbursedExpenses">
+      <Name>Reimbursed Expenses</Name>
+      <Description>Whether benefits are reimbursed expenses (Box 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedContract">
+      <Name>Qualified Contract</Name>
+      <Description>Whether contract is a qualified LTC contract (Box 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/chronicallyIllCertified">
+      <Name>Chronically Ill Certified</Name>
+      <Description>Whether insured is chronically ill certified (Box 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/terminallyIllCertified">
+      <Name>Terminally Ill Certified</Name>
+      <Description>Whether insured is terminally ill certified (Box 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABILITY CALCULATION                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/perDiemLimitPerDay">
+      <Name>Per Diem Limit Per Day</Name>
+      <Description>Per diem limit ($420/day in 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>420</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/daysOfCare">
+      <Name>Days of Care</Name>
+      <Description>Number of days qualified care was received.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxExcludablePerDiem">
+      <Name>Max Excludable Per Diem</Name>
+      <Description>Maximum excludable per diem benefits.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/perDiemLimitPerDay" />
+          <Dependency path="/daysOfCare" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/actualLTCExpenses">
+      <Name>Actual LTC Expenses</Name>
+      <Description>Actual qualified long-term care expenses incurred.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excludableLTCBenefits">
+      <Name>Excludable LTC Benefits</Name>
+      <Description>Excludable portion of LTC benefits.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/reimbursedExpenses" />
+            </When>
+            <Then>
+              <Dependency path="/grossLTCBenefits" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/perDiemPayments" />
+            </When>
+            <Then>
+              <Max>
+                <Dependency path="/actualLTCExpenses" />
+                <Dependency path="/maxExcludablePerDiem" />
+              </Max>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableLTCBenefits">
+      <Name>Taxable LTC Benefits</Name>
+      <Description>Taxable long-term care benefits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/grossLTCBenefits" />
+            <Dependency path="/excludableLTCBenefits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099LTCIsDone">
+      <Name>Form 1099-LTC Is Done</Name>
+      <Description>Whether Form 1099-LTC is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099LTC" /></Not>
+          <All>
+            <Dependency path="/has1099LTC" />
+            <IsComplete><Dependency path="/taxableLTCBenefits" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099LTC">
+      <Name>Include Form 1099-LTC in PDF</Name>
+      <Description>Whether to include Form 1099-LTC in output.</Description>
+      <Derived>
+        <Dependency path="/has1099LTC" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

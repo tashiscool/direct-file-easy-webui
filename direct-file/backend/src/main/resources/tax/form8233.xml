@@ -1,0 +1,57 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8233: Exemption From Withholding on Compensation -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8233">
+      <Name>Has Form 8233</Name>
+      <Description>Whether claiming treaty exemption from withholding.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/countryOfResidence8233">
+      <Name>Country of Residence</Name>
+      <Description>Country of residence for treaty purposes.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyArticle8233">
+      <Name>Treaty Article</Name>
+      <Description>Treaty article relied upon.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptCompensation8233">
+      <Name>Exempt Compensation Amount</Name>
+      <Description>Amount of compensation exempt from withholding.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8233IsDone">
+      <Name>Form 8233 Is Done</Name>
+      <Description>Whether Form 8233 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8233" /></Not>
+          <All>
+            <Dependency path="/hasForm8233" />
+            <IsComplete><Dependency path="/exemptCompensation8233" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

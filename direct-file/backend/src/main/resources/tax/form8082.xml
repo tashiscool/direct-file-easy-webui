@@ -1,0 +1,114 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8082: Notice of Inconsistent Treatment or Administrative Adjustment Request -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasInconsistentTreatment">
+      <Name>Has Inconsistent Treatment</Name>
+      <Description>Whether taxpayer has inconsistent treatment or AAR.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formType8082">
+      <Name>Form Type</Name>
+      <Description>Type of form being filed.</Description>
+      <Writable>
+        <Enum>
+          <Option value="INCONSISTENT">Notice of Inconsistent Treatment</Option>
+          <Option value="AAR">Administrative Adjustment Request</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/passThruEntityName">
+      <Name>Pass-Through Entity Name</Name>
+      <Description>Name of partnership, S corp, estate, or trust.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/passThruEntityEIN">
+      <Name>Pass-Through Entity EIN</Name>
+      <Description>EIN of pass-through entity.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearEnding8082">
+      <Name>Tax Year Ending</Name>
+      <Description>Tax year ending date of pass-through entity.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/inconsistentItemDescription">
+      <Name>Inconsistent Item Description</Name>
+      <Description>Description of inconsistent item.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountAsReported">
+      <Name>Amount As Reported</Name>
+      <Description>Amount reported on Schedule K-1.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountYouAreReporting">
+      <Name>Amount You Are Reporting</Name>
+      <Description>Amount you are reporting on your return.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/differenceAmount">
+      <Name>Difference Amount</Name>
+      <Description>Difference between amounts.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/amountYouAreReporting" />
+          <Dependency path="/amountAsReported" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/explanationOfInconsistency">
+      <Name>Explanation of Inconsistency</Name>
+      <Description>Explanation of why treatment differs.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8082IsDone">
+      <Name>Form 8082 Is Done</Name>
+      <Description>Whether Form 8082 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInconsistentTreatment" /></Not>
+          <All>
+            <Dependency path="/hasInconsistentTreatment" />
+            <IsComplete><Dependency path="/passThruEntityName" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8082">
+      <Name>Include Form 8082 in PDF</Name>
+      <Description>Whether to include Form 8082.</Description>
+      <Derived>
+        <Dependency path="/hasInconsistentTreatment" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

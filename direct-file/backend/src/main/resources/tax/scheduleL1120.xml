@@ -1,0 +1,627 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule L (Form 1120): Balance Sheets per Books -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ASSETS - BEGINNING OF YEAR                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/cashCorpBOY">
+      <Name>Cash - Beginning of Year</Name>
+      <Description>Cash at beginning of year (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeNotesReceivableCorpBOY">
+      <Name>Trade Notes and Accounts Receivable - Beginning of Year</Name>
+      <Description>Trade notes and accounts receivable at beginning of year (Line 2a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/allowanceForBadDebtsCorpBOY">
+      <Name>Allowance for Bad Debts - Beginning of Year</Name>
+      <Description>Less allowance for bad debts at beginning of year (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/inventoriesCorpBOY">
+      <Name>Inventories - Beginning of Year</Name>
+      <Description>Inventories at beginning of year (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/usGovernmentObligationsCorpBOY">
+      <Name>U.S. Government Obligations - Beginning of Year</Name>
+      <Description>U.S. government obligations at beginning of year (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxExemptSecuritiesCorpBOY">
+      <Name>Tax-Exempt Securities - Beginning of Year</Name>
+      <Description>Tax-exempt securities at beginning of year (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherCurrentAssetsCorpBOY">
+      <Name>Other Current Assets - Beginning of Year</Name>
+      <Description>Other current assets at beginning of year (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loansToShareholdersCorpBOY">
+      <Name>Loans to Shareholders - Beginning of Year</Name>
+      <Description>Loans to shareholders at beginning of year (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageLoansCorpBOY">
+      <Name>Mortgage Loans - Beginning of Year</Name>
+      <Description>Mortgage and real estate loans at beginning of year (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherInvestmentsCorpBOY">
+      <Name>Other Investments - Beginning of Year</Name>
+      <Description>Other investments at beginning of year (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/buildingsGrossCorpBOY">
+      <Name>Buildings - Gross Beginning of Year</Name>
+      <Description>Buildings and depreciable assets at beginning of year (Line 10a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedDepreciationCorpBOY">
+      <Name>Accumulated Depreciation - Beginning of Year</Name>
+      <Description>Less accumulated depreciation at beginning of year (Line 10b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depletableAssetsGrossCorpBOY">
+      <Name>Depletable Assets - Gross Beginning of Year</Name>
+      <Description>Depletable assets at beginning of year (Line 11a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedDepletionCorpBOY">
+      <Name>Accumulated Depletion - Beginning of Year</Name>
+      <Description>Less accumulated depletion at beginning of year (Line 11b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/landCorpBOY">
+      <Name>Land - Beginning of Year</Name>
+      <Description>Land at beginning of year (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/intangibleAssetsGrossCorpBOY">
+      <Name>Intangible Assets - Gross Beginning of Year</Name>
+      <Description>Intangible assets at beginning of year (Line 13a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedAmortizationCorpBOY">
+      <Name>Accumulated Amortization - Beginning of Year</Name>
+      <Description>Less accumulated amortization at beginning of year (Line 13b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherAssetsCorpBOY">
+      <Name>Other Assets - Beginning of Year</Name>
+      <Description>Other assets at beginning of year (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAssetsCorpBOY">
+      <Name>Total Assets - Beginning of Year</Name>
+      <Description>Total assets at beginning of year (Line 15).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/cashCorpBOY" />
+              <Subtract>
+                <Dependency path="/tradeNotesReceivableCorpBOY" />
+                <Dependency path="/allowanceForBadDebtsCorpBOY" />
+              </Subtract>
+            </Add>
+            <Add>
+              <Dependency path="/inventoriesCorpBOY" />
+              <Dependency path="/usGovernmentObligationsCorpBOY" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/taxExemptSecuritiesCorpBOY" />
+              <Dependency path="/otherCurrentAssetsCorpBOY" />
+            </Add>
+            <Add>
+              <Add>
+                <Dependency path="/loansToShareholdersCorpBOY" />
+                <Dependency path="/mortgageLoansCorpBOY" />
+              </Add>
+              <Add>
+                <Add>
+                  <Dependency path="/otherInvestmentsCorpBOY" />
+                  <Subtract>
+                    <Dependency path="/buildingsGrossCorpBOY" />
+                    <Dependency path="/accumulatedDepreciationCorpBOY" />
+                  </Subtract>
+                </Add>
+                <Add>
+                  <Add>
+                    <Subtract>
+                      <Dependency path="/depletableAssetsGrossCorpBOY" />
+                      <Dependency path="/accumulatedDepletionCorpBOY" />
+                    </Subtract>
+                    <Dependency path="/landCorpBOY" />
+                  </Add>
+                  <Add>
+                    <Subtract>
+                      <Dependency path="/intangibleAssetsGrossCorpBOY" />
+                      <Dependency path="/accumulatedAmortizationCorpBOY" />
+                    </Subtract>
+                    <Dependency path="/otherAssetsCorpBOY" />
+                  </Add>
+                </Add>
+              </Add>
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ASSETS - END OF YEAR                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/cashCorpEOY">
+      <Name>Cash - End of Year</Name>
+      <Description>Cash at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeNotesReceivableCorpEOY">
+      <Name>Trade Notes and Accounts Receivable - End of Year</Name>
+      <Description>Trade notes and accounts receivable at end of year.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/allowanceForBadDebtsCorpEOY">
+      <Name>Allowance for Bad Debts - End of Year</Name>
+      <Description>Less allowance for bad debts at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/inventoriesCorpEOY">
+      <Name>Inventories - End of Year</Name>
+      <Description>Inventories at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/buildingsGrossCorpEOY">
+      <Name>Buildings - Gross End of Year</Name>
+      <Description>Buildings and depreciable assets at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedDepreciationCorpEOY">
+      <Name>Accumulated Depreciation - End of Year</Name>
+      <Description>Less accumulated depreciation at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/landCorpEOY">
+      <Name>Land - End of Year</Name>
+      <Description>Land at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherAssetsCorpEOY">
+      <Name>Other Assets - End of Year</Name>
+      <Description>Other assets at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAssetsEOYCorp">
+      <Name>Total Assets - End of Year</Name>
+      <Description>Total assets at end of year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LIABILITIES - BEGINNING OF YEAR             -->
+    <!-- ============================================ -->
+
+    <Fact path="/accountsPayableCorpBOY">
+      <Name>Accounts Payable - Beginning of Year</Name>
+      <Description>Accounts payable at beginning of year (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgagesPayableCorpBOY">
+      <Name>Mortgages Payable - Beginning of Year</Name>
+      <Description>Mortgages, notes, bonds payable (less than 1 year) at beginning of year (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherCurrentLiabilitiesCorpBOY">
+      <Name>Other Current Liabilities - Beginning of Year</Name>
+      <Description>Other current liabilities at beginning of year (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loansFromShareholdersCorpBOY">
+      <Name>Loans from Shareholders - Beginning of Year</Name>
+      <Description>Loans from shareholders at beginning of year (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermMortgagesCorpBOY">
+      <Name>Long-term Mortgages - Beginning of Year</Name>
+      <Description>Mortgages, notes, bonds payable (1 year or more) at beginning of year (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherLiabilitiesCorpBOY">
+      <Name>Other Liabilities - Beginning of Year</Name>
+      <Description>Other liabilities at beginning of year (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLiabilitiesCorpBOY">
+      <Name>Total Liabilities - Beginning of Year</Name>
+      <Description>Total liabilities at beginning of year.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/accountsPayableCorpBOY" />
+            <Dependency path="/mortgagesPayableCorpBOY" />
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/otherCurrentLiabilitiesCorpBOY" />
+              <Dependency path="/loansFromShareholdersCorpBOY" />
+            </Add>
+            <Add>
+              <Dependency path="/longTermMortgagesCorpBOY" />
+              <Dependency path="/otherLiabilitiesCorpBOY" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LIABILITIES - END OF YEAR                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalLiabilitiesCorpEOY">
+      <Name>Total Liabilities - End of Year</Name>
+      <Description>Total liabilities at end of year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SHAREHOLDERS' EQUITY                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/capitalStockCorpBOY">
+      <Name>Capital Stock - Beginning of Year</Name>
+      <Description>Capital stock at beginning of year (Line 22a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalPaidInCapitalCorpBOY">
+      <Name>Additional Paid-In Capital - Beginning of Year</Name>
+      <Description>Additional paid-in capital at beginning of year (Line 22b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/retainedEarningsCorpBOY">
+      <Name>Retained Earnings - Beginning of Year</Name>
+      <Description>Retained earnings at beginning of year (Line 24).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalStockCorpEOY">
+      <Name>Capital Stock - End of Year</Name>
+      <Description>Capital stock at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalPaidInCapitalCorpEOY">
+      <Name>Additional Paid-In Capital - End of Year</Name>
+      <Description>Additional paid-in capital at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/retainedEarningsCorpEOY">
+      <Name>Retained Earnings - End of Year</Name>
+      <Description>Retained earnings at end of year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalShareholdersEquityBOY">
+      <Name>Total Shareholders' Equity - Beginning of Year</Name>
+      <Description>Total shareholders' equity at beginning of year.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/capitalStockCorpBOY" />
+            <Dependency path="/additionalPaidInCapitalCorpBOY" />
+          </Add>
+          <Dependency path="/retainedEarningsCorpBOY" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalShareholdersEquityEOY">
+      <Name>Total Shareholders' Equity - End of Year</Name>
+      <Description>Total shareholders' equity at end of year.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/capitalStockCorpEOY" />
+            <Dependency path="/additionalPaidInCapitalCorpEOY" />
+          </Add>
+          <Dependency path="/retainedEarningsCorpEOY" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleLCorpIsDone">
+      <Name>Schedule L Is Done</Name>
+      <Description>Whether Schedule L is complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/totalAssetsCorpBOY" /></IsComplete>
+          <IsComplete><Dependency path="/totalAssetsEOYCorp" /></IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleL1120">
+      <Name>Include Schedule L in PDF</Name>
+      <Description>Whether to include Schedule L in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

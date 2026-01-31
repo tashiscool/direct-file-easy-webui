@@ -1,0 +1,446 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 3520: Annual Return to Report Transactions with Foreign Trusts and Receipt of Certain Foreign Gifts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FILING REQUIREMENTS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignTrustTransactions">
+      <Name>Has Foreign Trust Transactions</Name>
+      <Description>Whether taxpayer has reportable foreign trust transactions.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/receivedForeignGifts">
+      <Name>Received Foreign Gifts</Name>
+      <Description>Whether taxpayer received gifts from foreign persons.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignGiftReportingThreshold">
+      <Name>Foreign Gift Reporting Threshold</Name>
+      <Description>Threshold for reporting foreign gifts ($100,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: FOREIGN TRUST CREATION/TRANSFERS    -->
+    <!-- ============================================ -->
+
+    <Fact path="/createdForeignTrust">
+      <Name>Created Foreign Trust</Name>
+      <Description>Whether US person created a foreign trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/transferredToForeignTrust">
+      <Name>Transferred to Foreign Trust</Name>
+      <Description>Whether US person transferred property to a foreign trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustName">
+      <Name>Foreign Trust Name</Name>
+      <Description>Name of foreign trust.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustCountry">
+      <Name>Foreign Trust Country</Name>
+      <Description>Country where trust is organized.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustEIN">
+      <Name>Foreign Trust EIN</Name>
+      <Description>EIN of foreign trust if any.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/transferDateToForeignTrust">
+      <Name>Date of Transfer</Name>
+      <Description>Date of transfer to foreign trust.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvPropertyTransferred">
+      <Name>FMV Property Transferred</Name>
+      <Description>Fair market value of property transferred.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/basisPropertyTransferred">
+      <Name>Basis of Property Transferred</Name>
+      <Description>Adjusted basis of property transferred.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gainOnTransferToForeignTrust">
+      <Name>Gain on Transfer to Foreign Trust</Name>
+      <Description>Gain recognized on transfer to foreign trust.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/fmvPropertyTransferred" />
+            <Dependency path="/basisPropertyTransferred" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: US OWNER OF FOREIGN TRUST          -->
+    <!-- ============================================ -->
+
+    <Fact path="/isUSOwnerOfForeignTrust">
+      <Name>Is US Owner of Foreign Trust</Name>
+      <Description>Whether US person is treated as owner under sections 671-679.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/ownershipPercentage">
+      <Name>Ownership Percentage</Name>
+      <Description>Percentage of trust treated as owned.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>100</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustGrossIncome">
+      <Name>Foreign Trust Gross Income</Name>
+      <Description>Gross income of foreign trust.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/usOwnerShareOfIncome">
+      <Name>US Owner Share of Income</Name>
+      <Description>US owner's share of trust income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/foreignTrustGrossIncome" />
+          <Divide>
+            <Dependency path="/ownershipPercentage" />
+            <Decimal>100</Decimal>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: DISTRIBUTIONS FROM FOREIGN TRUSTS -->
+    <!-- ============================================ -->
+
+    <Fact path="/receivedDistributionFromForeignTrust">
+      <Name>Received Distribution from Foreign Trust</Name>
+      <Description>Whether US person received distribution from foreign trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustDistributionsCash">
+      <Name>Cash Distributions</Name>
+      <Description>Cash distributions received from foreign trust.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTrustDistributionsProperty">
+      <Name>Property Distributions</Name>
+      <Description>FMV of property distributions from foreign trust.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalForeignTrustDistributions">
+      <Name>Total Foreign Trust Distributions</Name>
+      <Description>Total distributions from foreign trusts.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/foreignTrustDistributionsCash" />
+          <Dependency path="/foreignTrustDistributionsProperty" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/loansFromForeignTrust">
+      <Name>Loans from Foreign Trust</Name>
+      <Description>Loans received from foreign trust (treated as distributions).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/useOfTrustProperty">
+      <Name>Use of Trust Property</Name>
+      <Description>FMV of use of trust property (treated as distribution).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulationDistribution">
+      <Name>Accumulation Distribution</Name>
+      <Description>Accumulation distribution from foreign trust.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/throwbackTax">
+      <Name>Throwback Tax</Name>
+      <Description>Tax on accumulation distribution (throwback rules).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: FOREIGN GIFTS                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalForeignGiftsReceived">
+      <Name>Total Foreign Gifts Received</Name>
+      <Description>Total gifts received from foreign persons.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exceedsForeignGiftThreshold">
+      <Name>Exceeds Foreign Gift Threshold</Name>
+      <Description>Whether foreign gifts exceed $100,000 threshold.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalForeignGiftsReceived" /></Left>
+          <Right><Dependency path="/foreignGiftReportingThreshold" /></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignGiftFromIndividual">
+      <Name>Foreign Gift from Individual</Name>
+      <Description>Gifts received from foreign individuals.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignGiftFromEstate">
+      <Name>Foreign Gift from Estate</Name>
+      <Description>Bequests from foreign estates.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignGiftFromCorporation">
+      <Name>Foreign Gift from Corporation</Name>
+      <Description>Gifts from foreign corporations (over $18,567 threshold).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCorporationGiftThreshold">
+      <Name>Foreign Corporation Gift Threshold</Name>
+      <Description>Threshold for reporting gifts from foreign corporations ($18,567 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>18567</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTIES                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/penaltyForLateFilingForeignTrust">
+      <Name>Penalty for Late Filing - Foreign Trust</Name>
+      <Description>Penalty for late or incomplete Form 3520 (35% of gross value).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasForeignTrustTransactions" />
+            </When>
+            <Then>
+              <Multiply>
+                <Add>
+                  <Dependency path="/fmvPropertyTransferred" />
+                  <Dependency path="/totalForeignTrustDistributions" />
+                </Add>
+                <Decimal>0.35</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/penaltyForLateFilingForeignGift">
+      <Name>Penalty for Late Filing - Foreign Gift</Name>
+      <Description>Penalty for late or incomplete foreign gift reporting (5% per month).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/exceedsForeignGiftThreshold" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/totalForeignGiftsReceived" />
+                <Decimal>0.05</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form3520IsDone">
+      <Name>Form 3520 Is Done</Name>
+      <Description>Whether Form 3520 is complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Not><Dependency path="/hasForeignTrustTransactions" /></Not>
+            <Not><Dependency path="/exceedsForeignGiftThreshold" /></Not>
+          </All>
+          <All>
+            <Any>
+              <Dependency path="/hasForeignTrustTransactions" />
+              <Dependency path="/exceedsForeignGiftThreshold" />
+            </Any>
+            <Any>
+              <IsComplete><Dependency path="/totalForeignTrustDistributions" /></IsComplete>
+              <IsComplete><Dependency path="/totalForeignGiftsReceived" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm3520">
+      <Name>Include Form 3520 in PDF</Name>
+      <Description>Whether to include Form 3520 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasForeignTrustTransactions" />
+          <Dependency path="/exceedsForeignGiftThreshold" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

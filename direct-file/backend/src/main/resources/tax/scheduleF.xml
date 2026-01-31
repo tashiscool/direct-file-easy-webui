@@ -1,0 +1,646 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule F: Profit or Loss From Farming -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FARM INFORMATION                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasFarmIncome">
+      <Name>Has Farm Income</Name>
+      <Description>Whether the taxpayer has farm income or loss.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmName">
+      <Name>Farm Name</Name>
+      <Description>Name of farm or principal product.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmEIN">
+      <Name>Farm EIN</Name>
+      <Description>Employer ID number for farm (if any).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmAccountingMethod">
+      <Name>Accounting Method</Name>
+      <Description>Cash, accrual, or other accounting method.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>cash</EnumOption>
+          <EnumOption>accrual</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/materiallyParticipatedFarm">
+      <Name>Materially Participated</Name>
+      <Description>Whether taxpayer materially participated in farm operation.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FARM INCOME                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/farmSalesLivestock">
+      <Name>Sales of Livestock and Produce</Name>
+      <Description>Sales of livestock, produce, grains, and other products you raised (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCostLivestockSold">
+      <Name>Cost of Livestock Sold</Name>
+      <Description>Cost or other basis of livestock or other items (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmNetSalesLivestock">
+      <Name>Net Sales of Livestock</Name>
+      <Description>Subtract cost from sales (Line 1c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/farmSalesLivestock" />
+          <Dependency path="/farmCostLivestockSold" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/farmSalesPurchasedLivestock">
+      <Name>Sales of Purchased Livestock</Name>
+      <Description>Sales of livestock, produce, etc. you purchased (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCooperativeDistributions">
+      <Name>Cooperative Distributions</Name>
+      <Description>Cooperative distributions (Line 3a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmAgriculturalPayments">
+      <Name>Agricultural Program Payments</Name>
+      <Description>Agricultural program payments (Line 4a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCCCLoans">
+      <Name>CCC Loans Reported Under Election</Name>
+      <Description>CCC loans reported under election (Line 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCropInsurance">
+      <Name>Crop Insurance Proceeds</Name>
+      <Description>Crop insurance proceeds (Line 6a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCustomHireIncome">
+      <Name>Custom Hire Income</Name>
+      <Description>Custom hire (machine work) income (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmOtherIncome">
+      <Name>Other Farm Income</Name>
+      <Description>Other farm income (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmGrossIncome">
+      <Name>Gross Farm Income</Name>
+      <Description>Gross farm income (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Dependency path="/farmNetSalesLivestock" />
+                      <Dependency path="/farmSalesPurchasedLivestock" />
+                    </Add>
+                    <Dependency path="/farmCooperativeDistributions" />
+                  </Add>
+                  <Dependency path="/farmAgriculturalPayments" />
+                </Add>
+                <Dependency path="/farmCCCLoans" />
+              </Add>
+              <Dependency path="/farmCropInsurance" />
+            </Add>
+            <Dependency path="/farmCustomHireIncome" />
+          </Add>
+          <Dependency path="/farmOtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FARM EXPENSES                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/farmCarTruckExpenses">
+      <Name>Car and Truck Expenses</Name>
+      <Description>Car and truck expenses (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmChemicals">
+      <Name>Chemicals</Name>
+      <Description>Chemicals (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmConservationExpenses">
+      <Name>Conservation Expenses</Name>
+      <Description>Conservation expenses (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmCustomHireExpense">
+      <Name>Custom Hire Expense</Name>
+      <Description>Custom hire (machine work) expense (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmDepreciationSection179">
+      <Name>Depreciation and Section 179</Name>
+      <Description>Depreciation and section 179 expense (Line 14).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmEmployeeBenefit">
+      <Name>Employee Benefit Programs</Name>
+      <Description>Employee benefit programs (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmFeed">
+      <Name>Feed</Name>
+      <Description>Feed (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmFertilizersLime">
+      <Name>Fertilizers and Lime</Name>
+      <Description>Fertilizers and lime (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmFreightTrucking">
+      <Name>Freight and Trucking</Name>
+      <Description>Freight and trucking (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmGasolineFuelOil">
+      <Name>Gasoline, Fuel, and Oil</Name>
+      <Description>Gasoline, fuel, and oil (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmInsurance">
+      <Name>Insurance (Other Than Health)</Name>
+      <Description>Insurance (other than health) (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmInterestMortgage">
+      <Name>Interest - Mortgage</Name>
+      <Description>Interest on mortgage (Line 21a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmInterestOther">
+      <Name>Interest - Other</Name>
+      <Description>Interest - other (Line 21b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmLaborHired">
+      <Name>Labor Hired</Name>
+      <Description>Labor hired (Line 22).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmPensionProfit">
+      <Name>Pension and Profit-Sharing</Name>
+      <Description>Pension and profit-sharing plans (Line 23).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmRentLeaseLand">
+      <Name>Rent/Lease - Land</Name>
+      <Description>Rent or lease of farmland (Line 24a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmRentLeaseEquipment">
+      <Name>Rent/Lease - Equipment</Name>
+      <Description>Rent or lease of equipment (Line 24b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmRepairsMaintenance">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance (Line 25).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmSeedPlants">
+      <Name>Seeds and Plants</Name>
+      <Description>Seeds and plants (Line 26).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmStorageWarehousing">
+      <Name>Storage and Warehousing</Name>
+      <Description>Storage and warehousing (Line 27).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmSupplies">
+      <Name>Supplies</Name>
+      <Description>Supplies (Line 28).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmTaxes">
+      <Name>Taxes</Name>
+      <Description>Taxes (Line 29).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmUtilities">
+      <Name>Utilities</Name>
+      <Description>Utilities (Line 30).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmVeterinaryBreeding">
+      <Name>Veterinary, Breeding, Medicine</Name>
+      <Description>Veterinary, breeding, and medicine (Line 31).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmOtherExpenses">
+      <Name>Other Farm Expenses</Name>
+      <Description>Other farm expenses (Line 32).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmTotalExpenses">
+      <Name>Total Farm Expenses</Name>
+      <Description>Total expenses (Line 33).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Add>
+                                  <Add>
+                                    <Add>
+                                      <Add>
+                                        <Add>
+                                          <Add>
+                                            <Add>
+                                              <Add>
+                                                <Add>
+                                                  <Add>
+                                                    <Add>
+                                                      <Dependency path="/farmCarTruckExpenses" />
+                                                      <Dependency path="/farmChemicals" />
+                                                    </Add>
+                                                    <Dependency path="/farmConservationExpenses" />
+                                                  </Add>
+                                                  <Dependency path="/farmCustomHireExpense" />
+                                                </Add>
+                                                <Dependency path="/farmDepreciationSection179" />
+                                              </Add>
+                                              <Dependency path="/farmEmployeeBenefit" />
+                                            </Add>
+                                            <Dependency path="/farmFeed" />
+                                          </Add>
+                                          <Dependency path="/farmFertilizersLime" />
+                                        </Add>
+                                        <Dependency path="/farmFreightTrucking" />
+                                      </Add>
+                                      <Dependency path="/farmGasolineFuelOil" />
+                                    </Add>
+                                    <Dependency path="/farmInsurance" />
+                                  </Add>
+                                  <Dependency path="/farmInterestMortgage" />
+                                </Add>
+                                <Dependency path="/farmInterestOther" />
+                              </Add>
+                              <Dependency path="/farmLaborHired" />
+                            </Add>
+                            <Dependency path="/farmPensionProfit" />
+                          </Add>
+                          <Dependency path="/farmRentLeaseLand" />
+                        </Add>
+                        <Dependency path="/farmRentLeaseEquipment" />
+                      </Add>
+                      <Dependency path="/farmRepairsMaintenance" />
+                    </Add>
+                    <Dependency path="/farmSeedPlants" />
+                  </Add>
+                  <Dependency path="/farmStorageWarehousing" />
+                </Add>
+                <Dependency path="/farmSupplies" />
+              </Add>
+              <Dependency path="/farmTaxes" />
+            </Add>
+            <Dependency path="/farmUtilities" />
+          </Add>
+          <Dependency path="/farmVeterinaryBreeding" />
+        </Add>
+        <Dependency path="/farmOtherExpenses" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NET FARM PROFIT/LOSS                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/farmNetProfitLoss">
+      <Name>Net Farm Profit or Loss</Name>
+      <Description>Net farm profit (or loss) (Line 34).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/farmGrossIncome" />
+          <Dependency path="/farmTotalExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/farmHasProfit">
+      <Name>Farm Has Profit</Name>
+      <Description>Whether farm operation has net profit.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/farmNetProfitLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleFIsDone">
+      <Name>Schedule F Is Done</Name>
+      <Description>Whether Schedule F is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFarmIncome" /></Not>
+          <All>
+            <Dependency path="/hasFarmIncome" />
+            <IsComplete><Dependency path="/farmGrossIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleF">
+      <Name>Include Schedule F in PDF</Name>
+      <Description>Whether to include Schedule F in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasFarmIncome" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

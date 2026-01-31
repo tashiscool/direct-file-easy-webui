@@ -1,0 +1,183 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 6198: At-Risk Limitations -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasAtRiskLimitation">
+      <Name>Has At-Risk Limitation</Name>
+      <Description>Whether taxpayer has at-risk limitation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/activityDescription6198">
+      <Name>Activity Description</Name>
+      <Description>Description of activity.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Current Year Profit (Loss) -->
+    <Fact path="/ordinaryIncomeOrLoss">
+      <Name>Ordinary Income or Loss</Name>
+      <Description>Ordinary income or loss from activity (Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/gainOrLossFromSale">
+      <Name>Gain or Loss from Sale</Name>
+      <Description>Gain or loss from sale of property (Line 2a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherIncomeDeductions6198">
+      <Name>Other Income/Deductions</Name>
+      <Description>Other income and deductions (Line 3).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearProfitLoss">
+      <Name>Current Year Profit/Loss</Name>
+      <Description>Current year profit or loss (Line 4).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/ordinaryIncomeOrLoss" />
+            <Dependency path="/gainOrLossFromSale" />
+          </Add>
+          <Dependency path="/otherIncomeDeductions6198" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: Simplified Computation of Amount At Risk -->
+    <Fact path="/adjustedBasisAtRisk">
+      <Name>Adjusted Basis At Risk</Name>
+      <Description>Adjusted basis in activity at beginning of year (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/increasesAtRisk">
+      <Name>Increases At Risk</Name>
+      <Description>Increases for current year (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/decreasesAtRisk">
+      <Name>Decreases At Risk</Name>
+      <Description>Decreases for current year (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountAtRisk">
+      <Name>Amount At Risk</Name>
+      <Description>Amount at risk (Line 11).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Subtract>
+            <Dependency path="/adjustedBasisAtRisk" />
+            <Dependency path="/decreasesAtRisk" />
+          </Subtract>
+          <Dependency path="/increasesAtRisk" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Part III: Deductible Loss -->
+    <Fact path="/priorYearDisallowedLoss">
+      <Name>Prior Year Disallowed Loss</Name>
+      <Description>Disallowed loss from prior year (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLossForAtRisk">
+      <Name>Total Loss for At-Risk</Name>
+      <Description>Total loss subject to at-risk limitation (Line 16).</Description>
+      <Derived>
+        <Add>
+          <Min><Dollar>0</Dollar><Dependency path="/currentYearProfitLoss" /></Min>
+          <Dependency path="/priorYearDisallowedLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleLoss6198">
+      <Name>Deductible Loss</Name>
+      <Description>Deductible loss (Line 18).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/amountAtRisk" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/totalLossForAtRisk" />
+                <Dependency path="/amountAtRisk" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form6198IsDone">
+      <Name>Form 6198 Is Done</Name>
+      <Description>Whether Form 6198 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasAtRiskLimitation" /></Not>
+          <All>
+            <Dependency path="/hasAtRiskLimitation" />
+            <IsComplete><Dependency path="/deductibleLoss6198" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm6198">
+      <Name>Include Form 6198 in PDF</Name>
+      <Description>Whether to include Form 6198.</Description>
+      <Derived>
+        <Dependency path="/hasAtRiskLimitation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,74 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-8ECI: Effectively Connected Income -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFormW8ECI">
+      <Name>Has Form W-8ECI</Name>
+      <Description>Whether filing effectively connected income certificate.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/entityNameW8ECI">
+      <Name>Entity Name</Name>
+      <Description>Name of entity or individual.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/countryOfIncorporation">
+      <Name>Country of Incorporation</Name>
+      <Description>Country where entity is incorporated.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/entityTypeW8ECI">
+      <Name>Entity Type</Name>
+      <Description>Type of entity.</Description>
+      <Writable>
+        <Enum>
+          <Option>corporation</Option>
+          <Option>partnership</Option>
+          <Option>trust</Option>
+          <Option>individual</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/usEINW8ECI">
+      <Name>US EIN</Name>
+      <Description>US employer identification number.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/incomeTypeW8ECI">
+      <Name>Income Type</Name>
+      <Description>Type of income effectively connected.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form W8ECIIsDone">
+      <Name>Form W-8ECI Is Done</Name>
+      <Description>Whether Form W-8ECI is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFormW8ECI" /></Not>
+          <All>
+            <Dependency path="/hasFormW8ECI" />
+            <IsComplete><Dependency path="/usEINW8ECI" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

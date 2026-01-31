@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Texas: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasTXReturn">
+      <Name>Has TX Return</Name>
+      <Description>Texas has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/txNoIncomeTax">
+      <Name>TX No Income Tax</Name>
+      <Description>Texas does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>TX</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/txFilingRequired">
+      <Name>TX Filing Required</Name>
+      <Description>No state filing required for Texas residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

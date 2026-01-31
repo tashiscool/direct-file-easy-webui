@@ -1,0 +1,241 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-B: Proceeds from Broker and Barter Exchange Transactions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- BROKER TRANSACTIONS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099B">
+      <Name>Has 1099-B</Name>
+      <Description>Whether taxpayer received Form 1099-B.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/broker1Name">
+      <Name>Broker 1 Name</Name>
+      <Description>Name of first broker.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- Short-term covered transactions (Box A) -->
+    <Fact path="/shortTermCoveredProceeds">
+      <Name>Short-Term Covered Proceeds</Name>
+      <Description>Proceeds from short-term covered transactions (Box 1d, Type A).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCoveredCost">
+      <Name>Short-Term Covered Cost</Name>
+      <Description>Cost basis for short-term covered (Box 1e).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCoveredGainLoss">
+      <Name>Short-Term Covered Gain/Loss</Name>
+      <Description>Gain or loss on short-term covered transactions.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/shortTermCoveredProceeds" />
+          <Dependency path="/shortTermCoveredCost" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- Short-term non-covered (Box B) -->
+    <Fact path="/shortTermNonCoveredProceeds">
+      <Name>Short-Term Non-Covered Proceeds</Name>
+      <Description>Proceeds from short-term non-covered transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermNonCoveredCost">
+      <Name>Short-Term Non-Covered Cost</Name>
+      <Description>Cost basis for short-term non-covered.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Long-term covered (Box D) -->
+    <Fact path="/longTermCoveredProceeds">
+      <Name>Long-Term Covered Proceeds</Name>
+      <Description>Proceeds from long-term covered transactions.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCoveredCost">
+      <Name>Long-Term Covered Cost</Name>
+      <Description>Cost basis for long-term covered.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCoveredGainLoss">
+      <Name>Long-Term Covered Gain/Loss</Name>
+      <Description>Gain or loss on long-term covered transactions.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/longTermCoveredProceeds" />
+          <Dependency path="/longTermCoveredCost" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- Long-term non-covered (Box E) -->
+    <Fact path="/longTermNonCoveredProceeds">
+      <Name>Long-Term Non-Covered Proceeds</Name>
+      <Description>Proceeds from long-term non-covered transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermNonCoveredCost">
+      <Name>Long-Term Non-Covered Cost</Name>
+      <Description>Cost basis for long-term non-covered.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- WASH SALES AND ADJUSTMENTS                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/washSaleDisallowed">
+      <Name>Wash Sale Disallowed</Name>
+      <Description>Wash sale loss disallowed (Box 1g).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accruredMarketDiscount">
+      <Name>Accrued Market Discount</Name>
+      <Description>Accrued market discount (Box 1f).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalShortTermGainLoss">
+      <Name>Total Short-Term Gain/Loss</Name>
+      <Description>Total short-term capital gain or loss.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/shortTermCoveredGainLoss" />
+          <Subtract>
+            <Dependency path="/shortTermNonCoveredProceeds" />
+            <Dependency path="/shortTermNonCoveredCost" />
+          </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalLongTermGainLoss">
+      <Name>Total Long-Term Gain/Loss</Name>
+      <Description>Total long-term capital gain or loss.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/longTermCoveredGainLoss" />
+          <Subtract>
+            <Dependency path="/longTermNonCoveredProceeds" />
+            <Dependency path="/longTermNonCoveredCost" />
+          </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalCapitalGainLoss1099B">
+      <Name>Total Capital Gain/Loss from 1099-B</Name>
+      <Description>Total capital gain or loss from all 1099-B.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/totalShortTermGainLoss" />
+          <Dependency path="/totalLongTermGainLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099BIsDone">
+      <Name>Form 1099-B Is Done</Name>
+      <Description>Whether 1099-B entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099B" /></Not>
+          <All>
+            <Dependency path="/has1099B" />
+            <IsComplete><Dependency path="/totalCapitalGainLoss1099B" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

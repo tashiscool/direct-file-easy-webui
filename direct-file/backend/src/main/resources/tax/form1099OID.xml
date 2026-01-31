@@ -1,0 +1,124 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-OID: Original Issue Discount -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/has1099OID">
+      <Name>Has 1099-OID</Name>
+      <Description>Whether taxpayer received Form 1099-OID.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/originalIssueDiscount">
+      <Name>Original Issue Discount</Name>
+      <Description>Original issue discount (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherPeriodicInterest1099OID">
+      <Name>Other Periodic Interest</Name>
+      <Description>Other periodic interest (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/earlyWithdrawalPenalty1099OID">
+      <Name>Early Withdrawal Penalty</Name>
+      <Description>Early withdrawal penalty (Box 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalTaxWithheld1099OID">
+      <Name>Federal Tax Withheld</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/marketDiscount1099OID">
+      <Name>Market Discount</Name>
+      <Description>Market discount (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/acquisitionPremium1099OID">
+      <Name>Acquisition Premium</Name>
+      <Description>Acquisition premium (Box 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableOID">
+      <Name>Taxable OID</Name>
+      <Description>Taxable OID after acquisition premium.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/originalIssueDiscount" />
+            <Dependency path="/acquisitionPremium1099OID" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099OIDIsDone">
+      <Name>Form 1099-OID Is Done</Name>
+      <Description>Whether Form 1099-OID is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099OID" /></Not>
+          <All>
+            <Dependency path="/has1099OID" />
+            <IsComplete><Dependency path="/taxableOID" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099OID">
+      <Name>Include Form 1099-OID in PDF</Name>
+      <Description>Whether to include Form 1099-OID.</Description>
+      <Derived>
+        <Dependency path="/has1099OID" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

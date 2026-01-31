@@ -1,0 +1,317 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1040-NR: U.S. Nonresident Alien Income Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- NONRESIDENT ALIEN STATUS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/isNonresidentAlien">
+      <Name>Is Nonresident Alien</Name>
+      <Description>Whether taxpayer is a nonresident alien.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/countryOfResidence">
+      <Name>Country of Residence</Name>
+      <Description>Taxpayer's country of tax residence.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/visaType">
+      <Name>Visa Type</Name>
+      <Description>Type of visa held (F, J, M, Q, etc.).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/daysInUS">
+      <Name>Days in US</Name>
+      <Description>Number of days present in the United States.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EFFECTIVELY CONNECTED INCOME                -->
+    <!-- ============================================ -->
+
+    <Fact path="/wagesECI">
+      <Name>Wages - ECI</Name>
+      <Description>Wages effectively connected with US trade or business.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessIncomeECI">
+      <Name>Business Income - ECI</Name>
+      <Description>Business income effectively connected with US trade or business.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scholarshipIncomeECI">
+      <Name>Scholarship Income - ECI</Name>
+      <Description>Taxable scholarship/fellowship income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalGainsECI">
+      <Name>Capital Gains - ECI</Name>
+      <Description>Capital gains effectively connected.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalECI">
+      <Name>Total ECI</Name>
+      <Description>Total effectively connected income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/wagesECI" />
+            <Dependency path="/businessIncomeECI" />
+          </Add>
+          <Add>
+            <Dependency path="/scholarshipIncomeECI" />
+            <Dependency path="/capitalGainsECI" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FDAP INCOME (30% WITHHOLDING)              -->
+    <!-- ============================================ -->
+
+    <Fact path="/dividendsFDAP">
+      <Name>Dividends - FDAP</Name>
+      <Description>Dividends subject to 30% withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestFDAP">
+      <Name>Interest - FDAP</Name>
+      <Description>Interest subject to 30% withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/royaltiesFDAP">
+      <Name>Royalties - FDAP</Name>
+      <Description>Royalties subject to 30% withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFDAPIncome">
+      <Name>Total FDAP Income</Name>
+      <Description>Total fixed, determinable, annual, or periodic income.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/dividendsFDAP" />
+            <Dependency path="/interestFDAP" />
+          </Add>
+          <Dependency path="/royaltiesFDAP" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fdapTaxRate">
+      <Name>FDAP Tax Rate</Name>
+      <Description>Standard FDAP withholding rate (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnFDAP">
+      <Name>Tax on FDAP</Name>
+      <Description>Tax on FDAP income (30% flat rate).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalFDAPIncome" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TREATY BENEFITS                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsTreatyBenefits">
+      <Name>Claims Treaty Benefits</Name>
+      <Description>Whether taxpayer claims tax treaty benefits.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyCountry">
+      <Name>Treaty Country</Name>
+      <Description>Country of treaty claimed.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyArticle">
+      <Name>Treaty Article</Name>
+      <Description>Treaty article number claimed.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyExemptIncome">
+      <Name>Treaty Exempt Income</Name>
+      <Description>Income exempt under treaty.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reducedTreatyRate">
+      <Name>Reduced Treaty Rate</Name>
+      <Description>Reduced withholding rate under treaty.</Description>
+      <Writable>
+        <Decimal />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX COMPUTATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/itemizedDeductionsNR">
+      <Name>Itemized Deductions - NR</Name>
+      <Description>Itemized deductions for nonresident aliens.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableIncomeNR">
+      <Name>Taxable Income - NR</Name>
+      <Description>Taxable income for nonresident alien.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalECI" />
+            <Dependency path="/itemizedDeductionsNR" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnECI">
+      <Name>Tax on ECI</Name>
+      <Description>Tax on effectively connected income (graduated rates).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxNR">
+      <Name>Total Tax - NR</Name>
+      <Description>Total tax for nonresident alien.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/taxOnECI" />
+          <Dependency path="/taxOnFDAP" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1040NRIsDone">
+      <Name>Form 1040-NR Is Done</Name>
+      <Description>Whether Form 1040-NR is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/isNonresidentAlien" /></Not>
+          <All>
+            <Dependency path="/isNonresidentAlien" />
+            <IsComplete><Dependency path="/totalTaxNR" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1040NR">
+      <Name>Include Form 1040-NR in PDF</Name>
+      <Description>Whether to include Form 1040-NR in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isNonresidentAlien" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

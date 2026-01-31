@@ -1,0 +1,166 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Massachusetts Form 1: Resident Income Tax Return -->
+<!-- Massachusetts has a flat 5% rate plus 4% millionaire's tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMA1">
+      <Name>Has MA Form 1</Name>
+      <Description>Whether taxpayer files Massachusetts Form 1.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MA Base Tax Rate -->
+    <Fact path="/maTaxRate">
+      <Name>MA Tax Rate</Name>
+      <Description>Massachusetts flat tax rate (5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.05</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- MA Millionaire's Tax Rate -->
+    <Fact path="/maMillionaireRate">
+      <Name>MA Millionaire's Tax Rate</Name>
+      <Description>Massachusetts additional 4% on income over $1M.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.04</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- MA Personal Exemption -->
+    <Fact path="/maPersonalExemptionSingle">
+      <Name>MA Personal Exemption Single</Name>
+      <Description>Massachusetts personal exemption single ($4,400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4400</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maPersonalExemptionMFJ">
+      <Name>MA Personal Exemption MFJ</Name>
+      <Description>Massachusetts personal exemption MFJ ($8,800).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8800</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maPersonalExemption">
+      <Name>MA Personal Exemption</Name>
+      <Description>Massachusetts personal exemption based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/maPersonalExemptionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/maPersonalExemptionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MA Taxable Income -->
+    <Fact path="/maTaxableIncome">
+      <Name>MA Taxable Income</Name>
+      <Description>Massachusetts taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/maPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MA Base Income Tax -->
+    <Fact path="/maBaseTax">
+      <Name>MA Base Tax</Name>
+      <Description>Massachusetts base income tax (5%).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/maTaxableIncome" />
+          <Dependency path="/maTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- MA Millionaire's Tax -->
+    <Fact path="/maMillionaireTax">
+      <Name>MA Millionaire's Tax</Name>
+      <Description>Massachusetts 4% surtax on income over $1M.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/maTaxableIncome" /></Left>
+                <Right><Dollar>1000000</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/maTaxableIncome" />
+                  <Dollar>1000000</Dollar>
+                </Subtract>
+                <Dependency path="/maMillionaireRate" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MA Total Tax -->
+    <Fact path="/maTotalTax">
+      <Name>MA Total Tax</Name>
+      <Description>Massachusetts total income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/maBaseTax" />
+          <Dependency path="/maMillionaireTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ma1IsDone">
+      <Name>MA Form 1 Is Done</Name>
+      <Description>Whether MA Form 1 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMA1" /></Not>
+          <All>
+            <Dependency path="/hasMA1" />
+            <IsComplete><Dependency path="/maTotalTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMA1">
+      <Name>Include MA Form 1 in PDF</Name>
+      <Description>Whether to include MA Form 1.</Description>
+      <Derived>
+        <Dependency path="/hasMA1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

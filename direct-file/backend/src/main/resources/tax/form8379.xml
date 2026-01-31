@@ -1,0 +1,197 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8379: Injured Spouse Allocation -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INJURED SPOUSE CLAIM                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasInjuredSpouseClaim">
+      <Name>Has Injured Spouse Claim</Name>
+      <Description>Whether filing injured spouse allocation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/injuredSpouseIsYou">
+      <Name>Injured Spouse Is You</Name>
+      <Description>Whether you (not spouse) are the injured spouse.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reasonForOffset">
+      <Name>Reason for Offset</Name>
+      <Description>Reason spouse's refund may be offset.</Description>
+      <Writable>
+        <Enum>
+          <Option value="CHILD_SUPPORT">Past-due child support</Option>
+          <Option value="SPOUSAL_SUPPORT">Spousal support</Option>
+          <Option value="FEDERAL_DEBT">Federal debt (non-tax)</Option>
+          <Option value="STATE_TAX">State income tax</Option>
+          <Option value="UNEMPLOYMENT">Unemployment compensation overpayment</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: SHOULD YOU FILE?                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/filedJointReturn">
+      <Name>Filed Joint Return</Name>
+      <Description>Whether filed or will file joint return (Line 1).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/madePayments">
+      <Name>Made Payments</Name>
+      <Description>Whether injured spouse made tax payments (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasIncome">
+      <Name>Has Income</Name>
+      <Description>Whether injured spouse had income (Line 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/notLegallyObligated">
+      <Name>Not Legally Obligated</Name>
+      <Description>Whether injured spouse is not obligated for debt (Line 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: ALLOCATION OF ITEMS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/injuredSpouseIncome">
+      <Name>Injured Spouse Income</Name>
+      <Description>Income allocable to injured spouse (Line 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherSpouseIncome">
+      <Name>Other Spouse Income</Name>
+      <Description>Income allocable to other spouse (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/injuredSpouseAdjustments">
+      <Name>Injured Spouse Adjustments</Name>
+      <Description>Adjustments allocable to injured spouse (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/injuredSpouseDeductions">
+      <Name>Injured Spouse Deductions</Name>
+      <Description>Deductions allocable to injured spouse (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/injuredSpouseCredits">
+      <Name>Injured Spouse Credits</Name>
+      <Description>Credits allocable to injured spouse (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/injuredSpousePayments">
+      <Name>Injured Spouse Payments</Name>
+      <Description>Tax payments allocable to injured spouse (Line 16).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: CALCULATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/injuredSpouseShareOfJointRefund">
+      <Name>Injured Spouse Share of Joint Refund</Name>
+      <Description>Injured spouse's share of joint refund.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8379IsDone">
+      <Name>Form 8379 Is Done</Name>
+      <Description>Whether Form 8379 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInjuredSpouseClaim" /></Not>
+          <All>
+            <Dependency path="/hasInjuredSpouseClaim" />
+            <IsComplete><Dependency path="/injuredSpouseShareOfJointRefund" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8379">
+      <Name>Include Form 8379 in PDF</Name>
+      <Description>Whether to include Form 8379 in the return.</Description>
+      <Derived>
+        <Dependency path="/hasInjuredSpouseClaim" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

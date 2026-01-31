@@ -1,0 +1,150 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Arkansas Form AR1000F: Individual Income Tax Return -->
+<!-- Arkansas has progressive rates from 0% to 4.4% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasAR1000F">
+      <Name>Has AR Form AR1000F</Name>
+      <Description>Whether taxpayer files Arkansas Form AR1000F.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>AR</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- AR Standard Deduction -->
+    <Fact path="/arStdDeductionSingle">
+      <Name>AR Standard Deduction Single</Name>
+      <Description>Arkansas standard deduction for single ($2,340).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2340</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/arStdDeductionMFJ">
+      <Name>AR Standard Deduction MFJ</Name>
+      <Description>Arkansas standard deduction for MFJ ($4,680).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4680</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/arStandardDeduction">
+      <Name>AR Standard Deduction</Name>
+      <Description>Arkansas standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/arStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/arStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- AR Taxable Income -->
+    <Fact path="/arTaxableIncome">
+      <Name>AR Taxable Income</Name>
+      <Description>Arkansas taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/arStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- AR Income Tax (progressive) -->
+    <Fact path="/arIncomeTax">
+      <Name>AR Income Tax</Name>
+      <Description>Arkansas income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/arTaxableIncome" /></Left>
+                <Right><Dollar>5099</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/arTaxableIncome" />
+                <Decimal>0.02</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/arTaxableIncome" /></Left>
+                <Right><Dollar>24299</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>102</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/arTaxableIncome" />
+                    <Dollar>5099</Dollar>
+                  </Subtract>
+                  <Decimal>0.04</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>870</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/arTaxableIncome" />
+                  <Dollar>24299</Dollar>
+                </Subtract>
+                <Decimal>0.044</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ar1000fIsDone">
+      <Name>AR Form AR1000F Is Done</Name>
+      <Description>Whether AR Form AR1000F is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasAR1000F" /></Not>
+          <All>
+            <Dependency path="/hasAR1000F" />
+            <IsComplete><Dependency path="/arIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeAR1000F">
+      <Name>Include AR Form AR1000F in PDF</Name>
+      <Description>Whether to include AR Form AR1000F.</Description>
+      <Derived>
+        <Dependency path="/hasAR1000F" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

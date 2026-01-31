@@ -1,0 +1,471 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4562: Depreciation and Amortization -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: SECTION 179 EXPENSE                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/section179MaxDeduction2025">
+      <Name>Section 179 Maximum Deduction</Name>
+      <Description>Maximum section 179 expense deduction ($1,220,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1220000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section179PhaseoutThreshold2025">
+      <Name>Section 179 Phaseout Threshold</Name>
+      <Description>Investment threshold for phaseout ($3,050,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3050000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSection179Property">
+      <Name>Total Section 179 Property</Name>
+      <Description>Total cost of section 179 property placed in service (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section179ThresholdReduction">
+      <Name>Section 179 Threshold Reduction</Name>
+      <Description>Reduction in limitation (Line 3).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalSection179Property" />
+            <Dependency path="/section179PhaseoutThreshold2025" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/reducedSection179Limit">
+      <Name>Reduced Section 179 Limit</Name>
+      <Description>Maximum deduction after reduction (Line 4).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/section179MaxDeduction2025" />
+            <Dependency path="/section179ThresholdReduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/electedSection179Amount">
+      <Name>Elected Section 179 Amount</Name>
+      <Description>Listed property or property used 50% or less for business (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalSection179Elected">
+      <Name>Total Section 179 Elected</Name>
+      <Description>Total elected section 179 cost (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tentativeSection179Deduction">
+      <Name>Tentative Section 179 Deduction</Name>
+      <Description>Tentative deduction (Line 7).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/totalSection179Elected" />
+          <Dependency path="/reducedSection179Limit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableIncomeForSection179">
+      <Name>Taxable Income for Section 179</Name>
+      <Description>Total taxable income from trade/business (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section179Deduction">
+      <Name>Section 179 Deduction</Name>
+      <Description>Section 179 expense deduction (Line 9).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/tentativeSection179Deduction" />
+          <Dependency path="/taxableIncomeForSection179" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section179Carryover">
+      <Name>Section 179 Carryover</Name>
+      <Description>Carryover of disallowed deduction (Line 10).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/tentativeSection179Deduction" />
+            <Dependency path="/section179Deduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: SPECIAL DEPRECIATION ALLOWANCE     -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedPropertyCost">
+      <Name>Qualified Property Cost</Name>
+      <Description>Cost of qualified property for special depreciation (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/specialDepreciationRate2025">
+      <Name>Special Depreciation Rate</Name>
+      <Description>Special depreciation rate (60% for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.60</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specialDepreciationAllowance">
+      <Name>Special Depreciation Allowance</Name>
+      <Description>Special depreciation allowance (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedPropertyCost" />
+          <Dependency path="/specialDepreciationRate2025" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: MACRS DEPRECIATION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/macrsGDSDepreciation">
+      <Name>MACRS GDS Depreciation</Name>
+      <Description>MACRS deduction using GDS (Line 17).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/macrsADSDepreciation">
+      <Name>MACRS ADS Depreciation</Name>
+      <Description>MACRS deduction using ADS (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEPRECIATION BY ASSET CLASS                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/depreciation3YearProperty">
+      <Name>3-Year Property Depreciation</Name>
+      <Description>Depreciation for 3-year MACRS property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation5YearProperty">
+      <Name>5-Year Property Depreciation</Name>
+      <Description>Depreciation for 5-year MACRS property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation7YearProperty">
+      <Name>7-Year Property Depreciation</Name>
+      <Description>Depreciation for 7-year MACRS property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation15YearProperty">
+      <Name>15-Year Property Depreciation</Name>
+      <Description>Depreciation for 15-year MACRS property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation27_5YearProperty">
+      <Name>27.5-Year Property Depreciation</Name>
+      <Description>Depreciation for residential rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation39YearProperty">
+      <Name>39-Year Property Depreciation</Name>
+      <Description>Depreciation for nonresidential real property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: SUMMARY                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/listedPropertyDepreciation">
+      <Name>Listed Property Depreciation</Name>
+      <Description>Depreciation on listed property (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherDepreciation">
+      <Name>Other Depreciation</Name>
+      <Description>Other depreciation including ACRS (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDepreciation">
+      <Name>Total Depreciation</Name>
+      <Description>Total depreciation (Line 22).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/section179Deduction" />
+              <Dependency path="/specialDepreciationAllowance" />
+            </Add>
+            <Add>
+              <Dependency path="/macrsGDSDepreciation" />
+              <Dependency path="/macrsADSDepreciation" />
+            </Add>
+          </Add>
+          <Add>
+            <Dependency path="/listedPropertyDepreciation" />
+            <Dependency path="/otherDepreciation" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: LISTED PROPERTY                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasListedProperty">
+      <Name>Has Listed Property</Name>
+      <Description>Whether taxpayer has listed property.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/listedPropertyBusinessUsePercent">
+      <Name>Listed Property Business Use %</Name>
+      <Description>Average business use percentage for listed property.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>100</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/listedPropertyMeetsBusinessUseTest">
+      <Name>Listed Property Meets Test</Name>
+      <Description>Whether listed property meets more than 50% business use test.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/listedPropertyBusinessUsePercent" /></Left>
+          <Right><Decimal>50</Decimal></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VI: AMORTIZATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/section197Amortization">
+      <Name>Section 197 Amortization</Name>
+      <Description>Amortization of section 197 intangibles.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/startupCostAmortization">
+      <Name>Startup Cost Amortization</Name>
+      <Description>Amortization of startup costs.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/organizationalCostAmortization">
+      <Name>Organizational Cost Amortization</Name>
+      <Description>Amortization of organizational costs.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherAmortization">
+      <Name>Other Amortization</Name>
+      <Description>Other amortization.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAmortization">
+      <Name>Total Amortization</Name>
+      <Description>Total amortization (Line 44).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/section197Amortization" />
+            <Dependency path="/startupCostAmortization" />
+          </Add>
+          <Add>
+            <Dependency path="/organizationalCostAmortization" />
+            <Dependency path="/otherAmortization" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form4562IsDone">
+      <Name>Form 4562 Is Done</Name>
+      <Description>Whether Form 4562 is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/totalDepreciation" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4562">
+      <Name>Include Form 4562 in PDF</Name>
+      <Description>Whether to include Form 4562 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Add>
+              <Dependency path="/totalDepreciation" />
+              <Dependency path="/totalAmortization" />
+            </Add>
+          </Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

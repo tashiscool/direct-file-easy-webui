@@ -1,0 +1,230 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5884: Work Opportunity Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- WORK OPPORTUNITY CREDIT                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasWorkOpportunityCredit">
+      <Name>Has Work Opportunity Credit</Name>
+      <Description>Whether employer claims work opportunity credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFIED WAGES                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedFirstYearWages">
+      <Name>Qualified First-Year Wages</Name>
+      <Description>Total qualified first-year wages (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/firstYearCreditRate">
+      <Name>First-Year Credit Rate</Name>
+      <Description>Credit rate for first-year wages (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/firstYearCredit">
+      <Name>First-Year Credit</Name>
+      <Description>First-year credit (Line 2).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedFirstYearWages" />
+          <Dependency path="/firstYearCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedSecondYearWages">
+      <Name>Qualified Second-Year Wages</Name>
+      <Description>Total qualified second-year wages (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondYearCreditRate">
+      <Name>Second-Year Credit Rate</Name>
+      <Description>Credit rate for second-year wages (50%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondYearCredit">
+      <Name>Second-Year Credit</Name>
+      <Description>Second-year credit (Line 4).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedSecondYearWages" />
+          <Dependency path="/secondYearCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TARGET GROUPS                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/veteranEmployees">
+      <Name>Veteran Employees</Name>
+      <Description>Number of qualified veteran employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermUnemployedEmployees">
+      <Name>Long-Term Unemployed Employees</Name>
+      <Description>Number of long-term unemployment recipient employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exFelonEmployees">
+      <Name>Ex-Felon Employees</Name>
+      <Description>Number of qualified ex-felon employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/summerYouthEmployees">
+      <Name>Summer Youth Employees</Name>
+      <Description>Number of summer youth employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/snapRecipientEmployees">
+      <Name>SNAP Recipient Employees</Name>
+      <Description>Number of SNAP recipient employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ssiRecipientEmployees">
+      <Name>SSI Recipient Employees</Name>
+      <Description>Number of SSI recipient employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- WAGE LIMITS                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/maxWagesPerEmployee">
+      <Name>Max Wages Per Employee</Name>
+      <Description>Maximum wages per employee ($6,000 general).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxVeteranWages">
+      <Name>Max Veteran Wages</Name>
+      <Description>Maximum wages per veteran ($24,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL CREDIT                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalWorkOpportunityCredit">
+      <Name>Total Work Opportunity Credit</Name>
+      <Description>Total work opportunity credit (Line 5).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/firstYearCredit" />
+          <Dependency path="/secondYearCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form5884IsDone">
+      <Name>Form 5884 Is Done</Name>
+      <Description>Whether Form 5884 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasWorkOpportunityCredit" /></Not>
+          <All>
+            <Dependency path="/hasWorkOpportunityCredit" />
+            <IsComplete><Dependency path="/totalWorkOpportunityCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm5884">
+      <Name>Include Form 5884 in PDF</Name>
+      <Description>Whether to include Form 5884 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalWorkOpportunityCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,84 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8275: Disclosure Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasDisclosureStatement">
+      <Name>Has Disclosure Statement</Name>
+      <Description>Whether taxpayer files disclosure statement.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disclosureItem1Description">
+      <Name>Disclosure Item 1 Description</Name>
+      <Description>Description of item being disclosed (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disclosureItem1Amount">
+      <Name>Disclosure Item 1 Amount</Name>
+      <Description>Amount of item disclosed.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disclosureItem1FormOrSchedule">
+      <Name>Disclosure Item 1 Form/Schedule</Name>
+      <Description>Form or schedule where item is reported.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disclosureItem1LineNumber">
+      <Name>Disclosure Item 1 Line Number</Name>
+      <Description>Line number where item is reported.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/detailedExplanation">
+      <Name>Detailed Explanation</Name>
+      <Description>Detailed explanation of position (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relevantCodeSection">
+      <Name>Relevant Code Section</Name>
+      <Description>Relevant IRC section, regulation, or other authority.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8275IsDone">
+      <Name>Form 8275 Is Done</Name>
+      <Description>Whether Form 8275 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDisclosureStatement" /></Not>
+          <All>
+            <Dependency path="/hasDisclosureStatement" />
+            <IsComplete><Dependency path="/disclosureItem1Description" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8275">
+      <Name>Include Form 8275 in PDF</Name>
+      <Description>Whether to include Form 8275.</Description>
+      <Derived>
+        <Dependency path="/hasDisclosureStatement" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

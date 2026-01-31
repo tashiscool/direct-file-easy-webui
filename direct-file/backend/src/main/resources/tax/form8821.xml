@@ -1,0 +1,195 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8821: Tax Information Authorization -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- TAX INFORMATION AUTHORIZATION               -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasTaxInfoAuthorization">
+      <Name>Has Tax Info Authorization</Name>
+      <Description>Whether taxpayer is granting tax info authorization.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAXPAYER INFORMATION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerName8821">
+      <Name>Taxpayer Name</Name>
+      <Description>Taxpayer name (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerSSN8821">
+      <Name>Taxpayer SSN</Name>
+      <Description>Taxpayer SSN or EIN (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerAddress8821">
+      <Name>Taxpayer Address</Name>
+      <Description>Taxpayer address (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseName8821">
+      <Name>Spouse Name</Name>
+      <Description>Spouse name if applicable (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseSSN8821">
+      <Name>Spouse SSN</Name>
+      <Description>Spouse SSN if applicable (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: APPOINTEE INFORMATION               -->
+    <!-- ============================================ -->
+
+    <Fact path="/appointee1Name">
+      <Name>Appointee 1 Name</Name>
+      <Description>Name of first appointee (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/appointee1CAFNumber">
+      <Name>Appointee 1 CAF Number</Name>
+      <Description>CAF number of first appointee (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/appointee1Phone">
+      <Name>Appointee 1 Phone</Name>
+      <Description>Phone number of first appointee (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/appointee1Address">
+      <Name>Appointee 1 Address</Name>
+      <Description>Address of first appointee (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/appointee2Name">
+      <Name>Appointee 2 Name</Name>
+      <Description>Name of second appointee (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAX INFORMATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxFormType8821">
+      <Name>Tax Form Type</Name>
+      <Description>Type of tax form (Line 3).</Description>
+      <Writable>
+        <Enum>
+          <Option value="1040">Form 1040</Option>
+          <Option value="1120">Form 1120</Option>
+          <Option value="1065">Form 1065</Option>
+          <Option value="941">Form 941</Option>
+          <Option value="940">Form 940</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearBegin8821">
+      <Name>Tax Year Begin</Name>
+      <Description>Beginning tax year (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearEnd8821">
+      <Name>Tax Year End</Name>
+      <Description>Ending tax year (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/specificTaxMatters">
+      <Name>Specific Tax Matters</Name>
+      <Description>Specific tax matters if not all (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RETENTION/REVOCATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/retainPriorAuthorizations">
+      <Name>Retain Prior Authorizations</Name>
+      <Description>Whether to retain prior authorizations (Line 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorAuthorizationsToRetain">
+      <Name>Prior Authorizations to Retain</Name>
+      <Description>CAF numbers of prior authorizations to retain (Line 5).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8821IsDone">
+      <Name>Form 8821 Is Done</Name>
+      <Description>Whether Form 8821 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasTaxInfoAuthorization" /></Not>
+          <All>
+            <Dependency path="/hasTaxInfoAuthorization" />
+            <IsComplete><Dependency path="/taxpayerName8821" /></IsComplete>
+            <IsComplete><Dependency path="/appointee1Name" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8821">
+      <Name>Include Form 8821 in PDF</Name>
+      <Description>Whether to include Form 8821 in output.</Description>
+      <Derived>
+        <Dependency path="/hasTaxInfoAuthorization" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

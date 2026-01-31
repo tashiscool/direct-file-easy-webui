@@ -1,0 +1,148 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5498: IRA Contribution Information -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm5498">
+      <Name>Has Form 5498</Name>
+      <Description>Whether taxpayer received Form 5498.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/trusteeName5498">
+      <Name>Trustee Name</Name>
+      <Description>Name of IRA trustee.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/iraContributions5498">
+      <Name>IRA Contributions</Name>
+      <Description>IRA contributions made (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rolloverContributions5498">
+      <Name>Rollover Contributions</Name>
+      <Description>Rollover contributions (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rothConversion5498">
+      <Name>Roth IRA Conversion Amount</Name>
+      <Description>Roth IRA conversion amount (Box 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvAccount5498">
+      <Name>FMV of Account</Name>
+      <Description>Fair market value of account (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sepContributions5498">
+      <Name>SEP Contributions</Name>
+      <Description>SEP contributions (Box 8).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/simpleContributions5498">
+      <Name>SIMPLE Contributions</Name>
+      <Description>SIMPLE contributions (Box 9).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rothContributions5498">
+      <Name>Roth IRA Contributions</Name>
+      <Description>Roth IRA contributions (Box 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rmdRequired5498">
+      <Name>RMD Required</Name>
+      <Description>Whether RMD is required (Box 11).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalIRAContributions5498">
+      <Name>Total IRA Contributions</Name>
+      <Description>Total IRA contributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/iraContributions5498" />
+          <Add>
+            <Dependency path="/sepContributions5498" />
+            <Dependency path="/rothContributions5498" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form5498IsDone">
+      <Name>Form 5498 Is Done</Name>
+      <Description>Whether Form 5498 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm5498" /></Not>
+          <All>
+            <Dependency path="/hasForm5498" />
+            <IsComplete><Dependency path="/totalIRAContributions5498" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,151 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8283: Noncash Charitable Contributions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- NONCASH CHARITABLE CONTRIBUTIONS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasNoncashCharitableContributions">
+      <Name>Has Noncash Charitable Contributions</Name>
+      <Description>Whether taxpayer has noncash contributions over $500.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Section A: $500 - $5,000 -->
+    <Fact path="/sectionAApplies">
+      <Name>Section A Applies</Name>
+      <Description>Whether Section A applies (contributions $500-$5,000).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionA1DoneeName">
+      <Name>Section A Item 1 Donee Name</Name>
+      <Description>Name of charitable organization.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionA1PropertyDescription">
+      <Name>Section A Item 1 Property Description</Name>
+      <Description>Description of donated property.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionA1DateContributed">
+      <Name>Section A Item 1 Date Contributed</Name>
+      <Description>Date of contribution.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionA1DonorCostBasis">
+      <Name>Section A Item 1 Donor Cost Basis</Name>
+      <Description>Donor's cost or adjusted basis.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionA1FMV">
+      <Name>Section A Item 1 FMV</Name>
+      <Description>Fair market value.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Section B: Over $5,000 -->
+    <Fact path="/sectionBApplies">
+      <Name>Section B Applies</Name>
+      <Description>Whether Section B applies (contributions over $5,000).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionB1PropertyDescription">
+      <Name>Section B Item 1 Property Description</Name>
+      <Description>Description of donated property.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sectionB1AppraisedFMV">
+      <Name>Section B Item 1 Appraised FMV</Name>
+      <Description>Appraised fair market value.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/appraiserName">
+      <Name>Appraiser Name</Name>
+      <Description>Name of qualified appraiser.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalNoncashContributionsFMV">
+      <Name>Total Noncash Contributions FMV</Name>
+      <Description>Total FMV of all noncash contributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/sectionA1FMV" />
+          <Dependency path="/sectionB1AppraisedFMV" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283IsDone">
+      <Name>Form 8283 Is Done</Name>
+      <Description>Whether Form 8283 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNoncashCharitableContributions" /></Not>
+          <All>
+            <Dependency path="/hasNoncashCharitableContributions" />
+            <IsComplete><Dependency path="/totalNoncashContributionsFMV" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8283">
+      <Name>Include Form 8283 in PDF</Name>
+      <Description>Whether to include Form 8283 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalNoncashContributionsFMV" /></Left>
+          <Right><Dollar>500</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

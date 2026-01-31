@@ -1,0 +1,28 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8840: Closer Connection Exception Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8840">
+      <Name>Has Form 8840</Name>
+      <Description>Whether alien claims closer connection to foreign country.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/foreignCountryConnection">
+      <Name>Foreign Country Connection</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/daysInUS8840">
+      <Name>Days in US</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/form8840IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8840" /></Not>
+          <IsComplete><Dependency path="/foreignCountryConnection" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

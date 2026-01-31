@@ -1,0 +1,183 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Vermont Form IN-111: Income Tax Return -->
+<!-- Vermont has progressive rates from 3.35% to 8.75% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasVTIN111">
+      <Name>Has VT Form IN-111</Name>
+      <Description>Whether taxpayer files Vermont Form IN-111.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>VT</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- VT Standard Deduction (uses federal amounts) -->
+    <Fact path="/vtStdDeductionSingle">
+      <Name>VT Standard Deduction Single</Name>
+      <Description>Vermont standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/vtStdDeductionMFJ">
+      <Name>VT Standard Deduction MFJ</Name>
+      <Description>Vermont standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/vtStandardDeduction">
+      <Name>VT Standard Deduction</Name>
+      <Description>Vermont standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/vtStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/vtStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- VT Personal Exemption -->
+    <Fact path="/vtPersonalExemption">
+      <Name>VT Personal Exemption</Name>
+      <Description>Vermont personal exemption ($4,850).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4850</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- VT Taxable Income -->
+    <Fact path="/vtTaxableIncome">
+      <Name>VT Taxable Income</Name>
+      <Description>Vermont taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/vtStandardDeduction" />
+            </Subtract>
+            <Dependency path="/vtPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- VT Income Tax (progressive) -->
+    <Fact path="/vtIncomeTax">
+      <Name>VT Income Tax</Name>
+      <Description>Vermont income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vtTaxableIncome" /></Left>
+                <Right><Dollar>45400</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/vtTaxableIncome" />
+                <Decimal>0.0335</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vtTaxableIncome" /></Left>
+                <Right><Dollar>110050</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>1521</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/vtTaxableIncome" />
+                    <Dollar>45400</Dollar>
+                  </Subtract>
+                  <Decimal>0.066</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vtTaxableIncome" /></Left>
+                <Right><Dollar>229550</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>5788</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/vtTaxableIncome" />
+                    <Dollar>110050</Dollar>
+                  </Subtract>
+                  <Decimal>0.076</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>14870</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/vtTaxableIncome" />
+                  <Dollar>229550</Dollar>
+                </Subtract>
+                <Decimal>0.0875</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/vtin111IsDone">
+      <Name>VT Form IN-111 Is Done</Name>
+      <Description>Whether VT Form IN-111 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasVTIN111" /></Not>
+          <All>
+            <Dependency path="/hasVTIN111" />
+            <IsComplete><Dependency path="/vtIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeVTIN111">
+      <Name>Include VT Form IN-111 in PDF</Name>
+      <Description>Whether to include VT Form IN-111.</Description>
+      <Derived>
+        <Dependency path="/hasVTIN111" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

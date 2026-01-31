@@ -1,0 +1,28 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8858: Information Return of U.S. Persons With Respect to Foreign Disregarded Entities -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8858">
+      <Name>Has Form 8858</Name>
+      <Description>Whether taxpayer has foreign disregarded entities.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/foreignEntityName8858">
+      <Name>Foreign Entity Name</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/foreignEntityCountry8858">
+      <Name>Foreign Entity Country</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8858IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8858" /></Not>
+          <IsComplete><Dependency path="/foreignEntityName8858" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

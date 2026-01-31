@@ -1,0 +1,206 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-4: Employee's Withholding Certificate -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- WITHHOLDING CERTIFICATE                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasW4">
+      <Name>Has W-4</Name>
+      <Description>Whether employee is completing W-4.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STEP 1: PERSONAL INFORMATION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/w4FilingStatus">
+      <Name>W-4 Filing Status</Name>
+      <Description>Filing status for withholding (Step 1c).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SINGLE">Single or Married filing separately</Option>
+          <Option value="MFJ">Married filing jointly</Option>
+          <Option value="HOH">Head of household</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STEP 2: MULTIPLE JOBS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasMultipleJobs">
+      <Name>Has Multiple Jobs</Name>
+      <Description>Whether employee has multiple jobs or spouse works.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/useMultipleJobsWorksheet">
+      <Name>Use Multiple Jobs Worksheet</Name>
+      <Description>Whether to use the Multiple Jobs Worksheet.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/step2cCheckbox">
+      <Name>Step 2c Checkbox</Name>
+      <Description>Check if two jobs with similar pay (Step 2c).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STEP 3: DEPENDENTS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifyingChildrenUnder17">
+      <Name>Qualifying Children Under 17</Name>
+      <Description>Number of qualifying children under 17.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/childTaxCreditAmount">
+      <Name>Child Tax Credit Amount</Name>
+      <Description>Amount per child ($2,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/step3Line3a">
+      <Name>Step 3 Line 3a</Name>
+      <Description>Multiply qualifying children by $2,000.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifyingChildrenUnder17" />
+          <Dependency path="/childTaxCreditAmount" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherDependentsCount">
+      <Name>Other Dependents Count</Name>
+      <Description>Number of other dependents.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherDependentCreditAmount">
+      <Name>Other Dependent Credit Amount</Name>
+      <Description>Amount per other dependent ($500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/step3Line3b">
+      <Name>Step 3 Line 3b</Name>
+      <Description>Multiply other dependents by $500.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/otherDependentsCount" />
+          <Dependency path="/otherDependentCreditAmount" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalClaimDependents">
+      <Name>Total Claim Dependents</Name>
+      <Description>Total dependent credits (Step 3 Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/step3Line3a" />
+          <Dependency path="/step3Line3b" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STEP 4: OTHER ADJUSTMENTS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/otherIncomeNotFromJobs">
+      <Name>Other Income Not From Jobs</Name>
+      <Description>Other income not from jobs (Step 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductionsExceedStandard">
+      <Name>Deductions Exceed Standard</Name>
+      <Description>Deductions in excess of standard deduction (Step 4b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/extraWithholding">
+      <Name>Extra Withholding</Name>
+      <Description>Extra amount to withhold each pay period (Step 4c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/formW4IsDone">
+      <Name>Form W-4 Is Done</Name>
+      <Description>Whether Form W-4 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasW4" /></Not>
+          <All>
+            <Dependency path="/hasW4" />
+            <IsComplete><Dependency path="/w4FilingStatus" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeFormW4">
+      <Name>Include Form W-4 in PDF</Name>
+      <Description>Whether to include Form W-4 in output.</Description>
+      <Derived>
+        <Dependency path="/hasW4" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,264 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule L (Form 990): Transactions With Interested Persons -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INTERESTED PERSON TRANSACTIONS              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasInterestedPersonTransactions">
+      <Name>Has Interested Person Transactions</Name>
+      <Description>Whether organization has transactions with interested persons.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: EXCESS BENEFIT TRANSACTIONS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasExcessBenefitTransactions">
+      <Name>Has Excess Benefit Transactions</Name>
+      <Description>Whether excess benefit transactions occurred (Line 1a).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessBenefitTaxPaid">
+      <Name>Excess Benefit Tax Paid</Name>
+      <Description>Amount of 25% excise tax paid (Line 1b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctionAmount">
+      <Name>Correction Amount</Name>
+      <Description>Amount of correction made (Line 1c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: LOANS                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasLoansToInterestedPersons">
+      <Name>Has Loans to Interested Persons</Name>
+      <Description>Whether organization made loans to interested persons (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1PersonName">
+      <Name>Loan 1 Person Name</Name>
+      <Description>Name of interested person with loan (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1Relationship">
+      <Name>Loan 1 Relationship</Name>
+      <Description>Relationship of person (Line 2).</Description>
+      <Writable>
+        <Enum>
+          <Option value="OFFICER">Officer</Option>
+          <Option value="DIRECTOR">Director</Option>
+          <Option value="TRUSTEE">Trustee</Option>
+          <Option value="KEY_EMPLOYEE">Key employee</Option>
+          <Option value="HIGHEST_COMPENSATED">Highest compensated employee</Option>
+          <Option value="DISQUALIFIED">Disqualified person</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1Purpose">
+      <Name>Loan 1 Purpose</Name>
+      <Description>Purpose of loan (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1ToOrFromOrg">
+      <Name>Loan 1 To/From Org</Name>
+      <Description>Whether loan was to or from organization (Line 2).</Description>
+      <Writable>
+        <Enum>
+          <Option value="TO">To organization</Option>
+          <Option value="FROM">From organization</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1OriginalAmount">
+      <Name>Loan 1 Original Amount</Name>
+      <Description>Original principal amount (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1BalanceDue">
+      <Name>Loan 1 Balance Due</Name>
+      <Description>Balance due (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1InDefault">
+      <Name>Loan 1 In Default</Name>
+      <Description>Whether loan is in default (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1BoardApproved">
+      <Name>Loan 1 Board Approved</Name>
+      <Description>Whether loan was board approved (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/loan1Written">
+      <Name>Loan 1 Written</Name>
+      <Description>Whether loan agreement was written (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: GRANTS OR ASSISTANCE              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasGrantsToInterestedPersons">
+      <Name>Has Grants to Interested Persons</Name>
+      <Description>Whether grants or assistance to interested persons (Line 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/grantsToInterestedAmount">
+      <Name>Grants to Interested Amount</Name>
+      <Description>Total grants/assistance to interested persons (Line 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: BUSINESS TRANSACTIONS              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasBusinessTransactions">
+      <Name>Has Business Transactions</Name>
+      <Description>Whether business transactions with interested persons (Line 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTransaction1PersonName">
+      <Name>Business Transaction 1 Person Name</Name>
+      <Description>Name of interested person (Line 4).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTransaction1Amount">
+      <Name>Business Transaction 1 Amount</Name>
+      <Description>Amount of transaction (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTransaction1Description">
+      <Name>Business Transaction 1 Description</Name>
+      <Description>Description of transaction (Line 4).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTransaction1SharingRevenue">
+      <Name>Business Transaction 1 Sharing Revenue</Name>
+      <Description>Whether sharing of revenues (Line 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleL990IsDone">
+      <Name>Schedule L Is Done</Name>
+      <Description>Whether Schedule L is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInterestedPersonTransactions" /></Not>
+          <All>
+            <Dependency path="/hasInterestedPersonTransactions" />
+            <Any>
+              <IsComplete><Dependency path="/excessBenefitTaxPaid" /></IsComplete>
+              <IsComplete><Dependency path="/loan1BalanceDue" /></IsComplete>
+              <IsComplete><Dependency path="/grantsToInterestedAmount" /></IsComplete>
+              <IsComplete><Dependency path="/businessTransaction1Amount" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleL990">
+      <Name>Include Schedule L in PDF</Name>
+      <Description>Whether to include Schedule L (990) in output.</Description>
+      <Derived>
+        <Dependency path="/hasInterestedPersonTransactions" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

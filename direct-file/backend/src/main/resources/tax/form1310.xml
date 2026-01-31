@@ -1,0 +1,93 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1310: Statement of Person Claiming Refund Due a Deceased Taxpayer -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1310">
+      <Name>Has Form 1310</Name>
+      <Description>Whether claiming refund for deceased taxpayer.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/decedentName">
+      <Name>Decedent Name</Name>
+      <Description>Name of decedent.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/decedentSSN">
+      <Name>Decedent SSN</Name>
+      <Description>Social security number of decedent.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateOfDeath">
+      <Name>Date of Death</Name>
+      <Description>Date of death.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimantType">
+      <Name>Claimant Type</Name>
+      <Description>Type of claimant.</Description>
+      <Writable>
+        <Enum>
+          <Option>survivingSpouse</Option>
+          <Option>courtAppointedRep</Option>
+          <Option>otherPerson</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isSurvivingSpouse1310">
+      <Name>Is Surviving Spouse</Name>
+      <Description>Whether claimant is surviving spouse (Part I, Line A).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isCourtAppointedRep">
+      <Name>Is Court-Appointed Representative</Name>
+      <Description>Whether claimant is court-appointed (Part I, Line B).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundAmount1310">
+      <Name>Refund Amount</Name>
+      <Description>Amount of refund due.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1310IsDone">
+      <Name>Form 1310 Is Done</Name>
+      <Description>Whether Form 1310 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1310" /></Not>
+          <All>
+            <Dependency path="/hasForm1310" />
+            <IsComplete><Dependency path="/refundAmount1310" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

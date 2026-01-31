@@ -1,0 +1,163 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Kansas Form K-40: Individual Income Tax Return -->
+<!-- Kansas has progressive rates from 3.1% to 5.7% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasKSK40">
+      <Name>Has KS Form K-40</Name>
+      <Description>Whether taxpayer files Kansas Form K-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>KS</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- KS Standard Deduction -->
+    <Fact path="/ksStdDeductionSingle">
+      <Name>KS Standard Deduction Single</Name>
+      <Description>Kansas standard deduction for single ($3,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ksStdDeductionMFJ">
+      <Name>KS Standard Deduction MFJ</Name>
+      <Description>Kansas standard deduction for MFJ ($8,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ksStandardDeduction">
+      <Name>KS Standard Deduction</Name>
+      <Description>Kansas standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/ksStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/ksStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- KS Personal Exemption -->
+    <Fact path="/ksPersonalExemption">
+      <Name>KS Personal Exemption</Name>
+      <Description>Kansas personal exemption ($2,250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2250</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- KS Taxable Income -->
+    <Fact path="/ksTaxableIncome">
+      <Name>KS Taxable Income</Name>
+      <Description>Kansas taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/ksStandardDeduction" />
+            </Subtract>
+            <Dependency path="/ksPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- KS Income Tax (progressive) -->
+    <Fact path="/ksIncomeTax">
+      <Name>KS Income Tax</Name>
+      <Description>Kansas income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ksTaxableIncome" /></Left>
+                <Right><Dollar>15000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/ksTaxableIncome" />
+                <Decimal>0.031</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ksTaxableIncome" /></Left>
+                <Right><Dollar>30000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>465</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/ksTaxableIncome" />
+                    <Dollar>15000</Dollar>
+                  </Subtract>
+                  <Decimal>0.0525</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>1253</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/ksTaxableIncome" />
+                  <Dollar>30000</Dollar>
+                </Subtract>
+                <Decimal>0.057</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ksk40IsDone">
+      <Name>KS Form K-40 Is Done</Name>
+      <Description>Whether KS Form K-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasKSK40" /></Not>
+          <All>
+            <Dependency path="/hasKSK40" />
+            <IsComplete><Dependency path="/ksIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeKSK40">
+      <Name>Include KS Form K-40 in PDF</Name>
+      <Description>Whether to include KS Form K-40.</Description>
+      <Derived>
+        <Dependency path="/hasKSK40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

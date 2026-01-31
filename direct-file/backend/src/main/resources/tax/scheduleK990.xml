@@ -1,0 +1,265 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K (Form 990): Supplemental Information on Tax-Exempt Bonds -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- TAX-EXEMPT BONDS                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasTaxExemptBonds">
+      <Name>Has Tax-Exempt Bonds</Name>
+      <Description>Whether organization has tax-exempt bonds outstanding.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: BOND ISSUES                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/bondIssuer1Name">
+      <Name>Bond Issuer 1 Name</Name>
+      <Description>Name of bond issuer (Line 1a).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondIssuer1EIN">
+      <Name>Bond Issuer 1 EIN</Name>
+      <Description>EIN of bond issuer (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondIssuer1CUSIP">
+      <Name>Bond Issuer 1 CUSIP</Name>
+      <Description>CUSIP number (Line 1c).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondIssueDate1">
+      <Name>Bond Issue Date 1</Name>
+      <Description>Date issued (Line 1d).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondIssuePrice1">
+      <Name>Bond Issue Price 1</Name>
+      <Description>Issue price (Line 1e).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondDescription1">
+      <Name>Bond Description 1</Name>
+      <Description>Description of purpose (Line 1f).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondDefeasedAmount1">
+      <Name>Bond Defeased Amount 1</Name>
+      <Description>Amount defeased (Line 1g).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondOnBehalfOf1">
+      <Name>Bond On Behalf Of 1</Name>
+      <Description>Whether bonds issued on behalf of issuer (Line 1h).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bondPoolFinancing1">
+      <Name>Bond Pool Financing 1</Name>
+      <Description>Whether pool financing (Line 1i).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: PROCEEDS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/bondGrossProceeds">
+      <Name>Bond Gross Proceeds</Name>
+      <Description>Gross proceeds of bond issues (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/proceedsInReserve">
+      <Name>Proceeds in Reserve</Name>
+      <Description>Amount of proceeds in reserve or replacement fund (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalExpenditures">
+      <Name>Capital Expenditures</Name>
+      <Description>Capital expenditures from proceeds (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/workingCapital">
+      <Name>Working Capital</Name>
+      <Description>Working capital expenditures from proceeds (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundingEscrow">
+      <Name>Refunding Escrow</Name>
+      <Description>Amount to refunding escrow (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/issuanceCosts">
+      <Name>Issuance Costs</Name>
+      <Description>Issuance costs from proceeds (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: PRIVATE BUSINESS USE              -->
+    <!-- ============================================ -->
+
+    <Fact path="/privateBusinessUsePercent">
+      <Name>Private Business Use Percent</Name>
+      <Description>Percentage of private business use (Line 8).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/privateSecurityPercent">
+      <Name>Private Security Percent</Name>
+      <Description>Percentage of private security or payment (Line 9).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: ARBITRAGE                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasArbitrageRebate">
+      <Name>Has Arbitrage Rebate</Name>
+      <Description>Whether arbitrage rebate was paid (Line 10).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/arbitrageRebateAmount">
+      <Name>Arbitrage Rebate Amount</Name>
+      <Description>Arbitrage rebate amount (Line 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleK990IsDone">
+      <Name>Schedule K Is Done</Name>
+      <Description>Whether Schedule K is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasTaxExemptBonds" /></Not>
+          <All>
+            <Dependency path="/hasTaxExemptBonds" />
+            <IsComplete><Dependency path="/bondGrossProceeds" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleK990">
+      <Name>Include Schedule K in PDF</Name>
+      <Description>Whether to include Schedule K (990) in output.</Description>
+      <Derived>
+        <Dependency path="/hasTaxExemptBonds" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,221 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-Q: Payments From Qualified Education Programs -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EDUCATION PROGRAM DISTRIBUTIONS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099Q">
+      <Name>Has 1099-Q</Name>
+      <Description>Whether taxpayer received Form 1099-Q.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/programType">
+      <Name>Program Type</Name>
+      <Description>Type of qualified education program.</Description>
+      <Writable>
+        <Enum>
+          <Option value="529">529 Plan (QTP)</Option>
+          <Option value="COVERDELL">Coverdell ESA</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/payerName1099Q">
+      <Name>Payer Name</Name>
+      <Description>Name of program administrator.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossDistribution1099Q">
+      <Name>Gross Distribution</Name>
+      <Description>Gross distribution (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/earnings1099Q">
+      <Name>Earnings</Name>
+      <Description>Earnings portion of distribution (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/basis1099Q">
+      <Name>Basis</Name>
+      <Description>Basis portion of distribution (Box 3).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/grossDistribution1099Q" />
+            <Dependency path="/earnings1099Q" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isTrusteeToTrustee">
+      <Name>Is Trustee-to-Trustee</Name>
+      <Description>Whether distribution was trustee-to-trustee (Box 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/recipientIsBeneficiary">
+      <Name>Recipient Is Beneficiary</Name>
+      <Description>Whether recipient is the beneficiary (Box 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFIED EXPENSES                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedEducationExpenses">
+      <Name>Qualified Education Expenses</Name>
+      <Description>Qualified higher education expenses paid.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedK12Expenses">
+      <Name>Qualified K-12 Expenses</Name>
+      <Description>Qualified K-12 tuition expenses (max $10,000).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k12TuitionLimit">
+      <Name>K-12 Tuition Limit</Name>
+      <Description>Maximum K-12 tuition per beneficiary ($10,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalQualifiedExpenses">
+      <Name>Total Qualified Expenses</Name>
+      <Description>Total qualified education expenses.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/qualifiedEducationExpenses" />
+          <Min>
+            <Dependency path="/qualifiedK12Expenses" />
+            <Dependency path="/k12TuitionLimit" />
+          </Min>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABLE AMOUNT                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/earningsUsedForQualified">
+      <Name>Earnings Used for Qualified</Name>
+      <Description>Portion of earnings used for qualified expenses.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/totalQualifiedExpenses" /></Left>
+                <Right><Dependency path="/grossDistribution1099Q" /></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then><Dependency path="/earnings1099Q" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Multiply>
+                <Dependency path="/earnings1099Q" />
+                <Divide>
+                  <Dependency path="/totalQualifiedExpenses" />
+                  <Dependency path="/grossDistribution1099Q" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableEarnings1099Q">
+      <Name>Taxable Earnings</Name>
+      <Description>Taxable earnings from distribution.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/earnings1099Q" />
+            <Dependency path="/earningsUsedForQualified" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earlyDistributionPenalty">
+      <Name>Early Distribution Penalty</Name>
+      <Description>10% penalty on non-qualified earnings.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/taxableEarnings1099Q" />
+          <Decimal>0.10</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099QIsDone">
+      <Name>Form 1099-Q Is Done</Name>
+      <Description>Whether 1099-Q entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099Q" /></Not>
+          <All>
+            <Dependency path="/has1099Q" />
+            <IsComplete><Dependency path="/grossDistribution1099Q" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

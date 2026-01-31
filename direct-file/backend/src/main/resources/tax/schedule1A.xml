@@ -1,0 +1,1067 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule 1-A: Additional Deductions (OBBBA 2025-2028) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL FACTS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasQualifiedOvertime">
+      <Name>Has Qualified Overtime</Name>
+      <Description>Whether the taxpayer has qualified overtime income to claim as a deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasQualifiedTips">
+      <Name>Has Qualified Tips</Name>
+      <Description>Whether the taxpayer has qualified tip income to claim as a deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasQualifiedAutoLoanInterest">
+      <Name>Has Qualified Auto Loan Interest</Name>
+      <Description>Whether the taxpayer has qualified auto loan interest to claim as a deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleIsDomesticManufacture">
+      <Name>Vehicle Is Domestic Manufacture</Name>
+      <Description>Whether the vehicle was manufactured or assembled in the United States.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleMake">
+      <Name>Vehicle Make</Name>
+      <Description>The manufacturer/make of the qualified vehicle (e.g., Ford, Chevrolet, Tesla).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleModel">
+      <Name>Vehicle Model</Name>
+      <Description>The model of the qualified vehicle (e.g., F-150, Silverado, Model 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleYear">
+      <Name>Vehicle Year</Name>
+      <Description>The model year of the qualified vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/obbbaDeductionsIsDone">
+      <Name>OBBBA Deductions Section Complete</Name>
+      <Description>Whether the OBBBA deductions section has been completed by the user.</Description>
+      <Derived>
+        <All>
+          <!-- User has answered the overtime question -->
+          <IsComplete>
+            <Dependency path="/hasQualifiedOvertime" />
+          </IsComplete>
+          <!-- If they have overtime, they've entered the amount -->
+          <Any>
+            <Not>
+              <Dependency path="/hasQualifiedOvertime" />
+            </Not>
+            <IsComplete>
+              <Dependency path="/qualifiedOvertimeIncome" />
+            </IsComplete>
+          </Any>
+          <!-- User has answered the tips question -->
+          <IsComplete>
+            <Dependency path="/hasQualifiedTips" />
+          </IsComplete>
+          <!-- If they have tips, they've entered the amount -->
+          <Any>
+            <Not>
+              <Dependency path="/hasQualifiedTips" />
+            </Not>
+            <IsComplete>
+              <Dependency path="/qualifiedTipIncome" />
+            </IsComplete>
+          </Any>
+          <!-- User has answered the auto loan question -->
+          <IsComplete>
+            <Dependency path="/hasQualifiedAutoLoanInterest" />
+          </IsComplete>
+          <!-- If they have auto loan interest, they've completed the vehicle info -->
+          <Any>
+            <Not>
+              <Dependency path="/hasQualifiedAutoLoanInterest" />
+            </Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/vehicleIsDomesticManufacture" />
+              </IsComplete>
+              <Any>
+                <Not>
+                  <Dependency path="/vehicleIsDomesticManufacture" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="/qualifiedAutoLoanInterest" />
+                </IsComplete>
+              </Any>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/obbbaPhaseOutApplies">
+      <Name>OBBBA Phase-out Applies</Name>
+      <Description>Whether income phase-out applies to any of the OBBBA deductions.</Description>
+      <Derived>
+        <Any>
+          <!-- Overtime phase-out applies if MAGI > threshold and has overtime -->
+          <All>
+            <Dependency path="/hasQualifiedOvertime" />
+            <GreaterThan>
+              <Left>
+                <Dependency module="taxCalculations" path="/magi" />
+              </Left>
+              <Right>
+                <Dependency path="/overtimeDeductionPhaseoutThreshold" />
+              </Right>
+            </GreaterThan>
+          </All>
+          <!-- Tip phase-out applies if MAGI > threshold and has tips -->
+          <All>
+            <Dependency path="/hasQualifiedTips" />
+            <GreaterThan>
+              <Left>
+                <Dependency module="taxCalculations" path="/magi" />
+              </Left>
+              <Right>
+                <Dependency path="/tipDeductionPhaseoutThreshold" />
+              </Right>
+            </GreaterThan>
+          </All>
+          <!-- Auto loan phase-out applies if MAGI > threshold and has auto loan -->
+          <All>
+            <Dependency path="/hasQualifiedAutoLoanInterest" />
+            <Dependency path="/vehicleIsDomesticManufacture" />
+            <GreaterThan>
+              <Left>
+                <Dependency module="taxCalculations" path="/magi" />
+              </Left>
+              <Right>
+                <Dependency path="/autoLoanInterestPhaseoutThreshold" />
+              </Right>
+            </GreaterThan>
+          </All>
+          <!-- Senior bonus phase-out applies if MAGI > threshold and has seniors -->
+          <All>
+            <Dependency path="/hasSeniorBonusEligibility" />
+            <GreaterThan>
+              <Left>
+                <Dependency module="taxCalculations" path="/magi" />
+              </Left>
+              <Right>
+                <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
+              </Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: QUALIFIED OVERTIME INCOME EXEMPTION -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedOvertimeIncome">
+      <Name>Qualified Overtime Income</Name>
+      <Description>The premium portion of overtime pay (e.g., the "half" in time-and-a-half) that qualifies
+        for the deduction under OBBBA. User must enter the qualified portion, not total overtime pay.</Description>
+      <TaxYear>2025</TaxYear>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/overtimeDeductionCap">
+      <Name>Overtime Deduction Cap</Name>
+      <Description>Maximum deductible qualified overtime income based on filing status.
+        Single/HOH/MFS: $12,500, MFJ: $25,000</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>25000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>12500</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionPhaseoutThreshold">
+      <Name>Overtime Deduction Phase-out Threshold</Name>
+      <Description>MAGI threshold at which overtime deduction begins to phase out.
+        Single: $150,000, MFJ: $300,000</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>300000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionPhaseoutRange">
+      <Name>Overtime Deduction Phase-out Range</Name>
+      <Description>The income range over which the overtime deduction phases out completely ($50,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionPhaseoutMultiplier">
+      <Name>Overtime Deduction Phase-out Multiplier</Name>
+      <Description>The percentage of overtime deduction remaining after phase-out (0-1).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <!-- If MAGI is at or below threshold, no phase-out -->
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/overtimeDeductionPhaseoutThreshold" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <!-- If MAGI exceeds threshold + range, fully phased out -->
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Add>
+                    <Dependency path="/overtimeDeductionPhaseoutThreshold" />
+                    <Dependency path="/overtimeDeductionPhaseoutRange" />
+                  </Add>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <!-- Partial phase-out -->
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/overtimeDeductionPhaseoutThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/overtimeDeductionPhaseoutRange" />
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionBeforePhaseout">
+      <Name>Overtime Deduction Before Phase-out</Name>
+      <Description>The overtime deduction amount before applying phase-out reduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/hasQualifiedOvertime" />
+                  <IsComplete>
+                    <Dependency path="/qualifiedOvertimeIncome" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/qualifiedOvertimeIncome" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/overtimeDeductionCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionAmount">
+      <Name>Overtime Deduction Amount</Name>
+      <Description>The deductible amount of qualified overtime income after applying cap and phase-out.
+        Schedule 1-A Part I Line 4.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/overtimeDeductionBeforePhaseout" />
+            <Dependency path="/overtimeDeductionPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: QUALIFIED TIP INCOME EXEMPTION     -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedTipIncome">
+      <Name>Qualified Tip Income</Name>
+      <Description>Tips received in occupations that customarily receive tips, as reported to employer.
+        Must be reported on Form W-2 or Form 4137.</Description>
+      <TaxYear>2025</TaxYear>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tipDeductionCap">
+      <Name>Tip Deduction Cap</Name>
+      <Description>Maximum deductible tip income. Cap is $25,000 for all filing statuses.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipDeductionPhaseoutThreshold">
+      <Name>Tip Deduction Phase-out Threshold</Name>
+      <Description>MAGI threshold at which tip deduction begins to phase out.
+        Single: $150,000, MFJ: $300,000</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>300000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipDeductionPhaseoutRange">
+      <Name>Tip Deduction Phase-out Range</Name>
+      <Description>The income range over which the tip deduction phases out completely ($50,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipDeductionPhaseoutMultiplier">
+      <Name>Tip Deduction Phase-out Multiplier</Name>
+      <Description>The percentage of tip deduction remaining after phase-out (0-1).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/tipDeductionPhaseoutThreshold" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Add>
+                    <Dependency path="/tipDeductionPhaseoutThreshold" />
+                    <Dependency path="/tipDeductionPhaseoutRange" />
+                  </Add>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/tipDeductionPhaseoutThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/tipDeductionPhaseoutRange" />
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipDeductionBeforePhaseout">
+      <Name>Tip Deduction Before Phase-out</Name>
+      <Description>The tip deduction amount before applying phase-out reduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/hasQualifiedTips" />
+                  <IsComplete>
+                    <Dependency path="/qualifiedTipIncome" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/qualifiedTipIncome" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/tipDeductionCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipDeductionAmount">
+      <Name>Tip Deduction Amount</Name>
+      <Description>The deductible amount of qualified tip income after applying cap and phase-out.
+        Schedule 1-A Part II Line 8.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/tipDeductionBeforePhaseout" />
+            <Dependency path="/tipDeductionPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: AUTO LOAN INTEREST DEDUCTION      -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedAutoLoanInterest">
+      <Name>Qualified Auto Loan Interest</Name>
+      <Description>Interest paid on a loan used to purchase a qualified motor vehicle manufactured
+        or assembled in the United States. Per IRS Pub 6126.</Description>
+      <TaxYear>2025</TaxYear>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/autoLoanInterestCap">
+      <Name>Auto Loan Interest Deduction Cap</Name>
+      <Description>Maximum deductible auto loan interest. Cap is $10,000 for all filing statuses.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoLoanInterestPhaseoutThreshold">
+      <Name>Auto Loan Interest Phase-out Threshold</Name>
+      <Description>MAGI threshold at which auto loan interest deduction begins to phase out.
+        Single: $100,000, MFJ: $200,000</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>200000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>100000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoLoanInterestPhaseoutRange">
+      <Name>Auto Loan Interest Phase-out Range</Name>
+      <Description>The income range over which the auto loan interest deduction phases out ($50,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoLoanInterestPhaseoutMultiplier">
+      <Name>Auto Loan Interest Phase-out Multiplier</Name>
+      <Description>The percentage of auto loan interest deduction remaining after phase-out (0-1).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/autoLoanInterestPhaseoutThreshold" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Add>
+                    <Dependency path="/autoLoanInterestPhaseoutThreshold" />
+                    <Dependency path="/autoLoanInterestPhaseoutRange" />
+                  </Add>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/autoLoanInterestPhaseoutThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/autoLoanInterestPhaseoutRange" />
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoLoanInterestBeforePhaseout">
+      <Name>Auto Loan Interest Before Phase-out</Name>
+      <Description>The auto loan interest deduction amount before applying phase-out reduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/hasQualifiedAutoLoanInterest" />
+                  <Dependency path="/vehicleIsDomesticManufacture" />
+                  <IsComplete>
+                    <Dependency path="/qualifiedAutoLoanInterest" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/qualifiedAutoLoanInterest" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/autoLoanInterestCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoLoanInterestDeductionAmount">
+      <Name>Auto Loan Interest Deduction Amount</Name>
+      <Description>The deductible amount of qualified auto loan interest after applying cap and phase-out.
+        Schedule 1-A Part III Line 12.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/autoLoanInterestBeforePhaseout" />
+            <Dependency path="/autoLoanInterestPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: ENHANCED SENIOR DEDUCTION          -->
+    <!-- ============================================ -->
+
+    <Fact path="/seniorBonusDeductionAmount">
+      <Name>Senior Bonus Deduction Amount</Name>
+      <Description>Additional $6,000 deduction per individual age 65+ under OBBBA (2025-2028).
+        This is in addition to the standard deduction additional amount for seniors.
+        Phases out at $75,000 MAGI (single) or $150,000 (MFJ).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorBonusDeductionPhaseoutThreshold">
+      <Name>Senior Bonus Deduction Phase-out Threshold</Name>
+      <Description>MAGI threshold at which senior bonus deduction begins to phase out.
+        Single: $75,000, MFJ: $150,000</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>75000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorBonusPhaseoutRange">
+      <Name>Senior Bonus Phase-out Range</Name>
+      <Description>The income range over which the senior bonus deduction phases out ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorBonusPhaseoutMultiplier">
+      <Name>Senior Bonus Phase-out Multiplier</Name>
+      <Description>The percentage of senior bonus deduction remaining after phase-out (0-1).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Add>
+                    <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
+                    <Dependency path="/seniorBonusPhaseoutRange" />
+                  </Add>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/seniorBonusPhaseoutRange" />
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerIsSenior">
+      <Name>Primary Filer Is Senior</Name>
+      <Description>Whether the primary filer is age 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerIsSenior">
+      <Name>Secondary Filer Is Senior</Name>
+      <Description>Whether the secondary filer (spouse) is age 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eligibleSeniorsCount">
+      <Name>Eligible Seniors Count</Name>
+      <Description>Number of filers age 65 or older eligible for the senior bonus deduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/primaryFilerIsSenior" />
+              </When>
+              <Then>
+                <Int>1</Int>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Int>0</Int>
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/secondaryFilerIsSenior" />
+              </When>
+              <Then>
+                <Int>1</Int>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Int>0</Int>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSeniorBonusEligibility">
+      <Name>Has Senior Bonus Eligibility</Name>
+      <Description>Whether any filer qualifies for the senior bonus deduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/eligibleSeniorsCount" />
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorBonusBeforePhaseout">
+      <Name>Senior Bonus Before Phase-out</Name>
+      <Description>Total senior bonus deduction before applying phase-out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/eligibleSeniorsCount" />
+          <Dependency path="/seniorBonusDeductionAmount" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSeniorBonusDeduction">
+      <Name>Total Senior Bonus Deduction</Name>
+      <Description>Total senior bonus deduction based on number of eligible seniors, after phase-out.
+        Schedule 1-A Part IV Line 16.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/seniorBonusBeforePhaseout" />
+            <Dependency path="/seniorBonusPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE 1-A TOTAL                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalSchedule1ADeductions">
+      <Name>Total Schedule 1-A Additional Deductions</Name>
+      <Description>Sum of all OBBBA additional deductions (overtime, tips, auto loan interest, senior bonus).
+        This amount is reported on Schedule 1-A Line 17 and transfers to Schedule 1.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/overtimeDeductionAmount" />
+            <Dependency path="/tipDeductionAmount" />
+            <Dependency path="/autoLoanInterestDeductionAmount" />
+            <Dependency path="/totalSeniorBonusDeduction" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSchedule1ADeductions">
+      <Name>Has Schedule 1-A Deductions</Name>
+      <Description>Whether the taxpayer has any Schedule 1-A additional deductions to claim.</Description>
+      <Export downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalSchedule1ADeductions" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/noObbbaDeductions">
+      <Name>No OBBBA Deductions</Name>
+      <Description>Whether the taxpayer has no OBBBA deductions to claim (for display purposes).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/hasQualifiedOvertime" />
+          </Not>
+          <Not>
+            <Dependency path="/hasQualifiedTips" />
+          </Not>
+          <Any>
+            <Not>
+              <Dependency path="/hasQualifiedAutoLoanInterest" />
+            </Not>
+            <Not>
+              <Dependency path="/vehicleIsDomesticManufacture" />
+            </Not>
+          </Any>
+          <Not>
+            <Dependency path="/hasSeniorBonusEligibility" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeSchedule1A">
+      <Name>Include Schedule 1-A in tax return PDF</Name>
+      <Description>Whether the tax return PDF should include Schedule 1-A.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/hasSchedule1ADeductions" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

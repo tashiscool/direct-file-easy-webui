@@ -1,0 +1,231 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule G (Form 990): Supplemental Information Regarding Fundraising or Gaming Activities -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FUNDRAISING ACTIVITIES                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasFundraisingActivities">
+      <Name>Has Fundraising Activities</Name>
+      <Description>Whether organization conducts fundraising.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usesProfessionalFundraisers">
+      <Name>Uses Professional Fundraisers</Name>
+      <Description>Whether organization uses professional fundraisers (Part I, Line 1).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: FUNDRAISING EVENTS                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/event1GrossReceipts">
+      <Name>Event 1 Gross Receipts</Name>
+      <Description>Gross receipts from event 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/event1ContributionsPortion">
+      <Name>Event 1 Contributions Portion</Name>
+      <Description>Contribution portion of event 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/event1DirectExpenses">
+      <Name>Event 1 Direct Expenses</Name>
+      <Description>Direct expenses for event 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalEventGrossReceipts">
+      <Name>Total Event Gross Receipts</Name>
+      <Description>Total gross receipts from all events.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalEventDirectExpenses">
+      <Name>Total Event Direct Expenses</Name>
+      <Description>Total direct expenses from all events.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netIncomeFromEvents">
+      <Name>Net Income from Events</Name>
+      <Description>Net income from fundraising events.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalEventGrossReceipts" />
+          <Dependency path="/totalEventDirectExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: GAMING ACTIVITIES                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasGamingActivities">
+      <Name>Has Gaming Activities</Name>
+      <Description>Whether organization conducts gaming activities.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/bingoGrossRevenue">
+      <Name>Bingo Gross Revenue</Name>
+      <Description>Gross revenue from bingo (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/bingoCashPrizes">
+      <Name>Bingo Cash Prizes</Name>
+      <Description>Cash prizes paid for bingo (Line 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pullTabsGrossRevenue">
+      <Name>Pull Tabs Gross Revenue</Name>
+      <Description>Gross revenue from pull tabs/instant bingo (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherGamingGrossRevenue">
+      <Name>Other Gaming Gross Revenue</Name>
+      <Description>Gross revenue from other gaming (Line 1c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGamingGrossRevenue">
+      <Name>Total Gaming Gross Revenue</Name>
+      <Description>Total gross revenue from gaming.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/bingoGrossRevenue" />
+            <Dependency path="/pullTabsGrossRevenue" />
+          </Add>
+          <Dependency path="/otherGamingGrossRevenue" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalGamingExpenses">
+      <Name>Total Gaming Expenses</Name>
+      <Description>Total expenses for gaming activities.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netIncomeFromGaming">
+      <Name>Net Income from Gaming</Name>
+      <Description>Net income from gaming activities.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalGamingGrossRevenue" />
+          <Dependency path="/totalGamingExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleG990IsDone">
+      <Name>Schedule G (990) Is Done</Name>
+      <Description>Whether Schedule G is complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Not><Dependency path="/hasFundraisingActivities" /></Not>
+            <Not><Dependency path="/hasGamingActivities" /></Not>
+          </All>
+          <IsComplete><Dependency path="/netIncomeFromEvents" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleG990">
+      <Name>Include Schedule G (990) in PDF</Name>
+      <Description>Whether to include Schedule G in the return.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasFundraisingActivities" />
+          <Dependency path="/hasGamingActivities" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

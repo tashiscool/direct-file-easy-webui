@@ -1,0 +1,180 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8995-A: Qualified Business Income Deduction Detailed -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8995A">
+      <Name>Has Form 8995-A</Name>
+      <Description>Whether taxpayer needs detailed QBI calculation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qbiThresholdSingle8995A">
+      <Name>QBI Threshold Single</Name>
+      <Description>Threshold for single filers ($191,950 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>191950</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiThresholdMFJ8995A">
+      <Name>QBI Threshold MFJ</Name>
+      <Description>Threshold for MFJ filers ($383,900 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>383900</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessName8995A">
+      <Name>Business Name</Name>
+      <Description>Trade or business name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qbi8995A">
+      <Name>Qualified Business Income</Name>
+      <Description>QBI from trade/business (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2Wages8995A">
+      <Name>W-2 Wages</Name>
+      <Description>W-2 wages allocable to QBI (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ubia8995A">
+      <Name>UBIA of Qualified Property</Name>
+      <Description>Unadjusted basis of qualified property (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isSSTB8995A">
+      <Name>Is SSTB</Name>
+      <Description>Whether business is specified service trade or business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiftyPctW2Wages8995A">
+      <Name>50% of W-2 Wages</Name>
+      <Description>50% of W-2 wages (Line 4).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/w2Wages8995A" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/twentyFivePctW2Plus8995A">
+      <Name>25% W-2 Plus UBIA</Name>
+      <Description>25% of W-2 wages plus 2.5% of UBIA (Line 5).</Description>
+      <Derived>
+        <Add>
+          <Multiply>
+            <Dependency path="/w2Wages8995A" />
+            <Decimal>0.25</Decimal>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/ubia8995A" />
+            <Decimal>0.025</Decimal>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/w2UBIALimit8995A">
+      <Name>W-2/UBIA Limit</Name>
+      <Description>Greater of 50% W-2 or 25% W-2 + 2.5% UBIA (Line 6).</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/fiftyPctW2Wages8995A" />
+          <Dependency path="/twentyFivePctW2Plus8995A" />
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiComponentBefore8995A">
+      <Name>QBI Component Before Limit</Name>
+      <Description>20% of QBI (Line 7).</Description>
+      <Derived>
+        <Multiply>
+          <Max>
+            <Dollar>0</Dollar>
+            <Dependency path="/qbi8995A" />
+          </Max>
+          <Decimal>0.20</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiComponentAfter8995A">
+      <Name>QBI Component After Limit</Name>
+      <Description>QBI component after W-2/UBIA limitation (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/qbiComponentBefore8995A" />
+          <Dependency path="/w2UBIALimit8995A" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalQBIDeduction8995A">
+      <Name>Total QBI Deduction</Name>
+      <Description>Total QBI deduction from Form 8995-A.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/qbiComponentAfter8995A" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8995AIsDone">
+      <Name>Form 8995-A Is Done</Name>
+      <Description>Whether Form 8995-A is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8995A" /></Not>
+          <All>
+            <Dependency path="/hasForm8995A" />
+            <IsComplete><Dependency path="/totalQBIDeduction8995A" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8995A">
+      <Name>Include Form 8995-A in PDF</Name>
+      <Description>Whether to include Form 8995-A.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalQBIDeduction8995A" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

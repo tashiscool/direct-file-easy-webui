@@ -1,0 +1,600 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8839: Qualified Adoption Expenses -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ADOPTION INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasAdoption">
+      <Name>Has Adoption</Name>
+      <Description>Whether the taxpayer has qualified adoption expenses in 2025.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionChildName">
+      <Name>Adopted Child Name</Name>
+      <Description>Name of the adopted child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionChildSSN">
+      <Name>Adopted Child SSN or ATIN</Name>
+      <Description>Social Security Number or Adoption Taxpayer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionChildBirthYear">
+      <Name>Adopted Child Birth Year</Name>
+      <Description>Year the adopted child was born.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1900</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionType">
+      <Name>Adoption Type</Name>
+      <Description>Type of adoption: domestic, international, or special needs.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>domestic</EnumOption>
+          <EnumOption>international</EnumOption>
+          <EnumOption>specialNeeds</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isSpecialNeedsAdoption">
+      <Name>Is Special Needs Adoption</Name>
+      <Description>Whether this is a special needs adoption (state-determined).</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency path="/adoptionType" /></Left>
+          <Right><Enum>specialNeeds</Enum></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionFinalized">
+      <Name>Adoption Finalized</Name>
+      <Description>Whether the adoption was legally finalized.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionFinalizedYear">
+      <Name>Adoption Finalized Year</Name>
+      <Description>Year the adoption was legally finalized.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2000</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionUSChild">
+      <Name>US Child Adoption</Name>
+      <Description>Whether the child is a US citizen or resident.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFIED ADOPTION EXPENSES                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionAgencyFees">
+      <Name>Adoption Agency Fees</Name>
+      <Description>Fees paid to adoption agencies.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionLegalFees">
+      <Name>Adoption Legal Fees</Name>
+      <Description>Attorney fees and court costs for adoption.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionTravelExpenses">
+      <Name>Adoption Travel Expenses</Name>
+      <Description>Travel expenses related to the adoption (including meals and lodging).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionHomeStudyFees">
+      <Name>Home Study Fees</Name>
+      <Description>Fees for required home study.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionOtherExpenses">
+      <Name>Other Adoption Expenses</Name>
+      <Description>Other qualified adoption expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalQualifiedAdoptionExpenses">
+      <Name>Total Qualified Adoption Expenses</Name>
+      <Description>Sum of all qualified adoption expenses.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Dependency path="/adoptionAgencyFees" />
+                <Dependency path="/adoptionLegalFees" />
+              </Add>
+              <Dependency path="/adoptionTravelExpenses" />
+            </Add>
+            <Dependency path="/adoptionHomeStudyFees" />
+          </Add>
+          <Dependency path="/adoptionOtherExpenses" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EMPLOYER-PROVIDED ADOPTION BENEFITS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEmployerAdoptionBenefits">
+      <Name>Has Employer Adoption Benefits</Name>
+      <Description>Whether employer provided adoption assistance.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/employerAdoptionBenefits">
+      <Name>Employer Adoption Benefits</Name>
+      <Description>Amount of employer-provided adoption assistance.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT LIMITS AND THRESHOLDS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionCreditMaximum">
+      <Name>Adoption Credit Maximum</Name>
+      <Description>Maximum adoption credit per eligible child for 2025.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>17280</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditPhaseoutStart">
+      <Name>Adoption Credit Phase-out Start</Name>
+      <Description>Modified AGI where phase-out begins.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>259190</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditPhaseoutEnd">
+      <Name>Adoption Credit Phase-out End</Name>
+      <Description>Modified AGI where credit fully phases out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>299190</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditPhaseoutRange">
+      <Name>Adoption Credit Phase-out Range</Name>
+      <Description>Range over which adoption credit phases out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Subtract>
+          <Dependency path="/adoptionCreditPhaseoutEnd" />
+          <Dependency path="/adoptionCreditPhaseoutStart" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PHASE-OUT CALCULATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionCreditPhaseoutMultiplier">
+      <Name>Adoption Credit Phase-out Multiplier</Name>
+      <Description>Phase-out multiplier based on MAGI.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Below phase-out threshold: full credit -->
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency module="taxCalculations" path="/magi" /></Left>
+                <Right><Dependency path="/adoptionCreditPhaseoutStart" /></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <!-- Above phase-out range: no credit -->
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency module="taxCalculations" path="/magi" /></Left>
+                <Right><Dependency path="/adoptionCreditPhaseoutEnd" /></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <!-- In phase-out range: linear reduction -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Decimal>1.0</Decimal>
+                <Divide>
+                  <Subtract>
+                    <Dependency module="taxCalculations" path="/magi" />
+                    <Dependency path="/adoptionCreditPhaseoutStart" />
+                  </Subtract>
+                  <Dependency path="/adoptionCreditPhaseoutRange" />
+                </Divide>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT CALCULATION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionExpensesForCredit">
+      <Name>Adoption Expenses for Credit</Name>
+      <Description>Expenses eligible for credit (total minus employer benefits).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasEmployerAdoptionBenefits" />
+            </When>
+            <Then>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/totalQualifiedAdoptionExpenses" />
+                  <Dependency path="/employerAdoptionBenefits" />
+                </Subtract>
+              </Max>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/totalQualifiedAdoptionExpenses" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditBeforePhaseout">
+      <Name>Adoption Credit Before Phase-out</Name>
+      <Description>Adoption credit before MAGI phase-out (capped at maximum).</Description>
+      <Derived>
+        <Switch>
+          <!-- Special needs adoption: full credit regardless of expenses -->
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/isSpecialNeedsAdoption" />
+                <Dependency path="/adoptionFinalized" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/adoptionCreditMaximum" />
+            </Then>
+          </Case>
+          <!-- Regular adoption: lesser of expenses or maximum -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/adoptionExpensesForCredit" />
+                <Dependency path="/adoptionCreditMaximum" />
+              </Min>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditAmount">
+      <Name>Adoption Credit Amount</Name>
+      <Description>Final adoption credit after phase-out.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasAdoption" />
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/adoptionCreditBeforePhaseout" />
+                  <Dependency path="/adoptionCreditPhaseoutMultiplier" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REFUNDABLE PORTION (OBBBA 2025)             -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionCreditRefundableMaximum">
+      <Name>Adoption Credit Refundable Maximum</Name>
+      <Description>Maximum refundable portion under OBBBA 2025.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditRefundablePortion">
+      <Name>Adoption Credit Refundable Portion</Name>
+      <Description>Refundable portion of adoption credit (up to $5,000 for 2025).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Min>
+          <Dependency path="/adoptionCreditAmount" />
+          <Dependency path="/adoptionCreditRefundableMaximum" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditNonrefundablePortion">
+      <Name>Adoption Credit Nonrefundable Portion</Name>
+      <Description>Nonrefundable portion of adoption credit.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/adoptionCreditAmount" />
+            <Dependency path="/adoptionCreditRefundablePortion" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CARRYFORWARD                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionCreditCarryforwardFromPriorYear">
+      <Name>Adoption Credit Carryforward from Prior Year</Name>
+      <Description>Unused adoption credit from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAdoptionCreditAvailable">
+      <Name>Total Adoption Credit Available</Name>
+      <Description>Current year credit plus carryforward.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/adoptionCreditAmount" />
+          <Dependency path="/adoptionCreditCarryforwardFromPriorYear" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EMPLOYER BENEFIT EXCLUSION                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/employerAdoptionBenefitExclusionLimit">
+      <Name>Employer Adoption Benefit Exclusion Limit</Name>
+      <Description>Maximum excludable employer adoption benefits (same as credit limit).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/adoptionCreditMaximum" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/employerAdoptionBenefitExclusion">
+      <Name>Employer Adoption Benefit Exclusion</Name>
+      <Description>Amount of employer benefits excludable from income.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasEmployerAdoptionBenefits" />
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Min>
+                    <Dependency path="/employerAdoptionBenefits" />
+                    <Dependency path="/employerAdoptionBenefitExclusionLimit" />
+                  </Min>
+                  <Dependency path="/adoptionCreditPhaseoutMultiplier" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/employerAdoptionBenefitTaxable">
+      <Name>Taxable Employer Adoption Benefits</Name>
+      <Description>Employer adoption benefits that must be included in income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasEmployerAdoptionBenefits" />
+            </When>
+            <Then>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/employerAdoptionBenefits" />
+                  <Dependency path="/employerAdoptionBenefitExclusion" />
+                </Subtract>
+              </Max>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/adoptionCreditIsDone">
+      <Name>Adoption Credit Is Done</Name>
+      <Description>Whether the adoption credit section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No adoption -->
+          <Not>
+            <Dependency path="/hasAdoption" />
+          </Not>
+          <!-- Has adoption and basic info complete -->
+          <All>
+            <Dependency path="/hasAdoption" />
+            <IsComplete>
+              <Dependency path="/adoptionChildName" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/adoptionType" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/totalQualifiedAdoptionExpenses" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8839">
+      <Name>Include Form 8839 in PDF</Name>
+      <Description>Whether to include Form 8839 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/adoptionCreditAmount" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/employerAdoptionBenefitExclusion" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

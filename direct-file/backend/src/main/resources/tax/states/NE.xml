@@ -1,0 +1,170 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Nebraska Form 1040N: Individual Income Tax Return -->
+<!-- Nebraska has progressive rates from 2.46% to 5.84% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNE1040N">
+      <Name>Has NE Form 1040N</Name>
+      <Description>Whether taxpayer files Nebraska Form 1040N.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NE</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- NE Standard Deduction -->
+    <Fact path="/neStdDeductionSingle">
+      <Name>NE Standard Deduction Single</Name>
+      <Description>Nebraska standard deduction for single ($7,900).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>7900</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/neStdDeductionMFJ">
+      <Name>NE Standard Deduction MFJ</Name>
+      <Description>Nebraska standard deduction for MFJ ($15,800).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>15800</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/neStandardDeduction">
+      <Name>NE Standard Deduction</Name>
+      <Description>Nebraska standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/neStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/neStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NE Taxable Income -->
+    <Fact path="/neTaxableIncome">
+      <Name>NE Taxable Income</Name>
+      <Description>Nebraska taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/neStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NE Income Tax (progressive) -->
+    <Fact path="/neIncomeTax">
+      <Name>NE Income Tax</Name>
+      <Description>Nebraska income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/neTaxableIncome" /></Left>
+                <Right><Dollar>3700</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/neTaxableIncome" />
+                <Decimal>0.0246</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/neTaxableIncome" /></Left>
+                <Right><Dollar>22170</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>91</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/neTaxableIncome" />
+                    <Dollar>3700</Dollar>
+                  </Subtract>
+                  <Decimal>0.0351</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/neTaxableIncome" /></Left>
+                <Right><Dollar>35730</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>739</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/neTaxableIncome" />
+                    <Dollar>22170</Dollar>
+                  </Subtract>
+                  <Decimal>0.0501</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>1418</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/neTaxableIncome" />
+                  <Dollar>35730</Dollar>
+                </Subtract>
+                <Decimal>0.0584</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ne1040nIsDone">
+      <Name>NE Form 1040N Is Done</Name>
+      <Description>Whether NE Form 1040N is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNE1040N" /></Not>
+          <All>
+            <Dependency path="/hasNE1040N" />
+            <IsComplete><Dependency path="/neIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNE1040N">
+      <Name>Include NE Form 1040N in PDF</Name>
+      <Description>Whether to include NE Form 1040N.</Description>
+      <Derived>
+        <Dependency path="/hasNE1040N" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

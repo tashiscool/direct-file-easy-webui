@@ -1,0 +1,337 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8995: Qualified Business Income Deduction (Simplified Computation) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- QUALIFIED BUSINESS INCOME                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasQualifiedBusinessIncome">
+      <Name>Has Qualified Business Income</Name>
+      <Description>Whether taxpayer has qualified business income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeOrBusiness1QBI">
+      <Name>Trade/Business 1 QBI</Name>
+      <Description>QBI from trade or business 1 (Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeOrBusiness2QBI">
+      <Name>Trade/Business 2 QBI</Name>
+      <Description>QBI from trade or business 2 (Line 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeOrBusiness3QBI">
+      <Name>Trade/Business 3 QBI</Name>
+      <Description>QBI from trade or business 3 (Line 3).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeOrBusiness4QBI">
+      <Name>Trade/Business 4 QBI</Name>
+      <Description>QBI from trade or business 4 (Line 4).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeOrBusiness5QBI">
+      <Name>Trade/Business 5 QBI</Name>
+      <Description>QBI from trade or business 5 (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalQBI">
+      <Name>Total QBI</Name>
+      <Description>Total qualified business income (Line 6).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/tradeOrBusiness1QBI" />
+              <Dependency path="/tradeOrBusiness2QBI" />
+            </Add>
+            <Dependency path="/tradeOrBusiness3QBI" />
+          </Add>
+          <Add>
+            <Dependency path="/tradeOrBusiness4QBI" />
+            <Dependency path="/tradeOrBusiness5QBI" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI COMPONENT (20%)                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/qbiDeductionRate">
+      <Name>QBI Deduction Rate</Name>
+      <Description>QBI deduction rate (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiComponent">
+      <Name>QBI Component</Name>
+      <Description>20% of total QBI (Line 7).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalQBI" />
+          <Dependency path="/qbiDeductionRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REIT/PTP COMPONENT                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/reitDividends">
+      <Name>REIT Dividends</Name>
+      <Description>Qualified REIT dividends (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ptpIncome">
+      <Name>PTP Income</Name>
+      <Description>Publicly traded partnership income (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalREITPTPIncome">
+      <Name>Total REIT/PTP Income</Name>
+      <Description>Total REIT dividends and PTP income (Line 10).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/reitDividends" />
+          <Dependency path="/ptpIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/reitPTPComponent">
+      <Name>REIT/PTP Component</Name>
+      <Description>20% of REIT dividends and PTP income (Line 11).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalREITPTPIncome" />
+          <Dependency path="/qbiDeductionRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- COMBINED QBI COMPONENT                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/combinedQBIComponent">
+      <Name>Combined QBI Component</Name>
+      <Description>Combined QBI and REIT/PTP component (Line 12).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/qbiComponent" />
+          <Dependency path="/reitPTPComponent" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABLE INCOME LIMITATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableIncomeBeforeQBI">
+      <Name>Taxable Income Before QBI</Name>
+      <Description>Taxable income before QBI deduction (Line 13).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/netCapitalGain">
+      <Name>Net Capital Gain</Name>
+      <Description>Net capital gain (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableIncomeForQBILimit">
+      <Name>Taxable Income for QBI Limit</Name>
+      <Description>Taxable income less net capital gain (Line 15).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/taxableIncomeBeforeQBI" />
+          <Dependency path="/netCapitalGain" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableIncomeLimitComponent">
+      <Name>Taxable Income Limit Component</Name>
+      <Description>20% of taxable income limitation (Line 16).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/taxableIncomeForQBILimit" />
+          <Dependency path="/qbiDeductionRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI DEDUCTION                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/qbiDeduction">
+      <Name>QBI Deduction</Name>
+      <Description>Qualified business income deduction (Line 17).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Min>
+            <Dependency path="/combinedQBIComponent" />
+            <Dependency path="/taxableIncomeLimitComponent" />
+          </Min>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME THRESHOLDS (USE FORM 8995-A ABOVE)   -->
+    <!-- ============================================ -->
+
+    <Fact path="/qbiThresholdSingle">
+      <Name>QBI Threshold - Single</Name>
+      <Description>Taxable income threshold for simplified computation (single).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>191950</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiThresholdMFJ">
+      <Name>QBI Threshold - MFJ</Name>
+      <Description>Taxable income threshold for simplified computation (MFJ).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>383900</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/canUseSimplifiedMethod">
+      <Name>Can Use Simplified Method</Name>
+      <Description>Whether taxable income is below threshold for simplified method.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/taxableIncomeBeforeQBI" /></Left>
+          <Right><Dependency path="/qbiThresholdSingle" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CARRYOVER                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/priorYearQBICarryover">
+      <Name>Prior Year QBI Carryover</Name>
+      <Description>QBI loss carryover from prior year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearQBILoss">
+      <Name>Current Year QBI Loss</Name>
+      <Description>Current year QBI loss to carry forward.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/totalQBI" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/totalQBI" />
+                <Int>-1</Int>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8995IsDone">
+      <Name>Form 8995 Is Done</Name>
+      <Description>Whether Form 8995 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasQualifiedBusinessIncome" /></Not>
+          <All>
+            <Dependency path="/hasQualifiedBusinessIncome" />
+            <IsComplete><Dependency path="/qbiDeduction" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8995">
+      <Name>Include Form 8995 in PDF</Name>
+      <Description>Whether to include Form 8995 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/qbiDeduction" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

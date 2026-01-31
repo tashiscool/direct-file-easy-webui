@@ -1,0 +1,266 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 706: United States Estate (and Generation-Skipping Transfer) Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- DECEDENT INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEstateReturn">
+      <Name>Has Estate Return</Name>
+      <Description>Whether estate tax return is required.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateOfDeath">
+      <Name>Date of Death</Name>
+      <Description>Decedent's date of death.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/decedentSSN">
+      <Name>Decedent SSN</Name>
+      <Description>Decedent's Social Security Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/decedentDomicile">
+      <Name>Decedent Domicile</Name>
+      <Description>State of decedent's domicile at death.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 2: TAX COMPUTATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossEstate">
+      <Name>Gross Estate</Name>
+      <Description>Total gross estate (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleAReal Property">
+      <Name>Schedule A - Real Property</Name>
+      <Description>Real estate included in gross estate.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleBStocks">
+      <Name>Schedule B - Stocks</Name>
+      <Description>Stocks and bonds included in gross estate.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleCMortgages">
+      <Name>Schedule C - Mortgages</Name>
+      <Description>Mortgages, notes, and cash.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleDInsurance">
+      <Name>Schedule D - Insurance</Name>
+      <Description>Life insurance on decedent's life.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalDeductions706">
+      <Name>Total Deductions</Name>
+      <Description>Total allowable deductions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maritalDeduction">
+      <Name>Marital Deduction</Name>
+      <Description>Marital deduction (Schedule M).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/charitableDeduction706">
+      <Name>Charitable Deduction</Name>
+      <Description>Charitable deduction (Schedule O).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableEstate">
+      <Name>Taxable Estate</Name>
+      <Description>Taxable estate (Line 3c).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/grossEstate" />
+            <Dependency path="/totalDeductions706" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ESTATE TAX EXEMPTION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/estateTaxExemption2025">
+      <Name>Estate Tax Exemption 2025</Name>
+      <Description>Basic exclusion amount ($13,990,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>13990000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/portedDSUEAmount">
+      <Name>Ported DSUE Amount</Name>
+      <Description>Deceased spousal unused exclusion amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/applicableExclusionAmount">
+      <Name>Applicable Exclusion Amount</Name>
+      <Description>Total applicable exclusion amount.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/estateTaxExemption2025" />
+          <Dependency path="/portedDSUEAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX CALCULATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/estateTaxRate">
+      <Name>Estate Tax Rate</Name>
+      <Description>Maximum estate tax rate (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tentativeTax706">
+      <Name>Tentative Tax</Name>
+      <Description>Tentative tax on taxable estate.</Description>
+      <Derived>
+        <Multiply>
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/taxableEstate" />
+              <Dependency path="/applicableExclusionAmount" />
+            </Subtract>
+          </Max>
+          <Dependency path="/estateTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netEstateTax">
+      <Name>Net Estate Tax</Name>
+      <Description>Net estate tax payable.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Dependency path="/tentativeTax706" />
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form706IsDone">
+      <Name>Form 706 Is Done</Name>
+      <Description>Whether Form 706 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasEstateReturn" /></Not>
+          <All>
+            <Dependency path="/hasEstateReturn" />
+            <IsComplete><Dependency path="/netEstateTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm706">
+      <Name>Include Form 706 in PDF</Name>
+      <Description>Whether to include Form 706 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasEstateReturn" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

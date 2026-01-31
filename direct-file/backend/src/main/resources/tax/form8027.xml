@@ -1,0 +1,115 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8027: Employer's Annual Information Return of Tip Income -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8027">
+      <Name>Has Form 8027</Name>
+      <Description>Whether employer has tip income to report.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/establishmentName8027">
+      <Name>Establishment Name</Name>
+      <Description>Name of establishment.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalChargedTips">
+      <Name>Total Charged Tips</Name>
+      <Description>Total charged tips (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/chargedReceiptsRate">
+      <Name>Charged Receipts Rate</Name>
+      <Description>Charged receipts with tips rate (Line 2).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalReportedTips">
+      <Name>Total Reported Tips</Name>
+      <Description>Total tips reported by employees (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossReceiptsSubjectToTips">
+      <Name>Gross Receipts Subject to Tips</Name>
+      <Description>Gross receipts from food/beverage (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/tipPercentageRate8027">
+      <Name>Tip Percentage Rate</Name>
+      <Description>8% minimum tip rate.</Description>
+      <Derived>
+        <Decimal>0.08</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allocatedTipAmount">
+      <Name>Allocated Tip Amount</Name>
+      <Description>Allocated tips (Line 8).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Multiply>
+              <Dependency path="/grossReceiptsSubjectToTips" />
+              <Dependency path="/tipPercentageRate8027" />
+            </Multiply>
+            <Dependency path="/totalReportedTips" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8027IsDone">
+      <Name>Form 8027 Is Done</Name>
+      <Description>Whether Form 8027 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8027" /></Not>
+          <All>
+            <Dependency path="/hasForm8027" />
+            <IsComplete><Dependency path="/totalReportedTips" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

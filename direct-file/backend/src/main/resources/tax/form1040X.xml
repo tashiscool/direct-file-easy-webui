@@ -1,0 +1,62 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1040-X: Amended U.S. Individual Income Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/isAmendedReturn">
+      <Name>Amended Return</Name>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/amendmentReason">
+      <Name>Reason for Amendment</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/taxYearBeingAmended">
+      <Name>Tax Year Being Amended</Name>
+      <Writable><Enum values="2024,2023,2022" /></Writable>
+    </Fact>
+    <Fact path="/originalAGI">
+      <Name>Original Adjusted Gross Income</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/originalTotalTax">
+      <Name>Original Total Tax</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/totalTaxChange">
+      <Name>Change in Total Tax</Name>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalTax" />
+          <Dependency path="/originalTotalTax" />
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/amendedAmountOwed">
+      <Name>Additional Tax Owed from Amendment</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <GreaterThan><Dependency path="/totalTaxChange" /><Dollar>0</Dollar></GreaterThan>
+            <Dependency path="/totalTaxChange" />
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/amendmentExplanation">
+      <Name>Explanation of Changes</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1040XIsDone">
+      <Name>Form 1040-X Complete</Name>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/isAmendedReturn" /></Not>
+          <IsComplete><Dependency path="/amendmentExplanation" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

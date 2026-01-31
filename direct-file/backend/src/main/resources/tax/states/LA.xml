@@ -1,0 +1,150 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Louisiana Form IT-540: Individual Income Tax Return -->
+<!-- Louisiana has progressive rates from 1.85% to 4.25% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasLAIT540">
+      <Name>Has LA Form IT-540</Name>
+      <Description>Whether taxpayer files Louisiana Form IT-540.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>LA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- LA Personal Exemption -->
+    <Fact path="/laPersonalExemptionSingle">
+      <Name>LA Personal Exemption Single</Name>
+      <Description>Louisiana personal exemption for single ($4,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/laPersonalExemptionMFJ">
+      <Name>LA Personal Exemption MFJ</Name>
+      <Description>Louisiana personal exemption for MFJ ($9,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>9000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/laPersonalExemption">
+      <Name>LA Personal Exemption</Name>
+      <Description>Louisiana personal exemption based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/laPersonalExemptionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/laPersonalExemptionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- LA Taxable Income -->
+    <Fact path="/laTaxableIncome">
+      <Name>LA Taxable Income</Name>
+      <Description>Louisiana taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/laPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- LA Income Tax (progressive) -->
+    <Fact path="/laIncomeTax">
+      <Name>LA Income Tax</Name>
+      <Description>Louisiana income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/laTaxableIncome" /></Left>
+                <Right><Dollar>12500</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/laTaxableIncome" />
+                <Decimal>0.0185</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/laTaxableIncome" /></Left>
+                <Right><Dollar>50000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>231</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/laTaxableIncome" />
+                    <Dollar>12500</Dollar>
+                  </Subtract>
+                  <Decimal>0.035</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>1544</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/laTaxableIncome" />
+                  <Dollar>50000</Dollar>
+                </Subtract>
+                <Decimal>0.0425</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lait540IsDone">
+      <Name>LA Form IT-540 Is Done</Name>
+      <Description>Whether LA Form IT-540 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasLAIT540" /></Not>
+          <All>
+            <Dependency path="/hasLAIT540" />
+            <IsComplete><Dependency path="/laIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeLAIT540">
+      <Name>Include LA Form IT-540 in PDF</Name>
+      <Description>Whether to include LA Form IT-540.</Description>
+      <Derived>
+        <Dependency path="/hasLAIT540" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

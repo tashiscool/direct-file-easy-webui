@@ -1,0 +1,247 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Delaware Form 200-01: Resident Individual Income Tax Return -->
+<!-- Delaware has progressive rates from 2.2% to 6.6% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasDE200">
+      <Name>Has DE Form 200-01</Name>
+      <Description>Whether taxpayer files Delaware Form 200-01.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>DE</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- DE Standard Deduction -->
+    <Fact path="/deStdDeductionSingle">
+      <Name>DE Standard Deduction Single</Name>
+      <Description>Delaware standard deduction for single ($3,250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deStdDeductionMFJ">
+      <Name>DE Standard Deduction MFJ</Name>
+      <Description>Delaware standard deduction for MFJ ($6,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deStandardDeduction">
+      <Name>DE Standard Deduction</Name>
+      <Description>Delaware standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/deStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/deStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- DE Personal Credit -->
+    <Fact path="/dePersonalCredit">
+      <Name>DE Personal Credit</Name>
+      <Description>Delaware personal credit ($110).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>110</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- DE Taxable Income -->
+    <Fact path="/deTaxableIncome">
+      <Name>DE Taxable Income</Name>
+      <Description>Delaware taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/deStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- DE Income Tax (progressive) -->
+    <Fact path="/deIncomeTax">
+      <Name>DE Income Tax</Name>
+      <Description>Delaware income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>2000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>5000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/deTaxableIncome" />
+                  <Dollar>2000</Dollar>
+                </Subtract>
+                <Decimal>0.022</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>10000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>66</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/deTaxableIncome" />
+                    <Dollar>5000</Dollar>
+                  </Subtract>
+                  <Decimal>0.039</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>20000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>261</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/deTaxableIncome" />
+                    <Dollar>10000</Dollar>
+                  </Subtract>
+                  <Decimal>0.048</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>25000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>741</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/deTaxableIncome" />
+                    <Dollar>20000</Dollar>
+                  </Subtract>
+                  <Decimal>0.052</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/deTaxableIncome" /></Left>
+                <Right><Dollar>60000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>1001</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/deTaxableIncome" />
+                    <Dollar>25000</Dollar>
+                  </Subtract>
+                  <Decimal>0.055</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>2926</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/deTaxableIncome" />
+                  <Dollar>60000</Dollar>
+                </Subtract>
+                <Decimal>0.066</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- DE Net Tax -->
+    <Fact path="/deNetTax">
+      <Name>DE Net Tax</Name>
+      <Description>Delaware net tax after credits.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/deIncomeTax" />
+            <Dependency path="/dePersonalCredit" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/de200IsDone">
+      <Name>DE Form 200-01 Is Done</Name>
+      <Description>Whether DE Form 200-01 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDE200" /></Not>
+          <All>
+            <Dependency path="/hasDE200" />
+            <IsComplete><Dependency path="/deNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeDE200">
+      <Name>Include DE Form 200-01 in PDF</Name>
+      <Description>Whether to include DE Form 200-01.</Description>
+      <Derived>
+        <Dependency path="/hasDE200" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,119 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1095-A: Health Insurance Marketplace Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/has1095A">
+      <Name>Has 1095-A</Name>
+      <Description>Whether taxpayer received Form 1095-A.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/marketplacePolicyNumber">
+      <Name>Marketplace Policy Number</Name>
+      <Description>Policy number from Marketplace.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthlyPremiumAmount">
+      <Name>Monthly Premium Amount</Name>
+      <Description>Monthly premium amount (Column A).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthlySlcspPremium">
+      <Name>Monthly SLCSP Premium</Name>
+      <Description>Monthly SLCSP premium (Column B).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthlyAdvancePTC">
+      <Name>Monthly Advance PTC</Name>
+      <Description>Monthly advance premium tax credit (Column C).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/annualTotalPremium">
+      <Name>Annual Total Premium</Name>
+      <Description>Annual total enrollment premium (Line 33).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/annualSlcspPremium">
+      <Name>Annual SLCSP Premium</Name>
+      <Description>Annual SLCSP premium (Line 33).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/annualAdvancePTC">
+      <Name>Annual Advance PTC</Name>
+      <Description>Annual advance premium tax credit (Line 33).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1095AIsDone">
+      <Name>Form 1095-A Is Done</Name>
+      <Description>Whether Form 1095-A is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1095A" /></Not>
+          <All>
+            <Dependency path="/has1095A" />
+            <IsComplete><Dependency path="/annualAdvancePTC" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1095A">
+      <Name>Include Form 1095-A in PDF</Name>
+      <Description>Whether to include Form 1095-A.</Description>
+      <Derived>
+        <Dependency path="/has1095A" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,151 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-G: Certain Government Payments -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/has1099G">
+      <Name>Has 1099-G</Name>
+      <Description>Whether taxpayer received Form 1099-G.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unemploymentCompensation">
+      <Name>Unemployment Compensation</Name>
+      <Description>Unemployment compensation (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateLocalTaxRefund">
+      <Name>State/Local Tax Refund</Name>
+      <Description>State or local income tax refunds, credits, or offsets (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundTaxYear">
+      <Name>Refund Tax Year</Name>
+      <Description>Tax year of refund (Box 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalTaxWithheld1099G">
+      <Name>Federal Tax Withheld</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rtaaPayments">
+      <Name>RTAA Payments</Name>
+      <Description>Reemployment trade adjustment assistance (RTAA) payments (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableGrants">
+      <Name>Taxable Grants</Name>
+      <Description>Taxable grants (Box 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/agriculturePayments">
+      <Name>Agriculture Payments</Name>
+      <Description>Agriculture payments (Box 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/itemizedDeductionsPriorYear">
+      <Name>Itemized Deductions Prior Year</Name>
+      <Description>Whether taxpayer itemized deductions in prior year.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableRefundAmount">
+      <Name>Taxable Refund Amount</Name>
+      <Description>Taxable portion of state/local tax refund.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/itemizedDeductionsPriorYear" />
+            </When>
+            <Then>
+              <Dependency path="/stateLocalTaxRefund" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099GIsDone">
+      <Name>Form 1099-G Is Done</Name>
+      <Description>Whether Form 1099-G is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099G" /></Not>
+          <All>
+            <Dependency path="/has1099G" />
+            <Any>
+              <IsComplete><Dependency path="/unemploymentCompensation" /></IsComplete>
+              <IsComplete><Dependency path="/taxableRefundAmount" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099G">
+      <Name>Include Form 1099-G in PDF</Name>
+      <Description>Whether to include Form 1099-G.</Description>
+      <Derived>
+        <Dependency path="/has1099G" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

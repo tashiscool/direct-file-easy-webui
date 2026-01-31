@@ -1,0 +1,312 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule C (Form 1120): Dividends, Inclusions, and Special Deductions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- DIVIDENDS RECEIVED (Part I)                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/dividendsFromDomesticCorps">
+      <Name>Dividends from Domestic Corporations</Name>
+      <Description>Dividends from less-than-20%-owned domestic corporations (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsFrom20PercentOwned">
+      <Name>Dividends from 20% Owned Corporations</Name>
+      <Description>Dividends from 20%-or-more-owned domestic corporations (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsOnDebtFinancedStock">
+      <Name>Dividends on Debt-Financed Stock</Name>
+      <Description>Dividends on debt-financed stock of domestic corporations (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsFromForeignCorps">
+      <Name>Dividends from Foreign Corporations</Name>
+      <Description>Dividends from foreign corporations (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/subpartFInclusions">
+      <Name>Subpart F Inclusions</Name>
+      <Description>Subpart F inclusions derived from CFC (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/giltiInclusions">
+      <Name>GILTI Inclusions</Name>
+      <Description>Global intangible low-taxed income (GILTI) (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/icDiscDividends">
+      <Name>IC-DISC Dividends</Name>
+      <Description>Dividends from certain FSCs and IC-DISCs (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsFromAffiliated">
+      <Name>Dividends from Affiliated Group Members</Name>
+      <Description>Dividends from 80%-or-more-owned affiliated group members (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDividendsReceived">
+      <Name>Total Dividends Received</Name>
+      <Description>Total dividends received (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/dividendsFromDomesticCorps" />
+              <Dependency path="/dividendsFrom20PercentOwned" />
+            </Add>
+            <Add>
+              <Dependency path="/dividendsOnDebtFinancedStock" />
+              <Dependency path="/dividendsFromForeignCorps" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/subpartFInclusions" />
+              <Dependency path="/giltiInclusions" />
+            </Add>
+            <Add>
+              <Dependency path="/icDiscDividends" />
+              <Dependency path="/dividendsFromAffiliated" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DIVIDENDS RECEIVED DEDUCTION (Part II)      -->
+    <!-- ============================================ -->
+
+    <Fact path="/drdRateLessThan20Percent">
+      <Name>DRD Rate - Less Than 20%</Name>
+      <Description>DRD rate for less-than-20%-owned domestic corporations (50%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drdRate20PercentOrMore">
+      <Name>DRD Rate - 20% or More</Name>
+      <Description>DRD rate for 20%-or-more-owned domestic corporations (65%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.65</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drdRateAffiliated">
+      <Name>DRD Rate - Affiliated</Name>
+      <Description>DRD rate for 80%-or-more-owned affiliated group members (100%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>1.00</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drdLessThan20Percent">
+      <Name>DRD - Less Than 20%</Name>
+      <Description>Deduction for less-than-20%-owned domestic corporations.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/dividendsFromDomesticCorps" />
+          <Dependency path="/drdRateLessThan20Percent" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drd20PercentOrMore">
+      <Name>DRD - 20% or More</Name>
+      <Description>Deduction for 20%-or-more-owned domestic corporations.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/dividendsFrom20PercentOwned" />
+          <Dependency path="/drdRate20PercentOrMore" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drdAffiliated">
+      <Name>DRD - Affiliated</Name>
+      <Description>Deduction for 80%-or-more-owned affiliated group members.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/dividendsFromAffiliated" />
+          <Dependency path="/drdRateAffiliated" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section250DeductionForGILTI">
+      <Name>Section 250 Deduction for GILTI</Name>
+      <Description>Section 250 deduction for GILTI (50% for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/giltiInclusions" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalDividendsReceivedDeduction">
+      <Name>Total Dividends Received Deduction</Name>
+      <Description>Total dividends received deduction (Line 17).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/drdLessThan20Percent" />
+            <Dependency path="/drd20PercentOrMore" />
+          </Add>
+          <Add>
+            <Dependency path="/drdAffiliated" />
+            <Dependency path="/section250DeductionForGILTI" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABLE INCOME LIMITATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableIncomeBeforeDRD">
+      <Name>Taxable Income Before DRD</Name>
+      <Description>Taxable income before dividends received deduction.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/drdTaxableIncomeLimit">
+      <Name>DRD Taxable Income Limit</Name>
+      <Description>DRD limited by taxable income (65% of TI).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/taxableIncomeBeforeDRD" />
+          <Decimal>0.65</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/drdLimitedByTaxableIncome">
+      <Name>DRD Limited by Taxable Income</Name>
+      <Description>Whether DRD is limited by taxable income.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalDividendsReceivedDeduction" /></Left>
+          <Right><Dependency path="/drdTaxableIncomeLimit" /></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/finalDividendsReceivedDeduction">
+      <Name>Final Dividends Received Deduction</Name>
+      <Description>Final DRD after any limitations.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/drdLimitedByTaxableIncome" />
+            </When>
+            <Then>
+              <Dependency path="/drdTaxableIncomeLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency path="/totalDividendsReceivedDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleCIsDone">
+      <Name>Schedule C Is Done</Name>
+      <Description>Whether Schedule C is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/totalDividendsReceived" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleC1120">
+      <Name>Include Schedule C in PDF</Name>
+      <Description>Whether to include Schedule C in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalDividendsReceived" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

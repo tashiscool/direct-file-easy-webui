@@ -1,0 +1,663 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8936: Clean Vehicle Credits -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- NEW CLEAN VEHICLE CREDIT (Section 30D)      -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasNewCleanVehicle">
+      <Name>Has New Clean Vehicle</Name>
+      <Description>Whether the taxpayer purchased a new qualified clean vehicle in 2025.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleVIN">
+      <Name>New Vehicle VIN</Name>
+      <Description>Vehicle Identification Number of the new clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleMake">
+      <Name>New Vehicle Make</Name>
+      <Description>Manufacturer of the new clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleModel">
+      <Name>New Vehicle Model</Name>
+      <Description>Model of the new clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehiclePurchaseDate">
+      <Name>New Vehicle Purchase Date</Name>
+      <Description>Date the new clean vehicle was placed in service.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleMSRP">
+      <Name>New Vehicle MSRP</Name>
+      <Description>Manufacturer's suggested retail price of the new vehicle.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehiclePurchasePrice">
+      <Name>New Vehicle Purchase Price</Name>
+      <Description>Actual purchase price of the new clean vehicle.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleType">
+      <Name>New Vehicle Type</Name>
+      <Description>Type of vehicle: van, SUV, pickup, or other.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>van</EnumOption>
+          <EnumOption>suv</EnumOption>
+          <EnumOption>pickup</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleBatteryCapacity">
+      <Name>New Vehicle Battery Capacity</Name>
+      <Description>Battery capacity in kilowatt-hours (must be at least 7 kWh).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleMeetsCriticalMinerals">
+      <Name>New Vehicle Meets Critical Minerals Requirement</Name>
+      <Description>Whether the vehicle meets critical minerals sourcing requirements.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleMeetsBatteryComponents">
+      <Name>New Vehicle Meets Battery Components Requirement</Name>
+      <Description>Whether the vehicle meets battery components manufacturing requirements.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newVehicleFinalAssemblyUS">
+      <Name>New Vehicle Final Assembly in US</Name>
+      <Description>Whether the vehicle's final assembly occurred in North America.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- MSRP Limits -->
+    <Fact path="/newVehicleMSRPLimitVanSUVPickup">
+      <Name>MSRP Limit for Vans, SUVs, and Pickups</Name>
+      <Description>Maximum MSRP for vans, SUVs, and pickup trucks to qualify.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>80000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newVehicleMSRPLimitOther">
+      <Name>MSRP Limit for Other Vehicles</Name>
+      <Description>Maximum MSRP for sedans and other vehicles to qualify.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>55000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newVehicleMSRPLimit">
+      <Name>Applicable MSRP Limit</Name>
+      <Description>The MSRP limit that applies based on vehicle type.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equals>
+                  <Left><Dependency path="/newVehicleType" /></Left>
+                  <Right><Enum>van</Enum></Right>
+                </Equals>
+                <Equals>
+                  <Left><Dependency path="/newVehicleType" /></Left>
+                  <Right><Enum>suv</Enum></Right>
+                </Equals>
+                <Equals>
+                  <Left><Dependency path="/newVehicleType" /></Left>
+                  <Right><Enum>pickup</Enum></Right>
+                </Equals>
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/newVehicleMSRPLimitVanSUVPickup" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/newVehicleMSRPLimitOther" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newVehicleMeetsMinimumBattery">
+      <Name>Meets Minimum Battery Requirement</Name>
+      <Description>Whether the vehicle has at least 7 kWh battery capacity.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/newVehicleBatteryCapacity" /></Left>
+          <Right><Decimal>7.0</Decimal></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newVehicleMeetsMSRPLimit">
+      <Name>Meets MSRP Limit</Name>
+      <Description>Whether the vehicle MSRP is within limits.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/newVehicleMSRP" /></Left>
+          <Right><Dependency path="/newVehicleMSRPLimit" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- Income Limits -->
+    <Fact path="/newCleanVehicleIncomeLimit">
+      <Name>New Clean Vehicle Income Limit</Name>
+      <Description>Modified AGI limit for new clean vehicle credit eligibility.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>300000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>225000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsNewCleanVehicleIncomeLimit">
+      <Name>Meets New Clean Vehicle Income Limit</Name>
+      <Description>Whether MAGI is within limits for the credit.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency module="taxCalculations" path="/magi" /></Left>
+          <Right><Dependency path="/newCleanVehicleIncomeLimit" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- Credit Components -->
+    <Fact path="/newVehicleCriticalMineralsCredit">
+      <Name>Critical Minerals Credit Component</Name>
+      <Description>Credit amount for meeting critical minerals requirement ($3,750).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/newVehicleMeetsCriticalMinerals" />
+            </When>
+            <Then>
+              <Dollar>3750</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newVehicleBatteryComponentsCredit">
+      <Name>Battery Components Credit Component</Name>
+      <Description>Credit amount for meeting battery components requirement ($3,750).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/newVehicleMeetsBatteryComponents" />
+            </When>
+            <Then>
+              <Dollar>3750</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCreditAmount">
+      <Name>New Clean Vehicle Credit Amount</Name>
+      <Description>Total credit amount for new clean vehicle (max $7,500).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasNewCleanVehicle" />
+                <Dependency path="/newVehicleFinalAssemblyUS" />
+                <Dependency path="/newVehicleMeetsMinimumBattery" />
+                <Dependency path="/newVehicleMeetsMSRPLimit" />
+                <Dependency path="/meetsNewCleanVehicleIncomeLimit" />
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/newVehicleCriticalMineralsCredit" />
+                <Dependency path="/newVehicleBatteryComponentsCredit" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- USED CLEAN VEHICLE CREDIT (Section 25E)     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasUsedCleanVehicle">
+      <Name>Has Used Clean Vehicle</Name>
+      <Description>Whether the taxpayer purchased a previously-owned clean vehicle in 2025.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleVIN">
+      <Name>Used Vehicle VIN</Name>
+      <Description>Vehicle Identification Number of the used clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleMake">
+      <Name>Used Vehicle Make</Name>
+      <Description>Manufacturer of the used clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleModel">
+      <Name>Used Vehicle Model</Name>
+      <Description>Model of the used clean vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehiclePurchaseDate">
+      <Name>Used Vehicle Purchase Date</Name>
+      <Description>Date the used clean vehicle was purchased.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehiclePurchasePrice">
+      <Name>Used Vehicle Purchase Price</Name>
+      <Description>Purchase price of the used clean vehicle.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleModelYear">
+      <Name>Used Vehicle Model Year</Name>
+      <Description>Model year of the used clean vehicle.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1900</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>2025</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehiclePurchasedFromDealer">
+      <Name>Used Vehicle Purchased from Dealer</Name>
+      <Description>Whether the vehicle was purchased from a licensed dealer.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleBatteryCapacity">
+      <Name>Used Vehicle Battery Capacity</Name>
+      <Description>Battery capacity of used vehicle in kilowatt-hours.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- Used Vehicle Limits -->
+    <Fact path="/usedVehiclePriceLimit">
+      <Name>Used Vehicle Price Limit</Name>
+      <Description>Maximum sale price for used clean vehicle credit ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleMeetsPriceLimit">
+      <Name>Used Vehicle Meets Price Limit</Name>
+      <Description>Whether the used vehicle price is within limits.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/usedVehiclePurchasePrice" /></Left>
+          <Right><Dependency path="/usedVehiclePriceLimit" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleMinimumAge">
+      <Name>Used Vehicle Minimum Age</Name>
+      <Description>Whether vehicle is at least 2 model years old.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/usedVehicleModelYear" /></Left>
+          <Right><Int>2023</Int></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleMeetsMinimumBattery">
+      <Name>Used Vehicle Meets Minimum Battery</Name>
+      <Description>Whether used vehicle has at least 7 kWh battery.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/usedVehicleBatteryCapacity" /></Left>
+          <Right><Decimal>7.0</Decimal></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- Used Vehicle Income Limits -->
+    <Fact path="/usedCleanVehicleIncomeLimit">
+      <Name>Used Clean Vehicle Income Limit</Name>
+      <Description>Modified AGI limit for used clean vehicle credit eligibility.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>112500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>75000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsUsedCleanVehicleIncomeLimit">
+      <Name>Meets Used Clean Vehicle Income Limit</Name>
+      <Description>Whether MAGI is within limits for used vehicle credit.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency module="taxCalculations" path="/magi" /></Left>
+          <Right><Dependency path="/usedCleanVehicleIncomeLimit" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- Used Vehicle Credit Calculation -->
+    <Fact path="/usedVehicleCreditPercentage">
+      <Name>Used Vehicle Credit Percentage</Name>
+      <Description>Percentage of sale price for credit (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleCreditMaximum">
+      <Name>Used Vehicle Credit Maximum</Name>
+      <Description>Maximum used clean vehicle credit ($4,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleCreditCalculated">
+      <Name>Used Vehicle Credit Calculated</Name>
+      <Description>30% of purchase price before maximum.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/usedVehiclePurchasePrice" />
+          <Dependency path="/usedVehicleCreditPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCreditAmount">
+      <Name>Used Clean Vehicle Credit Amount</Name>
+      <Description>Credit for previously-owned clean vehicle (max $4,000).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasUsedCleanVehicle" />
+                <Dependency path="/usedVehiclePurchasedFromDealer" />
+                <Dependency path="/usedVehicleMeetsPriceLimit" />
+                <Dependency path="/usedVehicleMinimumAge" />
+                <Dependency path="/usedVehicleMeetsMinimumBattery" />
+                <Dependency path="/meetsUsedCleanVehicleIncomeLimit" />
+              </All>
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/usedVehicleCreditCalculated" />
+                <Dependency path="/usedVehicleCreditMaximum" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL CLEAN VEHICLE CREDITS                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalCleanVehicleCredit">
+      <Name>Total Clean Vehicle Credit</Name>
+      <Description>Combined new and used clean vehicle credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/newCleanVehicleCreditAmount" />
+          <Dependency path="/usedCleanVehicleCreditAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasAnyCleanVehicle">
+      <Name>Has Any Clean Vehicle</Name>
+      <Description>Whether the taxpayer purchased any clean vehicle.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasNewCleanVehicle" />
+          <Dependency path="/hasUsedCleanVehicle" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleCreditIsDone">
+      <Name>Clean Vehicle Credit Is Done</Name>
+      <Description>Whether the clean vehicle credit section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No clean vehicles -->
+          <All>
+            <Not><Dependency path="/hasNewCleanVehicle" /></Not>
+            <Not><Dependency path="/hasUsedCleanVehicle" /></Not>
+          </All>
+          <!-- New vehicle complete -->
+          <All>
+            <Dependency path="/hasNewCleanVehicle" />
+            <IsComplete>
+              <Dependency path="/newVehicleVIN" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/newVehiclePurchasePrice" />
+            </IsComplete>
+          </All>
+          <!-- Used vehicle complete -->
+          <All>
+            <Dependency path="/hasUsedCleanVehicle" />
+            <IsComplete>
+              <Dependency path="/usedVehicleVIN" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/usedVehiclePurchasePrice" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8936">
+      <Name>Include Form 8936 in PDF</Name>
+      <Description>Whether to include Form 8936 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalCleanVehicleCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

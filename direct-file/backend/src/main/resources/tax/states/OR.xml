@@ -1,0 +1,180 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Oregon Form OR-40: Individual Income Tax Return -->
+<!-- Oregon has progressive rates from 4.75% to 9.9% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasOR40">
+      <Name>Has OR Form OR-40</Name>
+      <Description>Whether taxpayer files Oregon Form OR-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>OR</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- OR Standard Deduction -->
+    <Fact path="/orStdDeductionSingle">
+      <Name>OR Standard Deduction Single</Name>
+      <Description>Oregon standard deduction for single ($2,605).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2605</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/orStdDeductionMFJ">
+      <Name>OR Standard Deduction MFJ</Name>
+      <Description>Oregon standard deduction for MFJ ($5,210).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5210</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/orStandardDeduction">
+      <Name>OR Standard Deduction</Name>
+      <Description>Oregon standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/orStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/orStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- OR Federal Tax Subtraction (Oregon allows subtraction of federal tax) -->
+    <Fact path="/orFederalTaxSubtractionLimit">
+      <Name>OR Federal Tax Subtraction Limit</Name>
+      <Description>Oregon limit on federal tax subtraction ($7,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>7500</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- OR Taxable Income -->
+    <Fact path="/orTaxableIncome">
+      <Name>OR Taxable Income</Name>
+      <Description>Oregon taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/orStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- OR Income Tax (progressive) -->
+    <Fact path="/orIncomeTax">
+      <Name>OR Income Tax</Name>
+      <Description>Oregon income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/orTaxableIncome" /></Left>
+                <Right><Dollar>4300</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/orTaxableIncome" />
+                <Decimal>0.0475</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/orTaxableIncome" /></Left>
+                <Right><Dollar>10750</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>204</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/orTaxableIncome" />
+                    <Dollar>4300</Dollar>
+                  </Subtract>
+                  <Decimal>0.0675</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/orTaxableIncome" /></Left>
+                <Right><Dollar>125000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>639</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/orTaxableIncome" />
+                    <Dollar>10750</Dollar>
+                  </Subtract>
+                  <Decimal>0.0875</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>10636</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/orTaxableIncome" />
+                  <Dollar>125000</Dollar>
+                </Subtract>
+                <Decimal>0.099</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/or40IsDone">
+      <Name>OR Form OR-40 Is Done</Name>
+      <Description>Whether OR Form OR-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasOR40" /></Not>
+          <All>
+            <Dependency path="/hasOR40" />
+            <IsComplete><Dependency path="/orIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeOR40">
+      <Name>Include OR Form OR-40 in PDF</Name>
+      <Description>Whether to include OR Form OR-40.</Description>
+      <Derived>
+        <Dependency path="/hasOR40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

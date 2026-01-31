@@ -1,0 +1,329 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8959: Additional Medicare Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- THRESHOLDS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/additionalMedicareThresholdSingle">
+      <Name>Threshold - Single</Name>
+      <Description>Additional Medicare Tax threshold for Single ($200,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareThresholdMFJ">
+      <Name>Threshold - MFJ</Name>
+      <Description>Additional Medicare Tax threshold for MFJ ($250,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>250000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareThresholdMFS">
+      <Name>Threshold - MFS</Name>
+      <Description>Additional Medicare Tax threshold for MFS ($125,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>125000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/applicableThreshold8959">
+      <Name>Applicable Threshold</Name>
+      <Description>Applicable threshold based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then><Dependency path="/additionalMedicareThresholdMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then><Dependency path="/additionalMedicareThresholdMFS" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/additionalMedicareThresholdSingle" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxRate8959">
+      <Name>Additional Medicare Tax Rate</Name>
+      <Description>Additional Medicare Tax rate (0.9%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.009</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: MEDICARE WAGES                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/medicareWagesFromW2">
+      <Name>Medicare Wages from W-2</Name>
+      <Description>Medicare wages from Form(s) W-2, Box 5 (Line 1).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency module="formW2s" path="/totalMedicareWages" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/unreportedTipsFromForm4137">
+      <Name>Unreported Tips</Name>
+      <Description>Unreported tips from Form 4137, line 6 (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesFromForm8919">
+      <Name>Wages from Form 8919</Name>
+      <Description>Wages from Form 8919, line 6 (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalMedicareWages8959">
+      <Name>Total Medicare Wages</Name>
+      <Description>Total Medicare wages subject to Additional Medicare Tax (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/medicareWagesFromW2" />
+            <Dependency path="/unreportedTipsFromForm4137" />
+          </Add>
+          <Dependency path="/wagesFromForm8919" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicareWagesOverThreshold">
+      <Name>Medicare Wages Over Threshold</Name>
+      <Description>Medicare wages in excess of threshold (Line 5).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalMedicareWages8959" />
+            <Dependency path="/applicableThreshold8959" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnWages">
+      <Name>Additional Medicare Tax on Wages</Name>
+      <Description>Additional Medicare Tax on wages (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/medicareWagesOverThreshold" />
+          <Dependency path="/additionalMedicareTaxRate8959" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: SELF-EMPLOYMENT INCOME             -->
+    <!-- ============================================ -->
+
+    <Fact path="/selfEmploymentIncome8959">
+      <Name>Self-Employment Income</Name>
+      <Description>Self-employment income from Schedule SE (Line 7).</Description>
+      <Derived>
+        <Dependency module="scheduleSE" path="/netSEEarnings" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/thresholdReducedByWages">
+      <Name>Threshold Reduced by Wages</Name>
+      <Description>Threshold reduced by Medicare wages (Line 8).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/applicableThreshold8959" />
+            <Dependency path="/totalMedicareWages8959" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/selfEmploymentOverThreshold">
+      <Name>Self-Employment Over Threshold</Name>
+      <Description>Self-employment income in excess of reduced threshold (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/selfEmploymentIncome8959" />
+            <Dependency path="/thresholdReducedByWages" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnSE">
+      <Name>Additional Medicare Tax on SE</Name>
+      <Description>Additional Medicare Tax on self-employment (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/selfEmploymentOverThreshold" />
+          <Dependency path="/additionalMedicareTaxRate8959" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: RRTA COMPENSATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/rrtaCompensation">
+      <Name>RRTA Compensation</Name>
+      <Description>Railroad Retirement (RRTA) compensation (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rrtaOverThreshold">
+      <Name>RRTA Over Threshold</Name>
+      <Description>RRTA compensation over threshold (Line 12).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/rrtaCompensation" />
+            <Dependency path="/applicableThreshold8959" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnRRTA">
+      <Name>Additional Medicare Tax on RRTA</Name>
+      <Description>Additional Medicare Tax on RRTA (Line 13).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/rrtaOverThreshold" />
+          <Dependency path="/additionalMedicareTaxRate8959" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: TOTAL TAX                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAdditionalMedicareTax">
+      <Name>Total Additional Medicare Tax</Name>
+      <Description>Total Additional Medicare Tax (Line 14).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/additionalMedicareTaxOnWages" />
+            <Dependency path="/additionalMedicareTaxOnSE" />
+          </Add>
+          <Dependency path="/additionalMedicareTaxOnRRTA" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: WITHHOLDING                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/medicareWithholdingFromW2">
+      <Name>Medicare Withholding from W-2</Name>
+      <Description>Medicare tax withheld from Form(s) W-2 (Line 15).</Description>
+      <Derived>
+        <Dependency module="formW2s" path="/totalMedicareTaxWithheld" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularMedicareTaxOnWages">
+      <Name>Regular Medicare Tax on Wages</Name>
+      <Description>Regular Medicare tax (1.45%) on all Medicare wages (Line 16).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalMedicareWages8959" />
+          <Decimal>0.0145</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareWithheld">
+      <Name>Additional Medicare Withholding</Name>
+      <Description>Additional Medicare Tax withheld (Line 17).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/medicareWithholdingFromW2" />
+            <Dependency path="/regularMedicareTaxOnWages" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/owesAdditionalMedicareTax">
+      <Name>Owes Additional Medicare Tax</Name>
+      <Description>Whether taxpayer owes Additional Medicare Tax.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalAdditionalMedicareTax" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959IsDone">
+      <Name>Form 8959 Is Done</Name>
+      <Description>Whether Form 8959 is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/totalAdditionalMedicareTax" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8959">
+      <Name>Include Form 8959 in PDF</Name>
+      <Description>Whether to include Form 8959 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/owesAdditionalMedicareTax" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,231 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-SA: Distributions From an HSA, Archer MSA, or Medicare Advantage MSA -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- HSA/MSA DISTRIBUTIONS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099SA">
+      <Name>Has 1099-SA</Name>
+      <Description>Whether taxpayer received Form 1099-SA.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/trustee1099SAName">
+      <Name>Trustee Name</Name>
+      <Description>Name of HSA/MSA trustee (payer).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DISTRIBUTION INFORMATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossDistribution1099SA">
+      <Name>Gross Distribution</Name>
+      <Description>Gross distribution (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/earningsOnExcess1099SA">
+      <Name>Earnings on Excess</Name>
+      <Description>Earnings on excess contributions (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/distributionCode1099SA">
+      <Name>Distribution Code</Name>
+      <Description>Distribution code (Box 3).</Description>
+      <Writable>
+        <Enum>
+          <Option value="1">Normal distribution</Option>
+          <Option value="2">Excess contributions</Option>
+          <Option value="3">Disability</Option>
+          <Option value="4">Death (except beneficiary in box 6)</Option>
+          <Option value="5">Prohibited transaction</Option>
+          <Option value="6">Death beneficiary other than surviving spouse</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvOnDateOfDeath">
+      <Name>FMV on Date of Death</Name>
+      <Description>FMV of account on date of death (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountType1099SA">
+      <Name>Account Type</Name>
+      <Description>Type of account (Box 5).</Description>
+      <Writable>
+        <Enum>
+          <Option value="HSA">Health Savings Account</Option>
+          <Option value="ARCHER">Archer MSA</Option>
+          <Option value="MA_MSA">Medicare Advantage MSA</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFIED EXPENSES                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedMedicalExpenses1099SA">
+      <Name>Qualified Medical Expenses</Name>
+      <Description>Qualified medical expenses paid.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nonQualifiedDistribution">
+      <Name>Non-Qualified Distribution</Name>
+      <Description>Distribution amount not used for qualified expenses.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/grossDistribution1099SA" />
+            <Dependency path="/qualifiedMedicalExpenses1099SA" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTY CALCULATION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hsaPenaltyRate">
+      <Name>HSA Penalty Rate</Name>
+      <Description>Penalty rate for non-qualified HSA distributions (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOver65">
+      <Name>Is Over 65</Name>
+      <Description>Whether account holder is 65 or older.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isDisabled1099SA">
+      <Name>Is Disabled</Name>
+      <Description>Whether account holder is disabled.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/penaltyExempt">
+      <Name>Penalty Exempt</Name>
+      <Description>Whether exempt from additional tax penalty.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isOver65" />
+          <Dependency path="/isDisabled1099SA" />
+          <Equal>
+            <Left><Dependency path="/distributionCode1099SA" /></Left>
+            <Right><String>3</String></Right>
+          </Equal>
+          <Equal>
+            <Left><Dependency path="/distributionCode1099SA" /></Left>
+            <Right><String>4</String></Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hsaAdditionalTax">
+      <Name>HSA Additional Tax</Name>
+      <Description>Additional 20% tax on non-qualified distributions.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/penaltyExempt" />
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Multiply>
+                <Dependency path="/nonQualifiedDistribution" />
+                <Dependency path="/hsaPenaltyRate" />
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableHSADistribution">
+      <Name>Taxable HSA Distribution</Name>
+      <Description>Taxable portion of HSA distribution.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/nonQualifiedDistribution" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099SAIsDone">
+      <Name>Form 1099-SA Is Done</Name>
+      <Description>Whether Form 1099-SA is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099SA" /></Not>
+          <All>
+            <Dependency path="/has1099SA" />
+            <IsComplete><Dependency path="/taxableHSADistribution" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099SA">
+      <Name>Include Form 1099-SA in PDF</Name>
+      <Description>Whether to include Form 1099-SA in output.</Description>
+      <Derived>
+        <Dependency path="/has1099SA" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

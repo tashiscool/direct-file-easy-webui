@@ -1,0 +1,24 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8822-B: Change of Address or Responsible Party - Business -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8822B">
+      <Name>Has Form 8822-B</Name>
+      <Description>Whether business is changing address with IRS.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/businessEIN8822B">
+      <Name>Business EIN</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8822BIsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8822B" /></Not>
+          <IsComplete><Dependency path="/businessEIN8822B" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

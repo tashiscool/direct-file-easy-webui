@@ -1,0 +1,115 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-H: Health Coverage Tax Credit Advance Payments -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/has1099H">
+      <Name>Has 1099-H</Name>
+      <Description>Whether taxpayer received Form 1099-H.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hctcAdvancePayments">
+      <Name>HCTC Advance Payments</Name>
+      <Description>Amount of HCTC advance payments (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hctcCoverageMonths">
+      <Name>HCTC Coverage Months</Name>
+      <Description>Number of months covered by HCTC (Box 2).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/januaryPremium1099H">
+      <Name>January Premium</Name>
+      <Description>January premium amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/februaryPremium1099H">
+      <Name>February Premium</Name>
+      <Description>February premium amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/marchPremium1099H">
+      <Name>March Premium</Name>
+      <Description>March premium amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/q1Premiums">
+      <Name>Q1 Premiums</Name>
+      <Description>First quarter premiums.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/januaryPremium1099H" />
+          <Add>
+            <Dependency path="/februaryPremium1099H" />
+            <Dependency path="/marchPremium1099H" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAnnualPremiums1099H">
+      <Name>Total Annual Premiums</Name>
+      <Description>Total annual premiums.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/q1Premiums" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099HIsDone">
+      <Name>Form 1099-H Is Done</Name>
+      <Description>Whether Form 1099-H is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099H" /></Not>
+          <All>
+            <Dependency path="/has1099H" />
+            <IsComplete><Dependency path="/hctcAdvancePayments" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

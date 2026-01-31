@@ -1,0 +1,100 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-8BEN: Certificate of Foreign Status -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFormW8BEN">
+      <Name>Has Form W-8BEN</Name>
+      <Description>Whether filing foreign status certificate.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/beneficialOwnerName">
+      <Name>Beneficial Owner Name</Name>
+      <Description>Name of beneficial owner.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/countryOfCitizenshipW8">
+      <Name>Country of Citizenship</Name>
+      <Description>Country of citizenship.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/permanentResidenceAddress">
+      <Name>Permanent Residence Address</Name>
+      <Description>Permanent residence address.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTIN">
+      <Name>Foreign TIN</Name>
+      <Description>Foreign tax identification number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasTreatyBenefits">
+      <Name>Has Treaty Benefits</Name>
+      <Description>Whether claiming treaty benefits.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyCountry">
+      <Name>Treaty Country</Name>
+      <Description>Country of tax treaty.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyArticleW8">
+      <Name>Treaty Article</Name>
+      <Description>Treaty article providing benefit.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reducedWithholdingRate">
+      <Name>Reduced Withholding Rate</Name>
+      <Description>Treaty reduced withholding rate.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>30</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW8BENIsDone">
+      <Name>Form W-8BEN Is Done</Name>
+      <Description>Whether Form W-8BEN is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFormW8BEN" /></Not>
+          <All>
+            <Dependency path="/hasFormW8BEN" />
+            <IsComplete><Dependency path="/countryOfCitizenshipW8" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

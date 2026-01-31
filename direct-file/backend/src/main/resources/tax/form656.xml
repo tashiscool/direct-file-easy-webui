@@ -1,0 +1,86 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 656: Offer in Compromise -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm656">
+      <Name>Has Form 656</Name>
+      <Description>Whether taxpayer is submitting offer in compromise.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/oicBasis656">
+      <Name>OIC Basis</Name>
+      <Description>Basis for offer in compromise.</Description>
+      <Writable>
+        <Enum>
+          <Option>doubtAsToLiability</Option>
+          <Option>doubtAsToCollectibility</Option>
+          <Option>effectiveTaxAdmin</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxLiability656">
+      <Name>Total Tax Liability</Name>
+      <Description>Total tax liability being compromised.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/offerAmount656">
+      <Name>Offer Amount</Name>
+      <Description>Amount offered to IRS.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/paymentOption656">
+      <Name>Payment Option</Name>
+      <Description>Payment option selected.</Description>
+      <Writable>
+        <Enum>
+          <Option>lumpSum</Option>
+          <Option>periodicPayment</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/applicationFee656">
+      <Name>Application Fee</Name>
+      <Description>OIC application fee ($205 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>205</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form656IsDone">
+      <Name>Form 656 Is Done</Name>
+      <Description>Whether Form 656 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm656" /></Not>
+          <All>
+            <Dependency path="/hasForm656" />
+            <IsComplete><Dependency path="/offerAmount656" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,123 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 3903: Moving Expenses -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMovingExpenses">
+      <Name>Has Moving Expenses</Name>
+      <Description>Whether taxpayer has deductible moving expenses (Armed Forces only).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isActiveArmedForces">
+      <Name>Is Active Armed Forces</Name>
+      <Description>Whether taxpayer is active duty member of Armed Forces.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/transportationAndStorageCosts">
+      <Name>Transportation and Storage Costs</Name>
+      <Description>Transportation and storage of household goods (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/travelAndLodging">
+      <Name>Travel and Lodging</Name>
+      <Description>Travel and lodging for trips to new home (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalMovingExpenses">
+      <Name>Total Moving Expenses</Name>
+      <Description>Total moving expenses (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/transportationAndStorageCosts" />
+          <Dependency path="/travelAndLodging" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/movingExpenseReimbursement">
+      <Name>Moving Expense Reimbursement</Name>
+      <Description>Reimbursements not included in income (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductibleMovingExpenses">
+      <Name>Deductible Moving Expenses</Name>
+      <Description>Deductible moving expenses (Line 5).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isActiveArmedForces" />
+            </When>
+            <Then>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/totalMovingExpenses" />
+                  <Dependency path="/movingExpenseReimbursement" />
+                </Subtract>
+              </Max>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form3903IsDone">
+      <Name>Form 3903 Is Done</Name>
+      <Description>Whether Form 3903 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMovingExpenses" /></Not>
+          <All>
+            <Dependency path="/hasMovingExpenses" />
+            <IsComplete><Dependency path="/deductibleMovingExpenses" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm3903">
+      <Name>Include Form 3903 in PDF</Name>
+      <Description>Whether to include Form 3903.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/deductibleMovingExpenses" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

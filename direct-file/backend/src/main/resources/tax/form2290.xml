@@ -1,0 +1,128 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 2290: Heavy Highway Vehicle Use Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm2290">
+      <Name>Has Form 2290</Name>
+      <Description>Whether taxpayer owns taxable heavy highway vehicles (55,000+ lbs).</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Vehicle Categories by Weight -->
+    <Fact path="/vehicleCategory55000to55999">
+      <Name>Category A Vehicles (55,000-55,999 lbs)</Name>
+      <Description>Number of vehicles in weight class.</Description>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory56000to56999">
+      <Name>Category B Vehicles (56,000-56,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory57000to57999">
+      <Name>Category C Vehicles (57,000-57,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory58000to58999">
+      <Name>Category D Vehicles (58,000-58,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory59000to59999">
+      <Name>Category E Vehicles (59,000-59,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory60000to60999">
+      <Name>Category F Vehicles (60,000-60,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategory61000to61999">
+      <Name>Category G Vehicles (61,000-61,999 lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/vehicleCategoryOver75000">
+      <Name>Category V Vehicles (75,000+ lbs)</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <!-- Suspended Vehicles (5,000 miles or less) -->
+    <Fact path="/suspendedVehiclesCount">
+      <Name>Suspended Vehicles Count</Name>
+      <Description>Vehicles driven 5,000 miles or less (7,500 for agricultural).</Description>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <!-- Tax Rates (2025) -->
+    <Fact path="/taxRateCategory55000">
+      <Name>Tax Rate 55,000-55,999</Name>
+      <Derived><Dollar>100</Dollar></Derived>
+    </Fact>
+    <Fact path="/taxRateOver75000">
+      <Name>Tax Rate 75,000+</Name>
+      <Derived><Dollar>550</Dollar></Derived>
+    </Fact>
+    <!-- Total Tax Calculation -->
+    <Fact path="/totalHeavyVehicleTax">
+      <Name>Total Heavy Highway Vehicle Use Tax</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Sum>
+          <Multiply>
+            <Dependency path="/vehicleCategory55000to55999" />
+            <Dollar>100</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory56000to56999" />
+            <Dollar>122</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory57000to57999" />
+            <Dollar>144</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory58000to58999" />
+            <Dollar>166</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory59000to59999" />
+            <Dollar>188</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory60000to60999" />
+            <Dollar>210</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategory61000to61999" />
+            <Dollar>232</Dollar>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/vehicleCategoryOver75000" />
+            <Dollar>550</Dollar>
+          </Multiply>
+        </Sum>
+      </Derived>
+    </Fact>
+    <!-- Credits and Adjustments -->
+    <Fact path="/hvutCreditsAndAdjustments">
+      <Name>Credits and Adjustments</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/netHeavyVehicleTax">
+      <Name>Net Heavy Vehicle Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/totalHeavyVehicleTax" />
+            <Dependency path="/hvutCreditsAndAdjustments" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+    <Fact path="/form2290IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm2290" /></Not>
+          <IsComplete><Dependency path="/netHeavyVehicleTax" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

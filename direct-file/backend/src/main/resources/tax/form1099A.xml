@@ -1,0 +1,164 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-A: Acquisition or Abandonment of Secured Property -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- SECURED PROPERTY ACQUISITION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099A">
+      <Name>Has 1099-A</Name>
+      <Description>Whether taxpayer received Form 1099-A.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lender1099AName">
+      <Name>Lender Name</Name>
+      <Description>Name of lender (payer).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lender1099ATIN">
+      <Name>Lender TIN</Name>
+      <Description>Lender's TIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PROPERTY INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/dateOfAcquisition">
+      <Name>Date of Acquisition</Name>
+      <Description>Date of lender's acquisition or knowledge of abandonment (Box 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/balanceOfPrincipal">
+      <Name>Balance of Principal</Name>
+      <Description>Balance of principal outstanding (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvOfProperty1099A">
+      <Name>FMV of Property</Name>
+      <Description>Fair market value of property (Box 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/personallyLiable1099A">
+      <Name>Personally Liable</Name>
+      <Description>Was borrower personally liable for repayment (Box 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/propertyDescription1099A">
+      <Name>Property Description</Name>
+      <Description>Description of property (Box 6).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GAIN/LOSS CALCULATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/basisInProperty1099A">
+      <Name>Basis in Property</Name>
+      <Description>Taxpayer's adjusted basis in property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountRealized1099A">
+      <Name>Amount Realized</Name>
+      <Description>Amount realized from disposition.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/personallyLiable1099A" />
+            </When>
+            <Then>
+              <Dependency path="/balanceOfPrincipal" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency path="/fmvOfProperty1099A" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gainLossFromForeclosure">
+      <Name>Gain/Loss from Foreclosure</Name>
+      <Description>Gain or loss from foreclosure/abandonment.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/amountRealized1099A" />
+          <Dependency path="/basisInProperty1099A" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099AIsDone">
+      <Name>Form 1099-A Is Done</Name>
+      <Description>Whether Form 1099-A is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099A" /></Not>
+          <All>
+            <Dependency path="/has1099A" />
+            <IsComplete><Dependency path="/gainLossFromForeclosure" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099A">
+      <Name>Include Form 1099-A in PDF</Name>
+      <Description>Whether to include Form 1099-A in output.</Description>
+      <Derived>
+        <Dependency path="/has1099A" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

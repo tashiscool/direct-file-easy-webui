@@ -1,0 +1,361 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- FinCEN Form 114: Report of Foreign Bank and Financial Accounts (FBAR) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FILING REQUIREMENTS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignFinancialAccounts">
+      <Name>Has Foreign Financial Accounts</Name>
+      <Description>Whether taxpayer has foreign financial accounts.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fbarReportingThreshold">
+      <Name>FBAR Reporting Threshold</Name>
+      <Description>Aggregate value threshold for FBAR filing ($10,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxAggregateForeignAccountValue">
+      <Name>Maximum Aggregate Foreign Account Value</Name>
+      <Description>Maximum aggregate value of all foreign accounts at any time.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mustFileFBAR">
+      <Name>Must File FBAR</Name>
+      <Description>Whether FBAR filing is required.</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/hasForeignFinancialAccounts" />
+          <GreaterThan>
+            <Left><Dependency path="/maxAggregateForeignAccountValue" /></Left>
+            <Right><Dependency path="/fbarReportingThreshold" /></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: FILER INFORMATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/fbarFilerType">
+      <Name>FBAR Filer Type</Name>
+      <Description>Type of FBAR filer.</Description>
+      <Writable>
+        <Enum>
+          <Option value="INDIVIDUAL">Individual</Option>
+          <Option value="PARTNERSHIP">Partnership</Option>
+          <Option value="CORPORATION">Corporation</Option>
+          <Option value="CONSOLIDATED">Consolidated</Option>
+          <Option value="FIDUCIARY">Fiduciary</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isUSPerson">
+      <Name>Is US Person</Name>
+      <Description>Whether filer is a US person.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: FOREIGN BANK ACCOUNTS              -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfForeignBankAccounts">
+      <Name>Number of Foreign Bank Accounts</Name>
+      <Description>Total number of foreign bank accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignBankAccountsMaxValue">
+      <Name>Foreign Bank Accounts - Max Value</Name>
+      <Description>Maximum value of all foreign bank accounts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignBankAccountCountry">
+      <Name>Foreign Bank Account Country</Name>
+      <Description>Primary country of foreign bank accounts.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: FOREIGN SECURITIES ACCOUNTS       -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfForeignSecuritiesAccounts">
+      <Name>Number of Foreign Securities Accounts</Name>
+      <Description>Total number of foreign securities accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignSecuritiesAccountsMaxValue">
+      <Name>Foreign Securities Accounts - Max Value</Name>
+      <Description>Maximum value of all foreign securities accounts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: OTHER FOREIGN FINANCIAL ACCOUNTS   -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfOtherForeignAccounts">
+      <Name>Number of Other Foreign Accounts</Name>
+      <Description>Number of other foreign financial accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherForeignAccountsMaxValue">
+      <Name>Other Foreign Accounts - Max Value</Name>
+      <Description>Maximum value of other foreign accounts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignMutualFunds">
+      <Name>Has Foreign Mutual Funds</Name>
+      <Description>Whether taxpayer owns foreign mutual funds.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignPensionAccounts">
+      <Name>Has Foreign Pension Accounts</Name>
+      <Description>Whether taxpayer has foreign pension/retirement accounts.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignLifeInsurance">
+      <Name>Has Foreign Life Insurance</Name>
+      <Description>Whether taxpayer has foreign life insurance with cash value.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ACCOUNT OWNERSHIP TYPE                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSignatureAuthority">
+      <Name>Has Signature Authority</Name>
+      <Description>Whether filer has signature authority over accounts.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfAccountsWithSignAuth">
+      <Name>Accounts With Signature Authority</Name>
+      <Description>Number of accounts with signature authority only.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasJointOwnership">
+      <Name>Has Joint Ownership</Name>
+      <Description>Whether any accounts are jointly owned.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfJointlyOwnedAccounts">
+      <Name>Number of Jointly Owned Accounts</Name>
+      <Description>Number of jointly owned accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUMMARY                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalForeignAccounts">
+      <Name>Total Foreign Accounts</Name>
+      <Description>Total number of foreign financial accounts.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/numberOfForeignBankAccounts" />
+            <Dependency path="/numberOfForeignSecuritiesAccounts" />
+          </Add>
+          <Dependency path="/numberOfOtherForeignAccounts" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalMaxValueAllForeignAccounts">
+      <Name>Total Max Value - All Foreign Accounts</Name>
+      <Description>Total maximum value of all foreign accounts.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/foreignBankAccountsMaxValue" />
+            <Dependency path="/foreignSecuritiesAccountsMaxValue" />
+          </Add>
+          <Dependency path="/otherForeignAccountsMaxValue" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PENALTIES                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/fbarNonWillfulPenalty">
+      <Name>FBAR Non-Willful Penalty</Name>
+      <Description>Maximum non-willful penalty ($12,500 per account).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>12500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fbarWillfulPenaltyRate">
+      <Name>FBAR Willful Penalty Rate</Name>
+      <Description>Willful penalty (greater of $100,000 or 50% of account balance).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/potentialNonWillfulPenalty">
+      <Name>Potential Non-Willful Penalty</Name>
+      <Description>Potential penalty for non-willful violation.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalForeignAccounts" />
+          <Dependency path="/fbarNonWillfulPenalty" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/potentialWillfulPenalty">
+      <Name>Potential Willful Penalty</Name>
+      <Description>Potential penalty for willful violation.</Description>
+      <Derived>
+        <Max>
+          <Dollar>100000</Dollar>
+          <Multiply>
+            <Dependency path="/totalMaxValueAllForeignAccounts" />
+            <Dependency path="/fbarWillfulPenaltyRate" />
+          </Multiply>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEADLINE                                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/fbarDeadline">
+      <Name>FBAR Deadline</Name>
+      <Description>FBAR filing deadline (April 15, with automatic extension to October 15).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <String>April 15, 2026 (auto-extended to October 15, 2026)</String>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/fbarIsDone">
+      <Name>FBAR Is Done</Name>
+      <Description>Whether FBAR information is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/mustFileFBAR" /></Not>
+          <All>
+            <Dependency path="/mustFileFBAR" />
+            <IsComplete><Dependency path="/totalMaxValueAllForeignAccounts" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeFBAR">
+      <Name>Include FBAR in PDF</Name>
+      <Description>Whether FBAR filing is required (filed separately with FinCEN).</Description>
+      <Derived>
+        <Dependency path="/mustFileFBAR" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

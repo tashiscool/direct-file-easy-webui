@@ -1,0 +1,99 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8941: Credit for Small Employer Health Insurance Premiums -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8941">
+      <Name>Has Form 8941</Name>
+      <Description>Whether taxpayer claims small employer health insurance credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberFTEs8941">
+      <Name>Number of FTEs</Name>
+      <Description>Number of full-time equivalent employees.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>25</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/averageAnnualWages8941">
+      <Name>Average Annual Wages</Name>
+      <Description>Average annual wages per FTE.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/premiumsPaid8941">
+      <Name>Premiums Paid</Name>
+      <Description>Total premiums paid for employee health insurance.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRate8941">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (50% for eligible small employers).</Description>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/smallEmployerHealthCredit">
+      <Name>Small Employer Health Insurance Credit</Name>
+      <Description>Credit for small employer health insurance premiums.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/premiumsPaid8941" />
+          <Dependency path="/creditRate8941" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941IsDone">
+      <Name>Form 8941 Is Done</Name>
+      <Description>Whether Form 8941 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8941" /></Not>
+          <All>
+            <Dependency path="/hasForm8941" />
+            <IsComplete><Dependency path="/smallEmployerHealthCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8941">
+      <Name>Include Form 8941 in PDF</Name>
+      <Description>Whether to include Form 8941.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/smallEmployerHealthCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

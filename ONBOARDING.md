@@ -1,37 +1,42 @@
-# Prism - AI-Powered Tax Assistance Platform
+# Direct File Easy WebUI - Onboarding Guide
 
 ## Project Overview
-Prism is an open-source platform that helps users understand and optimize their taxes. It combines AI-powered document analysis with IRS tax code integration to provide accurate and up-to-date tax assistance.
+
+This project is a tax filing platform built on top of the IRS Direct File open-source codebase. It provides a user-friendly interface for preparing and filing federal tax returns, with AI-powered assistance for document analysis and tax optimization.
+
+**Current Tax Year:** 2025
 
 ## Prerequisites
+
 - Node.js 18+
 - Python 3.8+
+- Java 17+ (for Scala/JVM backend)
+- sbt (Scala Build Tool)
 - PostgreSQL 15+
 - Redis 7+
 - Git
 - OpenAI API key (for AI features)
-- IRS API access (for tax code integration)
 
-## Installation
+## Quick Start
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/prism.git
-cd prism
+git clone https://github.com/yourusername/direct-file-easy-webui.git
+cd direct-file-easy-webui
 ```
 
 ### 2. Install Dependencies
 
-#### Frontend
+#### Frontend (df-client)
 ```bash
-cd frontend
+cd direct-file/df-client/df-client-app
 npm install
 ```
 
-#### Backend
+#### Backend (Scala Fact Graph)
 ```bash
-cd backend
-npm install
+cd direct-file/fact-graph-scala
+sbt compile
 ```
 
 #### AI Service
@@ -42,298 +47,270 @@ pip install -r requirements.txt
 
 ### 3. Environment Setup
 
-#### Frontend (.env)
-```
-VITE_API_URL=http://localhost:3000
-VITE_WS_URL=ws://localhost:3000
-```
-
-#### Backend (.env)
-```
-PORT=3000
-DATABASE_URL=postgresql://user:password@localhost:5432/prism
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=your_jwt_secret
-OPENAI_API_KEY=your_openai_api_key
-IRS_API_KEY=your_irs_api_key
-```
-
-#### AI Service (.env)
-```
-OPENAI_API_KEY=your_openai_api_key
-IRS_API_KEY=your_irs_api_key
-MODEL_PATH=./models
-CACHE_DIR=./cache
-```
-
-### 4. Database Setup
+Copy the example environment files and configure:
 ```bash
-cd backend
-npm run migrate
+cp .env.example .env
 ```
 
-### 5. IRS Data Setup
-```bash
-cd ai_service
-python scripts/setup_irs_data.py
-```
-
-## Development Workflow
-
-### 1. Start Development Servers
-
-#### Frontend
-```bash
-cd frontend
-npm run dev
-```
-
-#### Backend
-```bash
-cd backend
-npm run dev
-```
-
-#### AI Service
-```bash
-cd ai_service
-python app.py
-```
-
-### 2. Running Tests
-```bash
-# Frontend tests
-cd frontend
-npm test
-
-# Backend tests
-cd backend
-npm test
-
-# AI service tests
-cd ai_service
-pytest
-
-# IRS data tests
-cd ai_service
-pytest tests/test_irs_integration.py
-```
-
-### 3. Code Quality
-```bash
-# Frontend
-cd frontend
-npm run lint
-npm run format
-
-# Backend
-cd backend
-npm run lint
-npm run format
+Required environment variables:
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/directfile
 
 # AI Service
+OPENAI_API_KEY=your_openai_api_key
+
+# Tax Year
+TAX_YEAR=2025
+```
+
+### 4. Run Development Servers
+
+```bash
+# Terminal 1: Frontend
+cd direct-file/df-client/df-client-app
+npm run dev
+
+# Terminal 2: Backend
+cd direct-file/backend
+./gradlew bootRun
+
+# Terminal 3: AI Service
 cd ai_service
-flake8
-black .
+python main.py
 ```
 
 ## Project Structure
+
 ```
-prism/
-├── frontend/           # React frontend
-├── backend/           # Node.js backend
-├── ai_service/        # Python AI service
-│   ├── models/        # ML models
-│   ├── utils/         # Utility functions
-│   │   ├── tax_code_service.py
-│   │   └── irs_publication_service.py
-│   └── cache/         # IRS data cache
-└── docs/             # Documentation
-```
-
-## API Documentation
-
-### Frontend API
-- `POST /api/documents/upload` - Upload tax documents
-- `GET /api/documents/:id` - Get document details
-- `GET /api/analysis/:id` - Get analysis results
-- `GET /api/tax-code/:section` - Get tax code section
-- `GET /api/publications/:id` - Get IRS publication
-
-### Backend API
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `GET /api/user/profile` - Get user profile
-- `PUT /api/user/settings` - Update user settings
-- `GET /api/subscription/plans` - Get subscription plans
-
-### AI Service API
-- `POST /api/ai/analyze` - Analyze document
-- `POST /api/ai/suggest` - Get tax suggestions
-- `POST /api/ai/explain` - Explain tax concepts
-- `GET /api/ai/tax-code` - Get tax code data
-- `GET /api/ai/publications` - Get IRS publications
-
-## IRS Data Integration
-
-### Tax Code Service
-```python
-from utils.tax_code_service import TaxCodeService
-
-# Initialize service
-tax_service = TaxCodeService()
-
-# Fetch specific section
-section = tax_service.get_section("26 USC 1")
-
-# Search tax code
-results = tax_service.search("capital gains")
-
-# Get updates
-updates = tax_service.get_updates_since("2023-01-01")
+direct-file-easy-webui/
+├── ai_service/                    # Python AI service
+│   ├── models/                    # AI/ML models
+│   ├── retrieval/                 # RAG retrieval system
+│   ├── routes/                    # API endpoints
+│   ├── services/                  # Business logic
+│   └── utils/                     # Utilities (IRS data integration)
+│
+├── direct-file/                   # IRS Direct File core
+│   ├── backend/                   # Java/Spring backend
+│   │   └── src/main/resources/tax/  # Fact Dictionary XMLs
+│   │       ├── constants.xml         # Tax year constants
+│   │       ├── standardDeduction.xml # Standard deduction rules
+│   │       ├── taxCalculations.xml   # Tax bracket calculations
+│   │       ├── eitc.xml              # EITC calculations
+│   │       ├── ctcOdc.xml            # CTC/ODC calculations
+│   │       ├── schedule1A.xml        # OBBBA 2025 deductions
+│   │       └── ...                   # Other fact modules
+│   │
+│   ├── df-client/                 # React frontend
+│   │   └── df-client-app/
+│   │       ├── src/flow/          # Tax filing wizard flow
+│   │       │   ├── flow.tsx       # Main flow configuration
+│   │       │   └── flow-chunks/   # Flow subcategories
+│   │       └── src/locales/       # Translations (en.yaml)
+│   │
+│   ├── fact-graph-scala/          # Scala fact graph engine
+│   └── state-api/                 # State tax API integration
+│
+├── docs/                          # Documentation
+│   ├── adr/                       # Architecture Decision Records
+│   ├── design/                    # Design documentation
+│   ├── engineering/               # Engineering docs
+│   └── testing/                   # Testing documentation
+│
+├── PROJECT_PLAN.md               # Project plan & 2025 status
+├── ONBOARDING.md                 # This file
+└── README.md                     # Project overview
 ```
 
-### Publication Service
-```python
-from utils.irs_publication_service import IRSPublicationService
+## Tax Year 2025 Implementation
 
-# Initialize service
-pub_service = IRSPublicationService()
+### What's Implemented
 
-# Fetch publication
-pub = pub_service.fetch_publication("17")
+#### OBBBA 2025 (One Big Beautiful Bill Act)
+New above-the-line deductions on Schedule 1-A:
+- **Overtime Income Exemption**: $12,500/$25,000 cap
+- **Tip Income Exemption**: $25,000 cap
+- **Auto Loan Interest Deduction**: $10,000 cap (US-made vehicles)
+- **Senior Bonus Deduction**: $6,000 per senior (65+)
 
-# Search publications
-results = pub_service.search("business expenses")
+#### Core Tax Provisions
+- Standard Deduction: $15,750 (Single), $31,500 (MFJ), $23,625 (HOH)
+- Child Tax Credit: $2,200 per child
+- EITC: Full 2025 thresholds implemented
+- HSA Limits: $4,300 (self), $8,550 (family)
+- All 2025 tax brackets
 
-# Get related publications
-related = pub_service.get_related_publications("17")
+### Completed Phases
+| Phase | Features | Status |
+|-------|----------|--------|
+| Phase 5 | Schedule A (SALT), Schedule B/D (investments), Education Credits, Clean Vehicle, Adoption | ✅ Complete |
+| Phase 6 | Schedule C (self-employment), Schedule E (rental), QBI, Home Energy Credits | ✅ Complete |
+| Phase 7 | Foreign Tax Credit, K-1 Processing, AMT | ✅ Complete |
+
+See [PROJECT_PLAN.md](./PROJECT_PLAN.md) for the complete implementation details.
+
+## Key Files for Tax Logic
+
+### Fact Dictionary Modules
+Location: `direct-file/backend/src/main/resources/tax/`
+
+#### Core Tax Calculations
+| File | Purpose |
+|------|---------|
+| `constants.xml` | Tax year and universal constants |
+| `standardDeduction.xml` | Standard deduction amounts by filing status |
+| `taxCalculations.xml` | Tax bracket calculations, AGI, MAGI |
+| `eitc.xml` | Earned Income Tax Credit logic |
+| `ctcOdc.xml` | Child Tax Credit / Other Dependent Credit |
+| `schedule1A.xml` | **OBBBA 2025 additional deductions** |
+| `studentLoanAdjustment.xml` | Student loan interest deduction |
+| `educatorAdjustment.xml` | Educator expense adjustment |
+| `hsa.xml` | Health Savings Account logic |
+| `saversCredits.xml` | Retirement savings credit |
+
+#### Phase 5 - Investment & Credits
+| File | Purpose |
+|------|---------|
+| `scheduleA.xml` | Itemized deductions (SALT, mortgage, charitable) |
+| `scheduleB.xml` | Interest and dividend income |
+| `scheduleD.xml` | Capital gains and losses |
+| `educationCredits.xml` | AOTC and Lifetime Learning Credit |
+| `cleanVehicleCredit.xml` | New and used EV credits |
+| `adoptionCredit.xml` | Qualified adoption expenses |
+
+#### Phase 6 - Business Income
+| File | Purpose |
+|------|---------|
+| `scheduleC.xml` | Self-employment income and expenses |
+| `scheduleE.xml` | Rental income and passive activity |
+| `qbiDeduction.xml` | Qualified Business Income deduction |
+| `homeEnergyCredits.xml` | Residential energy credits |
+
+#### Phase 7 - Advanced Provisions
+| File | Purpose |
+|------|---------|
+| `foreignTaxCredit.xml` | Foreign tax credit (Form 1116) |
+| `scheduleK1.xml` | K-1 pass-through income processing |
+| `amt.xml` | Alternative Minimum Tax (Form 6251) |
+
+#### Entity Type Support
+| File | Purpose |
+|------|---------|
+| `form1120.xml` | C-Corporation income tax (21% flat rate) |
+| `form1120S.xml` | S-Corporation pass-through (built-in gains, LIFO recapture) |
+| `form1065.xml` | Partnership income (guaranteed payments, K-1 allocations) |
+| `form1041.xml` | Estate/Trust fiduciary income (DNI, compressed brackets) |
+| `form990.xml` | Non-profit reporting (UBIT, public support test) |
+
+### Frontend Flow
+Location: `direct-file/df-client/df-client-app/src/flow/`
+
+| File | Purpose |
+|------|---------|
+| `flow.tsx` | Main flow configuration |
+| `flow-chunks/income/OBBBAIncomeSubcategory.tsx` | OBBBA deductions UI |
+| `flow-chunks/credits-and-deductions/` | Credits and deductions screens |
+
+### Localization
+Location: `direct-file/df-client/df-client-app/src/locales/en.yaml`
+
+Contains all user-facing text, help content, and data item labels.
+
+## Understanding the Fact Graph
+
+The Fact Graph is a declarative XML-based system for tax calculations:
+
+```xml
+<Fact path="/standardDeductionSingle">
+  <Name>Standard deduction for Single filers</Name>
+  <TaxYear>2025</TaxYear>
+  <Derived>
+    <Dollar>15750</Dollar>
+  </Derived>
+</Fact>
 ```
 
-## Troubleshooting
+Key concepts:
+- **Writable Facts**: User-entered data (e.g., income amounts)
+- **Derived Facts**: Calculated values based on other facts
+- **Dependencies**: Facts can reference other facts via `<Dependency>`
+- **Conditions**: Logic using `<All>`, `<Any>`, `<Not>`, `<Switch>`
 
-### Common Issues
+For more details, see `docs/engineering/Tax-Logic.md`.
 
-1. **Database Connection**
-   - Check PostgreSQL is running
-   - Verify connection string
-   - Check user permissions
+## Running Tests
 
-2. **AI Service Issues**
-   - Verify API keys
-   - Check model files
-   - Monitor memory usage
+```bash
+# Backend tests
+cd direct-file/backend
+./gradlew test
 
-3. **IRS Data Issues**
-   - Check API key validity
-   - Verify cache directory
-   - Monitor update status
+# Frontend tests
+cd direct-file/df-client/df-client-app
+npm test
 
-4. **Frontend Issues**
-   - Clear browser cache
-   - Check API endpoints
-   - Verify environment variables
+# Fact Graph tests
+cd direct-file/fact-graph-scala
+sbt test
 
-### Debugging Tools
+# AI Service tests
+cd ai_service
+pytest
+```
 
-1. **Backend**
-   - Node.js debugger
-   - PostgreSQL logs
-   - Redis monitor
+## Common Tasks
 
-2. **AI Service**
-   - Python debugger
-   - Model logs
-   - IRS data logs
+### Adding a New Deduction/Credit
 
-3. **Frontend**
-   - React DevTools
-   - Network tab
-   - Console logs
+1. Add facts to appropriate XML file in `backend/src/main/resources/tax/`
+2. Create flow subcategory in `df-client-app/src/flow/flow-chunks/`
+3. Add import and integration in `flow.tsx`
+4. Add localization strings in `en.yaml`
+5. Update completion conditions in `flow.xml`
+
+### Updating Tax Year Values
+
+1. Search for `<TaxYear>` tags in XML files
+2. Update dollar amounts and thresholds
+3. Run tests to verify calculations
+4. Update documentation
+
+### Testing Tax Scenarios
+
+See `direct-file/backend/src/test/resources/scenarios/` for example test cases.
+
+## Debugging
+
+### Fact Graph Issues
+- Check XML syntax and fact path references
+- Verify dependency paths exist
+- Look for circular dependencies
+- Check completion conditions in `flow.xml`
+
+### Frontend Flow Issues
+- Verify i18nKey paths match en.yaml
+- Check condition/path references match backend facts
+- Ensure data items have localization entries
+
+### Common Errors
+- "Fact not found": Check path spelling and module reference
+- "Incomplete fact": Check writable facts have been set
+- "Circular dependency": Review fact dependency chain
+
+## Getting Help
+
+- Check `docs/` directory for detailed documentation
+- Review ADRs in `docs/adr/` for design decisions
+- See `docs/engineering/` for technical guides
+- File issues on GitHub for bugs/features
 
 ## Contributing
 
-### Code Style
-- Follow ESLint rules
-- Use Prettier formatting
-- Write unit tests
-- Document changes
+1. Create a feature branch from `main`
+2. Make changes following existing patterns
+3. Add tests for new functionality
+4. Update documentation as needed
+5. Submit PR for review
 
-### Git Workflow
-1. Create feature branch
-2. Make changes
-3. Run tests
-4. Submit PR
-5. Code review
-6. Merge to main
-
-### Documentation
-- Update README
-- Document API changes
-- Add code comments
-- Update IRS data docs
-
-## Security
-
-### Best Practices
-- Use environment variables
-- Encrypt sensitive data
-- Validate user input
-- Follow IRS guidelines
-
-### API Security
-- Rate limiting
-- Input validation
-- Error handling
-- Token management
-
-### Data Security
-- Encryption at rest
-- Secure transmission
-- Regular backups
-- Access control
-
-## Performance
-
-### Optimization
-- Cache IRS data
-- Optimize queries
-- Use indexes
-- Monitor memory
-
-### Monitoring
-- Track API usage
-- Monitor errors
-- Check performance
-- Watch IRS updates
-
-## Deployment
-
-### Production Setup
-1. Configure servers
-2. Set up databases
-3. Deploy services
-4. Configure SSL
-5. Set up monitoring
-
-### CI/CD
-- GitHub Actions
-- Automated tests
-- Deployment checks
-- IRS data updates
-
-## Support
-
-### Getting Help
-- Check documentation
-- Search issues
-- Join community
-- Contact support
-
-### Maintenance
-- Regular updates
-- Security patches
-- IRS data sync
-- Performance tuning
-
-
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.

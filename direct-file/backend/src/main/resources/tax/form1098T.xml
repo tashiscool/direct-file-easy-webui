@@ -1,0 +1,85 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1098-T: Tuition Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1098T">
+      <Name>Has Form 1098-T</Name>
+      <Description>Whether taxpayer received Form 1098-T.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/institutionName1098T">
+      <Name>Institution Name</Name>
+      <Description>Name of educational institution.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/paymentsReceived1098T">
+      <Name>Payments Received</Name>
+      <Description>Payments received for qualified tuition (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scholarshipsGrants1098T">
+      <Name>Scholarships and Grants</Name>
+      <Description>Scholarships or grants (Box 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isHalfTimeStudent1098T">
+      <Name>Is Half-Time Student</Name>
+      <Description>Whether student was at least half-time (Box 8).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netTuitionPaid1098T">
+      <Name>Net Tuition Paid</Name>
+      <Description>Net qualified tuition paid.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/paymentsReceived1098T" />
+            <Dependency path="/scholarshipsGrants1098T" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098TIsDone">
+      <Name>Form 1098-T Is Done</Name>
+      <Description>Whether Form 1098-T is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1098T" /></Not>
+          <All>
+            <Dependency path="/hasForm1098T" />
+            <IsComplete><Dependency path="/paymentsReceived1098T" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

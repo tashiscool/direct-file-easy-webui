@@ -1,0 +1,117 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 720: Quarterly Federal Excise Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm720">
+      <Name>Has Form 720</Name>
+      <Description>Whether taxpayer has excise tax obligations.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Part I: Environmental Taxes -->
+    <Fact path="/exciseOzoneDepletingChemicals">
+      <Name>Ozone-Depleting Chemicals Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/excisePetroleumOilSpill">
+      <Name>Petroleum Oil Spill Liability Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part II: Communications and Air Transportation Taxes -->
+    <Fact path="/exciseCommunicationsTax">
+      <Name>Communications Services Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseAirTransportationPersons">
+      <Name>Air Transportation - Persons Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseAirTransportationProperty">
+      <Name>Air Transportation - Property Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseInternationalDeparture">
+      <Name>International Departure Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part III: Fuel Taxes -->
+    <Fact path="/exciseGasolineTax">
+      <Name>Gasoline Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseDieselFuelTax">
+      <Name>Diesel Fuel Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseAviationFuelTax">
+      <Name>Aviation Fuel Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseKeroseneTax">
+      <Name>Kerosene Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part IV: Manufacturers Taxes -->
+    <Fact path="/exciseCoalTax">
+      <Name>Coal Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseTiresTax">
+      <Name>Tires Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/exciseVaccinesTax">
+      <Name>Vaccines Excise Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part V: Ship Passenger Tax -->
+    <Fact path="/exciseShipPassengerTax">
+      <Name>Ship Passenger Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part VI: Indoor Tanning Tax -->
+    <Fact path="/exciseIndoorTanningTax">
+      <Name>Indoor Tanning Services Tax</Name>
+      <Description>10% tax on indoor tanning services.</Description>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Part VII: Foreign Insurance Policies -->
+    <Fact path="/exciseForeignInsuranceTax">
+      <Name>Foreign Insurance Policies Tax</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Total Excise Tax Calculation -->
+    <Fact path="/totalExciseTax">
+      <Name>Total Excise Tax</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Sum>
+          <Dependency path="/exciseOzoneDepletingChemicals" />
+          <Dependency path="/excisePetroleumOilSpill" />
+          <Dependency path="/exciseCommunicationsTax" />
+          <Dependency path="/exciseAirTransportationPersons" />
+          <Dependency path="/exciseAirTransportationProperty" />
+          <Dependency path="/exciseInternationalDeparture" />
+          <Dependency path="/exciseGasolineTax" />
+          <Dependency path="/exciseDieselFuelTax" />
+          <Dependency path="/exciseAviationFuelTax" />
+          <Dependency path="/exciseKeroseneTax" />
+          <Dependency path="/exciseCoalTax" />
+          <Dependency path="/exciseTiresTax" />
+          <Dependency path="/exciseVaccinesTax" />
+          <Dependency path="/exciseShipPassengerTax" />
+          <Dependency path="/exciseIndoorTanningTax" />
+          <Dependency path="/exciseForeignInsuranceTax" />
+        </Sum>
+      </Derived>
+    </Fact>
+    <Fact path="/form720IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm720" /></Not>
+          <IsComplete><Dependency path="/totalExciseTax" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

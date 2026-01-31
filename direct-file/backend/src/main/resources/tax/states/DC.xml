@@ -1,0 +1,170 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- District of Columbia Form D-40: Individual Income Tax Return -->
+<!-- DC has progressive rates from 4% to 10.75% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasDCD40">
+      <Name>Has DC D-40</Name>
+      <Description>Whether taxpayer files DC Form D-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>DC</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- DC Standard Deduction -->
+    <Fact path="/dcStdDeductionSingle">
+      <Name>DC Standard Deduction Single</Name>
+      <Description>DC standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dcStdDeductionMFJ">
+      <Name>DC Standard Deduction MFJ</Name>
+      <Description>DC standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dcStandardDeduction">
+      <Name>DC Standard Deduction</Name>
+      <Description>DC standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/dcStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/dcStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- DC Taxable Income -->
+    <Fact path="/dcTaxableIncome">
+      <Name>DC Taxable Income</Name>
+      <Description>DC taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/dcStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- DC Income Tax (progressive) -->
+    <Fact path="/dcIncomeTax">
+      <Name>DC Income Tax</Name>
+      <Description>DC income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/dcTaxableIncome" /></Left>
+                <Right><Dollar>10000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/dcTaxableIncome" />
+                <Decimal>0.04</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/dcTaxableIncome" /></Left>
+                <Right><Dollar>40000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>400</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/dcTaxableIncome" />
+                    <Dollar>10000</Dollar>
+                  </Subtract>
+                  <Decimal>0.06</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/dcTaxableIncome" /></Left>
+                <Right><Dollar>60000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>2200</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/dcTaxableIncome" />
+                    <Dollar>40000</Dollar>
+                  </Subtract>
+                  <Decimal>0.065</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>3500</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/dcTaxableIncome" />
+                  <Dollar>60000</Dollar>
+                </Subtract>
+                <Decimal>0.085</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dcd40IsDone">
+      <Name>DC D-40 Is Done</Name>
+      <Description>Whether DC D-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDCD40" /></Not>
+          <All>
+            <Dependency path="/hasDCD40" />
+            <IsComplete><Dependency path="/dcIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeDCD40">
+      <Name>Include DC D-40 in PDF</Name>
+      <Description>Whether to include DC D-40.</Description>
+      <Derived>
+        <Dependency path="/hasDCD40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

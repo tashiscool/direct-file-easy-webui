@@ -1,0 +1,145 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8919: Uncollected Social Security and Medicare Tax on Wages -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8919">
+      <Name>Has Form 8919</Name>
+      <Description>Whether taxpayer has uncollected SS/Medicare tax.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/firmName8919">
+      <Name>Firm Name</Name>
+      <Description>Name of firm that should have withheld.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/firmEIN8919">
+      <Name>Firm EIN</Name>
+      <Description>Firm's EIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reasonCode8919">
+      <Name>Reason Code</Name>
+      <Description>Reason code for filing Form 8919.</Description>
+      <Writable>
+        <Enum>
+          <Option>A</Option>
+          <Option>C</Option>
+          <Option>G</Option>
+          <Option>H</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesTreatedAsEmployee">
+      <Name>Wages Treated as Employee Wages</Name>
+      <Description>Wages from firm (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ssWageBase8919">
+      <Name>SS Wage Base</Name>
+      <Description>Social Security wage base ($176,100 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>176100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ssEmployeeTaxRate8919">
+      <Name>SS Employee Tax Rate</Name>
+      <Description>Social Security employee tax rate (6.2%).</Description>
+      <Derived>
+        <Decimal>0.062</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ssTaxOwed8919">
+      <Name>SS Tax Owed</Name>
+      <Description>Social Security tax owed (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/wagesTreatedAsEmployee" />
+            <Dependency path="/ssWageBase8919" />
+          </Min>
+          <Dependency path="/ssEmployeeTaxRate8919" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicareEmployeeTaxRate8919">
+      <Name>Medicare Employee Tax Rate</Name>
+      <Description>Medicare employee tax rate (1.45%).</Description>
+      <Derived>
+        <Decimal>0.0145</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicareTaxOwed8919">
+      <Name>Medicare Tax Owed</Name>
+      <Description>Medicare tax owed (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesTreatedAsEmployee" />
+          <Dependency path="/medicareEmployeeTaxRate8919" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalUncollectedTax8919">
+      <Name>Total Uncollected SS/Medicare Tax</Name>
+      <Description>Total uncollected taxes (Line 10).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/ssTaxOwed8919" />
+          <Dependency path="/medicareTaxOwed8919" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919IsDone">
+      <Name>Form 8919 Is Done</Name>
+      <Description>Whether Form 8919 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8919" /></Not>
+          <All>
+            <Dependency path="/hasForm8919" />
+            <IsComplete><Dependency path="/totalUncollectedTax8919" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8919">
+      <Name>Include Form 8919 in PDF</Name>
+      <Description>Whether to include Form 8919.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalUncollectedTax8919" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

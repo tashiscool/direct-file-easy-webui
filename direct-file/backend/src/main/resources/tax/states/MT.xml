@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Montana Form 2: Individual Income Tax Return -->
+<!-- Montana has a flat 5.9% rate (as of 2024) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMT2">
+      <Name>Has MT Form 2</Name>
+      <Description>Whether taxpayer files Montana Form 2.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MT</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MT Tax Rate (flat) -->
+    <Fact path="/mtTaxRate">
+      <Name>Montana Tax Rate</Name>
+      <Description>Montana flat income tax rate (5.9%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.059</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- MT Standard Deduction -->
+    <Fact path="/mtStdDeductionSingle">
+      <Name>MT Standard Deduction Single</Name>
+      <Description>Montana standard deduction for single ($5,540).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5540</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mtStdDeductionMFJ">
+      <Name>MT Standard Deduction MFJ</Name>
+      <Description>Montana standard deduction for MFJ ($11,080).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>11080</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mtStandardDeduction">
+      <Name>MT Standard Deduction</Name>
+      <Description>Montana standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/mtStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/mtStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MT Taxable Income -->
+    <Fact path="/mtTaxableIncome">
+      <Name>MT Taxable Income</Name>
+      <Description>Montana taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/mtStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MT Income Tax -->
+    <Fact path="/mtIncomeTax">
+      <Name>MT Income Tax</Name>
+      <Description>Montana income tax (flat 5.9%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/mtTaxableIncome" />
+          <Dependency path="/mtTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mt2IsDone">
+      <Name>MT Form 2 Is Done</Name>
+      <Description>Whether MT Form 2 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMT2" /></Not>
+          <All>
+            <Dependency path="/hasMT2" />
+            <IsComplete><Dependency path="/mtIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMT2">
+      <Name>Include MT Form 2 in PDF</Name>
+      <Description>Whether to include MT Form 2.</Description>
+      <Derived>
+        <Dependency path="/hasMT2" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

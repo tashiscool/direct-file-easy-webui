@@ -1,0 +1,33 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tennessee: No State Income Tax -->
+<!-- Note: TN Hall tax on interest/dividends was repealed effective 2021 -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasTNReturn">
+      <Name>Has TN Return</Name>
+      <Description>Tennessee has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tnNoIncomeTax">
+      <Name>TN No Income Tax</Name>
+      <Description>Tennessee does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>TN</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tnFilingRequired">
+      <Name>TN Filing Required</Name>
+      <Description>No state filing required for Tennessee residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

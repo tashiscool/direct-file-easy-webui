@@ -1,0 +1,163 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year Selector: Allows switching between supported tax years -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Supported Tax Years -->
+    <Fact path="/supportedTaxYears">
+      <Name>Supported Tax Years</Name>
+      <Description>List of supported tax years for filing.</Description>
+      <Derived>
+        <EnumOptions>
+          <String>2025</String>
+          <String>2024</String>
+          <String>2023</String>
+          <String>2022</String>
+          <String>2021</String>
+          <String>2020</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <!-- Selected Tax Year -->
+    <Fact path="/selectedTaxYear">
+      <Name>Selected Tax Year</Name>
+      <Description>The tax year selected by the user for filing.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Enum>
+          <Option>2025</Option>
+          <Option>2024</Option>
+          <Option>2023</Option>
+          <Option>2022</Option>
+          <Option>2021</Option>
+          <Option>2020</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Current Filing Tax Year -->
+    <Fact path="/currentFilingYear">
+      <Name>Current Filing Year</Name>
+      <Description>The current year for which taxes are being filed (default 2025).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/selectedTaxYear" /></IsComplete></When>
+            <Then><Dependency path="/selectedTaxYear" /></Then>
+          </Case>
+          <Default><String>2025</String></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2025 -->
+    <Fact path="/isTaxYear2025">
+      <Name>Is Tax Year 2025</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2025</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2024 -->
+    <Fact path="/isTaxYear2024">
+      <Name>Is Tax Year 2024</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2024</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2023 -->
+    <Fact path="/isTaxYear2023">
+      <Name>Is Tax Year 2023</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2023</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2022 -->
+    <Fact path="/isTaxYear2022">
+      <Name>Is Tax Year 2022</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2022</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2021 -->
+    <Fact path="/isTaxYear2021">
+      <Name>Is Tax Year 2021</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2021</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Is Current Year 2020 -->
+    <Fact path="/isTaxYear2020">
+      <Name>Is Tax Year 2020</Name>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/currentFilingYear" /></Left>
+          <Right><String>2020</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- Tax Year Filing Deadline -->
+    <Fact path="/taxYearFilingDeadline">
+      <Name>Filing Deadline</Name>
+      <Description>Filing deadline for selected tax year.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/isTaxYear2025" /></When>
+            <Then><Day>2026-04-15</Day></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="/isTaxYear2024" /></When>
+            <Then><Day>2025-04-15</Day></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="/isTaxYear2023" /></When>
+            <Then><Day>2024-04-15</Day></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="/isTaxYear2022" /></When>
+            <Then><Day>2023-04-18</Day></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="/isTaxYear2021" /></When>
+            <Then><Day>2022-04-18</Day></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="/isTaxYear2020" /></When>
+            <Then><Day>2021-05-17</Day></Then>
+          </Case>
+          <Default><Day>2026-04-15</Day></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Is Prior Year Return -->
+    <Fact path="/isPriorYearReturn">
+      <Name>Is Prior Year Return</Name>
+      <Description>Whether filing a prior year return (not current year).</Description>
+      <Derived>
+        <Not><Dependency path="/isTaxYear2025" /></Not>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

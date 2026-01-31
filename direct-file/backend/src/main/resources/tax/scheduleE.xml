@@ -1,0 +1,697 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule E: Supplemental Income and Loss (Rental Real Estate, Royalties, etc.) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- RENTAL PROPERTY INFORMATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRentalIncome">
+      <Name>Has Rental Income</Name>
+      <Description>Whether the taxpayer has rental real estate income or loss.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalPropertyAddress">
+      <Name>Rental Property Address</Name>
+      <Description>Address of the rental property.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalPropertyType">
+      <Name>Rental Property Type</Name>
+      <Description>Type of rental property.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>singleFamily</EnumOption>
+          <EnumOption>multiFamily</EnumOption>
+          <EnumOption>vacation</EnumOption>
+          <EnumOption>commercial</EnumOption>
+          <EnumOption>land</EnumOption>
+          <EnumOption>selfRental</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalDaysRented">
+      <Name>Days Rented at Fair Rental</Name>
+      <Description>Number of days property was rented at fair rental value.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>365</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalDaysPersonalUse">
+      <Name>Days Personal Use</Name>
+      <Description>Number of days of personal use of the property.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>365</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/activeParticipation">
+      <Name>Active Participation</Name>
+      <Description>Whether taxpayer actively participated in rental activity.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/realEstateProfessional">
+      <Name>Real Estate Professional</Name>
+      <Description>Whether taxpayer qualifies as a real estate professional.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RENTAL INCOME                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/rentalIncomeReceived">
+      <Name>Rents Received</Name>
+      <Description>Total rental income received during the year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/royaltiesReceived">
+      <Name>Royalties Received</Name>
+      <Description>Royalty income received during the year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalRentalRoyaltyIncome">
+      <Name>Total Rental and Royalty Income</Name>
+      <Description>Combined rental and royalty income.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/rentalIncomeReceived" />
+          <Dependency path="/royaltiesReceived" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RENTAL EXPENSES                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/rentalAdvertising">
+      <Name>Advertising</Name>
+      <Description>Advertising expenses for rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalAutoTravel">
+      <Name>Auto and Travel</Name>
+      <Description>Auto and travel expenses related to rental.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalCleaningMaintenance">
+      <Name>Cleaning and Maintenance</Name>
+      <Description>Cleaning and maintenance expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalCommissions">
+      <Name>Commissions</Name>
+      <Description>Commissions paid to rental agents.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalInsurance">
+      <Name>Insurance</Name>
+      <Description>Insurance premiums for rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalLegalProfessional">
+      <Name>Legal and Professional Fees</Name>
+      <Description>Legal and other professional fees.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalManagementFees">
+      <Name>Management Fees</Name>
+      <Description>Property management fees.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalMortgageInterest">
+      <Name>Mortgage Interest</Name>
+      <Description>Mortgage interest paid on rental property.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalOtherInterest">
+      <Name>Other Interest</Name>
+      <Description>Other interest expenses for rental.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalRepairs">
+      <Name>Repairs</Name>
+      <Description>Repair expenses for rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalSupplies">
+      <Name>Supplies</Name>
+      <Description>Supplies used for rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalTaxes">
+      <Name>Taxes</Name>
+      <Description>Property taxes on rental property.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalUtilities">
+      <Name>Utilities</Name>
+      <Description>Utilities paid for rental property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalDepreciation">
+      <Name>Depreciation</Name>
+      <Description>Depreciation expense for rental property.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalOtherExpenses">
+      <Name>Other Expenses</Name>
+      <Description>Other deductible rental expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Total Rental Expenses -->
+    <Fact path="/totalRentalExpenses">
+      <Name>Total Rental Expenses</Name>
+      <Description>Sum of all rental property expenses.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Add>
+                                  <Dependency path="/rentalAdvertising" />
+                                  <Dependency path="/rentalAutoTravel" />
+                                </Add>
+                                <Dependency path="/rentalCleaningMaintenance" />
+                              </Add>
+                              <Dependency path="/rentalCommissions" />
+                            </Add>
+                            <Dependency path="/rentalInsurance" />
+                          </Add>
+                          <Dependency path="/rentalLegalProfessional" />
+                        </Add>
+                        <Dependency path="/rentalManagementFees" />
+                      </Add>
+                      <Dependency path="/rentalMortgageInterest" />
+                    </Add>
+                    <Dependency path="/rentalOtherInterest" />
+                  </Add>
+                  <Dependency path="/rentalRepairs" />
+                </Add>
+                <Dependency path="/rentalSupplies" />
+              </Add>
+              <Dependency path="/rentalTaxes" />
+            </Add>
+            <Dependency path="/rentalUtilities" />
+          </Add>
+          <Dependency path="/rentalDepreciation" />
+        </Add>
+        <Dependency path="/rentalOtherExpenses" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RENTAL INCOME/LOSS CALCULATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/rentalNetIncomeLoss">
+      <Name>Net Rental Income or Loss</Name>
+      <Description>Rental income minus expenses (before passive activity limits).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalRentalRoyaltyIncome" />
+          <Dependency path="/totalRentalExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rentalHasProfit">
+      <Name>Rental Has Profit</Name>
+      <Description>Whether rental activity has net income.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/rentalNetIncomeLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rentalHasLoss">
+      <Name>Rental Has Loss</Name>
+      <Description>Whether rental activity has net loss.</Description>
+      <Derived>
+        <LessThan>
+          <Left><Dependency path="/rentalNetIncomeLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PASSIVE ACTIVITY LOSS LIMITS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/passiveLossAllowanceThreshold">
+      <Name>Passive Loss Allowance Threshold</Name>
+      <Description>AGI threshold where $25,000 allowance begins to phase out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveLossMaxAllowance">
+      <Name>Maximum Passive Loss Allowance</Name>
+      <Description>Maximum rental loss allowance for active participants ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveLossPhaseoutRange">
+      <Name>Passive Loss Phase-out Range</Name>
+      <Description>Range over which $25,000 allowance phases out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveLossAllowanceMultiplier">
+      <Name>Passive Loss Allowance Multiplier</Name>
+      <Description>Multiplier for $25,000 allowance based on AGI.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Below threshold: full allowance -->
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency module="taxCalculations" path="/agi" /></Left>
+                <Right><Dependency path="/passiveLossAllowanceThreshold" /></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <!-- Above phase-out: no allowance -->
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency module="taxCalculations" path="/agi" /></Left>
+                <Right>
+                  <Add>
+                    <Dependency path="/passiveLossAllowanceThreshold" />
+                    <Dependency path="/passiveLossPhaseoutRange" />
+                  </Add>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <!-- In phase-out range: 50% of excess -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Decimal>1.0</Decimal>
+                <Divide>
+                  <Subtract>
+                    <Dependency module="taxCalculations" path="/agi" />
+                    <Dependency path="/passiveLossAllowanceThreshold" />
+                  </Subtract>
+                  <Dependency path="/passiveLossPhaseoutRange" />
+                </Divide>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveLossAllowance">
+      <Name>Passive Loss Allowance</Name>
+      <Description>Allowable passive activity loss for active participants.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/passiveLossMaxAllowance" />
+            <Dependency path="/passiveLossAllowanceMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIBLE RENTAL LOSS                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/deductibleRentalLoss">
+      <Name>Deductible Rental Loss</Name>
+      <Description>Amount of rental loss deductible this year.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Real estate professional: full loss deductible -->
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/rentalHasLoss" />
+                <Dependency path="/realEstateProfessional" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/rentalNetIncomeLoss" />
+            </Then>
+          </Case>
+          <!-- Active participant: up to allowance -->
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/rentalHasLoss" />
+                <Dependency path="/activeParticipation" />
+              </All>
+            </When>
+            <Then>
+              <Max>
+                <Dependency path="/rentalNetIncomeLoss" />
+                <Multiply>
+                  <Dependency path="/passiveLossAllowance" />
+                  <Int>-1</Int>
+                </Multiply>
+              </Max>
+            </Then>
+          </Case>
+          <!-- Passive investor: loss suspended -->
+          <Case>
+            <When>
+              <Dependency path="/rentalHasLoss" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <!-- Has profit -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/rentalNetIncomeLoss" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/suspendedPassiveLoss">
+      <Name>Suspended Passive Loss</Name>
+      <Description>Rental loss suspended and carried forward.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/rentalHasLoss" />
+            </When>
+            <Then>
+              <Subtract>
+                <Multiply>
+                  <Dependency path="/rentalNetIncomeLoss" />
+                  <Int>-1</Int>
+                </Multiply>
+                <Multiply>
+                  <Dependency path="/deductibleRentalLoss" />
+                  <Int>-1</Int>
+                </Multiply>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PRIOR YEAR SUSPENDED LOSSES                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/priorYearSuspendedPassiveLoss">
+      <Name>Prior Year Suspended Passive Loss</Name>
+      <Description>Passive losses suspended from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorLossUsedThisYear">
+      <Name>Prior Suspended Loss Used</Name>
+      <Description>Amount of prior suspended loss used against current income.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/rentalHasProfit" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/priorYearSuspendedPassiveLoss" />
+                <Dependency path="/rentalNetIncomeLoss" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE E TOTALS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleETotalIncomeLoss">
+      <Name>Schedule E Total Income or Loss</Name>
+      <Description>Net income or loss from Schedule E for Form 1040.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Subtract>
+          <Dependency path="/deductibleRentalLoss" />
+          <Dependency path="/priorLossUsedThisYear" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleEIsDone">
+      <Name>Schedule E Is Done</Name>
+      <Description>Whether Schedule E section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No rental income -->
+          <Not>
+            <Dependency path="/hasRentalIncome" />
+          </Not>
+          <!-- Has rental and basic info complete -->
+          <All>
+            <Dependency path="/hasRentalIncome" />
+            <IsComplete>
+              <Dependency path="/rentalIncomeReceived" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleE">
+      <Name>Include Schedule E in PDF</Name>
+      <Description>Whether to include Schedule E in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/hasRentalIncome" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

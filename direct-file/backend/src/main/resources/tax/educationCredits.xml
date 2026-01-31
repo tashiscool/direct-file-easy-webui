@@ -1,0 +1,771 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8863: Education Credits (AOTC and LLC) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EDUCATION EXPENSES OVERVIEW                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEducationExpenses">
+      <Name>Has Education Expenses</Name>
+      <Description>Whether the taxpayer paid qualified education expenses.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfStudents">
+      <Name>Number of Students</Name>
+      <Description>Number of students for whom education expenses were paid.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMERICAN OPPORTUNITY TAX CREDIT (AOTC)      -->
+    <!-- Part I of Form 8863                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimingAotc">
+      <Name>Claiming AOTC</Name>
+      <Description>Whether the taxpayer is claiming the American Opportunity Tax Credit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/aotcQualifiedExpenses">
+      <Name>AOTC Qualified Expenses</Name>
+      <Description>Total qualified education expenses for AOTC (tuition, fees, books, supplies).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/aotcScholarshipsReceived">
+      <Name>AOTC Scholarships Received</Name>
+      <Description>Tax-free scholarships and grants received for AOTC expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/aotcNetQualifiedExpenses">
+      <Name>AOTC Net Qualified Expenses</Name>
+      <Description>Qualified expenses minus scholarships for AOTC.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/aotcQualifiedExpenses" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/aotcQualifiedExpenses" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/aotcScholarshipsReceived" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/aotcScholarshipsReceived" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcMaxCreditPerStudent">
+      <Name>AOTC Max Credit Per Student</Name>
+      <Description>Maximum American Opportunity Tax Credit per eligible student.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcFirst2000Rate">
+      <Name>AOTC First $2000 Rate</Name>
+      <Description>Credit rate for first $2,000 of qualified expenses (100%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>1.0</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcNext2000Rate">
+      <Name>AOTC Next $2000 Rate</Name>
+      <Description>Credit rate for next $2,000 of qualified expenses (25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.25</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcCreditBeforePhaseout">
+      <Name>AOTC Credit Before Phaseout</Name>
+      <Description>American Opportunity Tax Credit before income phase-out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/claimingAotc" />
+            </When>
+            <Then>
+              <Add>
+                <!-- 100% of first $2,000 -->
+                <LesserOf>
+                  <Dependency path="/aotcNetQualifiedExpenses" />
+                  <Dollar>2000</Dollar>
+                </LesserOf>
+                <!-- 25% of next $2,000 -->
+                <Multiply>
+                  <LesserOf>
+                    <GreaterOf>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/aotcNetQualifiedExpenses" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dollar>2000</Dollar>
+                        </Subtrahends>
+                      </Subtract>
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                    <Dollar>2000</Dollar>
+                  </LesserOf>
+                  <Dependency path="/aotcNext2000Rate" />
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcPhaseoutStart">
+      <Name>AOTC Phase-out Start</Name>
+      <Description>MAGI at which AOTC begins to phase out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>160000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>80000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcPhaseoutEnd">
+      <Name>AOTC Phase-out End</Name>
+      <Description>MAGI at which AOTC is completely phased out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>180000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>90000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcPhaseoutMultiplier">
+      <Name>AOTC Phase-out Multiplier</Name>
+      <Description>Percentage of AOTC remaining after phase-out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/aotcPhaseoutStart" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/aotcPhaseoutEnd" />
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/aotcPhaseoutStart" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/aotcPhaseoutEnd" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/aotcPhaseoutStart" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAotcCredit">
+      <Name>Total AOTC Credit</Name>
+      <Description>Total American Opportunity Tax Credit after phase-out.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/aotcCreditBeforePhaseout" />
+            <Dependency path="/aotcPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcRefundablePercent">
+      <Name>AOTC Refundable Percent</Name>
+      <Description>Percentage of AOTC that is refundable (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcRefundablePortion">
+      <Name>AOTC Refundable Portion</Name>
+      <Description>Refundable portion of AOTC (40% up to $1,000).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/totalAotcCredit" />
+            <Dependency path="/aotcRefundablePercent" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aotcNonrefundablePortion">
+      <Name>AOTC Nonrefundable Portion</Name>
+      <Description>Nonrefundable portion of AOTC (60%).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/totalAotcCredit" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/aotcRefundablePortion" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LIFETIME LEARNING CREDIT (LLC)              -->
+    <!-- Part II of Form 8863                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimingLlc">
+      <Name>Claiming LLC</Name>
+      <Description>Whether the taxpayer is claiming the Lifetime Learning Credit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcQualifiedExpenses">
+      <Name>LLC Qualified Expenses</Name>
+      <Description>Total qualified education expenses for LLC.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcScholarshipsReceived">
+      <Name>LLC Scholarships Received</Name>
+      <Description>Tax-free scholarships and grants received for LLC expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcNetQualifiedExpenses">
+      <Name>LLC Net Qualified Expenses</Name>
+      <Description>Qualified expenses minus scholarships for LLC.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/llcQualifiedExpenses" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/llcQualifiedExpenses" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/llcScholarshipsReceived" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/llcScholarshipsReceived" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcMaxCredit">
+      <Name>LLC Max Credit</Name>
+      <Description>Maximum Lifetime Learning Credit per tax return.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcCreditRate">
+      <Name>LLC Credit Rate</Name>
+      <Description>Lifetime Learning Credit rate (20% of first $10,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcCreditBeforePhaseout">
+      <Name>LLC Credit Before Phaseout</Name>
+      <Description>Lifetime Learning Credit before income phase-out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/claimingLlc" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Multiply>
+                  <LesserOf>
+                    <Dependency path="/llcNetQualifiedExpenses" />
+                    <Dollar>10000</Dollar>
+                  </LesserOf>
+                  <Dependency path="/llcCreditRate" />
+                </Multiply>
+                <Dependency path="/llcMaxCredit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutStart">
+      <Name>LLC Phase-out Start</Name>
+      <Description>MAGI at which LLC begins to phase out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>160000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>80000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutEnd">
+      <Name>LLC Phase-out End</Name>
+      <Description>MAGI at which LLC is completely phased out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>180000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>90000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutMultiplier">
+      <Name>LLC Phase-out Multiplier</Name>
+      <Description>Percentage of LLC remaining after phase-out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/llcPhaseoutStart" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/magi" />
+                </Left>
+                <Right>
+                  <Dependency path="/llcPhaseoutEnd" />
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Decimal>1.0</Decimal>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Dividend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/magi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/llcPhaseoutStart" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Dividend>
+                    <Divisors>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/llcPhaseoutEnd" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/llcPhaseoutStart" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Divisors>
+                  </Divide>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalLlcCredit">
+      <Name>Total LLC Credit</Name>
+      <Description>Total Lifetime Learning Credit after phase-out.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/llcCreditBeforePhaseout" />
+            <Dependency path="/llcPhaseoutMultiplier" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL EDUCATION CREDITS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalEducationCredits">
+      <Name>Total Education Credits</Name>
+      <Description>Total of AOTC and LLC education credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/totalAotcCredit" />
+          <Dependency path="/totalLlcCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRefundableEducationCredits">
+      <Name>Total Refundable Education Credits</Name>
+      <Description>Total refundable portion of education credits (AOTC only).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/aotcRefundablePortion" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalNonrefundableEducationCredits">
+      <Name>Total Nonrefundable Education Credits</Name>
+      <Description>Total nonrefundable portion of education credits.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/aotcNonrefundablePortion" />
+          <Dependency path="/totalLlcCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/educationCreditsIsDone">
+      <Name>Education Credits Is Done</Name>
+      <Description>Whether the education credits section has been completed.</Description>
+      <Derived>
+        <Any>
+          <!-- User has no education expenses -->
+          <Not>
+            <Dependency path="/hasEducationExpenses" />
+          </Not>
+          <!-- User completed AOTC or LLC sections -->
+          <All>
+            <Dependency path="/hasEducationExpenses" />
+            <Any>
+              <All>
+                <Dependency path="/claimingAotc" />
+                <IsComplete>
+                  <Dependency path="/aotcQualifiedExpenses" />
+                </IsComplete>
+              </All>
+              <All>
+                <Dependency path="/claimingLlc" />
+                <IsComplete>
+                  <Dependency path="/llcQualifiedExpenses" />
+                </IsComplete>
+              </All>
+              <All>
+                <Not>
+                  <Dependency path="/claimingAotc" />
+                </Not>
+                <Not>
+                  <Dependency path="/claimingLlc" />
+                </Not>
+              </All>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8863">
+      <Name>Include Form 8863 in PDF</Name>
+      <Description>Whether to include Form 8863 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalEducationCredits" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

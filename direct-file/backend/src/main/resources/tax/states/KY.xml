@@ -1,0 +1,88 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Kentucky Form 740: Individual Income Tax Return -->
+<!-- Kentucky has a flat 4.5% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasKY740">
+      <Name>Has KY Form 740</Name>
+      <Description>Whether taxpayer files Kentucky Form 740.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>KY</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- KY Tax Rate (flat) -->
+    <Fact path="/kyTaxRate">
+      <Name>Kentucky Tax Rate</Name>
+      <Description>Kentucky flat income tax rate (4.5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.045</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- KY Standard Deduction -->
+    <Fact path="/kyStandardDeduction">
+      <Name>KY Standard Deduction</Name>
+      <Description>Kentucky standard deduction ($3,160).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3160</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- KY Taxable Income -->
+    <Fact path="/kyTaxableIncome">
+      <Name>KY Taxable Income</Name>
+      <Description>Kentucky taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/kyStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- KY Income Tax -->
+    <Fact path="/kyIncomeTax">
+      <Name>KY Income Tax</Name>
+      <Description>Kentucky income tax (flat 4.5%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/kyTaxableIncome" />
+          <Dependency path="/kyTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ky740IsDone">
+      <Name>KY Form 740 Is Done</Name>
+      <Description>Whether KY Form 740 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasKY740" /></Not>
+          <All>
+            <Dependency path="/hasKY740" />
+            <IsComplete><Dependency path="/kyIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeKY740">
+      <Name>Include KY Form 740 in PDF</Name>
+      <Description>Whether to include KY Form 740.</Description>
+      <Derived>
+        <Dependency path="/hasKY740" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

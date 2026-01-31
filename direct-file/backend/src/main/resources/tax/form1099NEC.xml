@@ -1,0 +1,173 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-NEC: Nonemployee Compensation -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- 1099-NEC ENTRIES                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099NEC">
+      <Name>Has 1099-NEC</Name>
+      <Description>Whether taxpayer received Form 1099-NEC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec1PayerName">
+      <Name>NEC 1 Payer Name</Name>
+      <Description>First payer name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec1Compensation">
+      <Name>NEC 1 Compensation</Name>
+      <Description>Nonemployee compensation from first payer (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec1FederalWithholding">
+      <Name>NEC 1 Federal Withholding</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec2PayerName">
+      <Name>NEC 2 Payer Name</Name>
+      <Description>Second payer name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec2Compensation">
+      <Name>NEC 2 Compensation</Name>
+      <Description>Nonemployee compensation from second payer.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec2FederalWithholding">
+      <Name>NEC 2 Federal Withholding</Name>
+      <Description>Federal withholding from second payer.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec3Compensation">
+      <Name>NEC 3 Compensation</Name>
+      <Description>Nonemployee compensation from third payer.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nec3FederalWithholding">
+      <Name>NEC 3 Federal Withholding</Name>
+      <Description>Federal withholding from third payer.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/total1099NECCompensation">
+      <Name>Total 1099-NEC Compensation</Name>
+      <Description>Total nonemployee compensation from all 1099-NEC forms.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/nec1Compensation" />
+            <Dependency path="/nec2Compensation" />
+          </Add>
+          <Dependency path="/nec3Compensation" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/total1099NECWithholding">
+      <Name>Total 1099-NEC Withholding</Name>
+      <Description>Total federal withholding from all 1099-NEC.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/nec1FederalWithholding" />
+            <Dependency path="/nec2FederalWithholding" />
+          </Add>
+          <Dependency path="/nec3FederalWithholding" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYMENT TAX INDICATOR               -->
+    <!-- ============================================ -->
+
+    <Fact path="/necSubjectToSETax">
+      <Name>NEC Subject to SE Tax</Name>
+      <Description>Whether NEC income is subject to self-employment tax.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/total1099NECCompensation" /></Left>
+          <Right><Dollar>400</Dollar></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099NECIsDone">
+      <Name>Form 1099-NEC Is Done</Name>
+      <Description>Whether Form 1099-NEC entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099NEC" /></Not>
+          <All>
+            <Dependency path="/has1099NEC" />
+            <IsComplete><Dependency path="/total1099NECCompensation" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

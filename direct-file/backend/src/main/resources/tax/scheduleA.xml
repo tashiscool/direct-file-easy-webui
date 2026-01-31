@@ -1,0 +1,1022 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule A: Itemized Deductions (Form 1040) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ITEMIZED VS STANDARD DEDUCTION CHOICE       -->
+    <!-- ============================================ -->
+
+    <Fact path="/wantsToItemize">
+      <Name>Wants to Itemize Deductions</Name>
+      <Description>Whether the taxpayer wants to itemize deductions instead of taking the standard deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shouldItemize">
+      <Name>Should Itemize Deductions</Name>
+      <Description>Whether itemizing would result in a larger deduction than the standard deduction.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalItemizedDeductions" />
+          </Left>
+          <Right>
+            <Dependency module="standardDeduction" path="/standardDeduction" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isItemizing">
+      <Name>Is Itemizing Deductions</Name>
+      <Description>Whether the taxpayer is actually itemizing (chose to and has itemized deductions).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/wantsToItemize" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalItemizedDeductions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- MEDICAL AND DENTAL EXPENSES (Lines 1-4)     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasMedicalExpenses">
+      <Name>Has Medical Expenses</Name>
+      <Description>Whether the taxpayer has unreimbursed medical and dental expenses.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/medicalExpensesTotal">
+      <Name>Medical Expenses Total</Name>
+      <Description>Total unreimbursed medical and dental expenses paid during the tax year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/medicalExpenseThresholdPercent">
+      <Name>Medical Expense Threshold Percent</Name>
+      <Description>The AGI threshold percentage for deducting medical expenses (7.5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.075</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/medicalExpenseThreshold">
+      <Name>Medical Expense Threshold</Name>
+      <Description>The dollar amount of AGI that medical expenses must exceed (7.5% of AGI).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency module="taxCalculations" path="/agi" />
+          <Dependency path="/medicalExpenseThresholdPercent" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleMedicalExpenses">
+      <Name>Deductible Medical Expenses</Name>
+      <Description>Medical and dental expenses that exceed 7.5% of AGI. Schedule A Line 4.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Switch>
+              <Case>
+                <When>
+                  <All>
+                    <Dependency path="/hasMedicalExpenses" />
+                    <IsComplete>
+                      <Dependency path="/medicalExpensesTotal" />
+                    </IsComplete>
+                  </All>
+                </When>
+                <Then>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/medicalExpensesTotal" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/medicalExpenseThreshold" />
+                    </Subtrahends>
+                  </Subtract>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STATE AND LOCAL TAXES (SALT) Lines 5-7      -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSaltDeduction">
+      <Name>Has SALT Deduction</Name>
+      <Description>Whether the taxpayer has state and local taxes to deduct.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateIncomeTaxesPaid">
+      <Name>State Income Taxes Paid</Name>
+      <Description>State and local income taxes paid or withheld during the tax year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateSalesTaxesPaid">
+      <Name>State Sales Taxes Paid</Name>
+      <Description>State and local general sales taxes paid (alternative to income taxes).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/useSalesTaxInsteadOfIncomeTax">
+      <Name>Use Sales Tax Instead of Income Tax</Name>
+      <Description>Whether to use sales tax deduction instead of income tax deduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/realEstateTaxesPaid">
+      <Name>Real Estate Taxes Paid</Name>
+      <Description>State, local, and foreign real estate taxes paid on property owned.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/personalPropertyTaxesPaid">
+      <Name>Personal Property Taxes Paid</Name>
+      <Description>State and local personal property taxes (e.g., vehicle registration based on value).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/saltDeductionCap">
+      <Name>SALT Deduction Cap</Name>
+      <Description>Maximum SALT deduction under OBBBA 2025 ($40,000, or $20,000 for MFS).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>20000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>40000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saltPhasedownThreshold">
+      <Name>SALT Phase-down Threshold</Name>
+      <Description>Income threshold at which SALT deduction begins to phase down to $10,000.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saltPhasedownFloor">
+      <Name>SALT Phase-down Floor</Name>
+      <Description>Minimum SALT deduction after phase-down ($10,000 or $5,000 for MFS).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>5000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>10000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSaltBeforeCap">
+      <Name>Total SALT Before Cap</Name>
+      <Description>Total state and local taxes before applying the cap.</Description>
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/useSalesTaxInsteadOfIncomeTax" />
+              </When>
+              <Then>
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/stateSalesTaxesPaid" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <Dependency path="/stateSalesTaxesPaid" />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/stateIncomeTaxesPaid" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <Dependency path="/stateIncomeTaxesPaid" />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/realEstateTaxesPaid" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/realEstateTaxesPaid" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/personalPropertyTaxesPaid" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/personalPropertyTaxesPaid" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/effectiveSaltCap">
+      <Name>Effective SALT Cap</Name>
+      <Description>The effective SALT cap after applying income-based phase-down.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <!-- If income is below threshold, use full $40K cap -->
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/agi" />
+                </Left>
+                <Right>
+                  <Dependency path="/saltPhasedownThreshold" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/saltDeductionCap" />
+            </Then>
+          </Case>
+          <Case>
+            <!-- Apply 30% phase-down rate for income over $500K -->
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/saltDeductionCap" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Multiply>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/agi" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/saltPhasedownThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                      <Decimal>0.30</Decimal>
+                    </Multiply>
+                  </Subtrahends>
+                </Subtract>
+                <Dependency path="/saltPhasedownFloor" />
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleSalt">
+      <Name>Deductible SALT</Name>
+      <Description>State and local taxes deduction after applying the cap. Schedule A Line 7.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/hasSaltDeduction" />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/totalSaltBeforeCap" />
+                  <Dependency path="/effectiveSaltCap" />
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- MORTGAGE INTEREST (Lines 8-10)              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasMortgageInterest">
+      <Name>Has Mortgage Interest</Name>
+      <Description>Whether the taxpayer paid mortgage interest on a qualified home.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/homeAcquisitionDebt">
+      <Name>Home Acquisition Debt</Name>
+      <Description>Average balance of home acquisition debt during the year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageInterestPaid">
+      <Name>Mortgage Interest Paid</Name>
+      <Description>Total mortgage interest paid on qualified home loans (from Form 1098).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageDebtLimit">
+      <Name>Mortgage Debt Limit</Name>
+      <Description>Maximum mortgage debt eligible for interest deduction ($750,000 for loans after 12/15/2017).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>750000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mortgagePointsPaid">
+      <Name>Mortgage Points Paid</Name>
+      <Description>Points paid on home purchase or improvement loans.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageInsurancePremiums">
+      <Name>Mortgage Insurance Premiums</Name>
+      <Description>Qualified mortgage insurance premiums paid.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductibleMortgageInterest">
+      <Name>Deductible Mortgage Interest</Name>
+      <Description>Total deductible home mortgage interest. Schedule A Line 10.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/hasMortgageInterest" />
+                  <IsComplete>
+                    <Dependency path="/mortgageInterestPaid" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Add>
+                  <!-- Limit interest if debt exceeds $750K -->
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThan>
+                          <Left>
+                            <Dependency path="/homeAcquisitionDebt" />
+                          </Left>
+                          <Right>
+                            <Dependency path="/mortgageDebtLimit" />
+                          </Right>
+                        </GreaterThan>
+                      </When>
+                      <Then>
+                        <Multiply>
+                          <Dependency path="/mortgageInterestPaid" />
+                          <Divide>
+                            <Dividend>
+                              <Dependency path="/mortgageDebtLimit" />
+                            </Dividend>
+                            <Divisors>
+                              <Dependency path="/homeAcquisitionDebt" />
+                            </Divisors>
+                          </Divide>
+                        </Multiply>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dependency path="/mortgageInterestPaid" />
+                      </Then>
+                    </Case>
+                  </Switch>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/mortgagePointsPaid" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/mortgagePointsPaid" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/mortgageInsurancePremiums" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/mortgageInsurancePremiums" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CHARITABLE CONTRIBUTIONS (Lines 11-14)      -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCharitableContributions">
+      <Name>Has Charitable Contributions</Name>
+      <Description>Whether the taxpayer made charitable contributions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/charitableCashContributions">
+      <Name>Charitable Cash Contributions</Name>
+      <Description>Charitable contributions made by cash or check.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/charitableNonCashContributions">
+      <Name>Charitable Non-Cash Contributions</Name>
+      <Description>Charitable contributions of property other than cash.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/charitableCarryover">
+      <Name>Charitable Carryover</Name>
+      <Description>Charitable contribution carryover from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/charitableCashLimit">
+      <Name>Charitable Cash Contribution Limit</Name>
+      <Description>Maximum cash contributions (60% of AGI for most charities).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency module="taxCalculations" path="/agi" />
+          <Decimal>0.60</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleCharitableContributions">
+      <Name>Deductible Charitable Contributions</Name>
+      <Description>Total deductible charitable contributions. Schedule A Line 14.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/hasCharitableContributions" />
+              </When>
+              <Then>
+                <Add>
+                  <!-- Cash contributions limited to 60% of AGI -->
+                  <LesserOf>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <IsComplete>
+                            <Dependency path="/charitableCashContributions" />
+                          </IsComplete>
+                        </When>
+                        <Then>
+                          <Dependency path="/charitableCashContributions" />
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                    <Dependency path="/charitableCashLimit" />
+                  </LesserOf>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/charitableNonCashContributions" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/charitableNonCashContributions" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/charitableCarryover" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/charitableCarryover" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CASUALTY AND THEFT LOSSES (Line 15)         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCasualtyLoss">
+      <Name>Has Casualty Loss</Name>
+      <Description>Whether the taxpayer had casualty or theft losses from a federally declared disaster.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/casualtyLossAmount">
+      <Name>Casualty Loss Amount</Name>
+      <Description>Casualty and theft losses from federally declared disaster (attach Form 4684).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductibleCasualtyLoss">
+      <Name>Deductible Casualty Loss</Name>
+      <Description>Deductible casualty and theft losses. Schedule A Line 15.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasCasualtyLoss" />
+                <IsComplete>
+                  <Dependency path="/casualtyLossAmount" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/casualtyLossAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OTHER ITEMIZED DEDUCTIONS (Line 16)         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasOtherItemizedDeductions">
+      <Name>Has Other Itemized Deductions</Name>
+      <Description>Whether the taxpayer has other itemized deductions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/gamblingLosses">
+      <Name>Gambling Losses</Name>
+      <Description>Gambling losses (limited to gambling winnings).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherMiscDeductions">
+      <Name>Other Miscellaneous Deductions</Name>
+      <Description>Other deductions (e.g., amortizable bond premium, estate tax on income).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductibleOtherItemized">
+      <Name>Deductible Other Itemized</Name>
+      <Description>Other itemized deductions. Schedule A Line 16.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/hasOtherItemizedDeductions" />
+              </When>
+              <Then>
+                <Add>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/gamblingLosses" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/gamblingLosses" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/otherMiscDeductions" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency path="/otherMiscDeductions" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL ITEMIZED DEDUCTIONS (Line 17)         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalItemizedDeductions">
+      <Name>Total Itemized Deductions</Name>
+      <Description>Total of all itemized deductions. Schedule A Line 17.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/deductibleMedicalExpenses" />
+            <Dependency path="/deductibleSalt" />
+            <Dependency path="/deductibleMortgageInterest" />
+            <Dependency path="/deductibleCharitableContributions" />
+            <Dependency path="/deductibleCasualtyLoss" />
+            <Dependency path="/deductibleOtherItemized" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleAIsDone">
+      <Name>Schedule A Is Done</Name>
+      <Description>Whether the itemized deductions section has been completed.</Description>
+      <Derived>
+        <Any>
+          <!-- User chose not to itemize -->
+          <Not>
+            <Dependency path="/wantsToItemize" />
+          </Not>
+          <!-- User is itemizing and has answered all questions -->
+          <All>
+            <Dependency path="/wantsToItemize" />
+            <IsComplete>
+              <Dependency path="/hasMedicalExpenses" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/hasSaltDeduction" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/hasMortgageInterest" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/hasCharitableContributions" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleA">
+      <Name>Include Schedule A in PDF</Name>
+      <Description>Whether to include Schedule A in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/isItemizing" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

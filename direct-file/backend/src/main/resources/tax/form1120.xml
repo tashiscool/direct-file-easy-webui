@@ -1,0 +1,974 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1120: U.S. Corporation Income Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ENTITY INFORMATION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/entityType">
+      <Name>Entity Type</Name>
+      <Description>Type of business entity for tax purposes.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>cCorporation</EnumOption>
+          <EnumOption>sCorporation</EnumOption>
+          <EnumOption>partnership</EnumOption>
+          <EnumOption>soleProprietorship</EnumOption>
+          <EnumOption>llcSingleMember</EnumOption>
+          <EnumOption>llcPartnership</EnumOption>
+          <EnumOption>llcCorporation</EnumOption>
+          <EnumOption>estate</EnumOption>
+          <EnumOption>trust</EnumOption>
+          <EnumOption>nonProfit</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isCCorporation">
+      <Name>Is C Corporation</Name>
+      <Description>Whether entity is taxed as a C Corporation.</Description>
+      <Derived>
+        <Any>
+          <Equals>
+            <Left><Dependency path="/entityType" /></Left>
+            <Right><Enum>cCorporation</Enum></Right>
+          </Equals>
+          <Equals>
+            <Left><Dependency path="/entityType" /></Left>
+            <Right><Enum>llcCorporation</Enum></Right>
+          </Equals>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corporateName">
+      <Name>Corporate Name</Name>
+      <Description>Legal name of the corporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corporateEIN">
+      <Name>Corporate EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateIncorporated">
+      <Name>Date Incorporated</Name>
+      <Description>Date the corporation was incorporated.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateOfIncorporation">
+      <Name>State of Incorporation</Name>
+      <Description>State where corporation was incorporated.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiscalYearEnd">
+      <Name>Fiscal Year End</Name>
+      <Description>Month fiscal year ends (1-12).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAssets">
+      <Name>Total Assets</Name>
+      <Description>Total assets at end of tax year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountingMethod">
+      <Name>Accounting Method</Name>
+      <Description>Method of accounting used.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>cash</EnumOption>
+          <EnumOption>accrual</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GROSS INCOME                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpGrossReceipts">
+      <Name>Gross Receipts or Sales</Name>
+      <Description>Gross receipts or sales (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpReturnsAllowances">
+      <Name>Returns and Allowances</Name>
+      <Description>Returns and allowances (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpNetReceipts">
+      <Name>Net Receipts</Name>
+      <Description>Gross receipts minus returns (Line 1c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/corpGrossReceipts" />
+          <Dependency path="/corpReturnsAllowances" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpCostOfGoodsSold">
+      <Name>Cost of Goods Sold</Name>
+      <Description>Cost of goods sold (Schedule A, Line 8).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpGrossProfit">
+      <Name>Gross Profit</Name>
+      <Description>Gross profit (Line 3).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/corpNetReceipts" />
+          <Dependency path="/corpCostOfGoodsSold" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpDividendsReceived">
+      <Name>Dividends Received</Name>
+      <Description>Dividends received (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpInterestIncome">
+      <Name>Interest Income</Name>
+      <Description>Interest income (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpGrossRents">
+      <Name>Gross Rents</Name>
+      <Description>Gross rents (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpGrossRoyalties">
+      <Name>Gross Royalties</Name>
+      <Description>Gross royalties (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpCapitalGainNetIncome">
+      <Name>Capital Gain Net Income</Name>
+      <Description>Capital gain net income (Schedule D, Line 17).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpNetGainForm4797">
+      <Name>Net Gain from Form 4797</Name>
+      <Description>Net gain or loss from Form 4797 (Line 9).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpOtherIncome">
+      <Name>Other Income</Name>
+      <Description>Other income (Line 10).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTotalIncome">
+      <Name>Total Income</Name>
+      <Description>Total income (Line 11).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Dependency path="/corpGrossProfit" />
+                      <Dependency path="/corpDividendsReceived" />
+                    </Add>
+                    <Dependency path="/corpInterestIncome" />
+                  </Add>
+                  <Dependency path="/corpGrossRents" />
+                </Add>
+                <Dependency path="/corpGrossRoyalties" />
+              </Add>
+              <Dependency path="/corpCapitalGainNetIncome" />
+            </Add>
+            <Dependency path="/corpNetGainForm4797" />
+          </Add>
+          <Dependency path="/corpOtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpCompensationOfficers">
+      <Name>Compensation of Officers</Name>
+      <Description>Compensation of officers (Line 12).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpSalariesWages">
+      <Name>Salaries and Wages</Name>
+      <Description>Salaries and wages less employment credits (Line 13).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpRepairsMaintenance">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpBadDebts">
+      <Name>Bad Debts</Name>
+      <Description>Bad debts (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpRents">
+      <Name>Rents</Name>
+      <Description>Rents (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTaxesLicenses">
+      <Name>Taxes and Licenses</Name>
+      <Description>Taxes and licenses (Line 17).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpInterestExpense">
+      <Name>Interest Expense</Name>
+      <Description>Interest expense (Line 18).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpCharitableContributions">
+      <Name>Charitable Contributions</Name>
+      <Description>Charitable contributions (Line 19).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpDepreciation">
+      <Name>Depreciation</Name>
+      <Description>Depreciation from Form 4562 (Line 20).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpDepletion">
+      <Name>Depletion</Name>
+      <Description>Depletion (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpAdvertising">
+      <Name>Advertising</Name>
+      <Description>Advertising (Line 22).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpPensionPlans">
+      <Name>Pension and Profit-Sharing Plans</Name>
+      <Description>Pension, profit-sharing, etc., plans (Line 23).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpEmployeeBenefitPrograms">
+      <Name>Employee Benefit Programs</Name>
+      <Description>Employee benefit programs (Line 24).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpDomesticProductionDeduction">
+      <Name>Domestic Production Activities Deduction</Name>
+      <Description>Domestic production activities deduction (Line 25).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpOtherDeductions">
+      <Name>Other Deductions</Name>
+      <Description>Other deductions (Line 26).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTotalDeductions">
+      <Name>Total Deductions</Name>
+      <Description>Total deductions (Line 27).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Add>
+                                  <Add>
+                                    <Dependency path="/corpCompensationOfficers" />
+                                    <Dependency path="/corpSalariesWages" />
+                                  </Add>
+                                  <Dependency path="/corpRepairsMaintenance" />
+                                </Add>
+                                <Dependency path="/corpBadDebts" />
+                              </Add>
+                              <Dependency path="/corpRents" />
+                            </Add>
+                            <Dependency path="/corpTaxesLicenses" />
+                          </Add>
+                          <Dependency path="/corpInterestExpense" />
+                        </Add>
+                        <Dependency path="/corpCharitableContributions" />
+                      </Add>
+                      <Dependency path="/corpDepreciation" />
+                    </Add>
+                    <Dependency path="/corpDepletion" />
+                  </Add>
+                  <Dependency path="/corpAdvertising" />
+                </Add>
+                <Dependency path="/corpPensionPlans" />
+              </Add>
+              <Dependency path="/corpEmployeeBenefitPrograms" />
+            </Add>
+            <Dependency path="/corpDomesticProductionDeduction" />
+          </Add>
+          <Dependency path="/corpOtherDeductions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABLE INCOME                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpTaxableIncomeBeforeNOL">
+      <Name>Taxable Income Before NOL</Name>
+      <Description>Taxable income before NOL and special deductions (Line 28).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/corpTotalIncome" />
+          <Dependency path="/corpTotalDeductions" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpNOLDeduction">
+      <Name>Net Operating Loss Deduction</Name>
+      <Description>Net operating loss deduction (Line 29a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpDividendsReceivedDeduction">
+      <Name>Dividends Received Deduction</Name>
+      <Description>Dividends received deduction (Schedule C).</Description>
+      <Export mef="true" />
+      <Derived>
+        <!-- Simplified: 50% DRD for less than 20% ownership -->
+        <Multiply>
+          <Dependency path="/corpDividendsReceived" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpSpecialDeductions">
+      <Name>Special Deductions</Name>
+      <Description>Total special deductions (Line 29b).</Description>
+      <Derived>
+        <Dependency path="/corpDividendsReceivedDeduction" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpTaxableIncome">
+      <Name>Corporate Taxable Income</Name>
+      <Description>Taxable income (Line 30).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/corpTaxableIncomeBeforeNOL" />
+              <Dependency path="/corpNOLDeduction" />
+            </Subtract>
+            <Dependency path="/corpSpecialDeductions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CORPORATE TAX CALCULATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/corporateTaxRate">
+      <Name>Corporate Tax Rate</Name>
+      <Description>Flat corporate tax rate (21% under TCJA).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.21</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpRegularTax">
+      <Name>Corporate Regular Tax</Name>
+      <Description>Regular corporate income tax (Line 31).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/corpTaxableIncome" />
+            <Dependency path="/corporateTaxRate" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CORPORATE TAX CREDITS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpForeignTaxCredit">
+      <Name>Corporate Foreign Tax Credit</Name>
+      <Description>Foreign tax credit (Form 1118).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpGeneralBusinessCredit">
+      <Name>General Business Credit</Name>
+      <Description>General business credit (Form 3800).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpResearchCredit">
+      <Name>Research Credit</Name>
+      <Description>Credit for increasing research activities (Form 6765).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpWorkOpportunityCredit">
+      <Name>Work Opportunity Credit</Name>
+      <Description>Work opportunity tax credit (Form 5884).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpOtherCredits">
+      <Name>Other Corporate Credits</Name>
+      <Description>Other corporate tax credits.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTotalCredits">
+      <Name>Total Corporate Credits</Name>
+      <Description>Total credits (Line 32).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Dependency path="/corpForeignTaxCredit" />
+                <Dependency path="/corpGeneralBusinessCredit" />
+              </Add>
+              <Dependency path="/corpResearchCredit" />
+            </Add>
+            <Dependency path="/corpWorkOpportunityCredit" />
+          </Add>
+          <Dependency path="/corpOtherCredits" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpTaxAfterCredits">
+      <Name>Tax After Credits</Name>
+      <Description>Tax minus credits (Line 33).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/corpRegularTax" />
+            <Dependency path="/corpTotalCredits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OTHER TAXES                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpAccumulatedEarningsTax">
+      <Name>Accumulated Earnings Tax</Name>
+      <Description>Tax on accumulated earnings (Section 531).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpPersonalHoldingCompanyTax">
+      <Name>Personal Holding Company Tax</Name>
+      <Description>Personal holding company tax (Schedule PH).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpRecaptureTaxes">
+      <Name>Recapture Taxes</Name>
+      <Description>Recapture of investment credit and other taxes.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTotalTax">
+      <Name>Total Corporate Tax</Name>
+      <Description>Total tax (Line 34).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/corpTaxAfterCredits" />
+              <Dependency path="/corpAccumulatedEarningsTax" />
+            </Add>
+            <Dependency path="/corpPersonalHoldingCompanyTax" />
+          </Add>
+          <Dependency path="/corpRecaptureTaxes" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PAYMENTS AND REFUND/AMOUNT DUE              -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpEstimatedTaxPayments">
+      <Name>Estimated Tax Payments</Name>
+      <Description>Estimated tax payments (Line 35a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpExtensionPayment">
+      <Name>Extension Payment</Name>
+      <Description>Payment with extension to file (Line 35b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpTotalPayments">
+      <Name>Total Payments</Name>
+      <Description>Total payments (Line 35).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/corpEstimatedTaxPayments" />
+          <Dependency path="/corpExtensionPayment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpOverpayment">
+      <Name>Overpayment</Name>
+      <Description>Amount overpaid (Line 36).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/corpTotalPayments" />
+            <Dependency path="/corpTotalTax" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpAmountOwed">
+      <Name>Amount Owed</Name>
+      <Description>Amount owed (Line 37).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/corpTotalTax" />
+            <Dependency path="/corpTotalPayments" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE M-1 RECONCILIATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpNetIncomePerBooks">
+      <Name>Net Income Per Books</Name>
+      <Description>Net income (loss) per books (Schedule M-1, Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpFederalIncomeTaxPerBooks">
+      <Name>Federal Income Tax Per Books</Name>
+      <Description>Federal income tax per books (Schedule M-1, Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpExcessCapitalLossesPerBooks">
+      <Name>Excess Capital Losses Per Books</Name>
+      <Description>Excess of capital losses over capital gains (Schedule M-1, Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpMealsEntertainmentDisallowed">
+      <Name>Meals and Entertainment Disallowed</Name>
+      <Description>Non-deductible meals and entertainment (Schedule M-1, Line 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE M-2 - RETAINED EARNINGS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/corpRetainedEarningsBeginning">
+      <Name>Retained Earnings - Beginning</Name>
+      <Description>Retained earnings at beginning of year (Schedule M-2, Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpNetIncomePerReturn">
+      <Name>Net Income Per Return</Name>
+      <Description>Net income per return (Schedule M-2, Line 2).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/corpTaxableIncome" />
+          <Dependency path="/corpTotalTax" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/corpDividendsPaid">
+      <Name>Dividends Paid</Name>
+      <Description>Dividends paid to shareholders (Schedule M-2, Line 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/corpRetainedEarningsEnd">
+      <Name>Retained Earnings - End</Name>
+      <Description>Retained earnings at end of year (Schedule M-2, Line 8).</Description>
+      <Derived>
+        <Add>
+          <Subtract>
+            <Dependency path="/corpRetainedEarningsBeginning" />
+            <Dependency path="/corpDividendsPaid" />
+          </Subtract>
+          <Dependency path="/corpNetIncomePerReturn" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1120IsDone">
+      <Name>Form 1120 Is Done</Name>
+      <Description>Whether Form 1120 is complete.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isCCorporation" />
+          <IsComplete>
+            <Dependency path="/corporateName" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/corporateEIN" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/corpGrossReceipts" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1120">
+      <Name>Include Form 1120 in PDF</Name>
+      <Description>Whether to include Form 1120 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isCCorporation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

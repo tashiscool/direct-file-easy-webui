@@ -1,0 +1,293 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 3800: General Business Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- GENERAL BUSINESS CREDIT                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasGeneralBusinessCredit">
+      <Name>Has General Business Credit</Name>
+      <Description>Whether taxpayer claims general business credits.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: CURRENT YEAR CREDITS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/investmentCredit">
+      <Name>Investment Credit</Name>
+      <Description>Investment credit from Form 3468 (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/workOpportunityCredit">
+      <Name>Work Opportunity Credit</Name>
+      <Description>Work opportunity credit from Form 5884 (Line 1c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/researchCredit">
+      <Name>Research Credit</Name>
+      <Description>Research credit from Form 6765 (Line 1e).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/lowIncomeHousingCredit">
+      <Name>Low-Income Housing Credit</Name>
+      <Description>Low-income housing credit from Form 8586 (Line 1d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/disabledAccessCredit">
+      <Name>Disabled Access Credit</Name>
+      <Description>Disabled access credit from Form 8826 (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/employerProvidedChildcareCredit">
+      <Name>Employer-Provided Childcare Credit</Name>
+      <Description>Employer childcare facilities credit from Form 8882 (Line 1p).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/smallEmployerHealthInsuranceCredit">
+      <Name>Small Employer Health Insurance Credit</Name>
+      <Description>Small employer health insurance credit from Form 8941 (Line 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherGeneralBusinessCredits">
+      <Name>Other General Business Credits</Name>
+      <Description>Other specified credits (Line 1zz).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCurrentYearCredits">
+      <Name>Total Current Year Credits</Name>
+      <Description>Total current year general business credits (Line 2).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/investmentCredit" />
+              <Dependency path="/workOpportunityCredit" />
+            </Add>
+            <Add>
+              <Dependency path="/researchCredit" />
+              <Dependency path="/lowIncomeHousingCredit" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/disabledAccessCredit" />
+              <Dependency path="/employerProvidedChildcareCredit" />
+            </Add>
+            <Add>
+              <Dependency path="/smallEmployerHealthInsuranceCredit" />
+              <Dependency path="/otherGeneralBusinessCredits" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: CARRYOVERS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/carryforwardCredits">
+      <Name>Carryforward Credits</Name>
+      <Description>Carryforward credits from prior years (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/carrybackCredits">
+      <Name>Carryback Credits</Name>
+      <Description>Carryback credits from future years (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCreditsBeforeLimitation">
+      <Name>Total Credits Before Limitation</Name>
+      <Description>Total credits before limitation (Line 6).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalCurrentYearCredits" />
+            <Dependency path="/carryforwardCredits" />
+          </Add>
+          <Dependency path="/carrybackCredits" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: LIMITATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/regularTaxBeforeCredits">
+      <Name>Regular Tax Before Credits</Name>
+      <Description>Regular tax before credits (Line 7).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxBeforeCredits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/tentativeMinimumTax">
+      <Name>Tentative Minimum Tax</Name>
+      <Description>Tentative minimum tax from Form 6251 (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netRegularTax">
+      <Name>Net Regular Tax</Name>
+      <Description>Net regular tax (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/regularTaxBeforeCredits" />
+            <Dependency path="/tentativeMinimumTax" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gbcLimitationAmount">
+      <Name>GBC Limitation Amount</Name>
+      <Description>General business credit limitation ($25,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowedGeneralBusinessCredit">
+      <Name>Allowed General Business Credit</Name>
+      <Description>Allowed general business credit (Line 32).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/totalCreditsBeforeLimitation" />
+          <Dependency path="/netRegularTax" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unusedCreditsCarryforward">
+      <Name>Unused Credits Carryforward</Name>
+      <Description>Unused credits to carry forward.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalCreditsBeforeLimitation" />
+            <Dependency path="/allowedGeneralBusinessCredit" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form3800IsDone">
+      <Name>Form 3800 Is Done</Name>
+      <Description>Whether Form 3800 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasGeneralBusinessCredit" /></Not>
+          <All>
+            <Dependency path="/hasGeneralBusinessCredit" />
+            <IsComplete><Dependency path="/allowedGeneralBusinessCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm3800">
+      <Name>Include Form 3800 in PDF</Name>
+      <Description>Whether to include Form 3800 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalCurrentYearCredits" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

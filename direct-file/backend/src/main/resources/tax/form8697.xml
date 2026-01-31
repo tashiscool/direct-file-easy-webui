@@ -1,0 +1,80 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8697: Interest on Long-Term Contracts -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8697">
+      <Name>Has Form 8697</Name>
+      <Description>Whether taxpayer has look-back interest computation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/contractDescription8697">
+      <Name>Contract Description</Name>
+      <Description>Description of long-term contract.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filingYearIncome">
+      <Name>Filing Year Income</Name>
+      <Description>Income reported in filing year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedIncome8697">
+      <Name>Adjusted Income</Name>
+      <Description>Recomputed income based on actual facts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/incomeAdjustment8697">
+      <Name>Income Adjustment</Name>
+      <Description>Adjustment to income.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/adjustedIncome8697" />
+          <Dependency path="/filingYearIncome" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lookBackInterest">
+      <Name>Look-Back Interest</Name>
+      <Description>Interest due or owed.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8697IsDone">
+      <Name>Form 8697 Is Done</Name>
+      <Description>Whether Form 8697 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8697" /></Not>
+          <All>
+            <Dependency path="/hasForm8697" />
+            <IsComplete><Dependency path="/lookBackInterest" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

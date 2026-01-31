@@ -1,0 +1,30 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8832: Entity Classification Election -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8832">
+      <Name>Has Form 8832</Name>
+      <Description>Whether entity is making classification election.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/entityType8832">
+      <Name>Entity Type</Name>
+      <Writable>
+        <Enum>
+          <Option>corporation</Option>
+          <Option>partnership</Option>
+          <Option>disregardedEntity</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+    <Fact path="/form8832IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8832" /></Not>
+          <IsComplete><Dependency path="/entityType8832" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

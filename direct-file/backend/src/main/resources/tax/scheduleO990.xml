@@ -1,0 +1,241 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule O (Form 990): Supplemental Information to Form 990 -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- GENERAL SUPPLEMENTAL INFORMATION            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSupplementalInformation">
+      <Name>Has Supplemental Information</Name>
+      <Description>Whether organization has supplemental information to report.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/supplementalInfoCount">
+      <Name>Number of Supplemental Information Items</Name>
+      <Description>Count of supplemental information items.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART III: MISSION & PROGRAMS       -->
+    <!-- ============================================ -->
+
+    <Fact path="/missionStatementDescription">
+      <Name>Mission Statement Description</Name>
+      <Description>Continuation of mission statement from Part III.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/programServiceDescription1">
+      <Name>Program Service Description 1</Name>
+      <Description>Additional description for program service 1.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/programServiceDescription2">
+      <Name>Program Service Description 2</Name>
+      <Description>Additional description for program service 2.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/programServiceDescription3">
+      <Name>Program Service Description 3</Name>
+      <Description>Additional description for program service 3.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART VI: GOVERNANCE                -->
+    <!-- ============================================ -->
+
+    <Fact path="/conflictOfInterestPolicyExplanation">
+      <Name>Conflict of Interest Policy Explanation</Name>
+      <Description>Explanation of conflict of interest policy.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/documentRetentionPolicyExplanation">
+      <Name>Document Retention Policy Explanation</Name>
+      <Description>Explanation of document retention policy.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/whistleblowerPolicyExplanation">
+      <Name>Whistleblower Policy Explanation</Name>
+      <Description>Explanation of whistleblower policy.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/compensationProcessExplanation">
+      <Name>Compensation Process Explanation</Name>
+      <Description>Explanation of compensation determination process.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART VII: COMPENSATION             -->
+    <!-- ============================================ -->
+
+    <Fact path="/compensationSupplementalInfo">
+      <Name>Compensation Supplemental Information</Name>
+      <Description>Additional information about officer/key employee compensation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/independentContractorInfo">
+      <Name>Independent Contractor Information</Name>
+      <Description>Additional information about independent contractors.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART VIII: REVENUE                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/programServiceRevenueInfo">
+      <Name>Program Service Revenue Information</Name>
+      <Description>Additional information about program service revenue.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherRevenueInfo">
+      <Name>Other Revenue Information</Name>
+      <Description>Additional information about other revenue sources.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART IX: EXPENSES                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/functionalExpenseAllocationMethod">
+      <Name>Functional Expense Allocation Method</Name>
+      <Description>Explanation of method used to allocate expenses.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/jointCostAllocationExplanation">
+      <Name>Joint Cost Allocation Explanation</Name>
+      <Description>Explanation of joint cost allocation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART X: BALANCE SHEET              -->
+    <!-- ============================================ -->
+
+    <Fact path="/otherAssetsDescription">
+      <Name>Other Assets Description</Name>
+      <Description>Description of other assets on balance sheet.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherLiabilitiesDescription">
+      <Name>Other Liabilities Description</Name>
+      <Description>Description of other liabilities on balance sheet.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FORM 990 PART XI: RECONCILIATION            -->
+    <!-- ============================================ -->
+
+    <Fact path="/financialReconciliationExplanation">
+      <Name>Financial Reconciliation Explanation</Name>
+      <Description>Explanation of reconciling items.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SIGNIFICANT CHANGES                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/significantChangesExplanation">
+      <Name>Significant Changes Explanation</Name>
+      <Description>Explanation of significant changes in activities.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/significantDispositionOfAssets">
+      <Name>Significant Disposition of Assets</Name>
+      <Description>Explanation of significant disposition of assets.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/changeInAccountingMethods">
+      <Name>Change in Accounting Methods</Name>
+      <Description>Explanation of any change in accounting methods.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleO990IsDone">
+      <Name>Schedule O Is Done</Name>
+      <Description>Whether Schedule O is complete.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleO990">
+      <Name>Include Schedule O in PDF</Name>
+      <Description>Whether to include Schedule O in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasSupplementalInformation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

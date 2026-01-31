@@ -1,0 +1,126 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-PATR: Taxable Distributions Received From Cooperatives -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/has1099PATR">
+      <Name>Has 1099-PATR</Name>
+      <Description>Whether taxpayer received Form 1099-PATR.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/patronageDividends">
+      <Name>Patronage Dividends</Name>
+      <Description>Patronage dividends (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nonpatronageDistributions">
+      <Name>Nonpatronage Distributions</Name>
+      <Description>Nonpatronage distributions (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/perUnitRetainAllocations">
+      <Name>Per-Unit Retain Allocations</Name>
+      <Description>Per-unit retain allocations (Box 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalTaxWithheld1099PATR">
+      <Name>Federal Tax Withheld</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section199ADeduction1099PATR">
+      <Name>Section 199A Deduction</Name>
+      <Description>Section 199A(g) deduction (Box 6).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedPayments1099PATR">
+      <Name>Qualified Payments</Name>
+      <Description>Qualified payments for Section 199A(a) (Box 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCooperativeDistributions">
+      <Name>Total Cooperative Distributions</Name>
+      <Description>Total distributions from cooperatives.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/patronageDividends" />
+            <Dependency path="/nonpatronageDistributions" />
+          </Add>
+          <Dependency path="/perUnitRetainAllocations" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099PATRIsDone">
+      <Name>Form 1099-PATR Is Done</Name>
+      <Description>Whether Form 1099-PATR is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099PATR" /></Not>
+          <All>
+            <Dependency path="/has1099PATR" />
+            <IsComplete><Dependency path="/totalCooperativeDistributions" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1099PATR">
+      <Name>Include Form 1099-PATR in PDF</Name>
+      <Description>Whether to include Form 1099-PATR.</Description>
+      <Derived>
+        <Dependency path="/has1099PATR" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

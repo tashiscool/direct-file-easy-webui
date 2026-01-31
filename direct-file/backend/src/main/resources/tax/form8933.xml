@@ -1,0 +1,73 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8933: Carbon Oxide Sequestration Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8933">
+      <Name>Has Form 8933</Name>
+      <Description>Whether taxpayer claims carbon capture credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/metricTonsCapture d">
+      <Name>Metric Tons Captured</Name>
+      <Description>Metric tons of CO2 captured.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRatePerTon">
+      <Name>Credit Rate Per Ton</Name>
+      <Description>Credit rate per metric ton ($85 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>85</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carbonCaptureCredit">
+      <Name>Carbon Capture Credit</Name>
+      <Description>Carbon oxide sequestration credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8933IsDone">
+      <Name>Form 8933 Is Done</Name>
+      <Description>Whether Form 8933 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8933" /></Not>
+          <All>
+            <Dependency path="/hasForm8933" />
+            <IsComplete><Dependency path="/carbonCaptureCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8933">
+      <Name>Include Form 8933 in PDF</Name>
+      <Description>Whether to include Form 8933.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/carbonCaptureCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

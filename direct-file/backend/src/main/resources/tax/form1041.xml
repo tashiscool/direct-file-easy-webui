@@ -1,0 +1,897 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1041: U.S. Income Tax Return for Estates and Trusts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ESTATE/TRUST INFORMATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/isEstateOrTrust">
+      <Name>Is Estate or Trust</Name>
+      <Description>Whether entity is an estate or trust.</Description>
+      <Derived>
+        <Any>
+          <Equals>
+            <Left><Dependency module="form1120" path="/entityType" /></Left>
+            <Right><Enum>estate</Enum></Right>
+          </Equals>
+          <Equals>
+            <Left><Dependency module="form1120" path="/entityType" /></Left>
+            <Right><Enum>trust</Enum></Right>
+          </Equals>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryEntityType">
+      <Name>Fiduciary Entity Type</Name>
+      <Description>Type of fiduciary entity.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>decedentEstate</EnumOption>
+          <EnumOption>simpleTrust</EnumOption>
+          <EnumOption>complexTrust</EnumOption>
+          <EnumOption>grantorTrust</EnumOption>
+          <EnumOption>qualifiedDisabilityTrust</EnumOption>
+          <EnumOption>esbt</EnumOption>
+          <EnumOption>bankruptcyEstate</EnumOption>
+          <EnumOption>pooledIncomeFund</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/estateTrustName">
+      <Name>Estate/Trust Name</Name>
+      <Description>Name of the estate or trust.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/estateTrustEIN">
+      <Name>Estate/Trust EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryName">
+      <Name>Fiduciary Name</Name>
+      <Description>Name of the fiduciary (trustee, executor, etc.).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryAddress">
+      <Name>Fiduciary Address</Name>
+      <Description>Address of the fiduciary.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/decedentSSN">
+      <Name>Decedent's SSN</Name>
+      <Description>Social Security Number of decedent (for estates).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateOfDeath">
+      <Name>Date of Death</Name>
+      <Description>Date of decedent's death (for estates).</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateCreated">
+      <Name>Date Trust Created</Name>
+      <Description>Date the trust was created.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfBeneficiaries">
+      <Name>Number of Beneficiaries</Name>
+      <Description>Number of beneficiaries.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryInterestIncome">
+      <Name>Interest Income</Name>
+      <Description>Interest income (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOrdinaryDividends">
+      <Name>Ordinary Dividends</Name>
+      <Description>Ordinary dividends (Line 2a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryQualifiedDividends">
+      <Name>Qualified Dividends</Name>
+      <Description>Qualified dividends (Line 2b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryBusinessIncome">
+      <Name>Business Income</Name>
+      <Description>Business income or loss (Schedule C or C-EZ) (Line 3).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryCapitalGain">
+      <Name>Capital Gain or Loss</Name>
+      <Description>Capital gain or loss (Schedule D) (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryRentsRoyalties">
+      <Name>Rents, Royalties, etc.</Name>
+      <Description>Rents, royalties, partnerships, other estates/trusts (Schedule E) (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryFarmIncome">
+      <Name>Farm Income</Name>
+      <Description>Farm income or loss (Schedule F) (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOrdinaryGain4797">
+      <Name>Ordinary Gain from Form 4797</Name>
+      <Description>Ordinary gain or loss from Form 4797 (Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOtherIncome">
+      <Name>Other Income</Name>
+      <Description>Other income (Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryTotalIncome">
+      <Name>Total Income</Name>
+      <Description>Total income (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Dependency path="/fiduciaryInterestIncome" />
+                      <Dependency path="/fiduciaryOrdinaryDividends" />
+                    </Add>
+                    <Dependency path="/fiduciaryBusinessIncome" />
+                  </Add>
+                  <Dependency path="/fiduciaryCapitalGain" />
+                </Add>
+                <Dependency path="/fiduciaryRentsRoyalties" />
+              </Add>
+              <Dependency path="/fiduciaryFarmIncome" />
+            </Add>
+            <Dependency path="/fiduciaryOrdinaryGain4797" />
+          </Add>
+          <Dependency path="/fiduciaryOtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryInterestExpense">
+      <Name>Interest Expense</Name>
+      <Description>Interest expense (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxes">
+      <Name>Taxes</Name>
+      <Description>Taxes (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryFiduciaryFees">
+      <Name>Fiduciary Fees</Name>
+      <Description>Fiduciary fees (Line 12).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryCharitableDeduction">
+      <Name>Charitable Deduction</Name>
+      <Description>Charitable deduction (Line 13).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryAttorneyFees">
+      <Name>Attorney, Accountant, Return Preparer Fees</Name>
+      <Description>Attorney, accountant, and return preparer fees (Line 14).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOtherDeductions">
+      <Name>Other Deductions</Name>
+      <Description>Other deductions (Line 15a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryNOLDeduction">
+      <Name>NOL Deduction</Name>
+      <Description>Net operating loss deduction (Line 15b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryTotalDeductionsBeforeDist">
+      <Name>Total Deductions Before Distributions</Name>
+      <Description>Total deductions before income distribution (Line 16).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Dependency path="/fiduciaryInterestExpense" />
+                    <Dependency path="/fiduciaryTaxes" />
+                  </Add>
+                  <Dependency path="/fiduciaryFiduciaryFees" />
+                </Add>
+                <Dependency path="/fiduciaryCharitableDeduction" />
+              </Add>
+              <Dependency path="/fiduciaryAttorneyFees" />
+            </Add>
+            <Dependency path="/fiduciaryOtherDeductions" />
+          </Add>
+          <Dependency path="/fiduciaryNOLDeduction" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryAdjustedTotalIncome">
+      <Name>Adjusted Total Income</Name>
+      <Description>Adjusted total income (Line 17).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/fiduciaryTotalIncome" />
+          <Dependency path="/fiduciaryTotalDeductionsBeforeDist" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME DISTRIBUTION DEDUCTION (DNI)         -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryDistributableNetIncome">
+      <Name>Distributable Net Income (DNI)</Name>
+      <Description>Distributable net income (Schedule B).</Description>
+      <Export mef="true" />
+      <Derived>
+        <!-- Simplified: DNI = Adjusted Total Income + Tax-Exempt Interest - Capital Gains allocated to corpus -->
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/fiduciaryAdjustedTotalIncome" />
+            <Max>
+              <Dollar>0</Dollar>
+              <Dependency path="/fiduciaryCapitalGain" />
+            </Max>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryIncomeRequiredDistributed">
+      <Name>Income Required to be Distributed</Name>
+      <Description>Income required to be distributed currently (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOtherAmountsDistributed">
+      <Name>Other Amounts Distributed</Name>
+      <Description>Other amounts paid, credited, or required (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryTotalDistributions">
+      <Name>Total Distributions</Name>
+      <Description>Total distributions to beneficiaries.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/fiduciaryIncomeRequiredDistributed" />
+          <Dependency path="/fiduciaryOtherAmountsDistributed" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryIncomeDistributionDeduction">
+      <Name>Income Distribution Deduction</Name>
+      <Description>Income distribution deduction (Line 20).</Description>
+      <Export mef="true" />
+      <Derived>
+        <!-- Lesser of DNI or distributions -->
+        <Min>
+          <Dependency path="/fiduciaryDistributableNetIncome" />
+          <Dependency path="/fiduciaryTotalDistributions" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXEMPTION                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryExemptionAmount">
+      <Name>Exemption Amount</Name>
+      <Description>Exemption amount based on entity type.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equals>
+                <Left><Dependency path="/fiduciaryEntityType" /></Left>
+                <Right><Enum>decedentEstate</Enum></Right>
+              </Equals>
+            </When>
+            <Then>
+              <Dollar>600</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equals>
+                <Left><Dependency path="/fiduciaryEntityType" /></Left>
+                <Right><Enum>simpleTrust</Enum></Right>
+              </Equals>
+            </When>
+            <Then>
+              <Dollar>300</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equals>
+                <Left><Dependency path="/fiduciaryEntityType" /></Left>
+                <Right><Enum>qualifiedDisabilityTrust</Enum></Right>
+              </Equals>
+            </When>
+            <Then>
+              <!-- QDT gets individual exemption equivalent -->
+              <Dollar>4700</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>100</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXABLE INCOME                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryTaxableIncome">
+      <Name>Taxable Income</Name>
+      <Description>Taxable income (Line 22).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/fiduciaryAdjustedTotalIncome" />
+              <Dependency path="/fiduciaryIncomeDistributionDeduction" />
+            </Subtract>
+            <Dependency path="/fiduciaryExemptionAmount" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX CALCULATION - COMPRESSED BRACKETS       -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryTaxBracket10Max">
+      <Name>10% Bracket Maximum</Name>
+      <Description>Maximum income taxed at 10%.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3150</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxBracket24Max">
+      <Name>24% Bracket Maximum</Name>
+      <Description>Maximum income taxed at 24%.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>11450</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxBracket35Max">
+      <Name>35% Bracket Maximum</Name>
+      <Description>Maximum income taxed at 35%.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>15650</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxAt10">
+      <Name>Tax at 10%</Name>
+      <Description>Tax calculated at 10% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/fiduciaryTaxableIncome" />
+            <Dependency path="/fiduciaryTaxBracket10Max" />
+          </Min>
+          <Decimal>0.10</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxAt24">
+      <Name>Tax at 24%</Name>
+      <Description>Tax calculated at 24% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryTaxableIncome" /></Left>
+                <Right><Dependency path="/fiduciaryTaxBracket10Max" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Min>
+                    <Dependency path="/fiduciaryTaxableIncome" />
+                    <Dependency path="/fiduciaryTaxBracket24Max" />
+                  </Min>
+                  <Dependency path="/fiduciaryTaxBracket10Max" />
+                </Subtract>
+                <Decimal>0.24</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxAt35">
+      <Name>Tax at 35%</Name>
+      <Description>Tax calculated at 35% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryTaxableIncome" /></Left>
+                <Right><Dependency path="/fiduciaryTaxBracket24Max" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Min>
+                    <Dependency path="/fiduciaryTaxableIncome" />
+                    <Dependency path="/fiduciaryTaxBracket35Max" />
+                  </Min>
+                  <Dependency path="/fiduciaryTaxBracket24Max" />
+                </Subtract>
+                <Decimal>0.35</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxAt37">
+      <Name>Tax at 37%</Name>
+      <Description>Tax calculated at 37% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryTaxableIncome" /></Left>
+                <Right><Dependency path="/fiduciaryTaxBracket35Max" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/fiduciaryTaxableIncome" />
+                  <Dependency path="/fiduciaryTaxBracket35Max" />
+                </Subtract>
+                <Decimal>0.37</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTaxBeforeCredits">
+      <Name>Tax Before Credits</Name>
+      <Description>Total tax before credits (Line 23).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Add>
+              <Add>
+                <Dependency path="/fiduciaryTaxAt10" />
+                <Dependency path="/fiduciaryTaxAt24" />
+              </Add>
+              <Dependency path="/fiduciaryTaxAt35" />
+            </Add>
+            <Dependency path="/fiduciaryTaxAt37" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDITS AND OTHER TAXES                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryForeignTaxCredit">
+      <Name>Foreign Tax Credit</Name>
+      <Description>Foreign tax credit (Line 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryGeneralBusinessCredit">
+      <Name>General Business Credit</Name>
+      <Description>General business credit (Form 3800).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryOtherCredits">
+      <Name>Other Credits</Name>
+      <Description>Other credits.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fiduciaryTotalCredits">
+      <Name>Total Credits</Name>
+      <Description>Total credits.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/fiduciaryForeignTaxCredit" />
+            <Dependency path="/fiduciaryGeneralBusinessCredit" />
+          </Add>
+          <Dependency path="/fiduciaryOtherCredits" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryNetInvestmentIncomeTax">
+      <Name>Net Investment Income Tax</Name>
+      <Description>Net investment income tax (3.8%) for estates and trusts.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryAdjustedTotalIncome" /></Left>
+                <Right><Dependency path="/fiduciaryTaxBracket35Max" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/fiduciaryAdjustedTotalIncome" />
+                  <Dependency path="/fiduciaryTaxBracket35Max" />
+                </Subtract>
+                <Decimal>0.038</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryTotalTax">
+      <Name>Total Tax</Name>
+      <Description>Total tax (Line 24).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Add>
+            <Subtract>
+              <Dependency path="/fiduciaryTaxBeforeCredits" />
+              <Dependency path="/fiduciaryTotalCredits" />
+            </Subtract>
+            <Dependency path="/fiduciaryNetInvestmentIncomeTax" />
+          </Add>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE K-1 (BENEFICIARY ALLOCATIONS)      -->
+    <!-- ============================================ -->
+
+    <Fact path="/fiduciaryK1InterestIncome">
+      <Name>K-1 Interest Income</Name>
+      <Description>Interest income allocable to beneficiaries.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryIncomeDistributionDeduction" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <!-- Proportionate share based on distribution -->
+              <Multiply>
+                <Dependency path="/fiduciaryInterestIncome" />
+                <Divide>
+                  <Dependency path="/fiduciaryIncomeDistributionDeduction" />
+                  <Dependency path="/fiduciaryDistributableNetIncome" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fiduciaryK1Dividends">
+      <Name>K-1 Dividends</Name>
+      <Description>Dividends allocable to beneficiaries.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/fiduciaryIncomeDistributionDeduction" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/fiduciaryOrdinaryDividends" />
+                <Divide>
+                  <Dependency path="/fiduciaryIncomeDistributionDeduction" />
+                  <Dependency path="/fiduciaryDistributableNetIncome" />
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1041IsDone">
+      <Name>Form 1041 Is Done</Name>
+      <Description>Whether Form 1041 is complete.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isEstateOrTrust" />
+          <IsComplete>
+            <Dependency path="/estateTrustName" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/estateTrustEIN" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/fiduciaryEntityType" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1041">
+      <Name>Include Form 1041 in PDF</Name>
+      <Description>Whether to include Form 1041 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isEstateOrTrust" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,183 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Oklahoma Form 511: Individual Income Tax Return -->
+<!-- Oklahoma has progressive rates from 0.25% to 4.75% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasOK511">
+      <Name>Has OK Form 511</Name>
+      <Description>Whether taxpayer files Oklahoma Form 511.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>OK</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- OK Standard Deduction -->
+    <Fact path="/okStdDeductionSingle">
+      <Name>OK Standard Deduction Single</Name>
+      <Description>Oklahoma standard deduction for single ($6,350).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>6350</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/okStdDeductionMFJ">
+      <Name>OK Standard Deduction MFJ</Name>
+      <Description>Oklahoma standard deduction for MFJ ($12,700).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>12700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/okStandardDeduction">
+      <Name>OK Standard Deduction</Name>
+      <Description>Oklahoma standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/okStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/okStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- OK Personal Exemption -->
+    <Fact path="/okPersonalExemption">
+      <Name>OK Personal Exemption</Name>
+      <Description>Oklahoma personal exemption ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- OK Taxable Income -->
+    <Fact path="/okTaxableIncome">
+      <Name>OK Taxable Income</Name>
+      <Description>Oklahoma taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/okStandardDeduction" />
+            </Subtract>
+            <Dependency path="/okPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- OK Income Tax (progressive) -->
+    <Fact path="/okIncomeTax">
+      <Name>OK Income Tax</Name>
+      <Description>Oklahoma income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/okTaxableIncome" /></Left>
+                <Right><Dollar>1000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/okTaxableIncome" />
+                <Decimal>0.0025</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/okTaxableIncome" /></Left>
+                <Right><Dollar>2500</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>3</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/okTaxableIncome" />
+                    <Dollar>1000</Dollar>
+                  </Subtract>
+                  <Decimal>0.0075</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/okTaxableIncome" /></Left>
+                <Right><Dollar>7200</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>14</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/okTaxableIncome" />
+                    <Dollar>2500</Dollar>
+                  </Subtract>
+                  <Decimal>0.0475</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>237</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/okTaxableIncome" />
+                  <Dollar>7200</Dollar>
+                </Subtract>
+                <Decimal>0.0475</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ok511IsDone">
+      <Name>OK Form 511 Is Done</Name>
+      <Description>Whether OK Form 511 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasOK511" /></Not>
+          <All>
+            <Dependency path="/hasOK511" />
+            <IsComplete><Dependency path="/okIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeOK511">
+      <Name>Include OK Form 511 in PDF</Name>
+      <Description>Whether to include OK Form 511.</Description>
+      <Derived>
+        <Dependency path="/hasOK511" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

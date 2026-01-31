@@ -1,0 +1,178 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-2c: Corrected Wage and Tax Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFormW2c">
+      <Name>Has Form W-2c</Name>
+      <Description>Whether taxpayer received corrected W-2.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/employerEINW2c">
+      <Name>Employer EIN</Name>
+      <Description>Employer identification number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearCorrected">
+      <Name>Tax Year Being Corrected</Name>
+      <Description>Tax year being corrected.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2000</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>2025</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- Previously Reported -->
+    <Fact path="/previousWages">
+      <Name>Previous Wages</Name>
+      <Description>Previously reported wages (Box 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/previousFederalWithholding">
+      <Name>Previous Federal Withholding</Name>
+      <Description>Previously reported federal withholding (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/previousSSWages">
+      <Name>Previous SS Wages</Name>
+      <Description>Previously reported SS wages (Box 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/previousSSWithholding">
+      <Name>Previous SS Withholding</Name>
+      <Description>Previously reported SS tax (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Correct Information -->
+    <Fact path="/correctWages">
+      <Name>Correct Wages</Name>
+      <Description>Correct wages (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctFederalWithholding">
+      <Name>Correct Federal Withholding</Name>
+      <Description>Correct federal withholding (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctSSWages">
+      <Name>Correct SS Wages</Name>
+      <Description>Correct SS wages (Box 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctSSWithholding">
+      <Name>Correct SS Withholding</Name>
+      <Description>Correct SS tax (Box 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Differences -->
+    <Fact path="/wagesDifference">
+      <Name>Wages Difference</Name>
+      <Description>Difference in wages.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/correctWages" />
+          <Dependency path="/previousWages" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/federalWithholdingDifference">
+      <Name>Federal Withholding Difference</Name>
+      <Description>Difference in federal withholding.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/correctFederalWithholding" />
+          <Dependency path="/previousFederalWithholding" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formW2cIsDone">
+      <Name>Form W-2c Is Done</Name>
+      <Description>Whether Form W-2c is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFormW2c" /></Not>
+          <All>
+            <Dependency path="/hasFormW2c" />
+            <IsComplete><Dependency path="/correctWages" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

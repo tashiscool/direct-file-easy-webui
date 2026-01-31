@@ -1,0 +1,337 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8606: Nondeductible IRAs -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: NONDEDUCTIBLE CONTRIBUTIONS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasNondeductibleIRAContributions">
+      <Name>Has Nondeductible IRA Contributions</Name>
+      <Description>Whether taxpayer made nondeductible IRA contributions.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/nondeductibleContributionsThisYear">
+      <Name>Nondeductible Contributions This Year</Name>
+      <Description>Nondeductible contributions made for current year (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearBasis">
+      <Name>Prior Year Basis</Name>
+      <Description>Total basis in traditional IRAs from prior years (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalBasisBeforeDistributions">
+      <Name>Total Basis Before Distributions</Name>
+      <Description>Total basis before distributions (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/nondeductibleContributionsThisYear" />
+          <Dependency path="/priorYearBasis" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: DISTRIBUTIONS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/traditionalIRADistributions">
+      <Name>Traditional IRA Distributions</Name>
+      <Description>Distributions from traditional IRAs this year (Line 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearEndIRAValue">
+      <Name>Year-End IRA Value</Name>
+      <Description>Value of all traditional IRAs at year-end (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalIRAValueForRatio">
+      <Name>Total IRA Value for Ratio</Name>
+      <Description>Total value for computing nontaxable ratio (Line 8).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/yearEndIRAValue" />
+          <Dependency path="/traditionalIRADistributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nontaxableRatio">
+      <Name>Nontaxable Ratio</Name>
+      <Description>Ratio of basis to total IRA value (Line 10).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/totalIRAValueForRatio" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Min>
+                <Decimal>1.0</Decimal>
+                <Divide>
+                  <Dependency path="/totalBasisBeforeDistributions" />
+                  <Dependency path="/totalIRAValueForRatio" />
+                </Divide>
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Decimal>0</Decimal></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nontaxableDistributionAmount">
+      <Name>Nontaxable Distribution Amount</Name>
+      <Description>Nontaxable portion of distributions (Line 11).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/traditionalIRADistributions" />
+          <Dependency path="/nontaxableRatio" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableDistributionAmount">
+      <Name>Taxable Distribution Amount</Name>
+      <Description>Taxable portion of distributions (Line 13).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/traditionalIRADistributions" />
+          <Dependency path="/nontaxableDistributionAmount" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/remainingBasis">
+      <Name>Remaining Basis</Name>
+      <Description>Basis remaining after distributions (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalBasisBeforeDistributions" />
+          <Dependency path="/nontaxableDistributionAmount" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: CONVERSIONS TO ROTH IRA            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRothConversions">
+      <Name>Has Roth Conversions</Name>
+      <Description>Whether taxpayer converted traditional IRA to Roth IRA.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/rothConversionAmount">
+      <Name>Roth Conversion Amount</Name>
+      <Description>Amount converted from traditional to Roth IRA (Line 16).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/basisInConvertedAmount">
+      <Name>Basis in Converted Amount</Name>
+      <Description>Basis in amount converted (Line 17).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/rothConversionAmount" />
+          <Dependency path="/nontaxableRatio" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableConversionAmount">
+      <Name>Taxable Conversion Amount</Name>
+      <Description>Taxable amount of Roth conversion (Line 18).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/rothConversionAmount" />
+          <Dependency path="/basisInConvertedAmount" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: DISTRIBUTIONS FROM ROTH IRA       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRothDistributions">
+      <Name>Has Roth Distributions</Name>
+      <Description>Whether taxpayer has distributions from Roth IRA.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalRothContributions">
+      <Name>Total Roth Contributions</Name>
+      <Description>Total contributions to all Roth IRAs (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearRothDistributionBasis">
+      <Name>Prior Year Roth Distribution Basis</Name>
+      <Description>Basis used for prior Roth distributions (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentRothBasis">
+      <Name>Current Roth Basis</Name>
+      <Description>Current basis in Roth IRAs (Line 21).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalRothContributions" />
+          <Dependency path="/priorYearRothDistributionBasis" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRothDistributions">
+      <Name>Total Roth Distributions</Name>
+      <Description>Total distributions from all Roth IRAs (Line 22).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedRothDistributions">
+      <Name>Qualified Roth Distributions</Name>
+      <Description>Qualified distributions (tax-free) (Line 23).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nonQualifiedRothDistributions">
+      <Name>Non-Qualified Roth Distributions</Name>
+      <Description>Non-qualified Roth distributions (Line 24).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalRothDistributions" />
+            <Dependency path="/qualifiedRothDistributions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableRothDistributions">
+      <Name>Taxable Roth Distributions</Name>
+      <Description>Taxable portion of Roth distributions (Line 25c).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/nonQualifiedRothDistributions" />
+            <Dependency path="/currentRothBasis" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8606IsDone">
+      <Name>Form 8606 Is Done</Name>
+      <Description>Whether Form 8606 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNondeductibleIRAContributions" /></Not>
+          <All>
+            <Dependency path="/hasNondeductibleIRAContributions" />
+            <IsComplete><Dependency path="/remainingBasis" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8606">
+      <Name>Include Form 8606 in PDF</Name>
+      <Description>Whether to include Form 8606 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasNondeductibleIRAContributions" />
+          <Dependency path="/hasRothConversions" />
+          <Dependency path="/hasRothDistributions" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,203 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Hawaii Form N-11: Individual Income Tax Return -->
+<!-- Hawaii has progressive rates from 1.4% to 11% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasHIN11">
+      <Name>Has HI Form N-11</Name>
+      <Description>Whether taxpayer files Hawaii Form N-11.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>HI</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- HI Standard Deduction -->
+    <Fact path="/hiStdDeductionSingle">
+      <Name>HI Standard Deduction Single</Name>
+      <Description>Hawaii standard deduction for single ($2,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hiStdDeductionMFJ">
+      <Name>HI Standard Deduction MFJ</Name>
+      <Description>Hawaii standard deduction for MFJ ($4,400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4400</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hiStandardDeduction">
+      <Name>HI Standard Deduction</Name>
+      <Description>Hawaii standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/hiStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/hiStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- HI Personal Exemption -->
+    <Fact path="/hiPersonalExemption">
+      <Name>HI Personal Exemption</Name>
+      <Description>Hawaii personal exemption ($1,144).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1144</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- HI Taxable Income -->
+    <Fact path="/hiTaxableIncome">
+      <Name>HI Taxable Income</Name>
+      <Description>Hawaii taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/hiStandardDeduction" />
+            </Subtract>
+            <Dependency path="/hiPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- HI Income Tax (progressive) -->
+    <Fact path="/hiIncomeTax">
+      <Name>HI Income Tax</Name>
+      <Description>Hawaii income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/hiTaxableIncome" /></Left>
+                <Right><Dollar>2400</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/hiTaxableIncome" />
+                <Decimal>0.014</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/hiTaxableIncome" /></Left>
+                <Right><Dollar>4800</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>34</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/hiTaxableIncome" />
+                    <Dollar>2400</Dollar>
+                  </Subtract>
+                  <Decimal>0.032</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/hiTaxableIncome" /></Left>
+                <Right><Dollar>9600</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>110</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/hiTaxableIncome" />
+                    <Dollar>4800</Dollar>
+                  </Subtract>
+                  <Decimal>0.055</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/hiTaxableIncome" /></Left>
+                <Right><Dollar>48000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>374</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/hiTaxableIncome" />
+                    <Dollar>9600</Dollar>
+                  </Subtract>
+                  <Decimal>0.064</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>2832</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/hiTaxableIncome" />
+                  <Dollar>48000</Dollar>
+                </Subtract>
+                <Decimal>0.0825</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hin11IsDone">
+      <Name>HI Form N-11 Is Done</Name>
+      <Description>Whether HI Form N-11 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasHIN11" /></Not>
+          <All>
+            <Dependency path="/hasHIN11" />
+            <IsComplete><Dependency path="/hiIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeHIN11">
+      <Name>Include HI Form N-11 in PDF</Name>
+      <Description>Whether to include HI Form N-11.</Description>
+      <Derived>
+        <Dependency path="/hasHIN11" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

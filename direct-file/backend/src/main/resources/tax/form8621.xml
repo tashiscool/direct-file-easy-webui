@@ -1,0 +1,411 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8621: Return by a Shareholder of a Passive Foreign Investment Company (PFIC) or Qualified Electing Fund (QEF) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- SHAREHOLDER INFORMATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasPFICInterest">
+      <Name>Has PFIC Interest</Name>
+      <Description>Whether taxpayer owns interest in a PFIC.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfPFICs">
+      <Name>Number of PFICs</Name>
+      <Description>Number of PFICs owned.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isFirstYearOfPFICOwnership">
+      <Name>Is First Year of PFIC Ownership</Name>
+      <Description>Whether this is the first year owning this PFIC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: PFIC INFORMATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/pficName">
+      <Name>PFIC Name</Name>
+      <Description>Name of PFIC.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pficCountry">
+      <Name>PFIC Country</Name>
+      <Description>Country of PFIC incorporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pficReferenceIDNumber">
+      <Name>PFIC Reference ID Number</Name>
+      <Description>Reference ID number for PFIC.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sharesOwnedBOY">
+      <Name>Shares Owned - BOY</Name>
+      <Description>Number of shares owned at beginning of year.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sharesOwnedEOY">
+      <Name>Shares Owned - EOY</Name>
+      <Description>Number of shares owned at end of year.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/valuePFICSharesEOY">
+      <Name>Value of PFIC Shares - EOY</Name>
+      <Description>Fair market value of PFIC shares at end of year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: ELECTIONS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/electsQEFTreatment">
+      <Name>Elects QEF Treatment</Name>
+      <Description>Whether taxpayer elects QEF treatment under section 1295.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/electsMarkToMarket">
+      <Name>Elects Mark-to-Market</Name>
+      <Description>Whether taxpayer elects mark-to-market treatment under section 1296.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/electsSection1291Treatment">
+      <Name>Section 1291 Treatment</Name>
+      <Description>Default section 1291 treatment (excess distributions).</Description>
+      <Derived>
+        <All>
+          <Not><Dependency path="/electsQEFTreatment" /></Not>
+          <Not><Dependency path="/electsMarkToMarket" /></Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: QEF INCOME                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/qefOrdinaryEarnings">
+      <Name>QEF Ordinary Earnings</Name>
+      <Description>Pro rata share of ordinary earnings (Line 6a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qefNetCapitalGain">
+      <Name>QEF Net Capital Gain</Name>
+      <Description>Pro rata share of net capital gain (Line 7a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalQEFIncome">
+      <Name>Total QEF Income</Name>
+      <Description>Total QEF income inclusion.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/qefOrdinaryEarnings" />
+          <Dependency path="/qefNetCapitalGain" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: MARK-TO-MARKET                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/fmvPFICEndOfYear">
+      <Name>FMV PFIC - End of Year</Name>
+      <Description>Fair market value of PFIC stock at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedBasisPFICEndOfYear">
+      <Name>Adjusted Basis PFIC - End of Year</Name>
+      <Description>Adjusted basis at end of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/markToMarketGainLoss">
+      <Name>Mark-to-Market Gain (Loss)</Name>
+      <Description>Mark-to-market gain or loss (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/fmvPFICEndOfYear" />
+          <Dependency path="/adjustedBasisPFICEndOfYear" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unreversedInclusionsFromMTM">
+      <Name>Unreversed Inclusions from MTM</Name>
+      <Description>Unreversed inclusions (for loss limitation).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/markToMarketOrdinaryIncome">
+      <Name>Mark-to-Market Ordinary Income</Name>
+      <Description>Ordinary income from mark-to-market (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Dependency path="/markToMarketGainLoss" />
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/markToMarketOrdinaryLoss">
+      <Name>Mark-to-Market Ordinary Loss</Name>
+      <Description>Ordinary loss from mark-to-market (Line 10).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Min>
+            <Dependency path="/unreversedInclusionsFromMTM" />
+            <Multiply>
+              <Dependency path="/markToMarketGainLoss" />
+              <Int>-1</Int>
+            </Multiply>
+          </Min>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: SECTION 1291 EXCESS DISTRIBUTIONS   -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalDistributionsReceived">
+      <Name>Total Distributions Received</Name>
+      <Description>Total distributions received from PFIC (Line 15a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/distributionsInPriorYears">
+      <Name>Distributions in Prior Years</Name>
+      <Description>Distributions received in prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/holdingPeriodInYears">
+      <Name>Holding Period in Years</Name>
+      <Description>Number of years PFIC shares have been held.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/averageDistribution">
+      <Name>Average Distribution</Name>
+      <Description>Average distribution per year (Line 15b).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/holdingPeriodInYears" /></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Divide>
+                <Dependency path="/distributionsInPriorYears" />
+                <Dependency path="/holdingPeriodInYears" />
+              </Divide>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessDistributionThreshold">
+      <Name>Excess Distribution Threshold</Name>
+      <Description>125% of average distribution.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/averageDistribution" />
+          <Decimal>1.25</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessDistribution">
+      <Name>Excess Distribution</Name>
+      <Description>Amount of excess distribution (Line 15c).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalDistributionsReceived" />
+            <Dependency path="/excessDistributionThreshold" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deferredTaxOnExcessDistribution">
+      <Name>Deferred Tax on Excess Distribution</Name>
+      <Description>Deferred tax amount (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestOnDeferredTaxPFIC">
+      <Name>Interest on Deferred Tax</Name>
+      <Description>Interest on deferred tax (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPFICTax">
+      <Name>Total PFIC Tax</Name>
+      <Description>Total tax and interest on PFIC income.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/deferredTaxOnExcessDistribution" />
+          <Dependency path="/interestOnDeferredTaxPFIC" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8621IsDone">
+      <Name>Form 8621 Is Done</Name>
+      <Description>Whether Form 8621 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPFICInterest" /></Not>
+          <All>
+            <Dependency path="/hasPFICInterest" />
+            <IsComplete><Dependency path="/valuePFICSharesEOY" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8621">
+      <Name>Include Form 8621 in PDF</Name>
+      <Description>Whether to include Form 8621 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasPFICInterest" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

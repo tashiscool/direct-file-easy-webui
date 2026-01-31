@@ -1,0 +1,211 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form SS-4: Application for Employer Identification Number -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EIN APPLICATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/requestsEIN">
+      <Name>Requests EIN</Name>
+      <Description>Whether applying for new EIN.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- APPLICANT INFORMATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/legalNameOfEntity">
+      <Name>Legal Name of Entity</Name>
+      <Description>Legal name of entity (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradeNameDBA">
+      <Name>Trade Name/DBA</Name>
+      <Description>Trade name (if different) (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/executorSSN">
+      <Name>Executor/Trustee/Grantor SSN</Name>
+      <Description>SSN of executor, trustee, or grantor (Line 3a).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/mailingAddress">
+      <Name>Mailing Address</Name>
+      <Description>Mailing address (Line 4a/4b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/countyAndState">
+      <Name>County and State</Name>
+      <Description>County and state where principal business is located (Line 6).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ENTITY TYPE                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/entityType">
+      <Name>Entity Type</Name>
+      <Description>Type of entity (Line 9a).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SOLE_PROP">Sole proprietor</Option>
+          <Option value="PARTNERSHIP">Partnership</Option>
+          <Option value="CORPORATION">Corporation</Option>
+          <Option value="PERSONAL_SERVICE">Personal service corporation</Option>
+          <Option value="CHURCH">Church or church-controlled organization</Option>
+          <Option value="OTHER_NONPROFIT">Other nonprofit organization</Option>
+          <Option value="ESTATE">Estate</Option>
+          <Option value="PLAN_ADMIN">Plan administrator</Option>
+          <Option value="TRUST">Trust</Option>
+          <Option value="LLC">Limited liability company</Option>
+          <Option value="FARMERS_COOP">Farmers' cooperative</Option>
+          <Option value="REMIC">REMIC</Option>
+          <Option value="STATE_LOCAL">State/local government</Option>
+          <Option value="FEDERAL">Federal government/military</Option>
+          <Option value="INDIAN_TRIBAL">Indian tribal governments</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcMembers">
+      <Name>LLC Members</Name>
+      <Description>Number of LLC members (Line 9a).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateOfIncorporation">
+      <Name>State of Incorporation</Name>
+      <Description>State where incorporated (Line 9b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REASON FOR APPLYING                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/reasonForApplying">
+      <Name>Reason for Applying</Name>
+      <Description>Reason for applying (Line 10).</Description>
+      <Writable>
+        <Enum>
+          <Option value="STARTED_NEW">Started new business</Option>
+          <Option value="HIRED_EMPLOYEES">Hired employees</Option>
+          <Option value="BANKING">Banking purpose</Option>
+          <Option value="CHANGED_TYPE">Changed type of organization</Option>
+          <Option value="PURCHASED_BUSINESS">Purchased active business</Option>
+          <Option value="CREATED_TRUST">Created a trust</Option>
+          <Option value="CREATED_PLAN">Created a pension plan</Option>
+          <Option value="ESTATE">Estate (decedent)</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateBusinessStarted">
+      <Name>Date Business Started</Name>
+      <Description>Date business started or acquired (Line 11).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EMPLOYMENT INFORMATION                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/highestNumberEmployees">
+      <Name>Highest Number of Employees</Name>
+      <Description>Highest number of employees expected in next 12 months (Line 13).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/firstDateWagesPaid">
+      <Name>First Date Wages Paid</Name>
+      <Description>First date wages or annuities were paid (Line 15).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PRINCIPAL ACTIVITY                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/principalActivity">
+      <Name>Principal Activity</Name>
+      <Description>Principal activity (Line 16).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/specificProducts">
+      <Name>Specific Products</Name>
+      <Description>Principal product/service (Line 17).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/formSS4IsDone">
+      <Name>Form SS-4 Is Done</Name>
+      <Description>Whether Form SS-4 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/requestsEIN" /></Not>
+          <All>
+            <Dependency path="/requestsEIN" />
+            <IsComplete><Dependency path="/legalNameOfEntity" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeFormSS4">
+      <Name>Include Form SS-4 in PDF</Name>
+      <Description>Whether to include Form SS-4 in the return.</Description>
+      <Derived>
+        <Dependency path="/requestsEIN" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

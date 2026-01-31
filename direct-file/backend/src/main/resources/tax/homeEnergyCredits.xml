@@ -1,0 +1,666 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5695: Residential Energy Credits -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- RESIDENTIAL CLEAN ENERGY CREDIT (Part I)    -->
+    <!-- (Solar, Wind, Geothermal, Fuel Cells, etc.) -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasResidentialCleanEnergy">
+      <Name>Has Residential Clean Energy Property</Name>
+      <Description>Whether taxpayer installed qualified clean energy property.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Solar Electric Property -->
+    <Fact path="/solarElectricCost">
+      <Name>Solar Electric Property Cost</Name>
+      <Description>Cost of qualified solar electric property (panels, inverters, etc.).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Solar Water Heating -->
+    <Fact path="/solarWaterHeatingCost">
+      <Name>Solar Water Heating Property Cost</Name>
+      <Description>Cost of qualified solar water heating property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Small Wind Energy -->
+    <Fact path="/smallWindEnergyCost">
+      <Name>Small Wind Energy Property Cost</Name>
+      <Description>Cost of qualified small wind energy property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Geothermal Heat Pump -->
+    <Fact path="/geothermalHeatPumpCost">
+      <Name>Geothermal Heat Pump Cost</Name>
+      <Description>Cost of qualified geothermal heat pump property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Battery Storage -->
+    <Fact path="/batteryStorageCost">
+      <Name>Battery Storage Technology Cost</Name>
+      <Description>Cost of qualified battery storage technology (min 3 kWh capacity).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Fuel Cell Property -->
+    <Fact path="/fuelCellCost">
+      <Name>Fuel Cell Property Cost</Name>
+      <Description>Cost of qualified fuel cell property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fuelCellKilowattCapacity">
+      <Name>Fuel Cell Kilowatt Capacity</Name>
+      <Description>Capacity of fuel cell in kilowatts.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- Total Clean Energy Costs -->
+    <Fact path="/totalCleanEnergyCosts">
+      <Name>Total Clean Energy Costs</Name>
+      <Description>Sum of all qualified clean energy property costs.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Dependency path="/solarElectricCost" />
+                  <Dependency path="/solarWaterHeatingCost" />
+                </Add>
+                <Dependency path="/smallWindEnergyCost" />
+              </Add>
+              <Dependency path="/geothermalHeatPumpCost" />
+            </Add>
+            <Dependency path="/batteryStorageCost" />
+          </Add>
+          <Dependency path="/fuelCellCost" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Clean Energy Credit Rate -->
+    <Fact path="/cleanEnergyCreditRate">
+      <Name>Residential Clean Energy Credit Rate</Name>
+      <Description>Credit rate for residential clean energy property (30% for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- Fuel Cell Capacity Limit -->
+    <Fact path="/fuelCellCapacityLimit">
+      <Name>Fuel Cell Capacity Limit</Name>
+      <Description>Maximum credit per 0.5 kW of fuel cell capacity ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/fuelCellKilowattCapacity" />
+          <Dollar>1000</Dollar>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- Residential Clean Energy Credit Calculation -->
+    <Fact path="/residentialCleanEnergyCredit">
+      <Name>Residential Clean Energy Credit</Name>
+      <Description>Credit for qualified residential clean energy property.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasResidentialCleanEnergy" />
+            </When>
+            <Then>
+              <Add>
+                <!-- Non-fuel cell items at 30% -->
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/totalCleanEnergyCosts" />
+                    <Dependency path="/fuelCellCost" />
+                  </Subtract>
+                  <Dependency path="/cleanEnergyCreditRate" />
+                </Multiply>
+                <!-- Fuel cell at 30% but capped by capacity -->
+                <Min>
+                  <Multiply>
+                    <Dependency path="/fuelCellCost" />
+                    <Dependency path="/cleanEnergyCreditRate" />
+                  </Multiply>
+                  <Dependency path="/fuelCellCapacityLimit" />
+                </Min>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ENERGY EFFICIENT HOME IMPROVEMENT CREDIT    -->
+    <!-- (Part II - Insulation, Windows, Doors, etc) -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEnergyEfficientImprovements">
+      <Name>Has Energy Efficient Home Improvements</Name>
+      <Description>Whether taxpayer made qualified energy efficient home improvements.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Building Envelope Components -->
+    <Fact path="/insulationCost">
+      <Name>Insulation Material Cost</Name>
+      <Description>Cost of qualified insulation material.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exteriorWindowsSkylightsCost">
+      <Name>Exterior Windows and Skylights Cost</Name>
+      <Description>Cost of energy efficient exterior windows and skylights.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exteriorDoorsCost">
+      <Name>Exterior Doors Cost</Name>
+      <Description>Cost of energy efficient exterior doors.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Heating/Cooling Equipment -->
+    <Fact path="/heatPumpCost">
+      <Name>Heat Pump Cost</Name>
+      <Description>Cost of qualified heat pump (heating/cooling).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/heatPumpWaterHeaterCost">
+      <Name>Heat Pump Water Heater Cost</Name>
+      <Description>Cost of qualified heat pump water heater.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/centralAirConditionerCost">
+      <Name>Central Air Conditioner Cost</Name>
+      <Description>Cost of qualified central air conditioning system.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/furnaceBoilerCost">
+      <Name>Furnace or Boiler Cost</Name>
+      <Description>Cost of qualified natural gas, propane, or oil furnace/boiler.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/biomassStoveCost">
+      <Name>Biomass Stove/Boiler Cost</Name>
+      <Description>Cost of qualified biomass stove or boiler.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Home Energy Audit -->
+    <Fact path="/homeEnergyAuditCost">
+      <Name>Home Energy Audit Cost</Name>
+      <Description>Cost of qualified home energy audit.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Electrical Panel -->
+    <Fact path="/electricalPanelCost">
+      <Name>Electrical Panel Upgrade Cost</Name>
+      <Description>Cost of electrical panel upgrade (for EV charging, etc.).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ANNUAL CREDIT LIMITS                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/eeHomeImprovementAnnualLimit">
+      <Name>Annual Home Improvement Credit Limit</Name>
+      <Description>Maximum annual energy efficient home improvement credit ($1,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/windowsDoorsAnnualLimit">
+      <Name>Windows/Doors Annual Sublimit</Name>
+      <Description>Annual limit for exterior windows, skylights, and doors ($600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/doorsAnnualLimit">
+      <Name>Exterior Doors Annual Sublimit</Name>
+      <Description>Annual limit for exterior doors ($500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/auditAnnualLimit">
+      <Name>Home Energy Audit Annual Limit</Name>
+      <Description>Annual limit for home energy audit ($150).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>150</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/heatPumpAnnualLimit">
+      <Name>Heat Pump Annual Limit</Name>
+      <Description>Annual limit for heat pumps and biomass stoves ($2,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eeImprovementCreditRate">
+      <Name>Energy Efficient Improvement Credit Rate</Name>
+      <Description>Credit rate for qualified energy efficient improvements (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT CALCULATIONS                         -->
+    <!-- ============================================ -->
+
+    <!-- Building Envelope Credit -->
+    <Fact path="/insulationCredit">
+      <Name>Insulation Credit</Name>
+      <Description>30% of insulation costs.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/insulationCost" />
+          <Dependency path="/eeImprovementCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/windowsSkylightsCredit">
+      <Name>Windows/Skylights Credit</Name>
+      <Description>30% of windows/skylights costs (capped at $600).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/exteriorWindowsSkylightsCost" />
+            <Dependency path="/eeImprovementCreditRate" />
+          </Multiply>
+          <Dependency path="/windowsDoorsAnnualLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/doorsCredit">
+      <Name>Exterior Doors Credit</Name>
+      <Description>30% of exterior doors costs (capped at $500).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/exteriorDoorsCost" />
+            <Dependency path="/eeImprovementCreditRate" />
+          </Multiply>
+          <Dependency path="/doorsAnnualLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/auditCredit">
+      <Name>Home Energy Audit Credit</Name>
+      <Description>30% of audit costs (capped at $150).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/homeEnergyAuditCost" />
+            <Dependency path="/eeImprovementCreditRate" />
+          </Multiply>
+          <Dependency path="/auditAnnualLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/electricalPanelCredit">
+      <Name>Electrical Panel Credit</Name>
+      <Description>30% of electrical panel upgrade costs.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/electricalPanelCost" />
+          <Dependency path="/eeImprovementCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- HVAC Credits -->
+    <Fact path="/centralACFurnaceCredit">
+      <Name>Central AC/Furnace Credit</Name>
+      <Description>30% of AC and furnace/boiler costs.</Description>
+      <Derived>
+        <Multiply>
+          <Add>
+            <Dependency path="/centralAirConditionerCost" />
+            <Dependency path="/furnaceBoilerCost" />
+          </Add>
+          <Dependency path="/eeImprovementCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- Heat Pump/Biomass Credit (separate $2,000 limit) -->
+    <Fact path="/heatPumpBiomassCredit">
+      <Name>Heat Pump/Biomass Credit</Name>
+      <Description>30% of heat pump and biomass costs (capped at $2,000).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Add>
+              <Add>
+                <Dependency path="/heatPumpCost" />
+                <Dependency path="/heatPumpWaterHeaterCost" />
+              </Add>
+              <Dependency path="/biomassStoveCost" />
+            </Add>
+            <Dependency path="/eeImprovementCreditRate" />
+          </Multiply>
+          <Dependency path="/heatPumpAnnualLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- Total Building Envelope + Other (subject to $1,200 limit) -->
+    <Fact path="/buildingEnvelopeOtherCredit">
+      <Name>Building Envelope and Other Credit</Name>
+      <Description>Total for insulation, windows, doors, audit, panel, AC/furnace (capped at $1,200).</Description>
+      <Derived>
+        <Min>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Dependency path="/insulationCredit" />
+                    <Dependency path="/windowsSkylightsCredit" />
+                  </Add>
+                  <Dependency path="/doorsCredit" />
+                </Add>
+                <Dependency path="/auditCredit" />
+              </Add>
+              <Dependency path="/electricalPanelCredit" />
+            </Add>
+            <Dependency path="/centralACFurnaceCredit" />
+          </Add>
+          <Dependency path="/eeHomeImprovementAnnualLimit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- Total Energy Efficient Home Improvement Credit -->
+    <Fact path="/energyEfficientHomeImprovementCredit">
+      <Name>Energy Efficient Home Improvement Credit</Name>
+      <Description>Total credit for qualified energy efficient home improvements.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasEnergyEfficientImprovements" />
+            </When>
+            <Then>
+              <Round>
+                <Add>
+                  <Dependency path="/buildingEnvelopeOtherCredit" />
+                  <Dependency path="/heatPumpBiomassCredit" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL RESIDENTIAL ENERGY CREDITS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalResidentialEnergyCredits">
+      <Name>Total Residential Energy Credits</Name>
+      <Description>Combined residential clean energy and home improvement credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/residentialCleanEnergyCredit" />
+          <Dependency path="/energyEfficientHomeImprovementCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CARRYFORWARD (Clean Energy Credit Only)     -->
+    <!-- ============================================ -->
+
+    <Fact path="/cleanEnergyCreditCarryforward">
+      <Name>Clean Energy Credit Carryforward</Name>
+      <Description>Unused residential clean energy credit from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCleanEnergyCreditsAvailable">
+      <Name>Total Clean Energy Credits Available</Name>
+      <Description>Current year credit plus carryforward.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/residentialCleanEnergyCredit" />
+          <Dependency path="/cleanEnergyCreditCarryforward" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasAnyEnergyCredits">
+      <Name>Has Any Energy Credits</Name>
+      <Description>Whether taxpayer has any residential energy credits.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasResidentialCleanEnergy" />
+          <Dependency path="/hasEnergyEfficientImprovements" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/homeEnergyCreditsIsDone">
+      <Name>Home Energy Credits Is Done</Name>
+      <Description>Whether home energy credits section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No energy improvements -->
+          <Not>
+            <Dependency path="/hasAnyEnergyCredits" />
+          </Not>
+          <!-- Has improvements and at least one cost entered -->
+          <All>
+            <Dependency path="/hasAnyEnergyCredits" />
+            <GreaterThan>
+              <Left>
+                <Add>
+                  <Dependency path="/totalCleanEnergyCosts" />
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Dependency path="/insulationCost" />
+                        <Dependency path="/exteriorWindowsSkylightsCost" />
+                      </Add>
+                      <Dependency path="/exteriorDoorsCost" />
+                    </Add>
+                    <Dependency path="/heatPumpCost" />
+                  </Add>
+                </Add>
+              </Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm5695">
+      <Name>Include Form 5695 in PDF</Name>
+      <Description>Whether to include Form 5695 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalResidentialEnergyCredits" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

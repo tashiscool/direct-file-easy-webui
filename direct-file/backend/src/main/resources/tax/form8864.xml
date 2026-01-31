@@ -1,0 +1,31 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8864: Biodiesel and Renewable Diesel Fuels Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8864">
+      <Name>Has Form 8864</Name>
+      <Description>Whether taxpayer claims biodiesel credit.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/biodieselGallons">
+      <Name>Biodiesel Gallons</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/biodieselCredit">
+      <Name>Biodiesel Credit</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply><Dependency path="/biodieselGallons" /><Decimal>1.00</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8864IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8864" /></Not>
+          <IsComplete><Dependency path="/biodieselCredit" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

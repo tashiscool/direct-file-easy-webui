@@ -1,0 +1,424 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule M-3 (Form 1065): Net Income (Loss) Reconciliation for Certain Partnerships -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FILING REQUIREMENTS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAssetsThreshold">
+      <Name>Total Assets Threshold</Name>
+      <Description>Threshold for Schedule M-3 filing requirement ($10 million).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mustFileScheduleM3">
+      <Name>Must File Schedule M-3</Name>
+      <Description>Whether partnership must file Schedule M-3 (total assets >= $10M).</Description>
+      <Export mef="true" />
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency module="scheduleL1065" path="/totalAssetsEOY" /></Left>
+          <Right><Dependency path="/totalAssetsThreshold" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/voluntarilyFilingScheduleM3">
+      <Name>Voluntarily Filing Schedule M-3</Name>
+      <Description>Whether partnership is voluntarily filing Schedule M-3.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: FINANCIAL INFORMATION               -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasAuditedFinancialStatements">
+      <Name>Has Audited Financial Statements</Name>
+      <Description>Whether partnership has audited financial statements.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/financialStatementType">
+      <Name>Financial Statement Type</Name>
+      <Description>Type of financial statements prepared.</Description>
+      <Writable>
+        <Enum>
+          <Option value="SEC">SEC 10-K</Option>
+          <Option value="CERTIFIED_AUDITED">Certified Audited</Option>
+          <Option value="NON_CERTIFIED">Non-Certified</Option>
+          <Option value="BOOKS_RECORDS">Books and Records</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/worldwideConsolidatedNetIncome">
+      <Name>Worldwide Consolidated Net Income</Name>
+      <Description>Net income per income statement of includible entities (Line 4a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netIncomeNonIncludibleForeign">
+      <Name>Net Income - Non-Includible Foreign</Name>
+      <Description>Net income of non-includible foreign entities (Line 5a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netIncomeNonIncludibleUS">
+      <Name>Net Income - Non-Includible US</Name>
+      <Description>Net income of non-includible U.S. entities (Line 6a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netIncomeFromIncludibleEntities">
+      <Name>Net Income from Includible Entities</Name>
+      <Description>Net income from income statement of includible entities (Line 7).</Description>
+      <Derived>
+        <Subtract>
+          <Subtract>
+            <Dependency path="/worldwideConsolidatedNetIncome" />
+            <Dependency path="/netIncomeNonIncludibleForeign" />
+          </Subtract>
+          <Dependency path="/netIncomeNonIncludibleUS" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ADJUSTMENTS TO FINANCIAL STATEMENT INCOME   -->
+    <!-- ============================================ -->
+
+    <Fact path="/adjustmentsToReconcile">
+      <Name>Adjustments to Reconcile</Name>
+      <Description>Adjustments to reconcile to Analysis of Net Income (Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/incomeStatementAnalysis">
+      <Name>Income Statement Analysis</Name>
+      <Description>Net income per Analysis of Net Income (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/netIncomeFromIncludibleEntities" />
+          <Dependency path="/adjustmentsToReconcile" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: INCOME/EXPENSE RECONCILIATION      -->
+    <!-- ============================================ -->
+
+    <Fact path="/incomeStatementAmount">
+      <Name>Income Statement Amount</Name>
+      <Description>Amount per income statement (Column A).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/temporaryDifferenceAmount">
+      <Name>Temporary Difference</Name>
+      <Description>Temporary difference amount (Column B).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/permanentDifferenceAmount">
+      <Name>Permanent Difference</Name>
+      <Description>Permanent difference amount (Column C).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/incomePerTaxReturn">
+      <Name>Income Per Tax Return</Name>
+      <Description>Amount per tax return (Column D).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/incomeStatementAmount" />
+            <Dependency path="/temporaryDifferenceAmount" />
+          </Add>
+          <Dependency path="/permanentDifferenceAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- COMMON RECONCILING ITEMS - INCOME           -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossReceiptsPerBooks">
+      <Name>Gross Receipts Per Books</Name>
+      <Description>Gross receipts per income statement.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxExemptInterestM3">
+      <Name>Tax-Exempt Interest</Name>
+      <Description>Tax-exempt interest for Schedule M-3.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsReceivedM3">
+      <Name>Dividends Received</Name>
+      <Description>Dividends received for Schedule M-3.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalGainsLossesM3">
+      <Name>Capital Gains/Losses</Name>
+      <Description>Net capital gains or losses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1231GainsLosses">
+      <Name>Section 1231 Gains/Losses</Name>
+      <Description>Section 1231 gains or losses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- COMMON RECONCILING ITEMS - EXPENSES         -->
+    <!-- ============================================ -->
+
+    <Fact path="/compensationPerBooks">
+      <Name>Compensation Per Books</Name>
+      <Description>Compensation and benefits per books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciationPerBooks">
+      <Name>Depreciation Per Books</Name>
+      <Description>Depreciation per books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciationPerTax">
+      <Name>Depreciation Per Tax</Name>
+      <Description>Depreciation per tax return.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciationDifference">
+      <Name>Depreciation Difference</Name>
+      <Description>Difference between book and tax depreciation.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/depreciationPerBooks" />
+          <Dependency path="/depreciationPerTax" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/badDebtExpensePerBooks">
+      <Name>Bad Debt Expense Per Books</Name>
+      <Description>Bad debt expense per books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestExpensePerBooks">
+      <Name>Interest Expense Per Books</Name>
+      <Description>Interest expense per books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mealsAndEntertainmentM3">
+      <Name>Meals and Entertainment</Name>
+      <Description>Meals and entertainment expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/finesAndPenaltiesM3">
+      <Name>Fines and Penalties</Name>
+      <Description>Fines and penalties (non-deductible).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: EXPENSE/DEDUCTION ITEMS           -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalExpensesPerBooks">
+      <Name>Total Expenses Per Books</Name>
+      <Description>Total expenses per income statement.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTemporaryExpenseDifferences">
+      <Name>Total Temporary Expense Differences</Name>
+      <Description>Total temporary differences for expenses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPermanentExpenseDifferences">
+      <Name>Total Permanent Expense Differences</Name>
+      <Description>Total permanent differences for expenses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDeductionsPerReturn">
+      <Name>Total Deductions Per Return</Name>
+      <Description>Total deductions per tax return.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalExpensesPerBooks" />
+            <Dependency path="/totalTemporaryExpenseDifferences" />
+          </Add>
+          <Dependency path="/totalPermanentExpenseDifferences" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RECONCILIATION TOTALS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/analysisOfNetIncomeM3">
+      <Name>Analysis of Net Income</Name>
+      <Description>Net income per Analysis of Net Income (Loss) per Schedule K.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/incomePerTaxReturn" />
+          <Dependency path="/totalDeductionsPerReturn" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleM3IsDone">
+      <Name>Schedule M-3 Is Done</Name>
+      <Description>Whether Schedule M-3 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not>
+            <Any>
+              <Dependency path="/mustFileScheduleM3" />
+              <Dependency path="/voluntarilyFilingScheduleM3" />
+            </Any>
+          </Not>
+          <All>
+            <Any>
+              <Dependency path="/mustFileScheduleM3" />
+              <Dependency path="/voluntarilyFilingScheduleM3" />
+            </Any>
+            <IsComplete><Dependency path="/worldwideConsolidatedNetIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleM31065">
+      <Name>Include Schedule M-3 in PDF</Name>
+      <Description>Whether to include Schedule M-3 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/mustFileScheduleM3" />
+          <Dependency path="/voluntarilyFilingScheduleM3" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

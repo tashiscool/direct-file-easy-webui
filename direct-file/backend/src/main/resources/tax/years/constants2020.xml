@@ -1,0 +1,169 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year 2020 Constants -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Tax Year -->
+    <Fact path="/taxYear2020">
+      <Name>Tax Year 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Int>2020</Int></Derived>
+    </Fact>
+
+    <!-- Standard Deductions 2020 -->
+    <Fact path="/stdDeductionSingle2020">
+      <Name>Standard Deduction Single 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>12400</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFJ2020">
+      <Name>Standard Deduction MFJ 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>24800</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionHOH2020">
+      <Name>Standard Deduction HOH 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>18650</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFS2020">
+      <Name>Standard Deduction MFS 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>12400</Dollar></Derived>
+    </Fact>
+
+    <!-- Child Tax Credit 2020 -->
+    <Fact path="/ctcPerChild2020">
+      <Name>CTC Per Child 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>2000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/actcRefundable2020">
+      <Name>ACTC Refundable 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>1400</Dollar></Derived>
+    </Fact>
+
+    <!-- EITC Amounts 2020 -->
+    <Fact path="/eitcMax0Children2020">
+      <Name>EITC Max 0 Children 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>538</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax1Child2020">
+      <Name>EITC Max 1 Child 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>3584</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax2Children2020">
+      <Name>EITC Max 2 Children 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>5920</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax3Children2020">
+      <Name>EITC Max 3+ Children 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>6660</Dollar></Derived>
+    </Fact>
+
+    <!-- HSA Limits 2020 -->
+    <Fact path="/hsaSelfLimit2020">
+      <Name>HSA Self-Only Limit 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>3550</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/hsaFamilyLimit2020">
+      <Name>HSA Family Limit 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>7100</Dollar></Derived>
+    </Fact>
+
+    <!-- Tax Bracket Thresholds 2020 (Single) -->
+    <Fact path="/bracket10Threshold2020">
+      <Name>10% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>9875</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket12Threshold2020">
+      <Name>12% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>40125</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket22Threshold2020">
+      <Name>22% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>85525</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket24Threshold2020">
+      <Name>24% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>163300</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket32Threshold2020">
+      <Name>32% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>207350</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket35Threshold2020">
+      <Name>35% Bracket Threshold 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>518400</Dollar></Derived>
+    </Fact>
+
+    <!-- Social Security Wage Base 2020 -->
+    <Fact path="/ssWageBase2020">
+      <Name>SS Wage Base 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>137700</Dollar></Derived>
+    </Fact>
+
+    <!-- Foreign Earned Income Exclusion 2020 -->
+    <Fact path="/feiExclusion2020">
+      <Name>Foreign Earned Income Exclusion 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>107600</Dollar></Derived>
+    </Fact>
+
+    <!-- SALT Deduction Cap 2020 -->
+    <Fact path="/saltCap2020">
+      <Name>SALT Cap 2020</Name>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>10000</Dollar></Derived>
+    </Fact>
+
+    <!-- Recovery Rebate Credit 2020 -->
+    <Fact path="/stimulusPayment12020">
+      <Name>First Stimulus Payment 2020</Name>
+      <Description>First stimulus payment (EIP1) - $1,200 per adult.</Description>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>1200</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stimulusPayment22020">
+      <Name>Second Stimulus Payment 2020</Name>
+      <Description>Second stimulus payment (EIP2) - $600 per person.</Description>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>600</Dollar></Derived>
+    </Fact>
+
+    <!-- Charitable Deduction Above-the-Line 2020 -->
+    <Fact path="/charitableAboveLineDeduction2020">
+      <Name>Charitable Above-Line Deduction 2020</Name>
+      <Description>CARES Act above-the-line charitable deduction ($300).</Description>
+      <TaxYear>2020</TaxYear>
+      <Derived><Dollar>300</Dollar></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

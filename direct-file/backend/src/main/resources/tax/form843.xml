@@ -1,0 +1,72 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 843: Claim for Refund and Request for Abatement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm843">
+      <Name>Has Form 843</Name>
+      <Description>Whether taxpayer is requesting refund or abatement.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundAbatementType843">
+      <Name>Refund/Abatement Type</Name>
+      <Description>Type of refund or abatement request.</Description>
+      <Writable>
+        <Enum>
+          <Option>penaltyAbatement</Option>
+          <Option>interestAbatement</Option>
+          <Option>taxRefund</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxType843">
+      <Name>Tax Type</Name>
+      <Description>Type of tax (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountClaimed843">
+      <Name>Amount Claimed</Name>
+      <Description>Amount of refund or abatement claimed (Line 5).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form843IsDone">
+      <Name>Form 843 Is Done</Name>
+      <Description>Whether Form 843 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm843" /></Not>
+          <All>
+            <Dependency path="/hasForm843" />
+            <IsComplete><Dependency path="/amountClaimed843" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm843">
+      <Name>Include Form 843 in PDF</Name>
+      <Description>Whether to include Form 843.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/amountClaimed843" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

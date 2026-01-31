@@ -1,0 +1,149 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8903: Domestic Production Activities Deduction (Historical) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasDPAD">
+      <Name>Has DPAD</Name>
+      <Description>Whether taxpayer claims domestic production activities deduction.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/domesticProductionGrossReceipts">
+      <Name>Domestic Production Gross Receipts</Name>
+      <Description>Domestic production gross receipts (DPGR) (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/allocableCostsOfGoodsSold">
+      <Name>Allocable Costs of Goods Sold</Name>
+      <Description>Allocable cost of goods sold (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/allocableDeductions">
+      <Name>Allocable Deductions</Name>
+      <Description>Allocable deductions, expenses, and losses (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedProductionActivitiesIncome">
+      <Name>Qualified Production Activities Income</Name>
+      <Description>Qualified production activities income (QPAI) (Line 4).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/domesticProductionGrossReceipts" />
+          <Add>
+            <Dependency path="/allocableCostsOfGoodsSold" />
+            <Dependency path="/allocableDeductions" />
+          </Add>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dpadPercentage">
+      <Name>DPAD Percentage</Name>
+      <Description>DPAD percentage (9%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.09</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qpaiTimesPercentage">
+      <Name>QPAI Times Percentage</Name>
+      <Description>QPAI multiplied by 9% (Line 5).</Description>
+      <Derived>
+        <Multiply>
+          <Max><Dollar>0</Dollar><Dependency path="/qualifiedProductionActivitiesIncome" /></Max>
+          <Dependency path="/dpadPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableIncomeLimit8903">
+      <Name>Taxable Income Limit</Name>
+      <Description>Taxable income limitation (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2WageLimit">
+      <Name>W-2 Wage Limit</Name>
+      <Description>W-2 wage limitation (50% of W-2 wages) (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/domesticProductionDeduction">
+      <Name>Domestic Production Deduction</Name>
+      <Description>Domestic production activities deduction (Line 8).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/qpaiTimesPercentage" />
+          <Min>
+            <Dependency path="/taxableIncomeLimit8903" />
+            <Dependency path="/w2WageLimit" />
+          </Min>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8903IsDone">
+      <Name>Form 8903 Is Done</Name>
+      <Description>Whether Form 8903 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDPAD" /></Not>
+          <All>
+            <Dependency path="/hasDPAD" />
+            <IsComplete><Dependency path="/domesticProductionDeduction" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8903">
+      <Name>Include Form 8903 in PDF</Name>
+      <Description>Whether to include Form 8903.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/domesticProductionDeduction" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

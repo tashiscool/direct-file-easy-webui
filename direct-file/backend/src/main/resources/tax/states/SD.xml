@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- South Dakota: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasSDReturn">
+      <Name>Has SD Return</Name>
+      <Description>South Dakota has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sdNoIncomeTax">
+      <Name>SD No Income Tax</Name>
+      <Description>South Dakota does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>SD</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sdFilingRequired">
+      <Name>SD Filing Required</Name>
+      <Description>No state filing required for South Dakota residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

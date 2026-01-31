@@ -1,0 +1,219 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- State Tax Framework: Core state tax infrastructure -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Taxpayer's State of Residence -->
+    <Fact path="/stateOfResidence">
+      <Name>State of Residence</Name>
+      <Description>Taxpayer's state of residence for tax purposes.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Enum>
+          <Option>AL</Option><Option>AK</Option><Option>AZ</Option><Option>AR</Option>
+          <Option>CA</Option><Option>CO</Option><Option>CT</Option><Option>DC</Option>
+          <Option>DE</Option><Option>FL</Option><Option>GA</Option><Option>HI</Option>
+          <Option>ID</Option><Option>IL</Option><Option>IN</Option><Option>IA</Option>
+          <Option>KS</Option><Option>KY</Option><Option>LA</Option><Option>ME</Option>
+          <Option>MD</Option><Option>MA</Option><Option>MI</Option><Option>MN</Option>
+          <Option>MS</Option><Option>MO</Option><Option>MT</Option><Option>NE</Option>
+          <Option>NV</Option><Option>NH</Option><Option>NJ</Option><Option>NM</Option>
+          <Option>NY</Option><Option>NC</Option><Option>ND</Option><Option>OH</Option>
+          <Option>OK</Option><Option>OR</Option><Option>PA</Option><Option>RI</Option>
+          <Option>SC</Option><Option>SD</Option><Option>TN</Option><Option>TX</Option>
+          <Option>UT</Option><Option>VT</Option><Option>VA</Option><Option>WA</Option>
+          <Option>WV</Option><Option>WI</Option><Option>WY</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- No Income Tax States -->
+    <Fact path="/isNoIncomeTaxState">
+      <Name>Is No Income Tax State</Name>
+      <Description>Whether resident state has no income tax.</Description>
+      <Derived>
+        <Any>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>AK</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>FL</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>NV</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>NH</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>SD</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>TN</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>TX</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>WA</String></Right></Equal>
+          <Equal><Left><Dependency path="/stateOfResidence" /></Left><Right><String>WY</String></Right></Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- State Filing Required -->
+    <Fact path="/stateFilingRequired">
+      <Name>State Filing Required</Name>
+      <Description>Whether state tax return is required.</Description>
+      <Derived>
+        <Not><Dependency path="/isNoIncomeTaxState" /></Not>
+      </Derived>
+    </Fact>
+
+    <!-- State Taxable Income (derived from federal) -->
+    <Fact path="/stateTaxableIncome">
+      <Name>State Taxable Income</Name>
+      <Description>Taxable income for state purposes (starts from federal AGI).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/adjustedGrossIncome" />
+      </Derived>
+    </Fact>
+
+    <!-- State Additions to Income -->
+    <Fact path="/stateIncomeAdditions">
+      <Name>State Income Additions</Name>
+      <Description>Additions to federal AGI for state purposes.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- State Subtractions from Income -->
+    <Fact path="/stateIncomeSubtractions">
+      <Name>State Income Subtractions</Name>
+      <Description>Subtractions from federal AGI for state purposes.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- State Adjusted Taxable Income -->
+    <Fact path="/stateAdjustedTaxableIncome">
+      <Name>State Adjusted Taxable Income</Name>
+      <Description>State-adjusted taxable income after additions and subtractions.</Description>
+      <Derived>
+        <Max>
+          <Add>
+            <Subtract>
+              <Dependency path="/stateTaxableIncome" />
+              <Dependency path="/stateIncomeSubtractions" />
+            </Subtract>
+            <Dependency path="/stateIncomeAdditions" />
+          </Add>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- State Withholding -->
+    <Fact path="/stateWithholding">
+      <Name>State Tax Withheld</Name>
+      <Description>State income tax withheld from wages.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- State Estimated Payments -->
+    <Fact path="/stateEstimatedPayments">
+      <Name>State Estimated Payments</Name>
+      <Description>Estimated state tax payments made.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Total State Payments -->
+    <Fact path="/totalStatePayments">
+      <Name>Total State Payments</Name>
+      <Description>Total state tax payments (withholding + estimated).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/stateWithholding" />
+          <Dependency path="/stateEstimatedPayments" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- State Tax Calculated (placeholder - overridden by specific state) -->
+    <Fact path="/stateTaxCalculated">
+      <Name>State Tax Calculated</Name>
+      <Description>Calculated state income tax before credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- State Credits -->
+    <Fact path="/stateCredits">
+      <Name>State Tax Credits</Name>
+      <Description>Total state tax credits.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- State Tax Due -->
+    <Fact path="/stateTaxDue">
+      <Name>State Tax Due</Name>
+      <Description>State tax due after credits.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/stateTaxCalculated" />
+            <Dependency path="/stateCredits" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- State Refund or Amount Owed -->
+    <Fact path="/stateRefundOwed">
+      <Name>State Refund or Owed</Name>
+      <Description>State refund (positive) or amount owed (negative).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalStatePayments" />
+          <Dependency path="/stateTaxDue" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- State Return Complete -->
+    <Fact path="/stateReturnIsDone">
+      <Name>State Return Is Done</Name>
+      <Description>Whether state return is complete.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isNoIncomeTaxState" />
+          <All>
+            <Dependency path="/stateFilingRequired" />
+            <IsComplete><Dependency path="/stateTaxCalculated" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

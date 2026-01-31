@@ -1,0 +1,125 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1040-SR: U.S. Tax Return for Seniors -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- SENIOR ELIGIBILITY                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiesForSeniorReturn">
+      <Name>Qualifies for Senior Return</Name>
+      <Description>Whether taxpayer qualifies for Form 1040-SR (age 65+).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <Dependency module="filers" path="/primaryAge65OrOlder" />
+          <Dependency module="filers" path="/spouseAge65OrOlder" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usesForm1040SR">
+      <Name>Uses Form 1040-SR</Name>
+      <Description>Whether to use Form 1040-SR instead of 1040.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SENIOR-SPECIFIC BENEFITS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/additionalStandardDeductionSenior">
+      <Name>Additional Standard Deduction - Senior</Name>
+      <Description>Additional standard deduction for being 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/primaryAge65OrOlder" />
+                <Dependency module="filers" path="/spouseAge65OrOlder" />
+              </All>
+            </When>
+            <Then><Dollar>3200</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filers" path="/primaryAge65OrOlder" />
+                <Dependency module="filers" path="/spouseAge65OrOlder" />
+              </Any>
+            </When>
+            <Then><Dollar>1600</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Standard deduction chart for seniors (larger print) -->
+    <Fact path="/standardDeductionChartSingle65">
+      <Name>Standard Deduction - Single 65+</Name>
+      <Description>Standard deduction for single filer 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>16550</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/standardDeductionChartMFJBoth65">
+      <Name>Standard Deduction - MFJ Both 65+</Name>
+      <Description>Standard deduction for MFJ both 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>33100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/standardDeductionChartMFJOne65">
+      <Name>Standard Deduction - MFJ One 65+</Name>
+      <Description>Standard deduction for MFJ one 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>31500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/standardDeductionChartHOH65">
+      <Name>Standard Deduction - HOH 65+</Name>
+      <Description>Standard deduction for head of household 65 or older.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1040SRIsDone">
+      <Name>Form 1040-SR Is Done</Name>
+      <Description>Whether Form 1040-SR is complete.</Description>
+      <Derived>
+        <Dependency path="/qualifiesForSeniorReturn" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1040SR">
+      <Name>Include Form 1040-SR in PDF</Name>
+      <Description>Whether to include Form 1040-SR in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/qualifiesForSeniorReturn" />
+          <Dependency path="/usesForm1040SR" />
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

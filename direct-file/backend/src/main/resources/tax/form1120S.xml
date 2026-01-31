@@ -1,0 +1,765 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1120-S: U.S. Income Tax Return for an S Corporation -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- S CORPORATION INFORMATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/isSCorporation">
+      <Name>Is S Corporation</Name>
+      <Description>Whether entity is an S Corporation.</Description>
+      <Derived>
+        <Equals>
+          <Left><Dependency module="form1120" path="/entityType" /></Left>
+          <Right><Enum>sCorporation</Enum></Right>
+        </Equals>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpName">
+      <Name>S Corporation Name</Name>
+      <Description>Legal name of the S Corporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpEIN">
+      <Name>S Corporation EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpElectionDate">
+      <Name>S Election Effective Date</Name>
+      <Description>Date S corporation election became effective.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpNumberOfShareholders">
+      <Name>Number of Shareholders</Name>
+      <Description>Number of shareholders during the year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>100</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GROSS INCOME                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpGrossReceipts">
+      <Name>Gross Receipts or Sales</Name>
+      <Description>Gross receipts or sales (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpReturnsAllowances">
+      <Name>Returns and Allowances</Name>
+      <Description>Returns and allowances (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpCostOfGoodsSold">
+      <Name>Cost of Goods Sold</Name>
+      <Description>Cost of goods sold (Schedule A).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpGrossProfit">
+      <Name>Gross Profit</Name>
+      <Description>Gross profit (Line 3).</Description>
+      <Derived>
+        <Subtract>
+          <Subtract>
+            <Dependency path="/sCorpGrossReceipts" />
+            <Dependency path="/sCorpReturnsAllowances" />
+          </Subtract>
+          <Dependency path="/sCorpCostOfGoodsSold" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpNetGainLoss4797">
+      <Name>Net Gain/Loss from Form 4797</Name>
+      <Description>Net gain or loss from Form 4797 (Line 4).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpOtherIncome">
+      <Name>Other Income</Name>
+      <Description>Other income (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpTotalIncome">
+      <Name>Total Income</Name>
+      <Description>Total income (loss) (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/sCorpGrossProfit" />
+            <Dependency path="/sCorpNetGainLoss4797" />
+          </Add>
+          <Dependency path="/sCorpOtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpCompensationOfficers">
+      <Name>Compensation of Officers</Name>
+      <Description>Compensation of officers (Line 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpSalariesWages">
+      <Name>Salaries and Wages</Name>
+      <Description>Salaries and wages (Line 8).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpRepairs">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpBadDebts">
+      <Name>Bad Debts</Name>
+      <Description>Bad debts (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpRents">
+      <Name>Rents</Name>
+      <Description>Rents (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpTaxesLicenses">
+      <Name>Taxes and Licenses</Name>
+      <Description>Taxes and licenses (Line 12).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpInterest">
+      <Name>Interest</Name>
+      <Description>Interest (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpDepreciation">
+      <Name>Depreciation</Name>
+      <Description>Depreciation (Line 14).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpDepletion">
+      <Name>Depletion</Name>
+      <Description>Depletion (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpAdvertising">
+      <Name>Advertising</Name>
+      <Description>Advertising (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpPensionPlans">
+      <Name>Pension and Profit-Sharing Plans</Name>
+      <Description>Pension, profit-sharing, etc. plans (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpEmployeeBenefits">
+      <Name>Employee Benefit Programs</Name>
+      <Description>Employee benefit programs (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpOtherDeductions">
+      <Name>Other Deductions</Name>
+      <Description>Other deductions (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpTotalDeductions">
+      <Name>Total Deductions</Name>
+      <Description>Total deductions (Line 20).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Dependency path="/sCorpCompensationOfficers" />
+                                <Dependency path="/sCorpSalariesWages" />
+                              </Add>
+                              <Dependency path="/sCorpRepairs" />
+                            </Add>
+                            <Dependency path="/sCorpBadDebts" />
+                          </Add>
+                          <Dependency path="/sCorpRents" />
+                        </Add>
+                        <Dependency path="/sCorpTaxesLicenses" />
+                      </Add>
+                      <Dependency path="/sCorpInterest" />
+                    </Add>
+                    <Dependency path="/sCorpDepreciation" />
+                  </Add>
+                  <Dependency path="/sCorpDepletion" />
+                </Add>
+                <Dependency path="/sCorpAdvertising" />
+              </Add>
+              <Dependency path="/sCorpPensionPlans" />
+            </Add>
+            <Dependency path="/sCorpEmployeeBenefits" />
+          </Add>
+          <Dependency path="/sCorpOtherDeductions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpOrdinaryBusinessIncome">
+      <Name>Ordinary Business Income</Name>
+      <Description>Ordinary business income (loss) (Line 21).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/sCorpTotalIncome" />
+          <Dependency path="/sCorpTotalDeductions" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BUILT-IN GAINS TAX                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpHasBuiltInGains">
+      <Name>Has Built-In Gains</Name>
+      <Description>Whether S corp has net recognized built-in gains.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpNetRecognizedBuiltInGain">
+      <Name>Net Recognized Built-In Gain</Name>
+      <Description>Net recognized built-in gain for the year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpBuiltInGainsTax">
+      <Name>Built-In Gains Tax</Name>
+      <Description>Tax on built-in gains (21% rate).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/sCorpHasBuiltInGains" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/sCorpNetRecognizedBuiltInGain" />
+                <Decimal>0.21</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LIFO RECAPTURE TAX                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpLIFORecapture">
+      <Name>LIFO Recapture Amount</Name>
+      <Description>LIFO recapture amount from C corp conversion.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpLIFORecaptureTax">
+      <Name>LIFO Recapture Tax</Name>
+      <Description>Tax on LIFO recapture (21% rate).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/sCorpLIFORecapture" />
+          <Decimal>0.21</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXCESS NET PASSIVE INCOME TAX               -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpHasExcessPassiveIncome">
+      <Name>Has Excess Passive Income</Name>
+      <Description>Whether S corp has excess net passive income.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpAccumulatedEarningsAndProfits">
+      <Name>Accumulated E&P</Name>
+      <Description>Accumulated earnings and profits from C corp years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpPassiveInvestmentIncome">
+      <Name>Passive Investment Income</Name>
+      <Description>Gross passive investment income (interest, dividends, rents, royalties).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpGrossReceiptsForPassive">
+      <Name>Gross Receipts for Passive Test</Name>
+      <Description>Gross receipts for passive income test.</Description>
+      <Derived>
+        <Dependency path="/sCorpGrossReceipts" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpExcessPassiveIncomeTax">
+      <Name>Excess Passive Income Tax</Name>
+      <Description>Tax on excess net passive income.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/sCorpHasExcessPassiveIncome" />
+                <GreaterThan>
+                  <Left><Dependency path="/sCorpAccumulatedEarningsAndProfits" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left><Dependency path="/sCorpPassiveInvestmentIncome" /></Left>
+                  <Right>
+                    <Multiply>
+                      <Dependency path="/sCorpGrossReceiptsForPassive" />
+                      <Decimal>0.25</Decimal>
+                    </Multiply>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <!-- Simplified calculation -->
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/sCorpPassiveInvestmentIncome" />
+                  <Multiply>
+                    <Dependency path="/sCorpGrossReceiptsForPassive" />
+                    <Decimal>0.25</Decimal>
+                  </Multiply>
+                </Subtract>
+                <Decimal>0.21</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL S CORP TAX                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpTotalTax">
+      <Name>Total S Corporation Tax</Name>
+      <Description>Total tax owed by S corporation.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/sCorpBuiltInGainsTax" />
+            <Dependency path="/sCorpLIFORecaptureTax" />
+          </Add>
+          <Dependency path="/sCorpExcessPassiveIncomeTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE K - SHAREHOLDERS' SHARES           -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpOrdinaryBusinessIncomeK">
+      <Name>Ordinary Business Income (K)</Name>
+      <Description>Ordinary business income for Schedule K (Line 1).</Description>
+      <Derived>
+        <Dependency path="/sCorpOrdinaryBusinessIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpNetRentalRealEstateIncome">
+      <Name>Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (Schedule K, Line 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpOtherNetRentalIncome">
+      <Name>Other Net Rental Income</Name>
+      <Description>Other net rental income (Schedule K, Line 3).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpInterestIncomeK">
+      <Name>Interest Income (K)</Name>
+      <Description>Interest income for Schedule K (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpOrdinaryDividendsK">
+      <Name>Ordinary Dividends (K)</Name>
+      <Description>Ordinary dividends for Schedule K (Line 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpQualifiedDividendsK">
+      <Name>Qualified Dividends (K)</Name>
+      <Description>Qualified dividends for Schedule K (Line 5b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpRoyaltiesK">
+      <Name>Royalties (K)</Name>
+      <Description>Royalties for Schedule K (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpNetShortTermCapitalGain">
+      <Name>Net Short-Term Capital Gain</Name>
+      <Description>Net short-term capital gain (Schedule K, Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpNetLongTermCapitalGain">
+      <Name>Net Long-Term Capital Gain</Name>
+      <Description>Net long-term capital gain (Schedule K, Line 8a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpSection1231Gain">
+      <Name>Net Section 1231 Gain</Name>
+      <Description>Net section 1231 gain (Schedule K, Line 9).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpCharitableContributions">
+      <Name>Charitable Contributions</Name>
+      <Description>Charitable contributions (Schedule K, Line 12a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpSection179Deduction">
+      <Name>Section 179 Deduction</Name>
+      <Description>Section 179 expense deduction (Schedule K, Line 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI INFORMATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/sCorpQBI">
+      <Name>S Corp QBI</Name>
+      <Description>Qualified business income for Section 199A.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/sCorpOrdinaryBusinessIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpW2WagesForQBI">
+      <Name>W-2 Wages for QBI</Name>
+      <Description>W-2 wages paid for QBI limitation.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/sCorpCompensationOfficers" />
+          <Dependency path="/sCorpSalariesWages" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sCorpQualifiedPropertyBasis">
+      <Name>Qualified Property Basis</Name>
+      <Description>Unadjusted basis of qualified property for QBI.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpIsSSTB">
+      <Name>Is SSTB</Name>
+      <Description>Whether S corp is a specified service trade or business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1120SIsDone">
+      <Name>Form 1120-S Is Done</Name>
+      <Description>Whether Form 1120-S is complete.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isSCorporation" />
+          <IsComplete>
+            <Dependency path="/sCorpName" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/sCorpEIN" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/sCorpGrossReceipts" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1120S">
+      <Name>Include Form 1120-S in PDF</Name>
+      <Description>Whether to include Form 1120-S in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isSCorporation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

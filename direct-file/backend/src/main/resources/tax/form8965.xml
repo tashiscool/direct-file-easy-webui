@@ -1,0 +1,78 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8965: Health Coverage Exemptions (Historical) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8965">
+      <Name>Has Form 8965</Name>
+      <Description>Whether taxpayer claims health coverage exemptions.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptionType8965">
+      <Name>Exemption Type</Name>
+      <Description>Type of coverage exemption claimed.</Description>
+      <Writable>
+        <Enum>
+          <Option>hardship</Option>
+          <Option>religiousConscience</Option>
+          <Option>incarcerated</Option>
+          <Option>notLawfullyPresent</Option>
+          <Option>healthCareSharingMinistry</Option>
+          <Option>indianTribe</Option>
+          <Option>shortCoverage</Option>
+          <Option>affordability</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptionCertificateNumber8965">
+      <Name>Exemption Certificate Number</Name>
+      <Description>ECN from Marketplace (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthsExempt8965">
+      <Name>Months Exempt</Name>
+      <Description>Number of months with exemption.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/sharedResponsibilityPayment8965">
+      <Name>Shared Responsibility Payment</Name>
+      <Description>Shared responsibility payment (now $0).</Description>
+      <TaxYear>2025</TaxYear>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8965IsDone">
+      <Name>Form 8965 Is Done</Name>
+      <Description>Whether Form 8965 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8965" /></Not>
+          <All>
+            <Dependency path="/hasForm8965" />
+            <IsComplete><Dependency path="/sharedResponsibilityPayment8965" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,159 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year 2024 Constants -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Tax Year -->
+    <Fact path="/taxYear2024">
+      <Name>Tax Year 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Int>2024</Int></Derived>
+    </Fact>
+
+    <!-- Standard Deductions 2024 -->
+    <Fact path="/stdDeductionSingle2024">
+      <Name>Standard Deduction Single 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>14600</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFJ2024">
+      <Name>Standard Deduction MFJ 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>29200</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionHOH2024">
+      <Name>Standard Deduction HOH 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>21900</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFS2024">
+      <Name>Standard Deduction MFS 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>14600</Dollar></Derived>
+    </Fact>
+
+    <!-- Additional Standard Deduction for Age/Blindness 2024 -->
+    <Fact path="/additionalStdDeductionSingle2024">
+      <Name>Additional Std Deduction Single 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>1950</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/additionalStdDeductionMFJ2024">
+      <Name>Additional Std Deduction MFJ 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>1550</Dollar></Derived>
+    </Fact>
+
+    <!-- Child Tax Credit 2024 -->
+    <Fact path="/ctcPerChild2024">
+      <Name>CTC Per Child 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>2000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/actcRefundable2024">
+      <Name>ACTC Refundable 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>1700</Dollar></Derived>
+    </Fact>
+
+    <!-- EITC Amounts 2024 -->
+    <Fact path="/eitcMax0Children2024">
+      <Name>EITC Max 0 Children 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>632</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax1Child2024">
+      <Name>EITC Max 1 Child 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>3995</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax2Children2024">
+      <Name>EITC Max 2 Children 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>6604</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax3Children2024">
+      <Name>EITC Max 3+ Children 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>7430</Dollar></Derived>
+    </Fact>
+
+    <!-- HSA Limits 2024 -->
+    <Fact path="/hsaSelfLimit2024">
+      <Name>HSA Self-Only Limit 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>4150</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/hsaFamilyLimit2024">
+      <Name>HSA Family Limit 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>8300</Dollar></Derived>
+    </Fact>
+
+    <!-- Tax Bracket Thresholds 2024 (Single) -->
+    <Fact path="/bracket10Threshold2024">
+      <Name>10% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>11600</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket12Threshold2024">
+      <Name>12% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>47150</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket22Threshold2024">
+      <Name>22% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>100525</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket24Threshold2024">
+      <Name>24% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>191950</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket32Threshold2024">
+      <Name>32% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>243725</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket35Threshold2024">
+      <Name>35% Bracket Threshold 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>609350</Dollar></Derived>
+    </Fact>
+
+    <!-- Social Security Wage Base 2024 -->
+    <Fact path="/ssWageBase2024">
+      <Name>SS Wage Base 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>168600</Dollar></Derived>
+    </Fact>
+
+    <!-- Foreign Earned Income Exclusion 2024 -->
+    <Fact path="/feiExclusion2024">
+      <Name>Foreign Earned Income Exclusion 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>126500</Dollar></Derived>
+    </Fact>
+
+    <!-- SALT Deduction Cap 2024 -->
+    <Fact path="/saltCap2024">
+      <Name>SALT Cap 2024</Name>
+      <TaxYear>2024</TaxYear>
+      <Derived><Dollar>10000</Dollar></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

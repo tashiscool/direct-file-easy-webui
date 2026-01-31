@@ -1,0 +1,84 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8911: Alternative Fuel Vehicle Refueling Property Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8911">
+      <Name>Has Form 8911</Name>
+      <Description>Whether taxpayer claims refueling property credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/refuelingPropertyCost">
+      <Name>Refueling Property Cost</Name>
+      <Description>Cost of refueling property.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRate8911">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (30%).</Description>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxCredit8911Personal">
+      <Name>Max Credit Personal</Name>
+      <Description>Maximum credit for personal use ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refuelingPropertyCredit">
+      <Name>Refueling Property Credit</Name>
+      <Description>Alternative fuel vehicle refueling property credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/refuelingPropertyCost" />
+            <Dependency path="/creditRate8911" />
+          </Multiply>
+          <Dependency path="/maxCredit8911Personal" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8911IsDone">
+      <Name>Form 8911 Is Done</Name>
+      <Description>Whether Form 8911 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8911" /></Not>
+          <All>
+            <Dependency path="/hasForm8911" />
+            <IsComplete><Dependency path="/refuelingPropertyCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8911">
+      <Name>Include Form 8911 in PDF</Name>
+      <Description>Whether to include Form 8911.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/refuelingPropertyCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

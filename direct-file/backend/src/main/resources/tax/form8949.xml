@@ -1,0 +1,401 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8949: Sales and Other Dispositions of Capital Assets -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: SHORT-TERM TRANSACTIONS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasShortTermTransactions">
+      <Name>Has Short-Term Transactions</Name>
+      <Description>Whether taxpayer has short-term capital transactions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermBoxA">
+      <Name>Short-Term Box A</Name>
+      <Description>Short-term transactions reported on Form 1099-B with basis reported to IRS.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermBoxB">
+      <Name>Short-Term Box B</Name>
+      <Description>Short-term transactions reported on Form 1099-B without basis reported to IRS.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermBoxC">
+      <Name>Short-Term Box C</Name>
+      <Description>Short-term transactions not reported on Form 1099-B.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermProceedsBoxA">
+      <Name>Short-Term Proceeds - Box A</Name>
+      <Description>Total proceeds from short-term Box A transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCostBoxA">
+      <Name>Short-Term Cost - Box A</Name>
+      <Description>Total cost or basis from short-term Box A transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermAdjustmentsBoxA">
+      <Name>Short-Term Adjustments - Box A</Name>
+      <Description>Adjustments to gain/loss for short-term Box A transactions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainLossBoxA">
+      <Name>Short-Term Gain/Loss - Box A</Name>
+      <Description>Net gain or loss from short-term Box A transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Subtract>
+            <Dependency path="/shortTermProceedsBoxA" />
+            <Dependency path="/shortTermCostBoxA" />
+          </Subtract>
+          <Dependency path="/shortTermAdjustmentsBoxA" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/shortTermProceedsBoxB">
+      <Name>Short-Term Proceeds - Box B</Name>
+      <Description>Total proceeds from short-term Box B transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCostBoxB">
+      <Name>Short-Term Cost - Box B</Name>
+      <Description>Total cost or basis from short-term Box B transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainLossBoxB">
+      <Name>Short-Term Gain/Loss - Box B</Name>
+      <Description>Net gain or loss from short-term Box B transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/shortTermProceedsBoxB" />
+          <Dependency path="/shortTermCostBoxB" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/shortTermProceedsBoxC">
+      <Name>Short-Term Proceeds - Box C</Name>
+      <Description>Total proceeds from short-term Box C transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCostBoxC">
+      <Name>Short-Term Cost - Box C</Name>
+      <Description>Total cost or basis from short-term Box C transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainLossBoxC">
+      <Name>Short-Term Gain/Loss - Box C</Name>
+      <Description>Net gain or loss from short-term Box C transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/shortTermProceedsBoxC" />
+          <Dependency path="/shortTermCostBoxC" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalShortTermGainLoss">
+      <Name>Total Short-Term Gain/Loss</Name>
+      <Description>Total short-term capital gain or loss.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/shortTermGainLossBoxA" />
+            <Dependency path="/shortTermGainLossBoxB" />
+          </Add>
+          <Dependency path="/shortTermGainLossBoxC" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: LONG-TERM TRANSACTIONS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasLongTermTransactions">
+      <Name>Has Long-Term Transactions</Name>
+      <Description>Whether taxpayer has long-term capital transactions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermBoxD">
+      <Name>Long-Term Box D</Name>
+      <Description>Long-term transactions reported on Form 1099-B with basis reported to IRS.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermBoxE">
+      <Name>Long-Term Box E</Name>
+      <Description>Long-term transactions reported on Form 1099-B without basis reported to IRS.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermBoxF">
+      <Name>Long-Term Box F</Name>
+      <Description>Long-term transactions not reported on Form 1099-B.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermProceedsBoxD">
+      <Name>Long-Term Proceeds - Box D</Name>
+      <Description>Total proceeds from long-term Box D transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCostBoxD">
+      <Name>Long-Term Cost - Box D</Name>
+      <Description>Total cost or basis from long-term Box D transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermAdjustmentsBoxD">
+      <Name>Long-Term Adjustments - Box D</Name>
+      <Description>Adjustments to gain/loss for long-term Box D transactions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainLossBoxD">
+      <Name>Long-Term Gain/Loss - Box D</Name>
+      <Description>Net gain or loss from long-term Box D transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Subtract>
+            <Dependency path="/longTermProceedsBoxD" />
+            <Dependency path="/longTermCostBoxD" />
+          </Subtract>
+          <Dependency path="/longTermAdjustmentsBoxD" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/longTermProceedsBoxE">
+      <Name>Long-Term Proceeds - Box E</Name>
+      <Description>Total proceeds from long-term Box E transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCostBoxE">
+      <Name>Long-Term Cost - Box E</Name>
+      <Description>Total cost or basis from long-term Box E transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainLossBoxE">
+      <Name>Long-Term Gain/Loss - Box E</Name>
+      <Description>Net gain or loss from long-term Box E transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/longTermProceedsBoxE" />
+          <Dependency path="/longTermCostBoxE" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/longTermProceedsBoxF">
+      <Name>Long-Term Proceeds - Box F</Name>
+      <Description>Total proceeds from long-term Box F transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCostBoxF">
+      <Name>Long-Term Cost - Box F</Name>
+      <Description>Total cost or basis from long-term Box F transactions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainLossBoxF">
+      <Name>Long-Term Gain/Loss - Box F</Name>
+      <Description>Net gain or loss from long-term Box F transactions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/longTermProceedsBoxF" />
+          <Dependency path="/longTermCostBoxF" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalLongTermGainLoss">
+      <Name>Total Long-Term Gain/Loss</Name>
+      <Description>Total long-term capital gain or loss.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/longTermGainLossBoxD" />
+            <Dependency path="/longTermGainLossBoxE" />
+          </Add>
+          <Dependency path="/longTermGainLossBoxF" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- WASH SALE AND ADJUSTMENTS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasWashSales">
+      <Name>Has Wash Sales</Name>
+      <Description>Whether taxpayer has wash sale losses to disallow.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/washSaleDisallowedLoss">
+      <Name>Wash Sale Disallowed Loss</Name>
+      <Description>Total disallowed loss from wash sales.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8949IsDone">
+      <Name>Form 8949 Is Done</Name>
+      <Description>Whether Form 8949 is complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Not><Dependency path="/hasShortTermTransactions" /></Not>
+            <Not><Dependency path="/hasLongTermTransactions" /></Not>
+          </All>
+          <Any>
+            <IsComplete><Dependency path="/totalShortTermGainLoss" /></IsComplete>
+            <IsComplete><Dependency path="/totalLongTermGainLoss" /></IsComplete>
+          </Any>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8949">
+      <Name>Include Form 8949 in PDF</Name>
+      <Description>Whether to include Form 8949 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasShortTermTransactions" />
+          <Dependency path="/hasLongTermTransactions" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

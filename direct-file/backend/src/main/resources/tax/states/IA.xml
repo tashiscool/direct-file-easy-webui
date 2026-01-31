@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Iowa Form IA 1040: Individual Income Tax Return -->
+<!-- Iowa has a flat 3.8% rate (as of 2026, transitioning) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasIA1040">
+      <Name>Has IA Form 1040</Name>
+      <Description>Whether taxpayer files Iowa Form IA 1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>IA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- IA Tax Rate (transitioning to flat) -->
+    <Fact path="/iaTaxRate">
+      <Name>Iowa Tax Rate</Name>
+      <Description>Iowa income tax rate (3.8% for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.038</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- IA Standard Deduction -->
+    <Fact path="/iaStdDeductionSingle">
+      <Name>IA Standard Deduction Single</Name>
+      <Description>Iowa standard deduction for single ($2,210).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2210</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/iaStdDeductionMFJ">
+      <Name>IA Standard Deduction MFJ</Name>
+      <Description>Iowa standard deduction for MFJ ($5,450).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5450</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/iaStandardDeduction">
+      <Name>IA Standard Deduction</Name>
+      <Description>Iowa standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/iaStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/iaStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- IA Taxable Income -->
+    <Fact path="/iaTaxableIncome">
+      <Name>IA Taxable Income</Name>
+      <Description>Iowa taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/iaStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- IA Income Tax -->
+    <Fact path="/iaIncomeTax">
+      <Name>IA Income Tax</Name>
+      <Description>Iowa income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/iaTaxableIncome" />
+          <Dependency path="/iaTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ia1040IsDone">
+      <Name>IA Form 1040 Is Done</Name>
+      <Description>Whether IA Form 1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasIA1040" /></Not>
+          <All>
+            <Dependency path="/hasIA1040" />
+            <IsComplete><Dependency path="/iaIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeIA1040">
+      <Name>Include IA Form 1040 in PDF</Name>
+      <Description>Whether to include IA Form 1040.</Description>
+      <Derived>
+        <Dependency path="/hasIA1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

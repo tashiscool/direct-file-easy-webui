@@ -1,0 +1,276 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 990-PF: Return of Private Foundation -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PRIVATE FOUNDATION STATUS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/isPrivateFoundation">
+      <Name>Is Private Foundation</Name>
+      <Description>Whether organization is a private foundation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foundationType">
+      <Name>Foundation Type</Name>
+      <Description>Type of private foundation.</Description>
+      <Writable>
+        <Enum>
+          <Option value="OPERATING">Private operating foundation</Option>
+          <Option value="NONOPERATING">Private nonoperating foundation</Option>
+          <Option value="EXEMPT_OPERATING">Exempt operating foundation</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: REVENUE AND EXPENSES               -->
+    <!-- ============================================ -->
+
+    <Fact path="/contributionsReceived990PF">
+      <Name>Contributions Received</Name>
+      <Description>Contributions, gifts, grants received (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestOnSavings990PF">
+      <Name>Interest on Savings</Name>
+      <Description>Interest on savings and temporary investments (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsAndInterest990PF">
+      <Name>Dividends and Interest</Name>
+      <Description>Dividends and interest from securities (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netGainFromSale990PF">
+      <Name>Net Gain from Sale</Name>
+      <Description>Net gain from sale of assets (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalRevenue990PF">
+      <Name>Total Revenue</Name>
+      <Description>Total revenue (Line 12).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/contributionsReceived990PF" />
+            <Dependency path="/interestOnSavings990PF" />
+          </Add>
+          <Add>
+            <Dependency path="/dividendsAndInterest990PF" />
+            <Dependency path="/netGainFromSale990PF" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Expenses -->
+    <Fact path="/compensationOfOfficers990PF">
+      <Name>Compensation of Officers</Name>
+      <Description>Compensation of officers, directors, trustees (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalOperatingExpenses990PF">
+      <Name>Total Operating Expenses</Name>
+      <Description>Total operating and administrative expenses (Line 24).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/contributionsGrantsPaid990PF">
+      <Name>Contributions/Grants Paid</Name>
+      <Description>Contributions, gifts, grants paid (Line 25).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: MINIMUM INVESTMENT RETURN           -->
+    <!-- ============================================ -->
+
+    <Fact path="/fairMarketValueOfAssets">
+      <Name>Fair Market Value of Assets</Name>
+      <Description>Fair market value of all assets (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/minimumInvestmentReturnRate">
+      <Name>Minimum Investment Return Rate</Name>
+      <Description>Minimum investment return rate (5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.05</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/minimumInvestmentReturn">
+      <Name>Minimum Investment Return</Name>
+      <Description>Minimum investment return (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/fairMarketValueOfAssets" />
+          <Dependency path="/minimumInvestmentReturnRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VI: DISTRIBUTABLE AMOUNT               -->
+    <!-- ============================================ -->
+
+    <Fact path="/distributableAmount">
+      <Name>Distributable Amount</Name>
+      <Description>Distributable amount (Line 7).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/minimumInvestmentReturn" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VII: QUALIFYING DISTRIBUTIONS          -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifyingDistributions">
+      <Name>Qualifying Distributions</Name>
+      <Description>Total qualifying distributions (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessOrUndistributed">
+      <Name>Excess or Undistributed</Name>
+      <Description>Excess distributions or undistributed income.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/qualifyingDistributions" />
+          <Dependency path="/distributableAmount" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VIII: EXCISE TAX                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/netInvestmentIncome990PF">
+      <Name>Net Investment Income</Name>
+      <Description>Net investment income (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exciseTaxRate990PF">
+      <Name>Excise Tax Rate</Name>
+      <Description>Excise tax rate on net investment income (1.39%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0139</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exciseTaxOnInvestmentIncome">
+      <Name>Excise Tax on Investment Income</Name>
+      <Description>Excise tax on net investment income (Line 7).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/netInvestmentIncome990PF" />
+          <Dependency path="/exciseTaxRate990PF" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form990PFIsDone">
+      <Name>Form 990-PF Is Done</Name>
+      <Description>Whether Form 990-PF is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/isPrivateFoundation" /></Not>
+          <All>
+            <Dependency path="/isPrivateFoundation" />
+            <IsComplete><Dependency path="/exciseTaxOnInvestmentIncome" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm990PF">
+      <Name>Include Form 990-PF in PDF</Name>
+      <Description>Whether to include Form 990-PF in the return.</Description>
+      <Derived>
+        <Dependency path="/isPrivateFoundation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,802 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1065: U.S. Return of Partnership Income -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PARTNERSHIP INFORMATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/isPartnership">
+      <Name>Is Partnership</Name>
+      <Description>Whether entity is a partnership.</Description>
+      <Derived>
+        <Any>
+          <Equals>
+            <Left><Dependency module="form1120" path="/entityType" /></Left>
+            <Right><Enum>partnership</Enum></Right>
+          </Equals>
+          <Equals>
+            <Left><Dependency module="form1120" path="/entityType" /></Left>
+            <Right><Enum>llcPartnership</Enum></Right>
+          </Equals>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/partnershipName">
+      <Name>Partnership Name</Name>
+      <Description>Legal name of the partnership.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipEIN">
+      <Name>Partnership EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipFormationDate">
+      <Name>Formation Date</Name>
+      <Description>Date the partnership was formed.</Description>
+      <Writable>
+        <Date />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipType">
+      <Name>Partnership Type</Name>
+      <Description>Type of partnership.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>generalPartnership</EnumOption>
+          <EnumOption>limitedPartnership</EnumOption>
+          <EnumOption>llp</EnumOption>
+          <EnumOption>llc</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfPartners">
+      <Name>Number of Partners</Name>
+      <Description>Number of partners during the year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipPrincipalActivity">
+      <Name>Principal Business Activity</Name>
+      <Description>Principal business activity code.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GROSS INCOME                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipGrossReceipts">
+      <Name>Gross Receipts or Sales</Name>
+      <Description>Gross receipts or sales (Line 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipReturnsAllowances">
+      <Name>Returns and Allowances</Name>
+      <Description>Returns and allowances (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipCostOfGoodsSold">
+      <Name>Cost of Goods Sold</Name>
+      <Description>Cost of goods sold (Schedule A).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipGrossProfit">
+      <Name>Gross Profit</Name>
+      <Description>Gross profit (Line 3).</Description>
+      <Derived>
+        <Subtract>
+          <Subtract>
+            <Dependency path="/pshipGrossReceipts" />
+            <Dependency path="/pshipReturnsAllowances" />
+          </Subtract>
+          <Dependency path="/pshipCostOfGoodsSold" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipOrdinaryIncomeOther">
+      <Name>Ordinary Income from Other Partnerships</Name>
+      <Description>Ordinary income from other partnerships (Line 4).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipNetFarmProfit">
+      <Name>Net Farm Profit</Name>
+      <Description>Net farm profit (loss) from Form 4835 (Line 5).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipNetGainLoss4797">
+      <Name>Net Gain/Loss from Form 4797</Name>
+      <Description>Net gain (loss) from Form 4797 (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipOtherIncome">
+      <Name>Other Income</Name>
+      <Description>Other income (loss) (Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipTotalIncome">
+      <Name>Total Income</Name>
+      <Description>Total income (loss) (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Dependency path="/pshipGrossProfit" />
+                  <Dependency path="/pshipOrdinaryIncomeOther" />
+                </Add>
+                <Dependency path="/pshipNetFarmProfit" />
+              </Add>
+              <Dependency path="/pshipNetGainLoss4797" />
+            </Add>
+            <Dependency path="/pshipOtherIncome" />
+          </Add>
+          <!-- Guaranteed payments are not included in line 8 -->
+          <Dollar>0</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipSalariesWages">
+      <Name>Salaries and Wages</Name>
+      <Description>Salaries and wages (other than to partners) (Line 9).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipGuaranteedPayments">
+      <Name>Guaranteed Payments to Partners</Name>
+      <Description>Guaranteed payments to partners (Line 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipRepairs">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipBadDebts">
+      <Name>Bad Debts</Name>
+      <Description>Bad debts (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipRent">
+      <Name>Rent</Name>
+      <Description>Rent (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipTaxesLicenses">
+      <Name>Taxes and Licenses</Name>
+      <Description>Taxes and licenses (Line 14).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipInterest">
+      <Name>Interest</Name>
+      <Description>Interest (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipDepreciation">
+      <Name>Depreciation</Name>
+      <Description>Depreciation (Line 16a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipDepletion">
+      <Name>Depletion</Name>
+      <Description>Depletion (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipRetirementPlans">
+      <Name>Retirement Plans</Name>
+      <Description>Retirement plans, etc. (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipEmployeeBenefits">
+      <Name>Employee Benefit Programs</Name>
+      <Description>Employee benefit programs (Line 19).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipOtherDeductions">
+      <Name>Other Deductions</Name>
+      <Description>Other deductions (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipTotalDeductions">
+      <Name>Total Deductions</Name>
+      <Description>Total deductions (Line 21).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Dependency path="/pshipSalariesWages" />
+                              <Dependency path="/pshipGuaranteedPayments" />
+                            </Add>
+                            <Dependency path="/pshipRepairs" />
+                          </Add>
+                          <Dependency path="/pshipBadDebts" />
+                        </Add>
+                        <Dependency path="/pshipRent" />
+                      </Add>
+                      <Dependency path="/pshipTaxesLicenses" />
+                    </Add>
+                    <Dependency path="/pshipInterest" />
+                  </Add>
+                  <Dependency path="/pshipDepreciation" />
+                </Add>
+                <Dependency path="/pshipDepletion" />
+              </Add>
+              <Dependency path="/pshipRetirementPlans" />
+            </Add>
+            <Dependency path="/pshipEmployeeBenefits" />
+          </Add>
+          <Dependency path="/pshipOtherDeductions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipOrdinaryBusinessIncome">
+      <Name>Ordinary Business Income</Name>
+      <Description>Ordinary business income (loss) (Line 22).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/pshipTotalIncome" />
+          <Dependency path="/pshipTotalDeductions" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE K - PARTNERS' DISTRIBUTIVE SHARES  -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipOrdinaryBusinessIncomeK">
+      <Name>Ordinary Business Income (K)</Name>
+      <Description>Ordinary business income (loss) for Schedule K (Line 1).</Description>
+      <Derived>
+        <Dependency path="/pshipOrdinaryBusinessIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipNetRentalRealEstateIncome">
+      <Name>Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (loss) (Schedule K, Line 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipOtherNetRentalIncome">
+      <Name>Other Net Rental Income</Name>
+      <Description>Other net rental income (loss) (Schedule K, Line 3).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipGuaranteedPaymentsServices">
+      <Name>Guaranteed Payments for Services</Name>
+      <Description>Guaranteed payments for services (Schedule K, Line 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipGuaranteedPaymentsCapital">
+      <Name>Guaranteed Payments for Capital</Name>
+      <Description>Guaranteed payments for use of capital (Schedule K, Line 4b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipTotalGuaranteedPaymentsK">
+      <Name>Total Guaranteed Payments (K)</Name>
+      <Description>Total guaranteed payments for Schedule K (Line 4c).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/pshipGuaranteedPaymentsServices" />
+          <Dependency path="/pshipGuaranteedPaymentsCapital" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipInterestIncomeK">
+      <Name>Interest Income (K)</Name>
+      <Description>Interest income (Schedule K, Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipOrdinaryDividendsK">
+      <Name>Ordinary Dividends (K)</Name>
+      <Description>Ordinary dividends (Schedule K, Line 6a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipQualifiedDividendsK">
+      <Name>Qualified Dividends (K)</Name>
+      <Description>Qualified dividends (Schedule K, Line 6b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipRoyaltiesK">
+      <Name>Royalties (K)</Name>
+      <Description>Royalties (Schedule K, Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipNetShortTermCapitalGain">
+      <Name>Net Short-Term Capital Gain</Name>
+      <Description>Net short-term capital gain (loss) (Schedule K, Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipNetLongTermCapitalGain">
+      <Name>Net Long-Term Capital Gain</Name>
+      <Description>Net long-term capital gain (loss) (Schedule K, Line 9a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipCollectiblesGain">
+      <Name>Collectibles (28%) Gain</Name>
+      <Description>Collectibles (28%) gain (loss) (Schedule K, Line 9b).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipUnrecaptured1250Gain">
+      <Name>Unrecaptured Section 1250 Gain</Name>
+      <Description>Unrecaptured section 1250 gain (Schedule K, Line 9c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipSection1231Gain">
+      <Name>Net Section 1231 Gain</Name>
+      <Description>Net section 1231 gain (loss) (Schedule K, Line 10).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipSection179Deduction">
+      <Name>Section 179 Deduction</Name>
+      <Description>Section 179 deduction (Schedule K, Line 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipCharitableContributions">
+      <Name>Charitable Contributions</Name>
+      <Description>Charitable contributions (Schedule K, Line 13a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipInvestmentInterestExpense">
+      <Name>Investment Interest Expense</Name>
+      <Description>Investment interest expense (Schedule K, Line 13b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYMENT EARNINGS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipSEEarningsGeneral">
+      <Name>SE Earnings - General Partners</Name>
+      <Description>Net earnings from self-employment - general partners (Schedule K, Line 14a).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/pshipOrdinaryBusinessIncomeK" />
+          <Dependency path="/pshipGuaranteedPaymentsServices" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipGrossFarmingIncome">
+      <Name>Gross Farming or Fishing Income</Name>
+      <Description>Gross farming or fishing income (Schedule K, Line 14b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDITS                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipLowIncomeHousingCredit">
+      <Name>Low-Income Housing Credit</Name>
+      <Description>Low-income housing credit (Schedule K, Line 15a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipRehabilitationCredit">
+      <Name>Rehabilitation Credit</Name>
+      <Description>Rehabilitation credit (Schedule K, Line 15b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipOtherRentalCredits">
+      <Name>Other Rental Credits</Name>
+      <Description>Other rental real estate credits (Schedule K, Line 15c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipForeignTaxesPaid">
+      <Name>Foreign Taxes Paid</Name>
+      <Description>Foreign taxes paid or accrued (Schedule K, Line 16).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI INFORMATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipQBI">
+      <Name>Partnership QBI</Name>
+      <Description>Qualified business income for Section 199A (Schedule K, Line 20c).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/pshipOrdinaryBusinessIncomeK" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipW2WagesForQBI">
+      <Name>W-2 Wages for QBI</Name>
+      <Description>W-2 wages paid for QBI limitation.</Description>
+      <Derived>
+        <Dependency path="/pshipSalariesWages" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pshipQualifiedPropertyBasis">
+      <Name>Qualified Property Basis</Name>
+      <Description>Unadjusted basis of qualified property for QBI.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipIsSSTB">
+      <Name>Is SSTB</Name>
+      <Description>Whether partnership is a specified service trade or business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PARTNER CAPITAL ACCOUNTS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/pshipTotalPartnersCapitalBeginning">
+      <Name>Partners' Capital - Beginning</Name>
+      <Description>Total partners' capital at beginning of year (Schedule M-2, Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipCapitalContributed">
+      <Name>Capital Contributed</Name>
+      <Description>Capital contributed during year (Schedule M-2, Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipDistributions">
+      <Name>Distributions</Name>
+      <Description>Distributions to partners (Schedule M-2, Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pshipTotalPartnersCapitalEnd">
+      <Name>Partners' Capital - End</Name>
+      <Description>Total partners' capital at end of year (Schedule M-2, Line 9).</Description>
+      <Derived>
+        <Add>
+          <Subtract>
+            <Add>
+              <Dependency path="/pshipTotalPartnersCapitalBeginning" />
+              <Dependency path="/pshipCapitalContributed" />
+            </Add>
+            <Dependency path="/pshipDistributions" />
+          </Subtract>
+          <Dependency path="/pshipOrdinaryBusinessIncomeK" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1065IsDone">
+      <Name>Form 1065 Is Done</Name>
+      <Description>Whether Form 1065 is complete.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isPartnership" />
+          <IsComplete>
+            <Dependency path="/partnershipName" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/partnershipEIN" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/pshipGrossReceipts" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm1065">
+      <Name>Include Form 1065 in PDF</Name>
+      <Description>Whether to include Form 1065 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isPartnership" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

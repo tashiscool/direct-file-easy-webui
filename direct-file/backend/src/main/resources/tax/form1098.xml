@@ -1,0 +1,112 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1098: Mortgage Interest Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1098">
+      <Name>Has Form 1098</Name>
+      <Description>Whether taxpayer received Form 1098.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lenderName1098">
+      <Name>Lender Name</Name>
+      <Description>Name of lender.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageInterestReceived1098">
+      <Name>Mortgage Interest Received</Name>
+      <Description>Mortgage interest received (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/outstandingPrincipal1098">
+      <Name>Outstanding Mortgage Principal</Name>
+      <Description>Outstanding mortgage principal (Box 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageInsurancePremiums1098">
+      <Name>Mortgage Insurance Premiums</Name>
+      <Description>Mortgage insurance premiums (Box 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pointsPaid1098">
+      <Name>Points Paid on Purchase</Name>
+      <Description>Points paid on purchase (Box 6).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/realEstateTaxes1098">
+      <Name>Real Estate Taxes Paid</Name>
+      <Description>Real estate taxes paid (Box 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalDeductibleInterest1098">
+      <Name>Total Deductible Mortgage Interest</Name>
+      <Description>Total deductible mortgage interest.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/mortgageInterestReceived1098" />
+          <Dependency path="/pointsPaid1098" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098IsDone">
+      <Name>Form 1098 Is Done</Name>
+      <Description>Whether Form 1098 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1098" /></Not>
+          <All>
+            <Dependency path="/hasForm1098" />
+            <IsComplete><Dependency path="/mortgageInterestReceived1098" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,117 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1040-ES: Estimated Tax for Individuals -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm1040ES">
+      <Name>Has Form 1040-ES</Name>
+      <Description>Whether taxpayer is making estimated tax payments.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectedAGI1040ES">
+      <Name>Expected AGI</Name>
+      <Description>Expected adjusted gross income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectedDeductions1040ES">
+      <Name>Expected Deductions</Name>
+      <Description>Expected deductions (standard or itemized).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectedTaxableIncome1040ES">
+      <Name>Expected Taxable Income</Name>
+      <Description>Expected taxable income.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/expectedAGI1040ES" />
+            <Dependency path="/expectedDeductions1040ES" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/expectedTax1040ES">
+      <Name>Expected Tax</Name>
+      <Description>Expected tax liability.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/expectedWithholding1040ES">
+      <Name>Expected Withholding</Name>
+      <Description>Expected withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/estimatedTaxDue1040ES">
+      <Name>Estimated Tax Due</Name>
+      <Description>Estimated tax to be paid.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/expectedTax1040ES" />
+            <Dependency path="/expectedWithholding1040ES" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/quarterlyPayment1040ES">
+      <Name>Quarterly Payment</Name>
+      <Description>Payment amount per quarter.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Divide>
+          <Dependency path="/estimatedTaxDue1040ES" />
+          <Int>4</Int>
+        </Divide>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1040ESIsDone">
+      <Name>Form 1040-ES Is Done</Name>
+      <Description>Whether Form 1040-ES is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm1040ES" /></Not>
+          <All>
+            <Dependency path="/hasForm1040ES" />
+            <IsComplete><Dependency path="/quarterlyPayment1040ES" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

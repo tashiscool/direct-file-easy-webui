@@ -1,0 +1,161 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K-1 (Form 1065): Partner's Share of Income, Deductions, Credits -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasScheduleK11065">
+      <Name>Has Schedule K-1 (1065)</Name>
+      <Description>Whether taxpayer received Schedule K-1 from partnership.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipEIN1065">
+      <Name>Partnership EIN</Name>
+      <Description>Partnership's employer identification number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipName1065">
+      <Name>Partnership Name</Name>
+      <Description>Partnership's name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnerType1065">
+      <Name>Partner Type</Name>
+      <Description>Type of partner (general/limited).</Description>
+      <Writable>
+        <Enum>
+          <Option>generalPartner</Option>
+          <Option>limitedPartner</Option>
+          <Option>llcMember</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/profitSharingPct">
+      <Name>Profit Sharing Percentage</Name>
+      <Description>Partner's share of profit percentage.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryBusinessIncome1065">
+      <Name>Ordinary Business Income</Name>
+      <Description>Ordinary business income (loss) (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netRentalRealEstate1065">
+      <Name>Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (loss) (Box 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/guaranteedPayments1065">
+      <Name>Guaranteed Payments</Name>
+      <Description>Guaranteed payments for services and capital (Box 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestIncome1065">
+      <Name>Interest Income</Name>
+      <Description>Interest income (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryDividends1065">
+      <Name>Ordinary Dividends</Name>
+      <Description>Ordinary dividends (Box 6a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netSEEarnings1065">
+      <Name>Net SE Earnings</Name>
+      <Description>Net earnings from self-employment (Box 14).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/section199AIncome1065">
+      <Name>Section 199A Income</Name>
+      <Description>Section 199A qualified business income (Box 20 Code Z).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalK1Income1065">
+      <Name>Total K-1 Income</Name>
+      <Description>Total income from Schedule K-1 (1065).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/ordinaryBusinessIncome1065" />
+            <Dependency path="/guaranteedPayments1065" />
+          </Add>
+          <Add>
+            <Dependency path="/interestIncome1065" />
+            <Dependency path="/ordinaryDividends1065" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleK11065IsDone">
+      <Name>Schedule K-1 (1065) Is Done</Name>
+      <Description>Whether Schedule K-1 (1065) is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasScheduleK11065" /></Not>
+          <All>
+            <Dependency path="/hasScheduleK11065" />
+            <IsComplete><Dependency path="/totalK1Income1065" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

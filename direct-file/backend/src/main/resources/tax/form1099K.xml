@@ -1,0 +1,186 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-K: Payment Card and Third Party Network Transactions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PAYMENT SETTLEMENT ENTITY INFO              -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099K">
+      <Name>Has 1099-K</Name>
+      <Description>Whether taxpayer received Form 1099-K.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pse1Name">
+      <Name>PSE 1 Name</Name>
+      <Description>Payment settlement entity name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pse1GrossAmount">
+      <Name>PSE 1 Gross Amount</Name>
+      <Description>Gross amount of payment card transactions (Box 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pse1CardNotPresent">
+      <Name>PSE 1 Card Not Present</Name>
+      <Description>Card not present transactions (Box 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pse1FederalWithholding">
+      <Name>PSE 1 Federal Withholding</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Second 1099-K -->
+    <Fact path="/pse2GrossAmount">
+      <Name>PSE 2 Gross Amount</Name>
+      <Description>Second 1099-K gross amount.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/pse2FederalWithholding">
+      <Name>PSE 2 Federal Withholding</Name>
+      <Description>Second 1099-K federal withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- MONTHLY BREAKDOWN (BOX 5)                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/januaryAmount">
+      <Name>January Amount</Name>
+      <Description>January gross amount (Box 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/februaryAmount">
+      <Name>February Amount</Name>
+      <Description>February gross amount (Box 5b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/marchAmount">
+      <Name>March Amount</Name>
+      <Description>March gross amount (Box 5c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/total1099KGrossAmount">
+      <Name>Total 1099-K Gross Amount</Name>
+      <Description>Total gross amount from all 1099-K forms.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/pse1GrossAmount" />
+          <Dependency path="/pse2GrossAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/total1099KWithholding">
+      <Name>Total 1099-K Withholding</Name>
+      <Description>Total federal withholding from 1099-K.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/pse1FederalWithholding" />
+          <Dependency path="/pse2FederalWithholding" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REPORTING THRESHOLDS                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/reportingThreshold2025">
+      <Name>Reporting Threshold 2025</Name>
+      <Description>1099-K reporting threshold ($5,000 for 2024, $2,500 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099KIsDone">
+      <Name>Form 1099-K Is Done</Name>
+      <Description>Whether Form 1099-K is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099K" /></Not>
+          <All>
+            <Dependency path="/has1099K" />
+            <IsComplete><Dependency path="/total1099KGrossAmount" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

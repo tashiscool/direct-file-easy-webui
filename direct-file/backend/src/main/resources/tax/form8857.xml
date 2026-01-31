@@ -1,0 +1,85 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8857: Request for Innocent Spouse Relief -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8857">
+      <Name>Has Form 8857</Name>
+      <Description>Whether taxpayer is requesting innocent spouse relief.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reliefType8857">
+      <Name>Relief Type</Name>
+      <Description>Type of relief requested.</Description>
+      <Writable>
+        <Enum>
+          <Option>innocentSpouse</Option>
+          <Option>separationOfLiability</Option>
+          <Option>equitableRelief</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearsRequested8857">
+      <Name>Tax Years Requested</Name>
+      <Description>Tax years for which relief is requested.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/understatedTax8857">
+      <Name>Understated Tax</Name>
+      <Description>Amount of understated tax.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/underpaidTax8857">
+      <Name>Underpaid Tax</Name>
+      <Description>Amount of underpaid tax.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalReliefRequested8857">
+      <Name>Total Relief Requested</Name>
+      <Description>Total amount of relief requested.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/understatedTax8857" />
+          <Dependency path="/underpaidTax8857" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8857IsDone">
+      <Name>Form 8857 Is Done</Name>
+      <Description>Whether Form 8857 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8857" /></Not>
+          <All>
+            <Dependency path="/hasForm8857" />
+            <IsComplete><Dependency path="/totalReliefRequested8857" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

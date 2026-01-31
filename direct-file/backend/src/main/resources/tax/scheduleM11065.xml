@@ -1,0 +1,303 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule M-1 (Form 1065): Reconciliation of Income (Loss) per Books With Income (Loss) per Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INCOME RECONCILIATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/netIncomePerBooks">
+      <Name>Net Income Per Books</Name>
+      <Description>Net income (loss) per books (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ADDITIONS TO NET INCOME (Lines 2-4)         -->
+    <!-- ============================================ -->
+
+    <Fact path="/incomeRecordedNotOnBooks">
+      <Name>Income Recorded Not on Books</Name>
+      <Description>Income included on Schedule K not recorded on books (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/guaranteedPaymentsNotDeducted">
+      <Name>Guaranteed Payments Not Deducted</Name>
+      <Description>Guaranteed payments deducted on Schedule K, not deducted on books (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/expensesOnBooksNotOnReturn">
+      <Name>Expenses on Books Not on Return</Name>
+      <Description>Expenses recorded on books not included on Schedule K (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation4a">
+      <Name>Depreciation (Line 4a)</Name>
+      <Description>Book depreciation not deductible on return.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/travelEntertainment4b">
+      <Name>Travel and Entertainment (Line 4b)</Name>
+      <Description>Travel and entertainment expenses not deductible.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLine4Expenses">
+      <Name>Total Line 4 Expenses</Name>
+      <Description>Total expenses on books not on return.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/expensesOnBooksNotOnReturn" />
+            <Dependency path="/depreciation4a" />
+          </Add>
+          <Dependency path="/travelEntertainment4b" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAdditions">
+      <Name>Total Additions</Name>
+      <Description>Total additions to book income (Line 5).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/netIncomePerBooks" />
+              <Dependency path="/incomeRecordedNotOnBooks" />
+            </Add>
+            <Dependency path="/guaranteedPaymentsNotDeducted" />
+          </Add>
+          <Dependency path="/totalLine4Expenses" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUBTRACTIONS FROM NET INCOME (Lines 6-8)    -->
+    <!-- ============================================ -->
+
+    <Fact path="/incomeOnBooksNotOnReturn">
+      <Name>Income on Books Not on Return</Name>
+      <Description>Income recorded on books not included on Schedule K (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxExemptInterest6a">
+      <Name>Tax-Exempt Interest (Line 6a)</Name>
+      <Description>Tax-exempt interest included in book income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductionsOnReturnNotOnBooks">
+      <Name>Deductions on Return Not on Books</Name>
+      <Description>Deductions included on Schedule K not charged against book income (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation7a">
+      <Name>Depreciation (Line 7a)</Name>
+      <Description>Tax depreciation not on books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLine7Deductions">
+      <Name>Total Line 7 Deductions</Name>
+      <Description>Total deductions on return not on books.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/deductionsOnReturnNotOnBooks" />
+          <Dependency path="/depreciation7a" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalSubtractions">
+      <Name>Total Subtractions</Name>
+      <Description>Total subtractions from book income (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/incomeOnBooksNotOnReturn" />
+            <Dependency path="/taxExemptInterest6a" />
+          </Add>
+          <Dependency path="/totalLine7Deductions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME RECONCILIATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/incomePerReturn">
+      <Name>Income Per Return</Name>
+      <Description>Income (loss) per return - Analysis of Net Income (Line 9).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalAdditions" />
+          <Dependency path="/totalSubtractions" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/reconciliationDifference">
+      <Name>Reconciliation Difference</Name>
+      <Description>Difference between book and tax income.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/incomePerReturn" />
+          <Dependency path="/netIncomePerBooks" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- COMMON RECONCILING ITEMS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/mealsDeductionLimit">
+      <Name>Meals Deduction Limitation</Name>
+      <Description>Non-deductible portion of meals expense (50%).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/finesAndPenalties">
+      <Name>Fines and Penalties</Name>
+      <Description>Non-deductible fines and penalties.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/politicalContributions">
+      <Name>Political Contributions</Name>
+      <Description>Non-deductible political contributions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/lifeInsurancePremiums">
+      <Name>Life Insurance Premiums</Name>
+      <Description>Non-deductible life insurance premiums (partnership is beneficiary).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section179Expense">
+      <Name>Section 179 Expense</Name>
+      <Description>Section 179 expense deducted on return, not on books.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleM1IsDone">
+      <Name>Schedule M-1 Is Done</Name>
+      <Description>Whether Schedule M-1 is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/netIncomePerBooks" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleM11065">
+      <Name>Include Schedule M-1 in PDF</Name>
+      <Description>Whether to include Schedule M-1 in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,88 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Indiana Form IT-40: Individual Income Tax Return -->
+<!-- Indiana has a flat 3.05% state rate plus county taxes -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasINIT40">
+      <Name>Has IN Form IT-40</Name>
+      <Description>Whether taxpayer files Indiana Form IT-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>IN</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- IN Tax Rate (flat) -->
+    <Fact path="/inTaxRate">
+      <Name>Indiana Tax Rate</Name>
+      <Description>Indiana flat income tax rate (3.05%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0305</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- IN Personal Exemption -->
+    <Fact path="/inPersonalExemption">
+      <Name>IN Personal Exemption</Name>
+      <Description>Indiana personal exemption ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- IN Taxable Income -->
+    <Fact path="/inTaxableIncome">
+      <Name>IN Taxable Income</Name>
+      <Description>Indiana taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/inPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- IN Income Tax -->
+    <Fact path="/inIncomeTax">
+      <Name>IN Income Tax</Name>
+      <Description>Indiana income tax (flat 3.05%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/inTaxableIncome" />
+          <Dependency path="/inTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/init40IsDone">
+      <Name>IN Form IT-40 Is Done</Name>
+      <Description>Whether IN Form IT-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasINIT40" /></Not>
+          <All>
+            <Dependency path="/hasINIT40" />
+            <IsComplete><Dependency path="/inIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeINIT40">
+      <Name>Include IN Form IT-40 in PDF</Name>
+      <Description>Whether to include IN Form IT-40.</Description>
+      <Derived>
+        <Dependency path="/hasINIT40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

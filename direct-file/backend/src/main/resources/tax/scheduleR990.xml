@@ -1,0 +1,319 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule R (Form 990): Related Organizations and Unrelated Partnerships -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- RELATED ORGANIZATIONS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRelatedOrganizations">
+      <Name>Has Related Organizations</Name>
+      <Description>Whether organization has related organizations.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: DISREGARDED ENTITIES                -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasDisregardedEntities">
+      <Name>Has Disregarded Entities</Name>
+      <Description>Whether has disregarded entities (Part I).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1Name">
+      <Name>Disregarded Entity 1 Name</Name>
+      <Description>Name of disregarded entity (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1EIN">
+      <Name>Disregarded Entity 1 EIN</Name>
+      <Description>EIN of disregarded entity (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1PrimaryActivity">
+      <Name>Disregarded Entity 1 Primary Activity</Name>
+      <Description>Primary activity of entity (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1LegalDomicile">
+      <Name>Disregarded Entity 1 Legal Domicile</Name>
+      <Description>Legal domicile state (Part I).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1TotalIncome">
+      <Name>Disregarded Entity 1 Total Income</Name>
+      <Description>Total income of entity (Part I).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disregardedEntity1EndOfYearAssets">
+      <Name>Disregarded Entity 1 End of Year Assets</Name>
+      <Description>End-of-year assets (Part I).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: RELATED TAX-EXEMPT ORGANIZATIONS   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRelatedExemptOrganizations">
+      <Name>Has Related Exempt Organizations</Name>
+      <Description>Whether has related tax-exempt organizations (Part II).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedExemptOrg1Name">
+      <Name>Related Exempt Org 1 Name</Name>
+      <Description>Name of related exempt organization (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedExemptOrg1EIN">
+      <Name>Related Exempt Org 1 EIN</Name>
+      <Description>EIN of related organization (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedExemptOrg1ExemptCodeSection">
+      <Name>Related Exempt Org 1 Exempt Code Section</Name>
+      <Description>Exempt code section (Part II).</Description>
+      <Writable>
+        <Enum>
+          <Option value="501C3">501(c)(3)</Option>
+          <Option value="501C4">501(c)(4)</Option>
+          <Option value="501C5">501(c)(5)</Option>
+          <Option value="501C6">501(c)(6)</Option>
+          <Option value="501C7">501(c)(7)</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedExemptOrg1PublicCharity">
+      <Name>Related Exempt Org 1 Public Charity</Name>
+      <Description>Public charity status (Part II).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedExemptOrg1DirectControl">
+      <Name>Related Exempt Org 1 Direct Control</Name>
+      <Description>Whether direct controlling entity (Part II).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: RELATED TAXABLE ORGANIZATIONS     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRelatedTaxableOrganizations">
+      <Name>Has Related Taxable Organizations</Name>
+      <Description>Whether has related taxable corporations/trusts (Part III).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1Name">
+      <Name>Related Taxable Org 1 Name</Name>
+      <Description>Name of related taxable organization (Part III).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1EIN">
+      <Name>Related Taxable Org 1 EIN</Name>
+      <Description>EIN of related taxable organization (Part III).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1PrimaryActivity">
+      <Name>Related Taxable Org 1 Primary Activity</Name>
+      <Description>Primary activity (Part III).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1EntityType">
+      <Name>Related Taxable Org 1 Entity Type</Name>
+      <Description>Legal domicile and entity type (Part III).</Description>
+      <Writable>
+        <Enum>
+          <Option value="C_CORP">C Corporation</Option>
+          <Option value="S_CORP">S Corporation</Option>
+          <Option value="TRUST">Trust</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1ShareOfIncome">
+      <Name>Related Taxable Org 1 Share of Income</Name>
+      <Description>Share of total income (Part III).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1ShareOfAssets">
+      <Name>Related Taxable Org 1 Share of Assets</Name>
+      <Description>Share of end-of-year assets (Part III).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedTaxableOrg1OwnershipPercent">
+      <Name>Related Taxable Org 1 Ownership Percent</Name>
+      <Description>Percentage ownership (Part III).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: UNRELATED PARTNERSHIPS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasUnrelatedPartnerships">
+      <Name>Has Unrelated Partnerships</Name>
+      <Description>Whether has unrelated partnerships (Part IV).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrelatedPartnership1Name">
+      <Name>Unrelated Partnership 1 Name</Name>
+      <Description>Name of unrelated partnership (Part IV).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrelatedPartnership1EIN">
+      <Name>Unrelated Partnership 1 EIN</Name>
+      <Description>EIN of partnership (Part IV).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrelatedPartnership1PrimaryActivity">
+      <Name>Unrelated Partnership 1 Primary Activity</Name>
+      <Description>Primary activity (Part IV).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrelatedPartnership1OwnershipPercent">
+      <Name>Unrelated Partnership 1 Ownership Percent</Name>
+      <Description>Percentage ownership (Part IV).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/unrelatedPartnership1ShareOfIncome">
+      <Name>Unrelated Partnership 1 Share of Income</Name>
+      <Description>Share of income (Part IV).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleR990IsDone">
+      <Name>Schedule R Is Done</Name>
+      <Description>Whether Schedule R is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasRelatedOrganizations" /></Not>
+          <All>
+            <Dependency path="/hasRelatedOrganizations" />
+            <Any>
+              <IsComplete><Dependency path="/disregardedEntity1Name" /></IsComplete>
+              <IsComplete><Dependency path="/relatedExemptOrg1Name" /></IsComplete>
+              <IsComplete><Dependency path="/relatedTaxableOrg1Name" /></IsComplete>
+              <IsComplete><Dependency path="/unrelatedPartnership1Name" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleR990">
+      <Name>Include Schedule R in PDF</Name>
+      <Description>Whether to include Schedule R (990) in output.</Description>
+      <Derived>
+        <Dependency path="/hasRelatedOrganizations" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

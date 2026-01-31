@@ -1,0 +1,195 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4952: Investment Interest Expense Deduction -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasInvestmentInterestExpense">
+      <Name>Has Investment Interest Expense</Name>
+      <Description>Whether taxpayer has investment interest expense.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Total Investment Interest Expense -->
+    <Fact path="/investmentInterestPaid">
+      <Name>Investment Interest Paid</Name>
+      <Description>Investment interest expense paid or accrued (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/disallowedPriorYearCarryover">
+      <Name>Disallowed Prior Year Carryover</Name>
+      <Description>Disallowed investment interest from prior years (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalInvestmentInterest">
+      <Name>Total Investment Interest</Name>
+      <Description>Total investment interest expense (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/investmentInterestPaid" />
+          <Dependency path="/disallowedPriorYearCarryover" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: Net Investment Income -->
+    <Fact path="/grossInvestmentIncome4952">
+      <Name>Gross Investment Income</Name>
+      <Description>Gross income from property held for investment (Line 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedDividendsElection">
+      <Name>Qualified Dividends Election</Name>
+      <Description>Qualified dividends to include in investment income (Line 4b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netCapitalGainElection">
+      <Name>Net Capital Gain Election</Name>
+      <Description>Net capital gain to include in investment income (Line 4c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherInvestmentIncome4952">
+      <Name>Other Investment Income</Name>
+      <Description>Other gross income from investment (Line 4d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGrossInvestmentIncome">
+      <Name>Total Gross Investment Income</Name>
+      <Description>Total gross investment income (Line 4e).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/grossInvestmentIncome4952" />
+            <Dependency path="/qualifiedDividendsElection" />
+          </Add>
+          <Add>
+            <Dependency path="/netCapitalGainElection" />
+            <Dependency path="/otherInvestmentIncome4952" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/investmentExpenses4952">
+      <Name>Investment Expenses</Name>
+      <Description>Investment expenses other than interest (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netInvestmentIncome4952">
+      <Name>Net Investment Income</Name>
+      <Description>Net investment income (Line 6).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalGrossInvestmentIncome" />
+            <Dependency path="/investmentExpenses4952" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- Part III: Investment Interest Expense Deduction -->
+    <Fact path="/investmentInterestDeduction">
+      <Name>Investment Interest Deduction</Name>
+      <Description>Deductible investment interest expense (Line 7).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/totalInvestmentInterest" />
+          <Dependency path="/netInvestmentIncome4952" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/investmentInterestCarryforward">
+      <Name>Investment Interest Carryforward</Name>
+      <Description>Disallowed expense carryforward to next year (Line 8).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalInvestmentInterest" />
+            <Dependency path="/investmentInterestDeduction" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4952IsDone">
+      <Name>Form 4952 Is Done</Name>
+      <Description>Whether Form 4952 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInvestmentInterestExpense" /></Not>
+          <All>
+            <Dependency path="/hasInvestmentInterestExpense" />
+            <IsComplete><Dependency path="/investmentInterestDeduction" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4952">
+      <Name>Include Form 4952 in PDF</Name>
+      <Description>Whether to include Form 4952.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/investmentInterestDeduction" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,33 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- New Hampshire: No State Income Tax on Wages -->
+<!-- Note: NH taxes interest/dividends but this was phased out by 2025 -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNHReturn">
+      <Name>Has NH Return</Name>
+      <Description>New Hampshire has no tax on wages/earned income.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nhNoIncomeTax">
+      <Name>NH No Income Tax</Name>
+      <Description>New Hampshire does not impose a personal income tax on wages.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NH</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nhFilingRequired">
+      <Name>NH Filing Required</Name>
+      <Description>No state filing required for New Hampshire residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

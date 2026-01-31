@@ -1,0 +1,133 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8801: Credit for Prior Year Minimum Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PRIOR YEAR AMT CREDIT                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasPriorYearAMTCredit">
+      <Name>Has Prior Year AMT Credit</Name>
+      <Description>Whether taxpayer has prior year AMT credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearAMT">
+      <Name>Prior Year AMT</Name>
+      <Description>Prior year AMT (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearMinTaxCredit">
+      <Name>Prior Year Minimum Tax Credit</Name>
+      <Description>Prior year minimum tax credit (Line 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/carryforwardCredit">
+      <Name>Carryforward Credit</Name>
+      <Description>Carryforward of minimum tax credit (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalMinTaxCreditAvailable">
+      <Name>Total Min Tax Credit Available</Name>
+      <Description>Total minimum tax credit available (Line 9).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/priorYearMinTaxCredit" />
+          <Dependency path="/carryforwardCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/currentYearRegularTax">
+      <Name>Current Year Regular Tax</Name>
+      <Description>Current year regular tax (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearTentativeMinTax">
+      <Name>Current Year Tentative Min Tax</Name>
+      <Description>Current year tentative minimum tax (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/minimumTaxCreditAllowed">
+      <Name>Minimum Tax Credit Allowed</Name>
+      <Description>Minimum tax credit allowed (Line 13).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/totalMinTaxCreditAvailable" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/currentYearRegularTax" />
+              <Dependency path="/currentYearTentativeMinTax" />
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8801IsDone">
+      <Name>Form 8801 Is Done</Name>
+      <Description>Whether Form 8801 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPriorYearAMTCredit" /></Not>
+          <All>
+            <Dependency path="/hasPriorYearAMTCredit" />
+            <IsComplete><Dependency path="/minimumTaxCreditAllowed" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8801">
+      <Name>Include Form 8801 in PDF</Name>
+      <Description>Whether to include Form 8801 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/minimumTaxCreditAllowed" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

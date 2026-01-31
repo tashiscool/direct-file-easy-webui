@@ -1,0 +1,249 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8812: Credits for Qualifying Children and Other Dependents -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasChildOrDependentCredits">
+      <Name>Has Child or Dependent Credits</Name>
+      <Description>Whether taxpayer claims CTC/ODC.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Child Tax Credit and Credit for Other Dependents -->
+    <Fact path="/numberOfQualifyingChildren">
+      <Name>Number of Qualifying Children</Name>
+      <Description>Number of qualifying children for CTC (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ctcAmountPerChild">
+      <Name>CTC Amount Per Child</Name>
+      <Description>Child tax credit amount per child ($2,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/childTaxCreditBeforeLimit">
+      <Name>Child Tax Credit Before Limit</Name>
+      <Description>Child tax credit before limitations (Line 2).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/numberOfQualifyingChildren" />
+          <Dependency path="/ctcAmountPerChild" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/numberOfOtherDependents">
+      <Name>Number of Other Dependents</Name>
+      <Description>Number of other dependents for ODC (Line 3).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/odcAmountPerDependent">
+      <Name>ODC Amount Per Dependent</Name>
+      <Description>Other dependent credit amount ($500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherDependentCredit">
+      <Name>Other Dependent Credit</Name>
+      <Description>Credit for other dependents (Line 4).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/numberOfOtherDependents" />
+          <Dependency path="/odcAmountPerDependent" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalChildAndDependentCredits">
+      <Name>Total Child and Dependent Credits</Name>
+      <Description>Total before income limitation (Line 5).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/childTaxCreditBeforeLimit" />
+          <Dependency path="/otherDependentCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Income Phase-out -->
+    <Fact path="/modifiedAGI8812">
+      <Name>Modified AGI</Name>
+      <Description>Modified AGI (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ctcPhaseoutThresholdSingle">
+      <Name>CTC Phaseout Threshold Single</Name>
+      <Description>Phaseout threshold for single ($200,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcPhaseoutThresholdMFJ">
+      <Name>CTC Phaseout Threshold MFJ</Name>
+      <Description>Phaseout threshold for MFJ ($400,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>400000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/applicablePhaseoutThreshold">
+      <Name>Applicable Phaseout Threshold</Name>
+      <Description>Applicable phaseout threshold (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/phaseoutReduction8812">
+      <Name>Phaseout Reduction</Name>
+      <Description>Credit reduction due to income (Line 9).</Description>
+      <Derived>
+        <Multiply>
+          <Divide>
+            <Max>
+              <Dollar>0</Dollar>
+              <Subtract>
+                <Dependency path="/modifiedAGI8812" />
+                <Dependency path="/applicablePhaseoutThreshold" />
+              </Subtract>
+            </Max>
+            <Dollar>1000</Dollar>
+          </Divide>
+          <Dollar>50</Dollar>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcAfterPhaseout">
+      <Name>CTC After Phaseout</Name>
+      <Description>Child tax credit after income limitation (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalChildAndDependentCredits" />
+            <Dependency path="/phaseoutReduction8812" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- Part II-A: Additional Child Tax Credit -->
+    <Fact path="/refundableCTCPerChild">
+      <Name>Refundable CTC Per Child</Name>
+      <Description>Maximum refundable amount per child ($1,700 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomeForACTC">
+      <Name>Earned Income for ACTC</Name>
+      <Description>Earned income for additional child tax credit (Line 18a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalChildTaxCredit">
+      <Name>Additional Child Tax Credit</Name>
+      <Description>Refundable additional child tax credit (Line 27).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/numberOfQualifyingChildren" />
+            <Dependency path="/refundableCTCPerChild" />
+          </Multiply>
+          <Max>
+            <Dollar>0</Dollar>
+            <Multiply>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/earnedIncomeForACTC" />
+                  <Dollar>2500</Dollar>
+                </Subtract>
+              </Max>
+              <Decimal>0.15</Decimal>
+            </Multiply>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8812IsDone">
+      <Name>Form 8812 Is Done</Name>
+      <Description>Whether Form 8812 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasChildOrDependentCredits" /></Not>
+          <All>
+            <Dependency path="/hasChildOrDependentCredits" />
+            <IsComplete><Dependency path="/ctcAfterPhaseout" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8812">
+      <Name>Include Form 8812 in PDF</Name>
+      <Description>Whether to include Form 8812.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/ctcAfterPhaseout" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/additionalChildTaxCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

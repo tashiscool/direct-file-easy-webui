@@ -1,0 +1,171 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 982: Reduction of Tax Attributes Due to Discharge of Indebtedness -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasCancellationOfDebt">
+      <Name>Has Cancellation of Debt</Name>
+      <Description>Whether taxpayer has discharge of indebtedness.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Exclusion -->
+    <Fact path="/dischargeDueToBankruptcy">
+      <Name>Discharge Due to Bankruptcy</Name>
+      <Description>Discharge in title 11 bankruptcy case (Line 1a).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dischargeWhenInsolvent">
+      <Name>Discharge When Insolvent</Name>
+      <Description>Discharge when insolvent (Line 1b).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dischargeOfQualifiedFarmDebt">
+      <Name>Discharge of Qualified Farm Debt</Name>
+      <Description>Discharge of qualified farm indebtedness (Line 1c).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dischargeOfQualifiedRealPropertyDebt">
+      <Name>Discharge of Qualified Real Property Debt</Name>
+      <Description>Discharge of qualified real property business debt (Line 1d).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dischargeOfQualifiedPrincipalResidence">
+      <Name>Discharge of Qualified Principal Residence</Name>
+      <Description>Discharge of qualified principal residence debt (Line 1e).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAmountExcluded">
+      <Name>Total Amount Excluded</Name>
+      <Description>Total amount of discharged debt excluded (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Part II: Reduction of Tax Attributes -->
+    <Fact path="/reduceNOL">
+      <Name>Reduce NOL</Name>
+      <Description>Reduction of net operating losses (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reduceGeneralBusinessCredit">
+      <Name>Reduce General Business Credit</Name>
+      <Description>Reduction of general business credits (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reduceMinTaxCredit">
+      <Name>Reduce Min Tax Credit</Name>
+      <Description>Reduction of minimum tax credit (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reduceCapitalLoss">
+      <Name>Reduce Capital Loss</Name>
+      <Description>Reduction of capital loss carryovers (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reduceBasisOfProperty">
+      <Name>Reduce Basis of Property</Name>
+      <Description>Reduction of basis in property (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalReduction">
+      <Name>Total Reduction</Name>
+      <Description>Total reduction of tax attributes.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/reduceNOL" />
+            <Dependency path="/reduceGeneralBusinessCredit" />
+          </Add>
+          <Add>
+            <Dependency path="/reduceCapitalLoss" />
+            <Dependency path="/reduceBasisOfProperty" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form982IsDone">
+      <Name>Form 982 Is Done</Name>
+      <Description>Whether Form 982 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCancellationOfDebt" /></Not>
+          <All>
+            <Dependency path="/hasCancellationOfDebt" />
+            <IsComplete><Dependency path="/totalAmountExcluded" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm982">
+      <Name>Include Form 982 in PDF</Name>
+      <Description>Whether to include Form 982.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalAmountExcluded" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,232 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 2848: Power of Attorney and Declaration of Representative -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- POWER OF ATTORNEY                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasPowerOfAttorney">
+      <Name>Has Power of Attorney</Name>
+      <Description>Whether taxpayer is granting power of attorney.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAXPAYER INFORMATION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerName2848">
+      <Name>Taxpayer Name</Name>
+      <Description>Taxpayer name (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerSSN2848">
+      <Name>Taxpayer SSN</Name>
+      <Description>Taxpayer SSN or EIN (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerAddress2848">
+      <Name>Taxpayer Address</Name>
+      <Description>Taxpayer address (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseName2848">
+      <Name>Spouse Name</Name>
+      <Description>Spouse name if applicable (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseSSN2848">
+      <Name>Spouse SSN</Name>
+      <Description>Spouse SSN if applicable (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: REPRESENTATIVE INFORMATION          -->
+    <!-- ============================================ -->
+
+    <Fact path="/representative1Name">
+      <Name>Representative 1 Name</Name>
+      <Description>Name of first representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/representative1CAFNumber">
+      <Name>Representative 1 CAF Number</Name>
+      <Description>CAF number of first representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/representative1PTINOrSSN">
+      <Name>Representative 1 PTIN/SSN</Name>
+      <Description>PTIN or SSN of first representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/representative1Phone">
+      <Name>Representative 1 Phone</Name>
+      <Description>Phone number of first representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/representative1Address">
+      <Name>Representative 1 Address</Name>
+      <Description>Address of first representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/representative2Name">
+      <Name>Representative 2 Name</Name>
+      <Description>Name of second representative (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAX MATTERS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxFormType2848">
+      <Name>Tax Form Type</Name>
+      <Description>Type of tax form (Line 3).</Description>
+      <Writable>
+        <Enum>
+          <Option value="1040">Form 1040</Option>
+          <Option value="1120">Form 1120</Option>
+          <Option value="1065">Form 1065</Option>
+          <Option value="941">Form 941</Option>
+          <Option value="940">Form 940</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearBegin2848">
+      <Name>Tax Year Begin</Name>
+      <Description>Beginning tax year (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearEnd2848">
+      <Name>Tax Year End</Name>
+      <Description>Ending tax year (Line 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: ACTS AUTHORIZED                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/receiveRefunds">
+      <Name>Receive Refunds</Name>
+      <Description>Authorize representative to receive refunds (Line 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/signReturns">
+      <Name>Sign Returns</Name>
+      <Description>Authorize representative to sign returns (Line 6).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/substituteOrAddRepresentative">
+      <Name>Substitute or Add Representative</Name>
+      <Description>Authorize substitute or additional representatives (Line 7).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: DECLARATION OF REPRESENTATIVE      -->
+    <!-- ============================================ -->
+
+    <Fact path="/representativeDesignation">
+      <Name>Representative Designation</Name>
+      <Description>Designation of representative (Part II).</Description>
+      <Writable>
+        <Enum>
+          <Option value="A">Attorney</Option>
+          <Option value="B">CPA</Option>
+          <Option value="C">Enrolled Agent</Option>
+          <Option value="D">Officer</Option>
+          <Option value="E">Family Member</Option>
+          <Option value="F">Enrolled Actuary</Option>
+          <Option value="G">Unenrolled Return Preparer</Option>
+          <Option value="H">Student or Law Graduate</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/jurisdictionOrPTIN">
+      <Name>Jurisdiction or PTIN</Name>
+      <Description>Licensing jurisdiction or PTIN (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form2848IsDone">
+      <Name>Form 2848 Is Done</Name>
+      <Description>Whether Form 2848 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPowerOfAttorney" /></Not>
+          <All>
+            <Dependency path="/hasPowerOfAttorney" />
+            <IsComplete><Dependency path="/taxpayerName2848" /></IsComplete>
+            <IsComplete><Dependency path="/representative1Name" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm2848">
+      <Name>Include Form 2848 in PDF</Name>
+      <Description>Whether to include Form 2848 in output.</Description>
+      <Derived>
+        <Dependency path="/hasPowerOfAttorney" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

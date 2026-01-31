@@ -1,0 +1,183 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Virginia Form 760: Resident Individual Income Tax Return -->
+<!-- Virginia has progressive rates from 2% to 5.75% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasVA760">
+      <Name>Has VA Form 760</Name>
+      <Description>Whether taxpayer files Virginia Form 760.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>VA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- VA Standard Deduction -->
+    <Fact path="/vaStdDeductionSingle">
+      <Name>VA Standard Deduction Single</Name>
+      <Description>Virginia standard deduction for single ($8,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/vaStdDeductionMFJ">
+      <Name>VA Standard Deduction MFJ</Name>
+      <Description>Virginia standard deduction for MFJ ($16,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>16000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/vaStandardDeduction">
+      <Name>VA Standard Deduction</Name>
+      <Description>Virginia standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/vaStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/vaStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- VA Personal Exemption -->
+    <Fact path="/vaPersonalExemption">
+      <Name>VA Personal Exemption</Name>
+      <Description>Virginia personal exemption ($930).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>930</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- VA Taxable Income -->
+    <Fact path="/vaTaxableIncome">
+      <Name>VA Taxable Income</Name>
+      <Description>Virginia taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/adjustedGrossIncome" />
+              <Dependency path="/vaStandardDeduction" />
+            </Subtract>
+            <Dependency path="/vaPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- VA Income Tax (progressive) -->
+    <Fact path="/vaIncomeTax">
+      <Name>VA Income Tax</Name>
+      <Description>Virginia income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vaTaxableIncome" /></Left>
+                <Right><Dollar>3000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/vaTaxableIncome" />
+                <Decimal>0.02</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vaTaxableIncome" /></Left>
+                <Right><Dollar>5000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>60</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/vaTaxableIncome" />
+                    <Dollar>3000</Dollar>
+                  </Subtract>
+                  <Decimal>0.03</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/vaTaxableIncome" /></Left>
+                <Right><Dollar>17000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>120</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/vaTaxableIncome" />
+                    <Dollar>5000</Dollar>
+                  </Subtract>
+                  <Decimal>0.05</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>720</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/vaTaxableIncome" />
+                  <Dollar>17000</Dollar>
+                </Subtract>
+                <Decimal>0.0575</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/va760IsDone">
+      <Name>VA Form 760 Is Done</Name>
+      <Description>Whether VA Form 760 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasVA760" /></Not>
+          <All>
+            <Dependency path="/hasVA760" />
+            <IsComplete><Dependency path="/vaIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeVA760">
+      <Name>Include VA Form 760 in PDF</Name>
+      <Description>Whether to include VA Form 760.</Description>
+      <Derived>
+        <Dependency path="/hasVA760" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

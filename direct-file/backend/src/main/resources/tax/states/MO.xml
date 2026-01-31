@@ -1,0 +1,162 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Missouri Form MO-1040: Individual Income Tax Return -->
+<!-- Missouri has progressive rates from 0% to 4.8% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMO1040">
+      <Name>Has MO Form MO-1040</Name>
+      <Description>Whether taxpayer files Missouri Form MO-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MO</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MO Standard Deduction -->
+    <Fact path="/moStdDeductionSingle">
+      <Name>MO Standard Deduction Single</Name>
+      <Description>Missouri standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/moStdDeductionMFJ">
+      <Name>MO Standard Deduction MFJ</Name>
+      <Description>Missouri standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/moStandardDeduction">
+      <Name>MO Standard Deduction</Name>
+      <Description>Missouri standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/moStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/moStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MO Taxable Income -->
+    <Fact path="/moTaxableIncome">
+      <Name>MO Taxable Income</Name>
+      <Description>Missouri taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/moStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MO Income Tax (progressive, transitioning to flat) -->
+    <Fact path="/moIncomeTax">
+      <Name>MO Income Tax</Name>
+      <Description>Missouri income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/moTaxableIncome" /></Left>
+                <Right><Dollar>1207</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/moTaxableIncome" /></Left>
+                <Right><Dollar>2414</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/moTaxableIncome" />
+                  <Dollar>1207</Dollar>
+                </Subtract>
+                <Decimal>0.02</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/moTaxableIncome" /></Left>
+                <Right><Dollar>3621</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>24</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/moTaxableIncome" />
+                    <Dollar>2414</Dollar>
+                  </Subtract>
+                  <Decimal>0.025</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>54</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/moTaxableIncome" />
+                  <Dollar>3621</Dollar>
+                </Subtract>
+                <Decimal>0.048</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mo1040IsDone">
+      <Name>MO Form MO-1040 Is Done</Name>
+      <Description>Whether MO Form MO-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMO1040" /></Not>
+          <All>
+            <Dependency path="/hasMO1040" />
+            <IsComplete><Dependency path="/moIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMO1040">
+      <Name>Include MO Form MO-1040 in PDF</Name>
+      <Description>Whether to include MO Form MO-1040.</Description>
+      <Derived>
+        <Dependency path="/hasMO1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,148 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 943: Employer's Annual Federal Tax Return for Agricultural Employees -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- AGRICULTURAL EMPLOYER TAX                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/has943">
+      <Name>Has 943</Name>
+      <Description>Whether agricultural employer files Form 943.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- WAGES AND TAXES                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/wagesSubjectToSocialSecurity943">
+      <Name>Wages Subject to Social Security</Name>
+      <Description>Wages subject to Social Security tax (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityTax943">
+      <Name>Social Security Tax</Name>
+      <Description>Social Security tax (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesSubjectToSocialSecurity943" />
+          <Decimal>0.124</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wagesSubjectToMedicare943">
+      <Name>Wages Subject to Medicare</Name>
+      <Description>Wages subject to Medicare tax (Line 4).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/medicareTax943">
+      <Name>Medicare Tax</Name>
+      <Description>Medicare tax (Line 5).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/wagesSubjectToMedicare943" />
+          <Decimal>0.029</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/federalIncomeTaxWithheld943">
+      <Name>Federal Income Tax Withheld</Name>
+      <Description>Federal income tax withheld (Line 8).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTaxes943">
+      <Name>Total Taxes</Name>
+      <Description>Total taxes (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/socialSecurityTax943" />
+            <Dependency path="/medicareTax943" />
+          </Add>
+          <Dependency path="/federalIncomeTaxWithheld943" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalDeposits943">
+      <Name>Total Deposits</Name>
+      <Description>Total deposits for year (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/balanceDue943">
+      <Name>Balance Due</Name>
+      <Description>Balance due (Line 14).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalTaxes943" />
+            <Dependency path="/totalDeposits943" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form943IsDone">
+      <Name>Form 943 Is Done</Name>
+      <Description>Whether Form 943 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has943" /></Not>
+          <All>
+            <Dependency path="/has943" />
+            <IsComplete><Dependency path="/totalTaxes943" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm943">
+      <Name>Include Form 943 in PDF</Name>
+      <Description>Whether to include Form 943 in output.</Description>
+      <Derived>
+        <Dependency path="/has943" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

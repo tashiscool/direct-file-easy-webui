@@ -1,0 +1,176 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8958: Allocation of Tax Amounts Between Certain Individuals in Community Property States -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasCommunityPropertyAllocation">
+      <Name>Has Community Property Allocation</Name>
+      <Description>Whether MFS taxpayers in community property state need allocation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/communityPropertyState">
+      <Name>Community Property State</Name>
+      <Description>Community property state of residence.</Description>
+      <Writable>
+        <Enum>
+          <Option value="AZ">Arizona</Option>
+          <Option value="CA">California</Option>
+          <Option value="ID">Idaho</Option>
+          <Option value="LA">Louisiana</Option>
+          <Option value="NV">Nevada</Option>
+          <Option value="NM">New Mexico</Option>
+          <Option value="TX">Texas</Option>
+          <Option value="WA">Washington</Option>
+          <Option value="WI">Wisconsin</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Income Allocation -->
+    <Fact path="/wagesTotal">
+      <Name>Wages Total</Name>
+      <Description>Total wages (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesSpouse1">
+      <Name>Wages Allocated to Spouse 1</Name>
+      <Description>Wages allocated to spouse 1 (Line 1b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/wagesSpouse2">
+      <Name>Wages Allocated to Spouse 2</Name>
+      <Description>Wages allocated to spouse 2 (Line 1c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/wagesTotal" />
+          <Dependency path="/wagesSpouse1" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/interestIncomeTotal">
+      <Name>Interest Income Total</Name>
+      <Description>Total interest income (Line 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestSpouse1">
+      <Name>Interest Allocated to Spouse 1</Name>
+      <Description>Interest allocated to spouse 1 (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendIncomeTotal">
+      <Name>Dividend Income Total</Name>
+      <Description>Total dividend income (Line 3a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendsSpouse1">
+      <Name>Dividends Allocated to Spouse 1</Name>
+      <Description>Dividends allocated to spouse 1 (Line 3b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Part II: Withholding Allocation -->
+    <Fact path="/withholdingTotal">
+      <Name>Withholding Total</Name>
+      <Description>Total federal income tax withheld (Line 6a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/withholdingSpouse1">
+      <Name>Withholding Allocated to Spouse 1</Name>
+      <Description>Withholding allocated to spouse 1 (Line 6b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/withholdingSpouse2">
+      <Name>Withholding Allocated to Spouse 2</Name>
+      <Description>Withholding allocated to spouse 2 (Line 6c).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/withholdingTotal" />
+          <Dependency path="/withholdingSpouse1" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958IsDone">
+      <Name>Form 8958 Is Done</Name>
+      <Description>Whether Form 8958 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCommunityPropertyAllocation" /></Not>
+          <All>
+            <Dependency path="/hasCommunityPropertyAllocation" />
+            <IsComplete><Dependency path="/wagesSpouse1" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8958">
+      <Name>Include Form 8958 in PDF</Name>
+      <Description>Whether to include Form 8958.</Description>
+      <Derived>
+        <Dependency path="/hasCommunityPropertyAllocation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

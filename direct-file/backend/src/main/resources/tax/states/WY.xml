@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Wyoming: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasWYReturn">
+      <Name>Has WY Return</Name>
+      <Description>Wyoming has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wyNoIncomeTax">
+      <Name>WY No Income Tax</Name>
+      <Description>Wyoming does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>WY</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wyFilingRequired">
+      <Name>WY Filing Required</Name>
+      <Description>No state filing required for Wyoming residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

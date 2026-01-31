@@ -1,0 +1,273 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4684: Casualties and Thefts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- CASUALTY/THEFT LOSSES                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCasualtyOrTheft">
+      <Name>Has Casualty or Theft</Name>
+      <Description>Whether taxpayer had casualty or theft loss.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isInFederalDisasterArea">
+      <Name>Is In Federal Disaster Area</Name>
+      <Description>Whether loss is in a federally declared disaster area.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalDisasterNumber">
+      <Name>Federal Disaster Number</Name>
+      <Description>FEMA disaster declaration number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION A: PERSONAL USE PROPERTY            -->
+    <!-- ============================================ -->
+
+    <Fact path="/property1Description">
+      <Name>Property 1 Description</Name>
+      <Description>Description of first property (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1CostBasis">
+      <Name>Property 1 Cost Basis</Name>
+      <Description>Cost or other basis (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1InsuranceReimbursement">
+      <Name>Property 1 Insurance Reimbursement</Name>
+      <Description>Insurance or other reimbursement (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1GainFromReimbursement">
+      <Name>Property 1 Gain from Reimbursement</Name>
+      <Description>Gain if reimbursement exceeds basis (Line 4).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/property1InsuranceReimbursement" />
+            <Dependency path="/property1CostBasis" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/property1FMVBefore">
+      <Name>Property 1 FMV Before</Name>
+      <Description>FMV before casualty (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1FMVAfter">
+      <Name>Property 1 FMV After</Name>
+      <Description>FMV after casualty (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1DecreaseInFMV">
+      <Name>Property 1 Decrease in FMV</Name>
+      <Description>Decrease in FMV (Line 7).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/property1FMVBefore" />
+            <Dependency path="/property1FMVAfter" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/property1SmallerOfBasisOrDecrease">
+      <Name>Property 1 Smaller of Basis or Decrease</Name>
+      <Description>Smaller of cost basis or decrease in FMV (Line 8).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/property1CostBasis" />
+          <Dependency path="/property1DecreaseInFMV" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/property1Loss">
+      <Name>Property 1 Loss</Name>
+      <Description>Loss after reimbursement (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/property1SmallerOfBasisOrDecrease" />
+            <Dependency path="/property1InsuranceReimbursement" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION A: LOSS LIMITATIONS                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/perCasualtyFloor">
+      <Name>Per Casualty Floor</Name>
+      <Description>Per-casualty floor amount ($100).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lossAfterPerCasualtyFloor">
+      <Name>Loss After Per-Casualty Floor</Name>
+      <Description>Loss after $100 per-casualty floor (Line 11).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/property1Loss" />
+            <Dependency path="/perCasualtyFloor" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tenPercentAGIFloor">
+      <Name>10% AGI Floor</Name>
+      <Description>10% of AGI floor (Line 17).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency module="taxCalculations" path="/agi" />
+          <Decimal>0.10</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleCasualtyLoss">
+      <Name>Deductible Casualty Loss</Name>
+      <Description>Deductible casualty/theft loss (Line 18).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isInFederalDisasterArea" />
+            </When>
+            <Then>
+              <Dependency path="/lossAfterPerCasualtyFloor" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/lossAfterPerCasualtyFloor" />
+                  <Dependency path="/tenPercentAGIFloor" />
+                </Subtract>
+              </Max>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION B: BUSINESS USE PROPERTY            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasBusinessCasualtyLoss">
+      <Name>Has Business Casualty Loss</Name>
+      <Description>Whether taxpayer has business casualty loss.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessPropertyLoss">
+      <Name>Business Property Loss</Name>
+      <Description>Loss on business property (Section B, Line 35).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form4684IsDone">
+      <Name>Form 4684 Is Done</Name>
+      <Description>Whether Form 4684 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCasualtyOrTheft" /></Not>
+          <All>
+            <Dependency path="/hasCasualtyOrTheft" />
+            <IsComplete><Dependency path="/deductibleCasualtyLoss" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4684">
+      <Name>Include Form 4684 in PDF</Name>
+      <Description>Whether to include Form 4684 in the return.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/deductibleCasualtyLoss" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <Not>
+            <Equal>
+              <Left><Dependency path="/businessPropertyLoss" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </Equal>
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

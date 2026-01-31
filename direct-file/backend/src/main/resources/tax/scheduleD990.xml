@@ -1,0 +1,447 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule D (Form 990): Supplemental Financial Statements -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: ORGANIZATIONS WITH DONOR ADVISED FUNDS -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasDonorAdvisedFunds">
+      <Name>Has Donor Advised Funds</Name>
+      <Description>Whether organization maintains donor advised funds.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfDAFsAtBOY">
+      <Name>Number of DAFs at BOY</Name>
+      <Description>Number of donor advised funds at beginning of year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfDAFsAtEOY">
+      <Name>Number of DAFs at EOY</Name>
+      <Description>Number of donor advised funds at end of year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/aggregateValueDAFsBOY">
+      <Name>Aggregate Value DAFs - BOY</Name>
+      <Description>Aggregate value of DAFs at beginning of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/aggregateValueDAFsEOY">
+      <Name>Aggregate Value DAFs - EOY</Name>
+      <Description>Aggregate value of DAFs at end of year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalContributionsToDAFs">
+      <Name>Total Contributions to DAFs</Name>
+      <Description>Total contributions received for DAFs.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGrantsFromDAFs">
+      <Name>Total Grants from DAFs</Name>
+      <Description>Total grants made from DAFs.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: CONSERVATION EASEMENTS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/holdsConservationEasements">
+      <Name>Holds Conservation Easements</Name>
+      <Description>Whether organization holds conservation easements.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfConservationEasements">
+      <Name>Number of Conservation Easements</Name>
+      <Description>Total number of conservation easements held.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAcresConservationEasements">
+      <Name>Total Acres - Conservation Easements</Name>
+      <Description>Total acreage covered by conservation easements.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: COLLECTIONS OF ART                -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCollectionsOfArt">
+      <Name>Has Collections of Art</Name>
+      <Description>Whether organization maintains collections of art.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/collectionsHeldForPublicExhibition">
+      <Name>Collections Held for Public Exhibition</Name>
+      <Description>Whether collections are held for public exhibition.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/revenueFromCollections">
+      <Name>Revenue from Collections</Name>
+      <Description>Revenue used from sale of collection items.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: ESCROW ACCOUNTS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/holdsEscrowAccounts">
+      <Name>Holds Escrow Accounts</Name>
+      <Description>Whether organization holds funds in escrow.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/escrowAccountBalance">
+      <Name>Escrow Account Balance</Name>
+      <Description>Total balance of escrow accounts.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/escrowAccountPurpose">
+      <Name>Escrow Account Purpose</Name>
+      <Description>Purpose of escrow accounts.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: ENDOWMENT FUNDS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEndowmentFunds">
+      <Name>Has Endowment Funds</Name>
+      <Description>Whether organization has endowment funds.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentBOY">
+      <Name>Endowment - Beginning of Year</Name>
+      <Description>Beginning of year balance of endowment funds.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentContributions">
+      <Name>Endowment Contributions</Name>
+      <Description>Contributions received for endowment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentInvestmentEarnings">
+      <Name>Endowment Investment Earnings</Name>
+      <Description>Net investment earnings on endowment.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentGrants">
+      <Name>Grants from Endowment</Name>
+      <Description>Grants and scholarships from endowment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentAdminExpenses">
+      <Name>Endowment Admin Expenses</Name>
+      <Description>Administrative expenses charged to endowment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/endowmentEOY">
+      <Name>Endowment - End of Year</Name>
+      <Description>End of year balance of endowment funds.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Add>
+            <Add>
+              <Dependency path="/endowmentBOY" />
+              <Dependency path="/endowmentContributions" />
+            </Add>
+            <Dependency path="/endowmentInvestmentEarnings" />
+          </Add>
+          <Add>
+            <Dependency path="/endowmentGrants" />
+            <Dependency path="/endowmentAdminExpenses" />
+          </Add>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VI: LAND, BUILDINGS, EQUIPMENT         -->
+    <!-- ============================================ -->
+
+    <Fact path="/landCost">
+      <Name>Land - Cost</Name>
+      <Description>Cost or other basis of land.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/buildingsCost">
+      <Name>Buildings - Cost</Name>
+      <Description>Cost or other basis of buildings.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/buildingsAccumDeprec">
+      <Name>Buildings - Accumulated Depreciation</Name>
+      <Description>Accumulated depreciation on buildings.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/equipmentCost">
+      <Name>Equipment - Cost</Name>
+      <Description>Cost or other basis of equipment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/equipmentAccumDeprec">
+      <Name>Equipment - Accumulated Depreciation</Name>
+      <Description>Accumulated depreciation on equipment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFixedAssetsNet">
+      <Name>Total Fixed Assets - Net</Name>
+      <Description>Total net book value of fixed assets.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/landCost" />
+            <Subtract>
+              <Dependency path="/buildingsCost" />
+              <Dependency path="/buildingsAccumDeprec" />
+            </Subtract>
+          </Add>
+          <Subtract>
+            <Dependency path="/equipmentCost" />
+            <Dependency path="/equipmentAccumDeprec" />
+          </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VII: INVESTMENTS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/publiclyTradedSecurities">
+      <Name>Publicly Traded Securities</Name>
+      <Description>Value of publicly traded securities.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/closelyHeldEquity">
+      <Name>Closely Held Equity</Name>
+      <Description>Value of closely held equity interests.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherInvestments990">
+      <Name>Other Investments</Name>
+      <Description>Value of other investments.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalInvestments990">
+      <Name>Total Investments</Name>
+      <Description>Total value of investments.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/publiclyTradedSecurities" />
+            <Dependency path="/closelyHeldEquity" />
+          </Add>
+          <Dependency path="/otherInvestments990" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleD990IsDone">
+      <Name>Schedule D Is Done</Name>
+      <Description>Whether Schedule D is complete.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleD990">
+      <Name>Include Schedule D in PDF</Name>
+      <Description>Whether to include Schedule D in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/hasDonorAdvisedFunds" />
+          <Dependency path="/holdsConservationEasements" />
+          <Dependency path="/hasCollectionsOfArt" />
+          <Dependency path="/hasEndowmentFunds" />
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

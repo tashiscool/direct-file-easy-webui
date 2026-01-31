@@ -1,0 +1,142 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- South Carolina Form SC1040: Individual Income Tax Return -->
+<!-- South Carolina has progressive rates from 0% to 6.4% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasSC1040">
+      <Name>Has SC Form SC1040</Name>
+      <Description>Whether taxpayer files South Carolina Form SC1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>SC</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- SC Standard Deduction -->
+    <Fact path="/scStdDeductionSingle">
+      <Name>SC Standard Deduction Single</Name>
+      <Description>SC standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scStdDeductionMFJ">
+      <Name>SC Standard Deduction MFJ</Name>
+      <Description>SC standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scStandardDeduction">
+      <Name>SC Standard Deduction</Name>
+      <Description>SC standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/scStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/scStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- SC Taxable Income -->
+    <Fact path="/scTaxableIncome">
+      <Name>SC Taxable Income</Name>
+      <Description>South Carolina taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/scStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- SC Income Tax (progressive) -->
+    <Fact path="/scIncomeTax">
+      <Name>SC Income Tax</Name>
+      <Description>South Carolina income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/scTaxableIncome" /></Left>
+                <Right><Dollar>3460</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/scTaxableIncome" /></Left>
+                <Right><Dollar>17330</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/scTaxableIncome" />
+                  <Dollar>3460</Dollar>
+                </Subtract>
+                <Decimal>0.03</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>416</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/scTaxableIncome" />
+                  <Dollar>17330</Dollar>
+                </Subtract>
+                <Decimal>0.064</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sc1040IsDone">
+      <Name>SC Form SC1040 Is Done</Name>
+      <Description>Whether SC Form SC1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasSC1040" /></Not>
+          <All>
+            <Dependency path="/hasSC1040" />
+            <IsComplete><Dependency path="/scIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeSC1040">
+      <Name>Include SC Form SC1040 in PDF</Name>
+      <Description>Whether to include SC Form SC1040.</Description>
+      <Derived>
+        <Dependency path="/hasSC1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

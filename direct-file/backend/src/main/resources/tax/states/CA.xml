@@ -1,0 +1,263 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- California Form 540: Resident Income Tax Return -->
+<!-- California has progressive rates from 1% to 12.3% plus 1% mental health tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasCA540">
+      <Name>Has CA 540</Name>
+      <Description>Whether taxpayer files California Form 540.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>CA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- California Standard Deduction -->
+    <Fact path="/caStdDeductionSingle">
+      <Name>CA Standard Deduction Single</Name>
+      <Description>California standard deduction for single ($5,540 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5540</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caStdDeductionMFJ">
+      <Name>CA Standard Deduction MFJ</Name>
+      <Description>California standard deduction for MFJ ($11,080 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>11080</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/caStdDeductionHOH">
+      <Name>CA Standard Deduction HOH</Name>
+      <Description>California standard deduction for HOH ($11,080 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>11080</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- CA Standard Deduction Amount -->
+    <Fact path="/caStandardDeduction">
+      <Name>CA Standard Deduction</Name>
+      <Description>California standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/caStdDeductionMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>HOH</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/caStdDeductionHOH" /></Then>
+          </Case>
+          <Default><Dependency path="/caStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- CA Exemption Credit -->
+    <Fact path="/caExemptionCredit">
+      <Name>CA Exemption Credit</Name>
+      <Description>California personal exemption credit ($144 each for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>144</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- CA Taxable Income -->
+    <Fact path="/caTaxableIncome">
+      <Name>CA Taxable Income</Name>
+      <Description>California taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/caStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- CA Tax Brackets (Single) 2025 -->
+    <Fact path="/caBracket1RateSingle">
+      <Name>CA Bracket 1 Rate</Name>
+      <Description>1% rate for first $10,756.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived><Decimal>0.01</Decimal></Derived>
+    </Fact>
+
+    <Fact path="/caBracket1ThresholdSingle">
+      <Name>CA Bracket 1 Threshold</Name>
+      <TaxYear>2025</TaxYear>
+      <Derived><Dollar>10756</Dollar></Derived>
+    </Fact>
+
+    <!-- California Tax (simplified - uses effective rate approximation) -->
+    <Fact path="/caIncomeTax">
+      <Name>CA Income Tax</Name>
+      <Description>California income tax calculated.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/caTaxableIncome" /></Left>
+                <Right><Dollar>10756</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/caTaxableIncome" />
+                <Decimal>0.01</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/caTaxableIncome" /></Left>
+                <Right><Dollar>25499</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>108</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/caTaxableIncome" />
+                    <Dollar>10756</Dollar>
+                  </Subtract>
+                  <Decimal>0.02</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/caTaxableIncome" /></Left>
+                <Right><Dollar>40245</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>403</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/caTaxableIncome" />
+                    <Dollar>25499</Dollar>
+                  </Subtract>
+                  <Decimal>0.04</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Multiply>
+              <Dependency path="/caTaxableIncome" />
+              <Decimal>0.093</Decimal>
+            </Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- CA Mental Health Tax (1% on income over $1M) -->
+    <Fact path="/caMentalHealthTax">
+      <Name>CA Mental Health Tax</Name>
+      <Description>California 1% mental health tax on income over $1M.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/caTaxableIncome" /></Left>
+                <Right><Dollar>1000000</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/caTaxableIncome" />
+                  <Dollar>1000000</Dollar>
+                </Subtract>
+                <Decimal>0.01</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- CA Total Tax -->
+    <Fact path="/caTotalTax">
+      <Name>CA Total Tax</Name>
+      <Description>Total California tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/caIncomeTax" />
+          <Dependency path="/caMentalHealthTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- CA Net Tax After Credits -->
+    <Fact path="/caNetTax">
+      <Name>CA Net Tax</Name>
+      <Description>California net tax after exemption credit.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/caTotalTax" />
+            <Dependency path="/caExemptionCredit" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ca540IsDone">
+      <Name>CA 540 Is Done</Name>
+      <Description>Whether CA Form 540 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCA540" /></Not>
+          <All>
+            <Dependency path="/hasCA540" />
+            <IsComplete><Dependency path="/caNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeCA540">
+      <Name>Include CA 540 in PDF</Name>
+      <Description>Whether to include CA Form 540.</Description>
+      <Derived>
+        <Dependency path="/hasCA540" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

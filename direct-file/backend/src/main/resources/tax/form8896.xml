@@ -1,0 +1,60 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8896: Low Sulfur Diesel Fuel Production Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8896">
+      <Name>Has Form 8896</Name>
+      <Description>Whether taxpayer claims low sulfur diesel credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lowSulfurDieselGallons">
+      <Name>Low Sulfur Diesel Gallons</Name>
+      <Description>Gallons of low sulfur diesel produced.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRatePerGallon8896">
+      <Name>Credit Rate Per Gallon</Name>
+      <Description>Credit rate per gallon ($0.05).</Description>
+      <Derived>
+        <Decimal>0.05</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lowSulfurDieselCredit">
+      <Name>Low Sulfur Diesel Credit</Name>
+      <Description>Total low sulfur diesel credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/lowSulfurDieselGallons" />
+          <Dependency path="/creditRatePerGallon8896" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8896IsDone">
+      <Name>Form 8896 Is Done</Name>
+      <Description>Whether Form 8896 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8896" /></Not>
+          <All>
+            <Dependency path="/hasForm8896" />
+            <IsComplete><Dependency path="/lowSulfurDieselCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

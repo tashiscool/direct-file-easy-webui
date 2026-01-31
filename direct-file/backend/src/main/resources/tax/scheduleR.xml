@@ -1,0 +1,371 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule R: Credit for the Elderly or the Disabled -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ELIGIBILITY                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsElderlyDisabledCredit">
+      <Name>Claims Elderly/Disabled Credit</Name>
+      <Description>Whether taxpayer claims credit for elderly or disabled.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isAge65OrOlder">
+      <Name>Is Age 65 or Older</Name>
+      <Description>Whether taxpayer (or spouse) was 65+ at end of year.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isPermanentlyDisabled">
+      <Name>Is Permanently Disabled</Name>
+      <Description>Whether taxpayer (or spouse) is permanently and totally disabled.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/elderlyDisabledEligible">
+      <Name>Eligible for Credit</Name>
+      <Description>Whether taxpayer meets eligibility requirements.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isAge65OrOlder" />
+          <Dependency path="/isPermanentlyDisabled" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FILING STATUS CATEGORIES                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/elderlyDisabledFilingCategory">
+      <Name>Filing Status Category</Name>
+      <Description>Filing category for Schedule R (1-9).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>9</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INITIAL AMOUNT                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/elderlyDisabledInitialAmount">
+      <Name>Initial Amount</Name>
+      <Description>Initial amount based on filing status category (Line 10).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Single, Head of Household, QSS with one qualified -->
+          <Case>
+            <When>
+              <Any>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>1</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>3</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>7</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>8</Int></Right></Equals>
+              </Any>
+            </When>
+            <Then>
+              <Dollar>5000</Dollar>
+            </Then>
+          </Case>
+          <!-- MFJ both qualified, or one 65+ and one disabled -->
+          <Case>
+            <When>
+              <Any>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>2</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>4</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>5</Int></Right></Equals>
+                <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>6</Int></Right></Equals>
+              </Any>
+            </When>
+            <Then>
+              <Dollar>7500</Dollar>
+            </Then>
+          </Case>
+          <!-- MFS -->
+          <Case>
+            <When>
+              <Equals><Left><Dependency path="/elderlyDisabledFilingCategory" /></Left><Right><Int>9</Int></Right></Equals>
+            </When>
+            <Then>
+              <Dollar>3750</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DISABILITY INCOME EXCLUSION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableDisabilityIncome">
+      <Name>Taxable Disability Income</Name>
+      <Description>Taxable disability income received (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/disabilityIncomeLimit">
+      <Name>Disability Income Limit</Name>
+      <Description>Limit on disability income for credit calculation.</Description>
+      <Derived>
+        <Dependency path="/elderlyDisabledInitialAmount" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/disabilityIncomeToSubtract">
+      <Name>Disability Income to Subtract</Name>
+      <Description>Lesser of disability income or initial amount (if under 65).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/isPermanentlyDisabled" />
+                <Not><Dependency path="/isAge65OrOlder" /></Not>
+              </All>
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/taxableDisabilityIncome" />
+                <Dependency path="/disabilityIncomeLimit" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AGI REDUCTION                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/elderlyDisabledAGIThreshold">
+      <Name>AGI Threshold</Name>
+      <Description>AGI threshold for credit reduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>10000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>5000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dollar>7500</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyDisabledExcessAGI">
+      <Name>Excess AGI</Name>
+      <Description>AGI in excess of threshold (Line 13).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency module="taxCalculations" path="/agi" />
+            <Dependency path="/elderlyDisabledAGIThreshold" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyDisabledAGIReduction">
+      <Name>AGI Reduction</Name>
+      <Description>Half of excess AGI (Line 14).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/elderlyDisabledExcessAGI" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NONTAXABLE SOCIAL SECURITY                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/nontaxableSocialSecurity">
+      <Name>Nontaxable Social Security</Name>
+      <Description>Nontaxable Social Security and railroad benefits (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/nontaxablePensions">
+      <Name>Nontaxable Pensions and Annuities</Name>
+      <Description>Nontaxable portion of pensions and annuities (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalNontaxableBenefits">
+      <Name>Total Nontaxable Benefits</Name>
+      <Description>Total nontaxable benefits to subtract (Line 17).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/nontaxableSocialSecurity" />
+          <Dependency path="/nontaxablePensions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDIT CALCULATION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/elderlyDisabledTotalReductions">
+      <Name>Total Reductions</Name>
+      <Description>Sum of all reductions (Line 18).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/disabilityIncomeToSubtract" />
+              <Dependency path="/elderlyDisabledAGIReduction" />
+            </Add>
+            <Dependency path="/totalNontaxableBenefits" />
+          </Add>
+          <Dollar>0</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyDisabledNetAmount">
+      <Name>Net Amount for Credit</Name>
+      <Description>Initial amount minus reductions (Line 19).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/elderlyDisabledInitialAmount" />
+            <Dependency path="/elderlyDisabledTotalReductions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyDisabledCreditRate">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (15%).</Description>
+      <Derived>
+        <Decimal>0.15</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyDisabledCredit">
+      <Name>Credit for Elderly or Disabled</Name>
+      <Description>Credit for the elderly or disabled (Line 20).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/claimsElderlyDisabledCredit" />
+                <Dependency path="/elderlyDisabledEligible" />
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/elderlyDisabledNetAmount" />
+                  <Dependency path="/elderlyDisabledCreditRate" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleRIsDone">
+      <Name>Schedule R Is Done</Name>
+      <Description>Whether Schedule R is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/claimsElderlyDisabledCredit" /></Not>
+          <All>
+            <Dependency path="/claimsElderlyDisabledCredit" />
+            <Dependency path="/elderlyDisabledEligible" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleR">
+      <Name>Include Schedule R in PDF</Name>
+      <Description>Whether to include Schedule R in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/elderlyDisabledCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

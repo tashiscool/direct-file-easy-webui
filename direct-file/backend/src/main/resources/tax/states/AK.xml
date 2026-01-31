@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Alaska: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasAKReturn">
+      <Name>Has AK Return</Name>
+      <Description>Alaska has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/akNoIncomeTax">
+      <Name>AK No Income Tax</Name>
+      <Description>Alaska does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>AK</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/akFilingRequired">
+      <Name>AK Filing Required</Name>
+      <Description>No state filing required for Alaska residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

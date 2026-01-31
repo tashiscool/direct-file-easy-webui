@@ -1,0 +1,205 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-9: Request for Taxpayer Identification Number and Certification -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- W-9 CERTIFICATION                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasW9">
+      <Name>Has W-9</Name>
+      <Description>Whether taxpayer is completing W-9.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXPAYER INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/w9Name">
+      <Name>W-9 Name</Name>
+      <Description>Name as shown on income tax return (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9BusinessName">
+      <Name>W-9 Business Name</Name>
+      <Description>Business name/disregarded entity name if different (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9TaxClassification">
+      <Name>W-9 Tax Classification</Name>
+      <Description>Federal tax classification (Line 3).</Description>
+      <Writable>
+        <Enum>
+          <Option value="INDIVIDUAL">Individual/sole proprietor or single-member LLC</Option>
+          <Option value="C_CORP">C Corporation</Option>
+          <Option value="S_CORP">S Corporation</Option>
+          <Option value="PARTNERSHIP">Partnership</Option>
+          <Option value="TRUST_ESTATE">Trust/estate</Option>
+          <Option value="LLC_C">Limited liability company (C corp)</Option>
+          <Option value="LLC_S">Limited liability company (S corp)</Option>
+          <Option value="LLC_P">Limited liability company (Partnership)</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9ExemptPayeeCode">
+      <Name>W-9 Exempt Payee Code</Name>
+      <Description>Exempt payee code if applicable (Line 4).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9FATCAExemptionCode">
+      <Name>W-9 FATCA Exemption Code</Name>
+      <Description>FATCA exemption code if applicable (Line 4).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9Address">
+      <Name>W-9 Address</Name>
+      <Description>Address (Line 5).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9City">
+      <Name>W-9 City</Name>
+      <Description>City (Line 6).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9State">
+      <Name>W-9 State</Name>
+      <Description>State (Line 6).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9ZIP">
+      <Name>W-9 ZIP</Name>
+      <Description>ZIP code (Line 6).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9AccountNumbers">
+      <Name>W-9 Account Numbers</Name>
+      <Description>Requester's account numbers (Line 7).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TIN                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/w9TINType">
+      <Name>W-9 TIN Type</Name>
+      <Description>Type of TIN (SSN or EIN).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SSN">Social Security Number</Option>
+          <Option value="EIN">Employer Identification Number</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9SSN">
+      <Name>W-9 SSN</Name>
+      <Description>Social Security Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w9EIN">
+      <Name>W-9 EIN</Name>
+      <Description>Employer Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: CERTIFICATION                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/certifyTINCorrect">
+      <Name>Certify TIN Correct</Name>
+      <Description>Certify TIN is correct.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/notSubjectToBackupWithholding">
+      <Name>Not Subject to Backup Withholding</Name>
+      <Description>Certify not subject to backup withholding.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/certifyUSPerson">
+      <Name>Certify US Person</Name>
+      <Description>Certify is a US person.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/certifyFATCA">
+      <Name>Certify FATCA</Name>
+      <Description>Certify FATCA code is correct if applicable.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/formW9IsDone">
+      <Name>Form W-9 Is Done</Name>
+      <Description>Whether Form W-9 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasW9" /></Not>
+          <All>
+            <Dependency path="/hasW9" />
+            <IsComplete><Dependency path="/w9Name" /></IsComplete>
+            <IsComplete><Dependency path="/certifyTINCorrect" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeFormW9">
+      <Name>Include Form W-9 in PDF</Name>
+      <Description>Whether to include Form W-9 in output.</Description>
+      <Derived>
+        <Dependency path="/hasW9" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

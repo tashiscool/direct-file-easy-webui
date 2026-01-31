@@ -1,0 +1,88 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Michigan Form MI-1040: Individual Income Tax Return -->
+<!-- Michigan has a flat 4.25% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMI1040">
+      <Name>Has MI Form MI-1040</Name>
+      <Description>Whether taxpayer files Michigan Form MI-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MI</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MI Tax Rate (flat) -->
+    <Fact path="/miTaxRate">
+      <Name>Michigan Tax Rate</Name>
+      <Description>Michigan flat income tax rate (4.25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0425</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- MI Personal Exemption -->
+    <Fact path="/miPersonalExemption">
+      <Name>MI Personal Exemption</Name>
+      <Description>Michigan personal exemption ($5,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5600</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- MI Taxable Income -->
+    <Fact path="/miTaxableIncome">
+      <Name>MI Taxable Income</Name>
+      <Description>Michigan taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/miPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MI Income Tax -->
+    <Fact path="/miIncomeTax">
+      <Name>MI Income Tax</Name>
+      <Description>Michigan income tax (flat 4.25%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/miTaxableIncome" />
+          <Dependency path="/miTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mi1040IsDone">
+      <Name>MI Form MI-1040 Is Done</Name>
+      <Description>Whether MI Form MI-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMI1040" /></Not>
+          <All>
+            <Dependency path="/hasMI1040" />
+            <IsComplete><Dependency path="/miIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMI1040">
+      <Name>Include MI Form MI-1040 in PDF</Name>
+      <Description>Whether to include MI Form MI-1040.</Description>
+      <Derived>
+        <Dependency path="/hasMI1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

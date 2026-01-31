@@ -1,0 +1,164 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year 2021 Constants -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Tax Year -->
+    <Fact path="/taxYear2021">
+      <Name>Tax Year 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Int>2021</Int></Derived>
+    </Fact>
+
+    <!-- Standard Deductions 2021 -->
+    <Fact path="/stdDeductionSingle2021">
+      <Name>Standard Deduction Single 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>12550</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFJ2021">
+      <Name>Standard Deduction MFJ 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>25100</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionHOH2021">
+      <Name>Standard Deduction HOH 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>18800</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFS2021">
+      <Name>Standard Deduction MFS 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>12550</Dollar></Derived>
+    </Fact>
+
+    <!-- Child Tax Credit 2021 (Enhanced ARPA) -->
+    <Fact path="/ctcPerChildUnder62021">
+      <Name>CTC Per Child Under 6 2021</Name>
+      <Description>Enhanced CTC for children under 6 (ARPA).</Description>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>3600</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/ctcPerChildOver62021">
+      <Name>CTC Per Child 6-17 2021</Name>
+      <Description>Enhanced CTC for children 6-17 (ARPA).</Description>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>3000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/actcRefundable2021">
+      <Name>ACTC Fully Refundable 2021</Name>
+      <Description>CTC was fully refundable in 2021.</Description>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>3600</Dollar></Derived>
+    </Fact>
+
+    <!-- EITC Amounts 2021 (Enhanced) -->
+    <Fact path="/eitcMax0Children2021">
+      <Name>EITC Max 0 Children 2021</Name>
+      <Description>Enhanced EITC for childless workers (ARPA).</Description>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>1502</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax1Child2021">
+      <Name>EITC Max 1 Child 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>3618</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax2Children2021">
+      <Name>EITC Max 2 Children 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>5980</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax3Children2021">
+      <Name>EITC Max 3+ Children 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>6728</Dollar></Derived>
+    </Fact>
+
+    <!-- HSA Limits 2021 -->
+    <Fact path="/hsaSelfLimit2021">
+      <Name>HSA Self-Only Limit 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>3600</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/hsaFamilyLimit2021">
+      <Name>HSA Family Limit 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>7200</Dollar></Derived>
+    </Fact>
+
+    <!-- Tax Bracket Thresholds 2021 (Single) -->
+    <Fact path="/bracket10Threshold2021">
+      <Name>10% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>9950</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket12Threshold2021">
+      <Name>12% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>40525</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket22Threshold2021">
+      <Name>22% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>86375</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket24Threshold2021">
+      <Name>24% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>164925</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket32Threshold2021">
+      <Name>32% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>209425</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket35Threshold2021">
+      <Name>35% Bracket Threshold 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>523600</Dollar></Derived>
+    </Fact>
+
+    <!-- Social Security Wage Base 2021 -->
+    <Fact path="/ssWageBase2021">
+      <Name>SS Wage Base 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>142800</Dollar></Derived>
+    </Fact>
+
+    <!-- Foreign Earned Income Exclusion 2021 -->
+    <Fact path="/feiExclusion2021">
+      <Name>Foreign Earned Income Exclusion 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>108700</Dollar></Derived>
+    </Fact>
+
+    <!-- SALT Deduction Cap 2021 -->
+    <Fact path="/saltCap2021">
+      <Name>SALT Cap 2021</Name>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>10000</Dollar></Derived>
+    </Fact>
+
+    <!-- Recovery Rebate Credit 2021 -->
+    <Fact path="/stimulusPayment32021">
+      <Name>Third Stimulus Payment 2021</Name>
+      <Description>Third stimulus payment (EIP3) - $1,400 per person.</Description>
+      <TaxYear>2021</TaxYear>
+      <Derived><Dollar>1400</Dollar></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

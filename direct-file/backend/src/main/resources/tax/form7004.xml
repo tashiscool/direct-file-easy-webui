@@ -1,0 +1,153 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 7004: Application for Automatic Extension of Time To File Business Income Tax Returns -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EXTENSION REQUEST                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/requestsBusinessExtension">
+      <Name>Requests Business Extension</Name>
+      <Description>Whether requesting extension for business return.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formBeingExtended">
+      <Name>Form Being Extended</Name>
+      <Description>Type of business return being extended.</Description>
+      <Writable>
+        <Enum>
+          <Option value="1065">Form 1065 - Partnership</Option>
+          <Option value="1120">Form 1120 - C Corporation</Option>
+          <Option value="1120S">Form 1120-S - S Corporation</Option>
+          <Option value="1041">Form 1041 - Estate/Trust</Option>
+          <Option value="990">Form 990 - Exempt Organization</Option>
+          <Option value="990PF">Form 990-PF - Private Foundation</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearEndDate">
+      <Name>Tax Year End Date</Name>
+      <Description>End date of tax year.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXTENSION PERIODS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/extensionMonths1065">
+      <Name>Extension Months - 1065</Name>
+      <Description>Extension months for partnerships (6 months).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>6</Int>
+      </Derived>
+    </Fact>
+
+    <Fact path="/extensionMonths1120">
+      <Name>Extension Months - 1120</Name>
+      <Description>Extension months for C Corps (6 months).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>6</Int>
+      </Derived>
+    </Fact>
+
+    <Fact path="/extensionMonths1120S">
+      <Name>Extension Months - 1120S</Name>
+      <Description>Extension months for S Corps (6 months).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Int>6</Int>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ESTIMATED TAX                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/tentativeTotalTax">
+      <Name>Tentative Total Tax</Name>
+      <Description>Tentative total tax (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPaymentsMade">
+      <Name>Total Payments Made</Name>
+      <Description>Total payments made (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/balanceDueWithExtension7004">
+      <Name>Balance Due with Extension</Name>
+      <Description>Balance due (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/tentativeTotalTax" />
+            <Dependency path="/totalPaymentsMade" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amountPayingWithExtension7004">
+      <Name>Amount Paying with Extension</Name>
+      <Description>Amount paying with extension (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form7004IsDone">
+      <Name>Form 7004 Is Done</Name>
+      <Description>Whether Form 7004 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/requestsBusinessExtension" /></Not>
+          <All>
+            <Dependency path="/requestsBusinessExtension" />
+            <IsComplete><Dependency path="/tentativeTotalTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm7004">
+      <Name>Include Form 7004 in PDF</Name>
+      <Description>Whether to include Form 7004 in the return.</Description>
+      <Derived>
+        <Dependency path="/requestsBusinessExtension" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

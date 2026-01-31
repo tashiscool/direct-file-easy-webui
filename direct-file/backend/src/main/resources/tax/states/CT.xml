@@ -1,0 +1,170 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Connecticut Form CT-1040: Resident Income Tax Return -->
+<!-- Connecticut has progressive rates from 3% to 6.99% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasCT1040">
+      <Name>Has CT-1040</Name>
+      <Description>Whether taxpayer files Connecticut CT-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>CT</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- CT Personal Exemption -->
+    <Fact path="/ctPersonalExemptionSingle">
+      <Name>CT Personal Exemption Single</Name>
+      <Description>Connecticut personal exemption for single ($15,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>15000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctPersonalExemptionMFJ">
+      <Name>CT Personal Exemption MFJ</Name>
+      <Description>Connecticut personal exemption for MFJ ($24,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctPersonalExemption">
+      <Name>CT Personal Exemption</Name>
+      <Description>Connecticut personal exemption based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/ctPersonalExemptionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/ctPersonalExemptionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- CT Taxable Income -->
+    <Fact path="/ctTaxableIncome">
+      <Name>CT Taxable Income</Name>
+      <Description>Connecticut taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/ctPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- CT Income Tax (progressive) -->
+    <Fact path="/ctIncomeTax">
+      <Name>CT Income Tax</Name>
+      <Description>Connecticut income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ctTaxableIncome" /></Left>
+                <Right><Dollar>10000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/ctTaxableIncome" />
+                <Decimal>0.03</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ctTaxableIncome" /></Left>
+                <Right><Dollar>50000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>300</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/ctTaxableIncome" />
+                    <Dollar>10000</Dollar>
+                  </Subtract>
+                  <Decimal>0.05</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ctTaxableIncome" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>2300</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/ctTaxableIncome" />
+                    <Dollar>50000</Dollar>
+                  </Subtract>
+                  <Decimal>0.055</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>5050</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/ctTaxableIncome" />
+                  <Dollar>100000</Dollar>
+                </Subtract>
+                <Decimal>0.06</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ct1040IsDone">
+      <Name>CT-1040 Is Done</Name>
+      <Description>Whether CT-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCT1040" /></Not>
+          <All>
+            <Dependency path="/hasCT1040" />
+            <IsComplete><Dependency path="/ctIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeCT1040">
+      <Name>Include CT-1040 in PDF</Name>
+      <Description>Whether to include CT-1040.</Description>
+      <Derived>
+        <Dependency path="/hasCT1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

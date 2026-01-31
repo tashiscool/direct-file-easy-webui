@@ -1,0 +1,32 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Nevada: No State Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNVReturn">
+      <Name>Has NV Return</Name>
+      <Description>Nevada has no personal income tax.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nvNoIncomeTax">
+      <Name>NV No Income Tax</Name>
+      <Description>Nevada does not impose a personal income tax.</Description>
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NV</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nvFilingRequired">
+      <Name>NV Filing Required</Name>
+      <Description>No state filing required for Nevada residents.</Description>
+      <Derived>
+        <Boolean>false</Boolean>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,296 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 6765: Credit for Increasing Research Activities -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- R&D CREDIT                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasResearchCredit">
+      <Name>Has Research Credit</Name>
+      <Description>Whether taxpayer claims research credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION A: REGULAR CREDIT                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedResearchExpenses">
+      <Name>Qualified Research Expenses</Name>
+      <Description>Current year qualified research expenses (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/baseAmount">
+      <Name>Base Amount</Name>
+      <Description>Base amount (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessOverBase">
+      <Name>Excess Over Base</Name>
+      <Description>QRE minus base amount (Line 9).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/qualifiedResearchExpenses" />
+            <Dependency path="/baseAmount" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularCreditRate">
+      <Name>Regular Credit Rate</Name>
+      <Description>Regular credit rate (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularResearchCredit">
+      <Name>Regular Research Credit</Name>
+      <Description>Regular research credit (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessOverBase" />
+          <Dependency path="/regularCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION B: ALTERNATIVE SIMPLIFIED CREDIT    -->
+    <!-- ============================================ -->
+
+    <Fact path="/useSimplifiedCredit">
+      <Name>Use Simplified Credit</Name>
+      <Description>Whether to use alternative simplified credit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/averageQRE">
+      <Name>Average QRE</Name>
+      <Description>Average QRE for prior 3 years (Line 24).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/simplifiedBasePercent">
+      <Name>Simplified Base Percent</Name>
+      <Description>50% of average QRE.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/averageQRE" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/simplifiedExcess">
+      <Name>Simplified Excess</Name>
+      <Description>Excess of current QRE over 50% average (Line 26).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/qualifiedResearchExpenses" />
+            <Dependency path="/simplifiedBasePercent" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/simplifiedCreditRate">
+      <Name>Simplified Credit Rate</Name>
+      <Description>Simplified credit rate (14%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.14</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/simplifiedResearchCredit">
+      <Name>Simplified Research Credit</Name>
+      <Description>Alternative simplified credit (Line 27).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/simplifiedExcess" />
+          <Dependency path="/simplifiedCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION C: BASIC RESEARCH PAYMENTS          -->
+    <!-- ============================================ -->
+
+    <Fact path="/basicResearchPayments">
+      <Name>Basic Research Payments</Name>
+      <Description>Basic research payments to qualified organizations (Line 28).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/basicResearchCreditRate">
+      <Name>Basic Research Credit Rate</Name>
+      <Description>Basic research credit rate (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/basicResearchCredit">
+      <Name>Basic Research Credit</Name>
+      <Description>Basic research credit (Line 29).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/basicResearchPayments" />
+          <Dependency path="/basicResearchCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL RESEARCH CREDIT                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalResearchCredit">
+      <Name>Total Research Credit</Name>
+      <Description>Total research credit (Line 34).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/useSimplifiedCredit" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/simplifiedResearchCredit" />
+                <Dependency path="/basicResearchCredit" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Dependency path="/regularResearchCredit" />
+                <Dependency path="/basicResearchCredit" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PAYROLL TAX OFFSET (STARTUP COMPANIES)      -->
+    <!-- ============================================ -->
+
+    <Fact path="/isQualifiedSmallBusiness">
+      <Name>Is Qualified Small Business</Name>
+      <Description>Whether entity is a qualified small business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxPayrollTaxOffset">
+      <Name>Max Payroll Tax Offset</Name>
+      <Description>Maximum payroll tax offset ($500,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/payrollTaxOffset">
+      <Name>Payroll Tax Offset</Name>
+      <Description>Credit elected for payroll tax offset (Line 41).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isQualifiedSmallBusiness" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/totalResearchCredit" />
+                <Dependency path="/maxPayrollTaxOffset" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form6765IsDone">
+      <Name>Form 6765 Is Done</Name>
+      <Description>Whether Form 6765 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasResearchCredit" /></Not>
+          <All>
+            <Dependency path="/hasResearchCredit" />
+            <IsComplete><Dependency path="/totalResearchCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm6765">
+      <Name>Include Form 6765 in PDF</Name>
+      <Description>Whether to include Form 6765 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalResearchCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

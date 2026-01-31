@@ -1,0 +1,246 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 6252: Installment Sale Income -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INSTALLMENT SALE                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasInstallmentSale">
+      <Name>Has Installment Sale</Name>
+      <Description>Whether taxpayer has installment sale income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/propertyDescription">
+      <Name>Property Description</Name>
+      <Description>Description of property sold (Line 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateAcquired">
+      <Name>Date Acquired</Name>
+      <Description>Date property was acquired (Line 2a).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dateSold">
+      <Name>Date Sold</Name>
+      <Description>Date property was sold (Line 2b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: GROSS PROFIT AND CONTRACT PRICE     -->
+    <!-- ============================================ -->
+
+    <Fact path="/sellingPrice">
+      <Name>Selling Price</Name>
+      <Description>Selling price including mortgages (Line 5).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgagesAssumedByBuyer">
+      <Name>Mortgages Assumed by Buyer</Name>
+      <Description>Mortgages and debts assumed by buyer (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedBasis">
+      <Name>Adjusted Basis</Name>
+      <Description>Adjusted basis of property sold (Line 8).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/commissions">
+      <Name>Commissions</Name>
+      <Description>Commissions and other selling expenses (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciationRecapture">
+      <Name>Depreciation Recapture</Name>
+      <Description>Depreciation allowed or allowable (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossProfit">
+      <Name>Gross Profit</Name>
+      <Description>Gross profit (Line 16).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/sellingPrice" />
+          <Add>
+            <Dependency path="/adjustedBasis" />
+            <Dependency path="/commissions" />
+          </Add>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/contractPrice">
+      <Name>Contract Price</Name>
+      <Description>Contract price (Line 18).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/sellingPrice" />
+          <Dependency path="/mortgagesAssumedByBuyer" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/grossProfitPercentage">
+      <Name>Gross Profit Percentage</Name>
+      <Description>Gross profit percentage (Line 19).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/contractPrice" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Divide>
+                <Dependency path="/grossProfit" />
+                <Dependency path="/contractPrice" />
+              </Divide>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Decimal>0</Decimal></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: INSTALLMENT SALE INCOME            -->
+    <!-- ============================================ -->
+
+    <Fact path="/paymentsReceivedThisYear">
+      <Name>Payments Received This Year</Name>
+      <Description>Payments received this year (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/installmentSaleIncomeThisYear">
+      <Name>Installment Sale Income This Year</Name>
+      <Description>Installment sale income (Line 24).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/paymentsReceivedThisYear" />
+          <Dependency path="/grossProfitPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: RELATED PARTY SALES               -->
+    <!-- ============================================ -->
+
+    <Fact path="/isRelatedPartySale">
+      <Name>Is Related Party Sale</Name>
+      <Description>Whether sale was to related party.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedPartyName">
+      <Name>Related Party Name</Name>
+      <Description>Name of related party (Line 25).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/didRelatedPartyResell">
+      <Name>Did Related Party Resell</Name>
+      <Description>Did related party sell or dispose of property (Line 27).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form6252IsDone">
+      <Name>Form 6252 Is Done</Name>
+      <Description>Whether Form 6252 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInstallmentSale" /></Not>
+          <All>
+            <Dependency path="/hasInstallmentSale" />
+            <IsComplete><Dependency path="/installmentSaleIncomeThisYear" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm6252">
+      <Name>Include Form 6252 in PDF</Name>
+      <Description>Whether to include Form 6252 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/installmentSaleIncomeThisYear" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

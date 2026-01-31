@@ -1,0 +1,218 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule J (Form 990): Compensation Information -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- COMPENSATION DISCLOSURE                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/requiresScheduleJ">
+      <Name>Requires Schedule J</Name>
+      <Description>Whether organization must file Schedule J.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: QUESTIONS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/firstClassTravel">
+      <Name>First Class Travel</Name>
+      <Description>Provided first-class or charter travel (Line 1a).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/travelForCompanions">
+      <Name>Travel for Companions</Name>
+      <Description>Provided travel for companions (Line 1b).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxGrossUpPayments">
+      <Name>Tax Gross-Up Payments</Name>
+      <Description>Tax indemnification/gross-up payments (Line 1c).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/discretionarySpendingAccount">
+      <Name>Discretionary Spending Account</Name>
+      <Description>Discretionary spending account (Line 1d).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/housingAllowance">
+      <Name>Housing Allowance</Name>
+      <Description>Housing allowance or residence (Line 1e).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/healthClubMembership">
+      <Name>Health Club Membership</Name>
+      <Description>Health or social club dues (Line 1f).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/personalServicesProvided">
+      <Name>Personal Services Provided</Name>
+      <Description>Personal services provided (Line 1g).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: OFFICERS/KEY EMPLOYEES             -->
+    <!-- ============================================ -->
+
+    <Fact path="/officer1Name">
+      <Name>Officer 1 Name</Name>
+      <Description>Name and title of first officer.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1BaseCompensation">
+      <Name>Officer 1 Base Compensation</Name>
+      <Description>Base compensation (Column B(i)).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1BonusIncentive">
+      <Name>Officer 1 Bonus/Incentive</Name>
+      <Description>Bonus and incentive compensation (Column B(ii)).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1OtherCompensation">
+      <Name>Officer 1 Other Compensation</Name>
+      <Description>Other reportable compensation (Column B(iii)).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1DeferredCompensation">
+      <Name>Officer 1 Deferred Compensation</Name>
+      <Description>Deferred compensation (Column C).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1NontaxableBenefits">
+      <Name>Officer 1 Nontaxable Benefits</Name>
+      <Description>Nontaxable benefits (Column D).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/officer1TotalCompensation">
+      <Name>Officer 1 Total Compensation</Name>
+      <Description>Total compensation (Column E).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/officer1BaseCompensation" />
+              <Dependency path="/officer1BonusIncentive" />
+            </Add>
+            <Dependency path="/officer1OtherCompensation" />
+          </Add>
+          <Add>
+            <Dependency path="/officer1DeferredCompensation" />
+            <Dependency path="/officer1NontaxableBenefits" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalReportableCompensation">
+      <Name>Total Reportable Compensation</Name>
+      <Description>Total reportable compensation for all officers.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/officer1TotalCompensation" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/highestCompensatedEmployee">
+      <Name>Highest Compensated Employee</Name>
+      <Description>Highest compensation to any single employee.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/officer1TotalCompensation" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleJ990IsDone">
+      <Name>Schedule J (990) Is Done</Name>
+      <Description>Whether Schedule J is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/requiresScheduleJ" /></Not>
+          <All>
+            <Dependency path="/requiresScheduleJ" />
+            <IsComplete><Dependency path="/totalReportableCompensation" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleJ990">
+      <Name>Include Schedule J (990) in PDF</Name>
+      <Description>Whether to include Schedule J in the return.</Description>
+      <Derived>
+        <Dependency path="/requiresScheduleJ" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

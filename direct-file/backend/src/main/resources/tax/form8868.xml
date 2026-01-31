@@ -1,0 +1,29 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8868: Application for Automatic Extension of Time To File an Exempt Organization Return -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8868">
+      <Name>Has Form 8868</Name>
+      <Description>Whether exempt org is requesting extension.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/organizationEIN8868">
+      <Name>Organization EIN</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/extensionMonths8868">
+      <Name>Extension Months</Name>
+      <Description>Automatic 6-month extension.</Description>
+      <Derived><Int>6</Int></Derived>
+    </Fact>
+    <Fact path="/form8868IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8868" /></Not>
+          <IsComplete><Dependency path="/organizationEIN8868" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

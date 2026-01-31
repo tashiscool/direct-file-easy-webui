@@ -1,0 +1,527 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5329: Additional Taxes on Qualified Plans (Including IRAs) and Other Tax-Favored Accounts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: EARLY DISTRIBUTIONS (10% TAX)       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEarlyDistributions">
+      <Name>Has Early Distributions</Name>
+      <Description>Whether taxpayer has early distributions from retirement plans.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/earlyDistributionAmount">
+      <Name>Early Distribution Amount</Name>
+      <Description>Early distributions included in income (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/earlyDistributionExceptions">
+      <Name>Early Distribution Exceptions</Name>
+      <Description>Distributions not subject to additional tax (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/earlyDistributionSubjectToTax">
+      <Name>Early Distribution Subject to Tax</Name>
+      <Description>Amount subject to 10% additional tax (Line 3).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/earlyDistributionAmount" />
+            <Dependency path="/earlyDistributionExceptions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earlyDistributionTaxRate">
+      <Name>Early Distribution Tax Rate</Name>
+      <Description>Additional tax rate on early distributions (10%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.10</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalTaxOnEarlyDistributions">
+      <Name>Additional Tax on Early Distributions</Name>
+      <Description>10% additional tax on early distributions (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/earlyDistributionSubjectToTax" />
+          <Dependency path="/earlyDistributionTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: EARLY DISTRIBUTIONS FROM ROTH IRA  -->
+    <!-- ============================================ -->
+
+    <Fact path="/rothEarlyDistributionAmount">
+      <Name>Roth Early Distribution Amount</Name>
+      <Description>Early distributions from Roth IRA (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rothEarlyDistributionExceptions">
+      <Name>Roth Early Distribution Exceptions</Name>
+      <Description>Roth distributions not subject to additional tax (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalTaxOnRothEarlyDistributions">
+      <Name>Additional Tax on Roth Early Distributions</Name>
+      <Description>10% tax on early Roth distributions (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/rothEarlyDistributionAmount" />
+              <Dependency path="/rothEarlyDistributionExceptions" />
+            </Subtract>
+          </Max>
+          <Decimal>0.10</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: EXCESS CONTRIBUTIONS TO IRA       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasExcessIRAContributions">
+      <Name>Has Excess IRA Contributions</Name>
+      <Description>Whether taxpayer has excess contributions to traditional IRA.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessTraditionalIRAContributions">
+      <Name>Excess Traditional IRA Contributions</Name>
+      <Description>Excess contributions to traditional IRA (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearExcessIRAContributions">
+      <Name>Prior Year Excess IRA Contributions</Name>
+      <Description>Prior year excess contributions (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessContributionsWithdrawn">
+      <Name>Excess Contributions Withdrawn</Name>
+      <Description>Excess contributions withdrawn by due date (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalExcessIRAContributions">
+      <Name>Total Excess IRA Contributions</Name>
+      <Description>Total excess contributions subject to 6% tax (Line 15).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Add>
+              <Dependency path="/excessTraditionalIRAContributions" />
+              <Dependency path="/priorYearExcessIRAContributions" />
+            </Add>
+            <Dependency path="/excessContributionsWithdrawn" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessContributionTaxRate">
+      <Name>Excess Contribution Tax Rate</Name>
+      <Description>Tax rate on excess contributions (6%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.06</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnExcessIRAContributions">
+      <Name>Tax on Excess IRA Contributions</Name>
+      <Description>6% tax on excess IRA contributions (Line 16).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalExcessIRAContributions" />
+          <Dependency path="/excessContributionTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: EXCESS CONTRIBUTIONS TO ROTH IRA   -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessRothIRAContributions">
+      <Name>Excess Roth IRA Contributions</Name>
+      <Description>Excess contributions to Roth IRA (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearExcessRothContributions">
+      <Name>Prior Year Excess Roth Contributions</Name>
+      <Description>Prior year excess Roth contributions (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessRothContributionsWithdrawn">
+      <Name>Excess Roth Contributions Withdrawn</Name>
+      <Description>Excess Roth contributions withdrawn (Line 20).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalExcessRothContributions">
+      <Name>Total Excess Roth Contributions</Name>
+      <Description>Total excess Roth contributions subject to 6% tax (Line 23).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Add>
+              <Dependency path="/excessRothIRAContributions" />
+              <Dependency path="/priorYearExcessRothContributions" />
+            </Add>
+            <Dependency path="/excessRothContributionsWithdrawn" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnExcessRothContributions">
+      <Name>Tax on Excess Roth Contributions</Name>
+      <Description>6% tax on excess Roth contributions (Line 24).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalExcessRothContributions" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART V: EXCESS CONTRIBUTIONS TO COVERDELL   -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessCoverdellContributions">
+      <Name>Excess Coverdell Contributions</Name>
+      <Description>Excess contributions to Coverdell ESA (Line 25).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxOnExcessCoverdellContributions">
+      <Name>Tax on Excess Coverdell Contributions</Name>
+      <Description>6% tax on excess Coverdell contributions (Line 32).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessCoverdellContributions" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VI: EXCESS CONTRIBUTIONS TO ABLE       -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessABLEContributions">
+      <Name>Excess ABLE Contributions</Name>
+      <Description>Excess contributions to ABLE account (Line 33).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxOnExcessABLEContributions">
+      <Name>Tax on Excess ABLE Contributions</Name>
+      <Description>6% tax on excess ABLE contributions (Line 40).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessABLEContributions" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VII: EXCESS HSA CONTRIBUTIONS          -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessHSAContributions">
+      <Name>Excess HSA Contributions</Name>
+      <Description>Excess contributions to HSA (Line 41).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxOnExcessHSAContributions">
+      <Name>Tax on Excess HSA Contributions</Name>
+      <Description>6% tax on excess HSA contributions (Line 48).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessHSAContributions" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART VIII: EXCESS ARCHER MSA CONTRIBUTIONS  -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessArcherMSAContributions">
+      <Name>Excess Archer MSA Contributions</Name>
+      <Description>Excess contributions to Archer MSA (Line 49).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxOnExcessArcherMSAContributions">
+      <Name>Tax on Excess Archer MSA Contributions</Name>
+      <Description>6% tax on excess Archer MSA contributions (Line 56).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessArcherMSAContributions" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IX: REQUIRED MINIMUM DISTRIBUTIONS     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRMDShortfall">
+      <Name>Has RMD Shortfall</Name>
+      <Description>Whether taxpayer failed to take required minimum distribution.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/requiredMinimumDistribution">
+      <Name>Required Minimum Distribution</Name>
+      <Description>Required minimum distribution amount (Line 52).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/actualDistributionTaken">
+      <Name>Actual Distribution Taken</Name>
+      <Description>Actual distribution taken (Line 53).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rmdShortfall">
+      <Name>RMD Shortfall</Name>
+      <Description>Shortfall in required minimum distribution (Line 54).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/requiredMinimumDistribution" />
+            <Dependency path="/actualDistributionTaken" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rmdPenaltyRate">
+      <Name>RMD Penalty Rate</Name>
+      <Description>Excise tax rate on RMD shortfall (25%, reduced to 10% if corrected).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.25</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnRMDShortfall">
+      <Name>Tax on RMD Shortfall</Name>
+      <Description>25% excise tax on RMD shortfall (Line 55).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/rmdShortfall" />
+          <Dependency path="/rmdPenaltyRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUMMARY                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAdditionalTax5329">
+      <Name>Total Additional Tax - Form 5329</Name>
+      <Description>Total additional taxes from Form 5329.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/additionalTaxOnEarlyDistributions" />
+              <Dependency path="/additionalTaxOnRothEarlyDistributions" />
+            </Add>
+            <Add>
+              <Dependency path="/taxOnExcessIRAContributions" />
+              <Dependency path="/taxOnExcessRothContributions" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/taxOnExcessCoverdellContributions" />
+              <Dependency path="/taxOnExcessABLEContributions" />
+            </Add>
+            <Add>
+              <Add>
+                <Dependency path="/taxOnExcessHSAContributions" />
+                <Dependency path="/taxOnExcessArcherMSAContributions" />
+              </Add>
+              <Dependency path="/taxOnRMDShortfall" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form5329IsDone">
+      <Name>Form 5329 Is Done</Name>
+      <Description>Whether Form 5329 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasEarlyDistributions" /></Not>
+          <All>
+            <Dependency path="/hasEarlyDistributions" />
+            <IsComplete><Dependency path="/totalAdditionalTax5329" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm5329">
+      <Name>Include Form 5329 in PDF</Name>
+      <Description>Whether to include Form 5329 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalAdditionalTax5329" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

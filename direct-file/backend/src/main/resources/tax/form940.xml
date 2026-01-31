@@ -1,0 +1,338 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 940: Employer's Annual Federal Unemployment (FUTA) Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- EMPLOYER INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/isSubjectToFUTA">
+      <Name>Is Subject to FUTA</Name>
+      <Description>Whether employer is subject to FUTA tax.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateOfPayroll">
+      <Name>State of Payroll</Name>
+      <Description>State where payroll is paid.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isMultiStateEmployer">
+      <Name>Is Multi-State Employer</Name>
+      <Description>Whether employer pays wages in multiple states.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 1: FUTA TAX BEFORE ADJUSTMENTS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalPaymentsDuringYear">
+      <Name>Total Payments During Year</Name>
+      <Description>Total payments to all employees (Line 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptPayments">
+      <Name>Exempt Payments</Name>
+      <Description>Payments exempt from FUTA tax (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/paymentsOverFUTALimit">
+      <Name>Payments Over FUTA Limit</Name>
+      <Description>Payments over $7,000 per employee (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalExemptPayments">
+      <Name>Total Exempt Payments</Name>
+      <Description>Total exempt payments (Line 6).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/exemptPayments" />
+          <Dependency path="/paymentsOverFUTALimit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalTaxableWagesFUTA">
+      <Name>Total Taxable Wages (FUTA)</Name>
+      <Description>Total taxable FUTA wages (Line 7).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalPaymentsDuringYear" />
+            <Dependency path="/totalExemptPayments" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/futaTaxRate">
+      <Name>FUTA Tax Rate</Name>
+      <Description>FUTA tax rate (6.0% before credits).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.060</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/futaTaxBeforeAdjustments">
+      <Name>FUTA Tax Before Adjustments</Name>
+      <Description>FUTA tax before adjustments (Line 8).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalTaxableWagesFUTA" />
+          <Dependency path="/futaTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 2: ADJUSTMENTS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/stateUnemploymentTaxCredit">
+      <Name>State Unemployment Tax Credit</Name>
+      <Description>Credit for state unemployment taxes paid (up to 5.4%).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxStateTaxCredit">
+      <Name>Maximum State Tax Credit</Name>
+      <Description>Maximum state tax credit (5.4% of taxable wages).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalTaxableWagesFUTA" />
+          <Decimal>0.054</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/actualStateTaxCredit">
+      <Name>Actual State Tax Credit</Name>
+      <Description>Actual state tax credit allowed.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/stateUnemploymentTaxCredit" />
+          <Dependency path="/maxStateTaxCredit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditReductionState">
+      <Name>Credit Reduction State</Name>
+      <Description>Whether state has credit reduction.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditReductionAmount">
+      <Name>Credit Reduction Amount</Name>
+      <Description>Credit reduction amount if applicable.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 3: TOTAL FUTA TAX                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/netFUTATaxRate">
+      <Name>Net FUTA Tax Rate</Name>
+      <Description>Net FUTA tax rate after state credit (0.6%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.006</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalFUTATax">
+      <Name>Total FUTA Tax</Name>
+      <Description>Total FUTA tax after adjustments (Line 12).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Subtract>
+            <Dependency path="/futaTaxBeforeAdjustments" />
+            <Dependency path="/actualStateTaxCredit" />
+          </Subtract>
+          <Dependency path="/creditReductionAmount" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 4: DEPOSITS                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/futaDepositsQ1">
+      <Name>FUTA Deposits - Q1</Name>
+      <Description>FUTA tax deposits for Q1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/futaDepositsQ2">
+      <Name>FUTA Deposits - Q2</Name>
+      <Description>FUTA tax deposits for Q2.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/futaDepositsQ3">
+      <Name>FUTA Deposits - Q3</Name>
+      <Description>FUTA tax deposits for Q3.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/futaDepositsQ4">
+      <Name>FUTA Deposits - Q4</Name>
+      <Description>FUTA tax deposits for Q4.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFUTADeposits">
+      <Name>Total FUTA Deposits</Name>
+      <Description>Total FUTA deposits for the year.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/futaDepositsQ1" />
+            <Dependency path="/futaDepositsQ2" />
+          </Add>
+          <Add>
+            <Dependency path="/futaDepositsQ3" />
+            <Dependency path="/futaDepositsQ4" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 5: BALANCE DUE OR OVERPAYMENT          -->
+    <!-- ============================================ -->
+
+    <Fact path="/futaBalanceDue">
+      <Name>FUTA Balance Due</Name>
+      <Description>Balance of FUTA tax due (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalFUTATax" />
+            <Dependency path="/totalFUTADeposits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/futaOverpayment">
+      <Name>FUTA Overpayment</Name>
+      <Description>Overpayment of FUTA tax (Line 15).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalFUTADeposits" />
+            <Dependency path="/totalFUTATax" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form940IsDone">
+      <Name>Form 940 Is Done</Name>
+      <Description>Whether Form 940 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/isSubjectToFUTA" /></Not>
+          <All>
+            <Dependency path="/isSubjectToFUTA" />
+            <IsComplete><Dependency path="/totalFUTATax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm940">
+      <Name>Include Form 940 in PDF</Name>
+      <Description>Whether to include Form 940 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/isSubjectToFUTA" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

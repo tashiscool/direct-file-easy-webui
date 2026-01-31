@@ -1,0 +1,179 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 4835: Farm Rental Income and Expenses -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm4835">
+      <Name>Has Form 4835</Name>
+      <Description>Whether taxpayer has farm rental income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmRentalIncomeShares">
+      <Name>Farm Rental Income (Shares)</Name>
+      <Description>Income from production of crops on shares basis (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/livestockShares4835">
+      <Name>Livestock Shares</Name>
+      <Description>Income from share of livestock (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/coopDistributions4835">
+      <Name>Cooperative Distributions</Name>
+      <Description>Cooperative distributions (Line 3a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/agriculturalPayments4835">
+      <Name>Agricultural Payments</Name>
+      <Description>Agricultural program payments (Line 4a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherFarmRentalIncome4835">
+      <Name>Other Farm Rental Income</Name>
+      <Description>Other income (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossFarmRentalIncome4835">
+      <Name>Gross Farm Rental Income</Name>
+      <Description>Gross farm rental income (Line 8).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/farmRentalIncomeShares" />
+          <Dependency path="/livestockShares4835" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carTruckExpenses4835">
+      <Name>Car and Truck Expenses</Name>
+      <Description>Car and truck expenses (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/chemicals4835">
+      <Name>Chemicals</Name>
+      <Description>Chemicals (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depreciation4835">
+      <Name>Depreciation</Name>
+      <Description>Depreciation (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/repairs4835">
+      <Name>Repairs</Name>
+      <Description>Repairs and maintenance (Line 21).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFarmRentalExpenses4835">
+      <Name>Total Farm Rental Expenses</Name>
+      <Description>Total expenses (Line 28).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/carTruckExpenses4835" />
+          <Dependency path="/depreciation4835" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netFarmRentalIncome4835">
+      <Name>Net Farm Rental Income</Name>
+      <Description>Net farm rental income (Line 29).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/grossFarmRentalIncome4835" />
+          <Dependency path="/totalFarmRentalExpenses4835" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835IsDone">
+      <Name>Form 4835 Is Done</Name>
+      <Description>Whether Form 4835 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm4835" /></Not>
+          <All>
+            <Dependency path="/hasForm4835" />
+            <IsComplete><Dependency path="/netFarmRentalIncome4835" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm4835">
+      <Name>Include Form 4835 in PDF</Name>
+      <Description>Whether to include Form 4835.</Description>
+      <Derived>
+        <Dependency path="/hasForm4835" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

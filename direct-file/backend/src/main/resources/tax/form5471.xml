@@ -1,0 +1,268 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5471: Information Return of U.S. Persons With Respect To Certain Foreign Corporations -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FOREIGN CORPORATION INFORMATION             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignCorporation">
+      <Name>Has Foreign Corporation</Name>
+      <Description>Whether US person has interest in foreign corporation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCorpName">
+      <Name>Foreign Corporation Name</Name>
+      <Description>Name of foreign corporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCorpCountry">
+      <Name>Foreign Corporation Country</Name>
+      <Description>Country of incorporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCorpEIN">
+      <Name>Foreign Corporation EIN</Name>
+      <Description>Employer identification number (if any).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignCorpReferenceID">
+      <Name>Foreign Corporation Reference ID</Name>
+      <Description>Reference ID number for foreign corporation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CATEGORY OF FILER                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/categoryOfFiler">
+      <Name>Category of Filer</Name>
+      <Description>Category of filer (1-5).</Description>
+      <Writable>
+        <Enum>
+          <Option value="1">Category 1 - US shareholder of SFC</Option>
+          <Option value="2">Category 2 - Officer/Director acquiring stock</Option>
+          <Option value="3">Category 3 - US person acquiring/disposing</Option>
+          <Option value="4">Category 4 - Control of foreign corporation</Option>
+          <Option value="5">Category 5 - US shareholder of CFC</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/percentageOwnership">
+      <Name>Percentage Ownership</Name>
+      <Description>Percentage of stock owned.</Description>
+      <Writable>
+        <Decimal />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isCFC">
+      <Name>Is CFC</Name>
+      <Description>Whether corporation is a controlled foreign corporation.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE C: INCOME STATEMENT                -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossIncomeForeignCorp">
+      <Name>Gross Income - Foreign Corp</Name>
+      <Description>Gross income of foreign corporation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductionsForeignCorp">
+      <Name>Deductions - Foreign Corp</Name>
+      <Description>Deductions of foreign corporation.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableIncomeForeignCorp">
+      <Name>Taxable Income - Foreign Corp</Name>
+      <Description>Taxable income of foreign corporation.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/grossIncomeForeignCorp" />
+          <Dependency path="/deductionsForeignCorp" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE E: INCOME, EXPENSES, TAXES         -->
+    <!-- ============================================ -->
+
+    <Fact path="/subpartFIncome">
+      <Name>Subpart F Income</Name>
+      <Description>Subpart F income (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/globalIntangibleLowTaxedIncome">
+      <Name>GILTI</Name>
+      <Description>Global intangible low-taxed income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxesPaid">
+      <Name>Foreign Taxes Paid</Name>
+      <Description>Foreign income taxes paid or accrued.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE F: BALANCE SHEET                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAssetsForeignCorp">
+      <Name>Total Assets - Foreign Corp</Name>
+      <Description>Total assets of foreign corporation.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLiabilitiesForeignCorp">
+      <Name>Total Liabilities - Foreign Corp</Name>
+      <Description>Total liabilities of foreign corporation.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/shareholdersEquityForeignCorp">
+      <Name>Shareholders Equity - Foreign Corp</Name>
+      <Description>Shareholders equity of foreign corporation.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalAssetsForeignCorp" />
+          <Dependency path="/totalLiabilitiesForeignCorp" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE I: SUMMARY OF SHAREHOLDER'S INCOME -->
+    <!-- ============================================ -->
+
+    <Fact path="/proRataSubpartF">
+      <Name>Pro Rata Subpart F</Name>
+      <Description>Pro rata share of Subpart F income.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/subpartFIncome" />
+          <Dependency path="/percentageOwnership" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/proRataGILTI">
+      <Name>Pro Rata GILTI</Name>
+      <Description>Pro rata share of GILTI.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/globalIntangibleLowTaxedIncome" />
+          <Dependency path="/percentageOwnership" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalInclusionFrom5471">
+      <Name>Total Inclusion from 5471</Name>
+      <Description>Total income inclusion from Form 5471.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/proRataSubpartF" />
+          <Dependency path="/proRataGILTI" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form5471IsDone">
+      <Name>Form 5471 Is Done</Name>
+      <Description>Whether Form 5471 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForeignCorporation" /></Not>
+          <All>
+            <Dependency path="/hasForeignCorporation" />
+            <IsComplete><Dependency path="/totalInclusionFrom5471" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm5471">
+      <Name>Include Form 5471 in PDF</Name>
+      <Description>Whether to include Form 5471 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/hasForeignCorporation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

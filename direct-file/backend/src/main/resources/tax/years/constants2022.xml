@@ -1,0 +1,159 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Tax Year 2022 Constants -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Tax Year -->
+    <Fact path="/taxYear2022">
+      <Name>Tax Year 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Int>2022</Int></Derived>
+    </Fact>
+
+    <!-- Standard Deductions 2022 -->
+    <Fact path="/stdDeductionSingle2022">
+      <Name>Standard Deduction Single 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>12950</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFJ2022">
+      <Name>Standard Deduction MFJ 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>25900</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionHOH2022">
+      <Name>Standard Deduction HOH 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>19400</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/stdDeductionMFS2022">
+      <Name>Standard Deduction MFS 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>12950</Dollar></Derived>
+    </Fact>
+
+    <!-- Additional Standard Deduction for Age/Blindness 2022 -->
+    <Fact path="/additionalStdDeductionSingle2022">
+      <Name>Additional Std Deduction Single 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>1750</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/additionalStdDeductionMFJ2022">
+      <Name>Additional Std Deduction MFJ 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>1400</Dollar></Derived>
+    </Fact>
+
+    <!-- Child Tax Credit 2022 -->
+    <Fact path="/ctcPerChild2022">
+      <Name>CTC Per Child 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>2000</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/actcRefundable2022">
+      <Name>ACTC Refundable 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>1500</Dollar></Derived>
+    </Fact>
+
+    <!-- EITC Amounts 2022 -->
+    <Fact path="/eitcMax0Children2022">
+      <Name>EITC Max 0 Children 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>560</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax1Child2022">
+      <Name>EITC Max 1 Child 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>3733</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax2Children2022">
+      <Name>EITC Max 2 Children 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>6164</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/eitcMax3Children2022">
+      <Name>EITC Max 3+ Children 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>6935</Dollar></Derived>
+    </Fact>
+
+    <!-- HSA Limits 2022 -->
+    <Fact path="/hsaSelfLimit2022">
+      <Name>HSA Self-Only Limit 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>3650</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/hsaFamilyLimit2022">
+      <Name>HSA Family Limit 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>7300</Dollar></Derived>
+    </Fact>
+
+    <!-- Tax Bracket Thresholds 2022 (Single) -->
+    <Fact path="/bracket10Threshold2022">
+      <Name>10% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>10275</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket12Threshold2022">
+      <Name>12% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>41775</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket22Threshold2022">
+      <Name>22% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>89075</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket24Threshold2022">
+      <Name>24% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>170050</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket32Threshold2022">
+      <Name>32% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>215950</Dollar></Derived>
+    </Fact>
+
+    <Fact path="/bracket35Threshold2022">
+      <Name>35% Bracket Threshold 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>539900</Dollar></Derived>
+    </Fact>
+
+    <!-- Social Security Wage Base 2022 -->
+    <Fact path="/ssWageBase2022">
+      <Name>SS Wage Base 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>147000</Dollar></Derived>
+    </Fact>
+
+    <!-- Foreign Earned Income Exclusion 2022 -->
+    <Fact path="/feiExclusion2022">
+      <Name>Foreign Earned Income Exclusion 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>112000</Dollar></Derived>
+    </Fact>
+
+    <!-- SALT Deduction Cap 2022 -->
+    <Fact path="/saltCap2022">
+      <Name>SALT Cap 2022</Name>
+      <TaxYear>2022</TaxYear>
+      <Derived><Dollar>10000</Dollar></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

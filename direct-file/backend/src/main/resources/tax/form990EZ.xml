@@ -1,0 +1,235 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 990-EZ: Short Form Return of Organization Exempt From Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ELIGIBILITY                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiesFor990EZ">
+      <Name>Qualifies for 990-EZ</Name>
+      <Description>Whether organization qualifies for short form.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossReceiptsThreshold">
+      <Name>Gross Receipts Threshold</Name>
+      <Description>Maximum gross receipts for 990-EZ ($200,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAssetsThreshold">
+      <Name>Total Assets Threshold</Name>
+      <Description>Maximum total assets for 990-EZ ($500,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: REVENUE, EXPENSES, CHANGES         -->
+    <!-- ============================================ -->
+
+    <Fact path="/contributionsGifts990EZ">
+      <Name>Contributions and Gifts</Name>
+      <Description>Contributions, gifts, grants (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/programServiceRevenue990EZ">
+      <Name>Program Service Revenue</Name>
+      <Description>Program service revenue (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/membershipDues990EZ">
+      <Name>Membership Dues</Name>
+      <Description>Membership dues and assessments (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/investmentIncome990EZ">
+      <Name>Investment Income</Name>
+      <Description>Investment income (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalRevenue990EZ">
+      <Name>Total Revenue</Name>
+      <Description>Total revenue (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/contributionsGifts990EZ" />
+            <Dependency path="/programServiceRevenue990EZ" />
+          </Add>
+          <Add>
+            <Dependency path="/membershipDues990EZ" />
+            <Dependency path="/investmentIncome990EZ" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- Expenses -->
+    <Fact path="/grantsAndSimilar990EZ">
+      <Name>Grants and Similar Amounts</Name>
+      <Description>Grants and similar amounts paid (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/salariesAndWages990EZ">
+      <Name>Salaries and Wages</Name>
+      <Description>Salaries, other compensation, benefits (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherExpenses990EZ">
+      <Name>Other Expenses</Name>
+      <Description>Other expenses (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalExpenses990EZ">
+      <Name>Total Expenses</Name>
+      <Description>Total expenses (Line 17).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/grantsAndSimilar990EZ" />
+            <Dependency path="/salariesAndWages990EZ" />
+          </Add>
+          <Dependency path="/otherExpenses990EZ" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessOrDeficit990EZ">
+      <Name>Excess or Deficit</Name>
+      <Description>Excess or deficit for the year (Line 18).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalRevenue990EZ" />
+          <Dependency path="/totalExpenses990EZ" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: BALANCE SHEETS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAssetsBOY990EZ">
+      <Name>Total Assets BOY</Name>
+      <Description>Total assets at beginning of year (Line 22).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAssetsEOY990EZ">
+      <Name>Total Assets EOY</Name>
+      <Description>Total assets at end of year (Line 22).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netAssetsEOY990EZ">
+      <Name>Net Assets EOY</Name>
+      <Description>Net assets at end of year (Line 21).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form990EZIsDone">
+      <Name>Form 990-EZ Is Done</Name>
+      <Description>Whether Form 990-EZ is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/qualifiesFor990EZ" /></Not>
+          <All>
+            <Dependency path="/qualifiesFor990EZ" />
+            <IsComplete><Dependency path="/totalRevenue990EZ" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm990EZ">
+      <Name>Include Form 990-EZ in PDF</Name>
+      <Description>Whether to include Form 990-EZ in the return.</Description>
+      <Derived>
+        <Dependency path="/qualifiesFor990EZ" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

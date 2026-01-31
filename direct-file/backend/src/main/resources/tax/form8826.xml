@@ -1,0 +1,107 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8826: Disabled Access Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasDisabledAccessCredit">
+      <Name>Has Disabled Access Credit</Name>
+      <Description>Whether taxpayer claims disabled access credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalEligibleAccessExpenditures">
+      <Name>Total Eligible Access Expenditures</Name>
+      <Description>Total eligible access expenditures (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/minimumEligibleAmount8826">
+      <Name>Minimum Eligible Amount</Name>
+      <Description>Minimum amount before credit applies ($250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maximumEligibleAmount8826">
+      <Name>Maximum Eligible Amount</Name>
+      <Description>Maximum eligible expenditures ($10,250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eligibleExpendituresAfterMin">
+      <Name>Eligible Expenditures After Minimum</Name>
+      <Description>Expenditures exceeding minimum (Line 2).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Min>
+              <Dependency path="/totalEligibleAccessExpenditures" />
+              <Dependency path="/maximumEligibleAmount8826" />
+            </Min>
+            <Dependency path="/minimumEligibleAmount8826" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/disabledAccessCreditRate">
+      <Name>Disabled Access Credit Rate</Name>
+      <Description>Credit rate (50%).</Description>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/disabledAccessCreditAmount">
+      <Name>Disabled Access Credit Amount</Name>
+      <Description>Disabled access credit (Line 3).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/eligibleExpendituresAfterMin" />
+          <Dependency path="/disabledAccessCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8826IsDone">
+      <Name>Form 8826 Is Done</Name>
+      <Description>Whether Form 8826 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDisabledAccessCredit" /></Not>
+          <All>
+            <Dependency path="/hasDisabledAccessCredit" />
+            <IsComplete><Dependency path="/disabledAccessCreditAmount" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8826">
+      <Name>Include Form 8826 in PDF</Name>
+      <Description>Whether to include Form 8826.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/disabledAccessCreditAmount" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

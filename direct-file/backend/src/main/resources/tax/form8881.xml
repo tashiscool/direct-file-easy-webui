@@ -1,0 +1,110 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8881: Credit for Small Employer Pension Plan Startup Costs -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8881">
+      <Name>Has Form 8881</Name>
+      <Description>Whether taxpayer claims pension plan startup credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedStartupCosts8881">
+      <Name>Qualified Startup Costs</Name>
+      <Description>Qualified startup costs for pension plan.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRate8881">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (50% of startup costs).</Description>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxAnnualCredit8881">
+      <Name>Max Annual Credit</Name>
+      <Description>Maximum annual credit ($500 per year for 3 years).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/autoEnrollmentCredit8881">
+      <Name>Auto-Enrollment Credit</Name>
+      <Description>Additional credit for auto-enrollment feature ($500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasAutoEnrollment8881">
+      <Name>Has Auto-Enrollment</Name>
+      <Description>Whether plan includes auto-enrollment feature.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pensionPlanStartupCredit">
+      <Name>Pension Plan Startup Credit</Name>
+      <Description>Credit for small employer pension plan startup costs.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Min>
+            <Multiply>
+              <Dependency path="/qualifiedStartupCosts8881" />
+              <Dependency path="/creditRate8881" />
+            </Multiply>
+            <Dependency path="/maxAnnualCredit8881" />
+          </Min>
+          <Switch>
+            <Case>
+              <When><Dependency path="/hasAutoEnrollment8881" /></When>
+              <Then><Dependency path="/autoEnrollmentCredit8881" /></Then>
+            </Case>
+            <Default><Dollar>0</Dollar></Default>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881IsDone">
+      <Name>Form 8881 Is Done</Name>
+      <Description>Whether Form 8881 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8881" /></Not>
+          <All>
+            <Dependency path="/hasForm8881" />
+            <IsComplete><Dependency path="/pensionPlanStartupCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8881">
+      <Name>Include Form 8881 in PDF</Name>
+      <Description>Whether to include Form 8881.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/pensionPlanStartupCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,267 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 3468: Investment Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- INVESTMENT CREDIT                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasInvestmentCredit">
+      <Name>Has Investment Credit</Name>
+      <Description>Whether taxpayer claims investment credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: REHABILITATION CREDIT               -->
+    <!-- ============================================ -->
+
+    <Fact path="/preRehabBasis">
+      <Name>Pre-Rehabilitation Basis</Name>
+      <Description>Adjusted basis before rehabilitation (Line 1a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedRehabExpenses">
+      <Name>Qualified Rehabilitation Expenses</Name>
+      <Description>Qualified rehabilitation expenditures (Line 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rehabCreditRate">
+      <Name>Rehabilitation Credit Rate</Name>
+      <Description>Credit rate for certified historic structures (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rehabilitationCredit">
+      <Name>Rehabilitation Credit</Name>
+      <Description>Rehabilitation credit (Line 1j).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedRehabExpenses" />
+          <Dependency path="/rehabCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: ENERGY CREDIT                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedSolarProperty">
+      <Name>Qualified Solar Property</Name>
+      <Description>Basis of qualified solar energy property (Line 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/solarCreditRate">
+      <Name>Solar Credit Rate</Name>
+      <Description>Credit rate for solar property (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/solarEnergyCredit">
+      <Name>Solar Energy Credit</Name>
+      <Description>Solar energy property credit.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedSolarProperty" />
+          <Dependency path="/solarCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedWindProperty">
+      <Name>Qualified Wind Property</Name>
+      <Description>Basis of qualified wind energy property (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/windCreditRate">
+      <Name>Wind Credit Rate</Name>
+      <Description>Credit rate for wind property (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/windEnergyCredit">
+      <Name>Wind Energy Credit</Name>
+      <Description>Wind energy property credit.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedWindProperty" />
+          <Dependency path="/windCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedGeothermalProperty">
+      <Name>Qualified Geothermal Property</Name>
+      <Description>Basis of qualified geothermal property (Line 2c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/geothermalCreditRate">
+      <Name>Geothermal Credit Rate</Name>
+      <Description>Credit rate for geothermal property (30%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.30</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/geothermalCredit">
+      <Name>Geothermal Credit</Name>
+      <Description>Geothermal property credit.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedGeothermalProperty" />
+          <Dependency path="/geothermalCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalEnergyCredit">
+      <Name>Total Energy Credit</Name>
+      <Description>Total energy credit (Line 2).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/solarEnergyCredit" />
+            <Dependency path="/windEnergyCredit" />
+          </Add>
+          <Dependency path="/geothermalCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: ADVANCED MANUFACTURING            -->
+    <!-- ============================================ -->
+
+    <Fact path="/qualifiedAdvancedManufacturing">
+      <Name>Qualified Advanced Manufacturing</Name>
+      <Description>Basis of qualified advanced manufacturing property (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/advancedManufacturingCreditRate">
+      <Name>Advanced Manufacturing Credit Rate</Name>
+      <Description>Credit rate for advanced manufacturing (25%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.25</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/advancedManufacturingCredit">
+      <Name>Advanced Manufacturing Credit</Name>
+      <Description>Advanced manufacturing production credit (Line 3).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedAdvancedManufacturing" />
+          <Dependency path="/advancedManufacturingCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL INVESTMENT CREDIT                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalInvestmentCredit">
+      <Name>Total Investment Credit</Name>
+      <Description>Total current year investment credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/rehabilitationCredit" />
+            <Dependency path="/totalEnergyCredit" />
+          </Add>
+          <Dependency path="/advancedManufacturingCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form3468IsDone">
+      <Name>Form 3468 Is Done</Name>
+      <Description>Whether Form 3468 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasInvestmentCredit" /></Not>
+          <All>
+            <Dependency path="/hasInvestmentCredit" />
+            <IsComplete><Dependency path="/totalInvestmentCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm3468">
+      <Name>Include Form 3468 in PDF</Name>
+      <Description>Whether to include Form 3468 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalInvestmentCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

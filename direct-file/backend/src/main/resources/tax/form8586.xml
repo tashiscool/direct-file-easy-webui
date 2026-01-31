@@ -1,0 +1,163 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8586: Low-Income Housing Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasLowIncomeHousingCredit">
+      <Name>Has Low-Income Housing Credit</Name>
+      <Description>Whether taxpayer claims low-income housing credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/buildingBIN">
+      <Name>Building Identification Number</Name>
+      <Description>Building identification number (BIN).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eligibleBasis8586">
+      <Name>Eligible Basis</Name>
+      <Description>Eligible basis of building.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/lowIncomeOccupancyPct">
+      <Name>Low-Income Occupancy Percentage</Name>
+      <Description>Applicable fraction (low-income occupancy).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedBasis8586">
+      <Name>Qualified Basis</Name>
+      <Description>Qualified basis of building.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/eligibleBasis8586" />
+          <Divide>
+            <Dependency path="/lowIncomeOccupancyPct" />
+            <Decimal>100</Decimal>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/applicableCreditPct">
+      <Name>Applicable Credit Percentage</Name>
+      <Description>Credit percentage from IRS.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>10</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ownershipPct8586">
+      <Name>Ownership Percentage</Name>
+      <Description>Taxpayer's ownership percentage.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/lowIncomeHousingCreditAmt">
+      <Name>Low-Income Housing Credit Amount</Name>
+      <Description>Low-income housing credit for this building.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedBasis8586" />
+          <Multiply>
+            <Divide>
+              <Dependency path="/applicableCreditPct" />
+              <Decimal>100</Decimal>
+            </Divide>
+            <Divide>
+              <Dependency path="/ownershipPct8586" />
+              <Decimal>100</Decimal>
+            </Divide>
+          </Multiply>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditFromPassThrough8586">
+      <Name>Credit from Pass-Through Entities</Name>
+      <Description>Credit from partnerships, S corps, estates, trusts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalLowIncomeHousingCredit">
+      <Name>Total Low-Income Housing Credit</Name>
+      <Description>Total low-income housing credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/lowIncomeHousingCreditAmt" />
+          <Dependency path="/creditFromPassThrough8586" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8586IsDone">
+      <Name>Form 8586 Is Done</Name>
+      <Description>Whether Form 8586 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasLowIncomeHousingCredit" /></Not>
+          <All>
+            <Dependency path="/hasLowIncomeHousingCredit" />
+            <IsComplete><Dependency path="/totalLowIncomeHousingCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8586">
+      <Name>Include Form 8586 in PDF</Name>
+      <Description>Whether to include Form 8586.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalLowIncomeHousingCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

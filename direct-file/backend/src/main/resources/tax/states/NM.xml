@@ -1,0 +1,190 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- New Mexico Form PIT-1: Personal Income Tax Return -->
+<!-- New Mexico has progressive rates from 1.7% to 5.9% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNMPIT1">
+      <Name>Has NM Form PIT-1</Name>
+      <Description>Whether taxpayer files New Mexico Form PIT-1.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NM</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- NM Standard Deduction (uses federal) -->
+    <Fact path="/nmStdDeductionSingle">
+      <Name>NM Standard Deduction Single</Name>
+      <Description>New Mexico standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nmStdDeductionMFJ">
+      <Name>NM Standard Deduction MFJ</Name>
+      <Description>New Mexico standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nmStandardDeduction">
+      <Name>NM Standard Deduction</Name>
+      <Description>New Mexico standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/nmStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/nmStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NM Taxable Income -->
+    <Fact path="/nmTaxableIncome">
+      <Name>NM Taxable Income</Name>
+      <Description>New Mexico taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/nmStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NM Income Tax (progressive) -->
+    <Fact path="/nmIncomeTax">
+      <Name>NM Income Tax</Name>
+      <Description>New Mexico income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nmTaxableIncome" /></Left>
+                <Right><Dollar>5500</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/nmTaxableIncome" />
+                <Decimal>0.017</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nmTaxableIncome" /></Left>
+                <Right><Dollar>11000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>94</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nmTaxableIncome" />
+                    <Dollar>5500</Dollar>
+                  </Subtract>
+                  <Decimal>0.032</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nmTaxableIncome" /></Left>
+                <Right><Dollar>16000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>270</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nmTaxableIncome" />
+                    <Dollar>11000</Dollar>
+                  </Subtract>
+                  <Decimal>0.047</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/nmTaxableIncome" /></Left>
+                <Right><Dollar>210000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>505</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/nmTaxableIncome" />
+                    <Dollar>16000</Dollar>
+                  </Subtract>
+                  <Decimal>0.049</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>10011</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/nmTaxableIncome" />
+                  <Dollar>210000</Dollar>
+                </Subtract>
+                <Decimal>0.059</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nmpit1IsDone">
+      <Name>NM Form PIT-1 Is Done</Name>
+      <Description>Whether NM Form PIT-1 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNMPIT1" /></Not>
+          <All>
+            <Dependency path="/hasNMPIT1" />
+            <IsComplete><Dependency path="/nmIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNMPIT1">
+      <Name>Include NM Form PIT-1 in PDF</Name>
+      <Description>Whether to include NM Form PIT-1.</Description>
+      <Derived>
+        <Dependency path="/hasNMPIT1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

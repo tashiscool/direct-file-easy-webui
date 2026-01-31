@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Arizona Form 140: Resident Personal Income Tax Return -->
+<!-- Arizona has a flat 2.5% income tax rate (as of 2023) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasAZ140">
+      <Name>Has AZ Form 140</Name>
+      <Description>Whether taxpayer files Arizona Form 140.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>AZ</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- AZ Tax Rate (flat) -->
+    <Fact path="/azTaxRate">
+      <Name>Arizona Tax Rate</Name>
+      <Description>Arizona flat income tax rate (2.5%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.025</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- AZ Standard Deduction -->
+    <Fact path="/azStdDeductionSingle">
+      <Name>AZ Standard Deduction Single</Name>
+      <Description>Arizona standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/azStdDeductionMFJ">
+      <Name>AZ Standard Deduction MFJ</Name>
+      <Description>Arizona standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/azStandardDeduction">
+      <Name>AZ Standard Deduction</Name>
+      <Description>Arizona standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/azStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/azStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- AZ Taxable Income -->
+    <Fact path="/azTaxableIncome">
+      <Name>AZ Taxable Income</Name>
+      <Description>Arizona taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/azStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- AZ Income Tax -->
+    <Fact path="/azIncomeTax">
+      <Name>AZ Income Tax</Name>
+      <Description>Arizona income tax (flat 2.5%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/azTaxableIncome" />
+          <Dependency path="/azTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/az140IsDone">
+      <Name>AZ Form 140 Is Done</Name>
+      <Description>Whether AZ Form 140 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasAZ140" /></Not>
+          <All>
+            <Dependency path="/hasAZ140" />
+            <IsComplete><Dependency path="/azIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeAZ140">
+      <Name>Include AZ Form 140 in PDF</Name>
+      <Description>Whether to include AZ Form 140.</Description>
+      <Derived>
+        <Dependency path="/hasAZ140" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

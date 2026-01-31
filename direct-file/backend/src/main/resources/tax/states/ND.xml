@@ -1,0 +1,75 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- North Dakota Form ND-1: Individual Income Tax Return -->
+<!-- North Dakota has a flat 1.95% rate (as of 2024) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNDND1">
+      <Name>Has ND Form ND-1</Name>
+      <Description>Whether taxpayer files North Dakota Form ND-1.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>ND</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- ND Tax Rate (flat) -->
+    <Fact path="/ndTaxRate">
+      <Name>North Dakota Tax Rate</Name>
+      <Description>North Dakota flat income tax rate (1.95%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0195</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ND uses federal taxable income as starting point -->
+    <Fact path="/ndTaxableIncome">
+      <Name>ND Taxable Income</Name>
+      <Description>North Dakota taxable income.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/taxableIncome" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ND Income Tax -->
+    <Fact path="/ndIncomeTax">
+      <Name>ND Income Tax</Name>
+      <Description>North Dakota income tax (flat 1.95%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/ndTaxableIncome" />
+          <Dependency path="/ndTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ndnd1IsDone">
+      <Name>ND Form ND-1 Is Done</Name>
+      <Description>Whether ND Form ND-1 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNDND1" /></Not>
+          <All>
+            <Dependency path="/hasNDND1" />
+            <IsComplete><Dependency path="/ndIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNDND1">
+      <Name>Include ND Form ND-1 in PDF</Name>
+      <Description>Whether to include ND Form ND-1.</Description>
+      <Derived>
+        <Dependency path="/hasNDND1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

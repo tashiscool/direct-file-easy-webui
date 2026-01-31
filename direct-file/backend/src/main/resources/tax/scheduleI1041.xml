@@ -1,0 +1,348 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule I (Form 1041): Alternative Minimum Tax - Estates and Trusts -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: ESTATE/TRUST'S ALTERNATIVE MIN TAX  -->
+    <!-- ============================================ -->
+
+    <Fact path="/adjustedTotalIncome1041">
+      <Name>Adjusted Total Income</Name>
+      <Description>Adjusted total income from Form 1041, line 17 (Line 1).</Description>
+      <Derived>
+        <Dependency module="form1041" path="/adjustedTotalIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/depreciation1041AMT">
+      <Name>Depreciation Adjustment</Name>
+      <Description>Depreciation adjustment for AMT (Line 2a).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxExemptInterest1041AMT">
+      <Name>Tax-Exempt Interest AMT</Name>
+      <Description>Tax-exempt interest from private activity bonds (Line 2b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/depletion1041AMT">
+      <Name>Depletion Adjustment</Name>
+      <Description>Depletion adjustment (Line 2c).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netOperatingLoss1041AMT">
+      <Name>Net Operating Loss AMT</Name>
+      <Description>Net operating loss deduction (Line 2d).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestExpense1041AMT">
+      <Name>Interest Expense AMT</Name>
+      <Description>Interest expense adjustment (Line 2e).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/passThroughAMTItems">
+      <Name>Pass-Through AMT Items</Name>
+      <Description>Adjustment for pass-through items (Line 2f).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherAMTAdjustments1041">
+      <Name>Other AMT Adjustments</Name>
+      <Description>Other adjustments (Line 2g).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAMTAdjustments">
+      <Name>Total AMT Adjustments</Name>
+      <Description>Total adjustments (Line 3).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/depreciation1041AMT" />
+              <Dependency path="/taxExemptInterest1041AMT" />
+            </Add>
+            <Add>
+              <Dependency path="/depletion1041AMT" />
+              <Dependency path="/netOperatingLoss1041AMT" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/interestExpense1041AMT" />
+              <Dependency path="/passThroughAMTItems" />
+            </Add>
+            <Dependency path="/otherAMTAdjustments1041" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alternativeMinTaxableIncomeBeforeNOL">
+      <Name>Alt Min Taxable Income Before NOL</Name>
+      <Description>Alternative minimum taxable income before NOL (Line 4).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/adjustedTotalIncome1041" />
+          <Dependency path="/totalAMTAdjustments" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtNOLDeduction">
+      <Name>AMT NOL Deduction</Name>
+      <Description>Alternative tax NOL deduction (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alternativeMinTaxableIncome">
+      <Name>Alternative Minimum Taxable Income</Name>
+      <Description>Alternative minimum taxable income (AMTI) (Line 6).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/alternativeMinTaxableIncomeBeforeNOL" />
+          <Dependency path="/amtNOLDeduction" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- EXEMPTION                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtExemptionAmount1041">
+      <Name>AMT Exemption Amount</Name>
+      <Description>AMT exemption amount ($30,500 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>30500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtPhaseoutThreshold1041">
+      <Name>AMT Phaseout Threshold</Name>
+      <Description>Threshold for AMT exemption phaseout ($101,800 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>101800</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessOverPhaseout">
+      <Name>Excess Over Phaseout Threshold</Name>
+      <Description>AMTI exceeding phaseout threshold (Line 8).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/alternativeMinTaxableIncome" />
+            <Dependency path="/amtPhaseoutThreshold1041" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exemptionPhaseoutAmount">
+      <Name>Exemption Phaseout Amount</Name>
+      <Description>25% of excess over threshold (Line 9).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessOverPhaseout" />
+          <Decimal>0.25</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/reducedExemption">
+      <Name>Reduced Exemption</Name>
+      <Description>Reduced exemption after phaseout (Line 10).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/amtExemptionAmount1041" />
+            <Dependency path="/exemptionPhaseoutAmount" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtTaxableExcess">
+      <Name>AMT Taxable Excess</Name>
+      <Description>AMTI minus exemption (Line 11).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/alternativeMinTaxableIncome" />
+            <Dependency path="/reducedExemption" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX COMPUTATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/amt26PercentRate">
+      <Name>AMT 26% Rate</Name>
+      <Description>26% AMT rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.26</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amt28PercentRate">
+      <Name>AMT 28% Rate</Name>
+      <Description>28% AMT rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.28</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amt26PercentBracket">
+      <Name>AMT 26% Bracket</Name>
+      <Description>Threshold for 28% AMT rate ($232,600 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>232600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tentativeMinTaxBeforeCredits">
+      <Name>Tentative Minimum Tax Before Credits</Name>
+      <Description>Tentative minimum tax (Line 12).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/amtTaxableExcess" /></Left>
+                <Right><Dependency path="/amt26PercentBracket" /></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/amtTaxableExcess" />
+                <Dependency path="/amt26PercentRate" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Multiply>
+                  <Dependency path="/amt26PercentBracket" />
+                  <Dependency path="/amt26PercentRate" />
+                </Multiply>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/amtTaxableExcess" />
+                    <Dependency path="/amt26PercentBracket" />
+                  </Subtract>
+                  <Dependency path="/amt28PercentRate" />
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularTaxFromForm1041">
+      <Name>Regular Tax from Form 1041</Name>
+      <Description>Regular tax from Form 1041 (Line 13).</Description>
+      <Derived>
+        <Dependency module="form1041" path="/taxBeforeCredits1041" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/alternativeMinTax1041">
+      <Name>Alternative Minimum Tax</Name>
+      <Description>AMT (Line 14).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/tentativeMinTaxBeforeCredits" />
+            <Dependency path="/regularTaxFromForm1041" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: INCOME DISTRIBUTION DEDUCTION      -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtIncomeDistribDeduction">
+      <Name>AMT Income Distribution Deduction</Name>
+      <Description>Alternative tax income distribution deduction.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleI1041IsDone">
+      <Name>Schedule I Is Done</Name>
+      <Description>Whether Schedule I (1041) is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/alternativeMinTax1041" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleI1041">
+      <Name>Include Schedule I in PDF</Name>
+      <Description>Whether to include Schedule I in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/alternativeMinTax1041" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

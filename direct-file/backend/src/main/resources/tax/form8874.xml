@@ -1,0 +1,31 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8874: New Markets Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8874">
+      <Name>Has Form 8874</Name>
+      <Description>Whether taxpayer claims new markets credit.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/qualifiedEquityInvestment">
+      <Name>Qualified Equity Investment</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/newMarketsCredit">
+      <Name>New Markets Credit</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply><Dependency path="/qualifiedEquityInvestment" /><Decimal>0.39</Decimal></Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8874IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8874" /></Not>
+          <IsComplete><Dependency path="/newMarketsCredit" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

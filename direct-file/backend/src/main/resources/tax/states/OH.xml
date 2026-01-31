@@ -1,0 +1,114 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Ohio IT 1040: Individual Income Tax Return -->
+<!-- Ohio has progressive rates from 0% to 3.5% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasOHIT1040">
+      <Name>Has OH IT 1040</Name>
+      <Description>Whether taxpayer files Ohio IT 1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>OH</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- OH Personal Exemption -->
+    <Fact path="/ohPersonalExemption">
+      <Name>OH Personal Exemption</Name>
+      <Description>Ohio personal exemption ($2,400).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2400</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- OH Taxable Income -->
+    <Fact path="/ohTaxableIncome">
+      <Name>OH Taxable Income</Name>
+      <Description>Ohio taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/ohPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- OH Income Tax (progressive with 0% on first $26,050) -->
+    <Fact path="/ohIncomeTax">
+      <Name>OH Income Tax</Name>
+      <Description>Ohio income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ohTaxableIncome" /></Left>
+                <Right><Dollar>26050</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/ohTaxableIncome" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/ohTaxableIncome" />
+                  <Dollar>26050</Dollar>
+                </Subtract>
+                <Decimal>0.0275</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>2034</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/ohTaxableIncome" />
+                  <Dollar>100000</Dollar>
+                </Subtract>
+                <Decimal>0.035</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ohit1040IsDone">
+      <Name>OH IT 1040 Is Done</Name>
+      <Description>Whether OH IT 1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasOHIT1040" /></Not>
+          <All>
+            <Dependency path="/hasOHIT1040" />
+            <IsComplete><Dependency path="/ohIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeOHIT1040">
+      <Name>Include OH IT 1040 in PDF</Name>
+      <Description>Whether to include OH IT 1040.</Description>
+      <Derived>
+        <Dependency path="/hasOHIT1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

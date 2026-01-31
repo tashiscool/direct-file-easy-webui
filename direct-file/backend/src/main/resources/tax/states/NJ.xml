@@ -1,0 +1,128 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- New Jersey NJ-1040: Resident Income Tax Return -->
+<!-- New Jersey has progressive rates from 1.4% to 10.75% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasNJ1040">
+      <Name>Has NJ-1040</Name>
+      <Description>Whether taxpayer files New Jersey NJ-1040.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>NJ</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Personal Exemption -->
+    <Fact path="/njPersonalExemption">
+      <Name>NJ Personal Exemption</Name>
+      <Description>New Jersey personal exemption ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Taxable Income -->
+    <Fact path="/njTaxableIncome">
+      <Name>NJ Taxable Income</Name>
+      <Description>New Jersey taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/njPersonalExemption" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Income Tax (progressive) -->
+    <Fact path="/njIncomeTax">
+      <Name>NJ Income Tax</Name>
+      <Description>New Jersey income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/njTaxableIncome" /></Left>
+                <Right><Dollar>20000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/njTaxableIncome" />
+                <Decimal>0.014</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/njTaxableIncome" /></Left>
+                <Right><Dollar>35000</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>280</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/njTaxableIncome" />
+                    <Dollar>20000</Dollar>
+                  </Subtract>
+                  <Decimal>0.0175</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Multiply>
+              <Dependency path="/njTaxableIncome" />
+              <Decimal>0.0637</Decimal>
+            </Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NJ Net Tax -->
+    <Fact path="/njNetTax">
+      <Name>NJ Net Tax</Name>
+      <Description>New Jersey net tax.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/njIncomeTax" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nj1040IsDone">
+      <Name>NJ-1040 Is Done</Name>
+      <Description>Whether NJ-1040 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasNJ1040" /></Not>
+          <All>
+            <Dependency path="/hasNJ1040" />
+            <IsComplete><Dependency path="/njNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeNJ1040">
+      <Name>Include NJ-1040 in PDF</Name>
+      <Description>Whether to include NJ-1040.</Description>
+      <Derived>
+        <Dependency path="/hasNJ1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

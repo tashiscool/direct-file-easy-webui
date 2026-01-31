@@ -1,0 +1,680 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Local Income Taxes: Major Cities with Income Tax -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- Local Tax Applicability -->
+    <Fact path="/hasLocalIncomeTax">
+      <Name>Subject to Local Income Tax</Name>
+      <Description>Whether taxpayer is subject to local income tax.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <!-- New York -->
+          <Dependency path="/isNYCResident" />
+          <Dependency path="/isYonkersResident" />
+          <!-- Pennsylvania -->
+          <Dependency path="/isPhiladelphiaResident" />
+          <Dependency path="/worksInPhiladelphia" />
+          <Dependency path="/isPALocalResident" />
+          <!-- Ohio -->
+          <Dependency path="/isOhioCityResident" />
+          <!-- Maryland -->
+          <Dependency path="/isMarylandLocalResident" />
+          <!-- Michigan -->
+          <Dependency path="/isDetroitResident" />
+          <Dependency path="/isMILocalResident" />
+          <Dependency path="/worksInMICity" />
+          <!-- Kentucky -->
+          <Dependency path="/isKentuckyLocalResident" />
+          <!-- Indiana -->
+          <Dependency path="/isIndianaLocalResident" />
+          <!-- Missouri -->
+          <Dependency path="/isMOLocalResident" />
+          <Dependency path="/worksInMOCity" />
+          <!-- Alabama -->
+          <Dependency path="/isALLocalResident" />
+          <Dependency path="/worksInALCity" />
+          <!-- Delaware -->
+          <Dependency path="/isWilmingtonResident" />
+          <Dependency path="/worksInWilmington" />
+          <!-- West Virginia -->
+          <Dependency path="/isWVLocalResident" />
+          <!-- Oregon Transit -->
+          <Dependency path="/isORTransitResident" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============ NEW YORK CITY ============ -->
+    <Fact path="/isNYCResident">
+      <Name>NYC Resident</Name>
+      <Description>Whether taxpayer is a New York City resident.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/nycResidentMonths">
+      <Name>Months Resident in NYC</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit><Limit operation="Max" level="ERROR"><IntNode>12</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/nycTaxableIncome">
+      <Name>NYC Taxable Income</Name>
+      <Derived>
+        <Dependency path="/nyAGI" />
+      </Derived>
+    </Fact>
+    <!-- NYC 2025 Tax Rates (Progressive) -->
+    <Fact path="/nycIncomeTax">
+      <Name>NYC Income Tax</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isNYCResident" /></Not><Dollar>0</Dollar></Case>
+          <Case>
+            <LessThanOrEqual><Dependency path="/nycTaxableIncome" /><Dollar>12000</Dollar></LessThanOrEqual>
+            <Multiply><Dependency path="/nycTaxableIncome" /><Decimal>0.03078</Decimal></Multiply>
+          </Case>
+          <Case>
+            <LessThanOrEqual><Dependency path="/nycTaxableIncome" /><Dollar>25000</Dollar></LessThanOrEqual>
+            <Sum>
+              <Dollar>369</Dollar>
+              <Multiply><Subtract><Dependency path="/nycTaxableIncome" /><Dollar>12000</Dollar></Subtract><Decimal>0.03762</Decimal></Multiply>
+            </Sum>
+          </Case>
+          <Case>
+            <LessThanOrEqual><Dependency path="/nycTaxableIncome" /><Dollar>50000</Dollar></LessThanOrEqual>
+            <Sum>
+              <Dollar>858</Dollar>
+              <Multiply><Subtract><Dependency path="/nycTaxableIncome" /><Dollar>25000</Dollar></Subtract><Decimal>0.03819</Decimal></Multiply>
+            </Sum>
+          </Case>
+          <Default>
+            <Sum>
+              <Dollar>1813</Dollar>
+              <Multiply><Subtract><Dependency path="/nycTaxableIncome" /><Dollar>50000</Dollar></Subtract><Decimal>0.03876</Decimal></Multiply>
+            </Sum>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ YONKERS ============ -->
+    <Fact path="/isYonkersResident">
+      <Name>Yonkers Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/yonkersIncomeTax">
+      <Name>Yonkers Income Tax</Name>
+      <Description>Yonkers residents: 16.75% surcharge on NY state tax. Non-residents: 0.5% of wages.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isYonkersResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/nyStateTax" /><Decimal>0.1675</Decimal></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ PHILADELPHIA ============ -->
+    <Fact path="/isPhiladelphiaResident">
+      <Name>Philadelphia Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/worksInPhiladelphia">
+      <Name>Works in Philadelphia</Name>
+      <Description>Non-resident who works in Philadelphia.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/philadelphiaWages">
+      <Name>Philadelphia Wages</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <!-- Philadelphia 2025 Rates (effective July 1, 2025): Residents 3.74%, Non-residents 3.43% -->
+    <!-- Per City of Philadelphia Revenue Department -->
+    <Fact path="/philadelphiaIncomeTax">
+      <Name>Philadelphia Wage Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Dependency path="/isPhiladelphiaResident" />
+            <Multiply><Dependency path="/philadelphiaWages" /><Decimal>0.0374</Decimal></Multiply>
+          </Case>
+          <Case><Dependency path="/worksInPhiladelphia" />
+            <Multiply><Dependency path="/philadelphiaWages" /><Decimal>0.0343</Decimal></Multiply>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <!-- Philadelphia Net Profits Tax (for self-employed) - same rate as wage tax -->
+    <Fact path="/philadelphiaNetProfitsTax">
+      <Name>Philadelphia Net Profits Tax</Name>
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/hasSelfEmploymentIncome" /></Not><Dollar>0</Dollar></Case>
+          <Case><Dependency path="/isPhiladelphiaResident" />
+            <Multiply><Dependency path="/scheduleCNetProfit" /><Decimal>0.0374</Decimal></Multiply>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ OHIO CITIES (RITA/CCA) ============ -->
+    <Fact path="/isOhioCityResident">
+      <Name>Ohio Municipal Tax City Resident</Name>
+      <Description>Resident of an Ohio city with income tax (Columbus, Cleveland, Cincinnati, etc.)</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/ohioCityName">
+      <Name>Ohio City Name</Name>
+      <Writable><Enum values="Columbus,Cleveland,Cincinnati,Toledo,Akron,Dayton,Canton,Youngstown,Other" /></Writable>
+    </Fact>
+    <Fact path="/ohioCityTaxRate">
+      <Name>Ohio City Tax Rate</Name>
+      <Description>Municipal tax rate (typically 1.5% - 2.5%)</Description>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Columbus</String></Equal><Decimal>0.025</Decimal></Case>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Cleveland</String></Equal><Decimal>0.025</Decimal></Case>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Cincinnati</String></Equal><Decimal>0.021</Decimal></Case>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Toledo</String></Equal><Decimal>0.0225</Decimal></Case>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Akron</String></Equal><Decimal>0.025</Decimal></Case>
+          <Case><Equal><Dependency path="/ohioCityName" /><String>Dayton</String></Equal><Decimal>0.025</Decimal></Case>
+          <Default><Decimal>0.02</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/ohioCityTaxableIncome">
+      <Name>Ohio City Taxable Income</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/ohioCityIncomeTax">
+      <Name>Ohio City Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isOhioCityResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/ohioCityTaxableIncome" /><Dependency path="/ohioCityTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ MARYLAND LOCAL TAXES ============ -->
+    <Fact path="/isMarylandLocalResident">
+      <Name>Maryland County/City Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/marylandCounty">
+      <Name>Maryland County</Name>
+      <Writable><Enum values="Allegany,Anne Arundel,Baltimore City,Baltimore County,Calvert,Caroline,Carroll,Cecil,Charles,Dorchester,Frederick,Garrett,Harford,Howard,Kent,Montgomery,Prince Georges,Queen Annes,St Marys,Somerset,Talbot,Washington,Wicomico,Worcester" /></Writable>
+    </Fact>
+    <!-- Maryland county rates vary from 2.25% to 3.2% -->
+    <Fact path="/marylandLocalTaxRate">
+      <Name>Maryland Local Tax Rate</Name>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/marylandCounty" /><String>Montgomery</String></Equal><Decimal>0.032</Decimal></Case>
+          <Case><Equal><Dependency path="/marylandCounty" /><String>Prince Georges</String></Equal><Decimal>0.032</Decimal></Case>
+          <Case><Equal><Dependency path="/marylandCounty" /><String>Howard</String></Equal><Decimal>0.032</Decimal></Case>
+          <Case><Equal><Dependency path="/marylandCounty" /><String>Baltimore City</String></Equal><Decimal>0.032</Decimal></Case>
+          <Default><Decimal>0.0275</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/marylandLocalTax">
+      <Name>Maryland Local Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isMarylandLocalResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/mdTaxableIncome" /><Dependency path="/marylandLocalTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ DETROIT ============ -->
+    <Fact path="/isDetroitResident">
+      <Name>Detroit Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/worksInDetroit">
+      <Name>Works in Detroit</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <!-- Detroit: Residents 2.4%, Non-residents 1.2% -->
+    <Fact path="/detroitIncomeTax">
+      <Name>Detroit Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Dependency path="/isDetroitResident" />
+            <Multiply><Dependency path="/miTaxableIncome" /><Decimal>0.024</Decimal></Multiply>
+          </Case>
+          <Case><Dependency path="/worksInDetroit" />
+            <Multiply><Dependency path="/detroitWages" /><Decimal>0.012</Decimal></Multiply>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/detroitWages">
+      <Name>Detroit Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <!-- ============ KENTUCKY LOCAL TAXES ============ -->
+    <Fact path="/isKentuckyLocalResident">
+      <Name>Kentucky Local Tax City Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/kentuckyCity">
+      <Name>Kentucky City/County</Name>
+      <Writable><Enum values="Louisville Metro,Lexington,Bowling Green,Owensboro,Covington,Other" /></Writable>
+    </Fact>
+    <Fact path="/kentuckyLocalTaxRate">
+      <Name>Kentucky Occupational Tax Rate</Name>
+      <Description>Louisville Metro and other cities (typically 1.0% - 2.5%)</Description>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/kentuckyCity" /><String>Louisville Metro</String></Equal><Decimal>0.0225</Decimal></Case>
+          <Case><Equal><Dependency path="/kentuckyCity" /><String>Lexington</String></Equal><Decimal>0.0225</Decimal></Case>
+          <Case><Equal><Dependency path="/kentuckyCity" /><String>Bowling Green</String></Equal><Decimal>0.0185</Decimal></Case>
+          <Case><Equal><Dependency path="/kentuckyCity" /><String>Owensboro</String></Equal><Decimal>0.0175</Decimal></Case>
+          <Case><Equal><Dependency path="/kentuckyCity" /><String>Covington</String></Equal><Decimal>0.025</Decimal></Case>
+          <Default><Decimal>0.02</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/kentuckyLocalTax">
+      <Name>Kentucky Local Occupational Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isKentuckyLocalResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/kyTaxableIncome" /><Dependency path="/kentuckyLocalTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ PENNSYLVANIA LOCAL TAXES (BEYOND PHILADELPHIA) ============ -->
+    <Fact path="/isPALocalResident">
+      <Name>Pennsylvania Local Tax Resident</Name>
+      <Description>Resident of a PA municipality with local Earned Income Tax.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/paLocalMunicipality">
+      <Name>PA Municipality</Name>
+      <Writable><Enum values="Pittsburgh,Harrisburg,Scranton,Allentown,Erie,Reading,Bethlehem,Lancaster,Other" /></Writable>
+    </Fact>
+    <Fact path="/paLocalEITRate">
+      <Name>PA Local Earned Income Tax Rate</Name>
+      <Description>PA municipalities typically levy 0.5% to 3.1% EIT.</Description>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Pittsburgh</String></Equal><Decimal>0.03</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Harrisburg</String></Equal><Decimal>0.02</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Scranton</String></Equal><Decimal>0.0324</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Allentown</String></Equal><Decimal>0.0185</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Erie</String></Equal><Decimal>0.0165</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Reading</String></Equal><Decimal>0.031</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Bethlehem</String></Equal><Decimal>0.015</Decimal></Case>
+          <Case><Equal><Dependency path="/paLocalMunicipality" /><String>Lancaster</String></Equal><Decimal>0.0155</Decimal></Case>
+          <Default><Decimal>0.01</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/paLocalSchoolDistrictRate">
+      <Name>PA School District Tax Rate</Name>
+      <Derived>
+        <Decimal>0.005</Decimal>
+      </Derived>
+    </Fact>
+    <Fact path="/paLocalTax">
+      <Name>PA Local Earned Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isPALocalResident" /></Not><Dollar>0</Dollar></Case>
+          <Case><Dependency path="/isPhiladelphiaResident" /><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/paEarnedIncome" /><Sum><Dependency path="/paLocalEITRate" /><Dependency path="/paLocalSchoolDistrictRate" /></Sum></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/paEarnedIncome">
+      <Name>PA Earned Income</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <!-- ============ MICHIGAN CITIES (BEYOND DETROIT) ============ -->
+    <Fact path="/isMILocalResident">
+      <Name>Michigan City Income Tax Resident</Name>
+      <Description>22 Michigan cities levy local income taxes.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/miCityName">
+      <Name>Michigan City</Name>
+      <Writable><Enum values="Detroit,Grand Rapids,Lansing,Flint,Saginaw,Pontiac,Highland Park,Hamtramck,Battle Creek,Albion,Other" /></Writable>
+    </Fact>
+    <Fact path="/worksInMICity">
+      <Name>Works in Michigan City</Name>
+      <Description>Non-resident who works in a Michigan city with income tax.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/miCityTaxRateResident">
+      <Name>MI City Resident Tax Rate</Name>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/miCityName" /><String>Detroit</String></Equal><Decimal>0.024</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Grand Rapids</String></Equal><Decimal>0.015</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Lansing</String></Equal><Decimal>0.01</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Flint</String></Equal><Decimal>0.01</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Saginaw</String></Equal><Decimal>0.015</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Pontiac</String></Equal><Decimal>0.01</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Highland Park</String></Equal><Decimal>0.02</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Hamtramck</String></Equal><Decimal>0.01</Decimal></Case>
+          <Case><Equal><Dependency path="/miCityName" /><String>Battle Creek</String></Equal><Decimal>0.01</Decimal></Case>
+          <Default><Decimal>0.01</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/miCityTaxRateNonResident">
+      <Name>MI City Non-Resident Tax Rate</Name>
+      <Derived>
+        <Divide><Dependency path="/miCityTaxRateResident" /><Decimal>2</Decimal></Divide>
+      </Derived>
+    </Fact>
+    <Fact path="/miCityWages">
+      <Name>Michigan City Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/miCityIncomeTax">
+      <Name>Michigan City Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><And><Not><Dependency path="/isMILocalResident" /></Not><Not><Dependency path="/worksInMICity" /></Not></And><Dollar>0</Dollar></Case>
+          <Case><Dependency path="/isMILocalResident" />
+            <Multiply><Dependency path="/miTaxableIncome" /><Dependency path="/miCityTaxRateResident" /></Multiply>
+          </Case>
+          <Case><Dependency path="/worksInMICity" />
+            <Multiply><Dependency path="/miCityWages" /><Dependency path="/miCityTaxRateNonResident" /></Multiply>
+          </Case>
+          <Default><Dollar>0</Dollar></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ MISSOURI CITIES (KANSAS CITY & ST. LOUIS) ============ -->
+    <Fact path="/isMOLocalResident">
+      <Name>Missouri City Earnings Tax Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/moCityName">
+      <Name>Missouri City</Name>
+      <Writable><Enum values="Kansas City,St. Louis" /></Writable>
+    </Fact>
+    <Fact path="/worksInMOCity">
+      <Name>Works in Missouri City</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/moCityWages">
+      <Name>Missouri City Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <!-- Both Kansas City and St. Louis: 1% earnings tax -->
+    <Fact path="/moCityEarningsTax">
+      <Name>Missouri City Earnings Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><And><Not><Dependency path="/isMOLocalResident" /></Not><Not><Dependency path="/worksInMOCity" /></Not></And><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/moCityWages" /><Decimal>0.01</Decimal></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ ALABAMA CITIES (BIRMINGHAM, ETC.) ============ -->
+    <Fact path="/isALLocalResident">
+      <Name>Alabama Occupational Tax Resident</Name>
+      <Description>Birmingham, Gadsden, and other AL cities levy occupational taxes.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/alCityName">
+      <Name>Alabama City</Name>
+      <Writable><Enum values="Birmingham,Gadsden,Bessemer,Fairfield,Other" /></Writable>
+    </Fact>
+    <Fact path="/worksInALCity">
+      <Name>Works in Alabama City</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/alCityTaxRate">
+      <Name>Alabama City Tax Rate</Name>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/alCityName" /><String>Birmingham</String></Equal><Decimal>0.01</Decimal></Case>
+          <Case><Equal><Dependency path="/alCityName" /><String>Gadsden</String></Equal><Decimal>0.02</Decimal></Case>
+          <Case><Equal><Dependency path="/alCityName" /><String>Bessemer</String></Equal><Decimal>0.01</Decimal></Case>
+          <Default><Decimal>0.01</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/alCityWages">
+      <Name>Alabama City Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/alCityOccupationalTax">
+      <Name>Alabama City Occupational Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><And><Not><Dependency path="/isALLocalResident" /></Not><Not><Dependency path="/worksInALCity" /></Not></And><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/alCityWages" /><Dependency path="/alCityTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ DELAWARE (WILMINGTON) ============ -->
+    <Fact path="/isWilmingtonResident">
+      <Name>Wilmington DE Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/worksInWilmington">
+      <Name>Works in Wilmington DE</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/wilmingtonWages">
+      <Name>Wilmington Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <!-- Wilmington: 1.25% city wage tax -->
+    <Fact path="/wilmingtonWageTax">
+      <Name>Wilmington DE Wage Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><And><Not><Dependency path="/isWilmingtonResident" /></Not><Not><Dependency path="/worksInWilmington" /></Not></And><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/wilmingtonWages" /><Decimal>0.0125</Decimal></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ WEST VIRGINIA CITIES ============ -->
+    <Fact path="/isWVLocalResident">
+      <Name>West Virginia Municipal Tax Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/wvMunicipality">
+      <Name>WV Municipality</Name>
+      <Writable><Enum values="Charleston,Huntington,Parkersburg,Wheeling,Other" /></Writable>
+    </Fact>
+    <Fact path="/wvMunicipalTaxRate">
+      <Name>WV Municipal Tax Rate</Name>
+      <Description>WV municipal B&O or service taxes (varies by city).</Description>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/wvMunicipality" /><String>Charleston</String></Equal><Decimal>0.02</Decimal></Case>
+          <Case><Equal><Dependency path="/wvMunicipality" /><String>Huntington</String></Equal><Decimal>0.0175</Decimal></Case>
+          <Default><Decimal>0.015</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/wvMunicipalIncome">
+      <Name>WV Municipal Taxable Income</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/wvMunicipalTax">
+      <Name>West Virginia Municipal Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isWVLocalResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/wvMunicipalIncome" /><Dependency path="/wvMunicipalTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ OREGON TRANSIT TAXES ============ -->
+    <Fact path="/isORTransitResident">
+      <Name>Oregon Transit District Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/orTransitDistrict">
+      <Name>Oregon Transit District</Name>
+      <Writable><Enum values="TriMet (Portland),Lane Transit District (Eugene),Other" /></Writable>
+    </Fact>
+    <Fact path="/orTransitTaxRate">
+      <Name>Oregon Transit Tax Rate</Name>
+      <Derived>
+        <Switch>
+          <Case><Equal><Dependency path="/orTransitDistrict" /><String>TriMet (Portland)</String></Equal><Decimal>0.0076</Decimal></Case>
+          <Case><Equal><Dependency path="/orTransitDistrict" /><String>Lane Transit District (Eugene)</String></Equal><Decimal>0.0075</Decimal></Case>
+          <Default><Decimal>0.007</Decimal></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/orTransitWages">
+      <Name>Oregon Transit Taxable Wages</Name>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/orTransitTax">
+      <Name>Oregon Transit Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isORTransitResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/orTransitWages" /><Dependency path="/orTransitTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ SAN FRANCISCO PAYROLL TAX ============ -->
+    <Fact path="/isSFWorker">
+      <Name>Works in San Francisco</Name>
+      <Description>SF has a Gross Receipts Tax and Homelessness Tax for businesses.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/sfPayrollTax">
+      <Name>San Francisco Payroll Expense Tax</Name>
+      <Description>For employees working 50%+ in SF (employer paid, but impacts compensation).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============ INDIANA LOCAL TAXES ============ -->
+    <Fact path="/isIndianaLocalResident">
+      <Name>Indiana County Resident</Name>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/indianaCounty">
+      <Name>Indiana County</Name>
+      <Writable><String /></Writable>
+    </Fact>
+    <!-- Indiana county rates vary from 0.5% to 3.38% (Marion County is 2.02%) -->
+    <Fact path="/indianaLocalTaxRate">
+      <Name>Indiana County Tax Rate</Name>
+      <Derived>
+        <Decimal>0.0202</Decimal>  <!-- Marion County (Indianapolis) default -->
+      </Derived>
+    </Fact>
+    <Fact path="/indianaLocalTax">
+      <Name>Indiana County Income Tax</Name>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case><Not><Dependency path="/isIndianaLocalResident" /></Not><Dollar>0</Dollar></Case>
+          <Default>
+            <Multiply><Dependency path="/inTaxableIncome" /><Dependency path="/indianaLocalTaxRate" /></Multiply>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============ TOTAL LOCAL TAXES ============ -->
+    <Fact path="/totalLocalIncomeTax">
+      <Name>Total Local Income Taxes</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Sum>
+          <!-- New York -->
+          <Dependency path="/nycIncomeTax" />
+          <Dependency path="/yonkersIncomeTax" />
+          <!-- Pennsylvania -->
+          <Dependency path="/philadelphiaIncomeTax" />
+          <Dependency path="/philadelphiaNetProfitsTax" />
+          <Dependency path="/paLocalTax" />
+          <!-- Ohio -->
+          <Dependency path="/ohioCityIncomeTax" />
+          <!-- Maryland -->
+          <Dependency path="/marylandLocalTax" />
+          <!-- Michigan -->
+          <Dependency path="/detroitIncomeTax" />
+          <Dependency path="/miCityIncomeTax" />
+          <!-- Kentucky -->
+          <Dependency path="/kentuckyLocalTax" />
+          <!-- Indiana -->
+          <Dependency path="/indianaLocalTax" />
+          <!-- Missouri -->
+          <Dependency path="/moCityEarningsTax" />
+          <!-- Alabama -->
+          <Dependency path="/alCityOccupationalTax" />
+          <!-- Delaware -->
+          <Dependency path="/wilmingtonWageTax" />
+          <!-- West Virginia -->
+          <Dependency path="/wvMunicipalTax" />
+          <!-- Oregon Transit -->
+          <Dependency path="/orTransitTax" />
+        </Sum>
+      </Derived>
+    </Fact>
+
+    <Fact path="/localTaxesIsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasLocalIncomeTax" /></Not>
+          <IsComplete><Dependency path="/totalLocalIncomeTax" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

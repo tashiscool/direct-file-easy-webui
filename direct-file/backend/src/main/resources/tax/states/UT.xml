@@ -1,0 +1,128 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Utah Form TC-40: Individual Income Tax Return -->
+<!-- Utah has a flat 4.65% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasUTTC40">
+      <Name>Has UT Form TC-40</Name>
+      <Description>Whether taxpayer files Utah Form TC-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>UT</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- UT Tax Rate (flat) -->
+    <Fact path="/utTaxRate">
+      <Name>Utah Tax Rate</Name>
+      <Description>Utah flat income tax rate (4.65%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0465</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- UT uses federal taxable income -->
+    <Fact path="/utTaxableIncome">
+      <Name>UT Taxable Income</Name>
+      <Description>Utah taxable income.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/taxableIncome" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- UT Taxpayer Tax Credit (non-refundable) -->
+    <Fact path="/utTaxpayerCreditSingle">
+      <Name>UT Taxpayer Credit Single</Name>
+      <Description>Utah taxpayer credit for single ($342).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>342</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/utTaxpayerCreditMFJ">
+      <Name>UT Taxpayer Credit MFJ</Name>
+      <Description>Utah taxpayer credit for MFJ ($684).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>684</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/utTaxpayerCredit">
+      <Name>UT Taxpayer Credit</Name>
+      <Description>Utah taxpayer credit based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/utTaxpayerCreditMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/utTaxpayerCreditSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- UT Gross Tax -->
+    <Fact path="/utGrossTax">
+      <Name>UT Gross Tax</Name>
+      <Description>Utah gross income tax (flat 4.65%).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/utTaxableIncome" />
+          <Dependency path="/utTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- UT Income Tax -->
+    <Fact path="/utIncomeTax">
+      <Name>UT Income Tax</Name>
+      <Description>Utah income tax after credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/utGrossTax" />
+            <Dependency path="/utTaxpayerCredit" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/uttc40IsDone">
+      <Name>UT Form TC-40 Is Done</Name>
+      <Description>Whether UT Form TC-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasUTTC40" /></Not>
+          <All>
+            <Dependency path="/hasUTTC40" />
+            <IsComplete><Dependency path="/utIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeUTTC40">
+      <Name>Include UT Form TC-40 in PDF</Name>
+      <Description>Whether to include UT Form TC-40.</Description>
+      <Derived>
+        <Dependency path="/hasUTTC40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

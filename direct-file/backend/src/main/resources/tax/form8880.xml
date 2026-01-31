@@ -1,0 +1,223 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8880: Credit for Qualified Retirement Savings Contributions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- SAVER'S CREDIT                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSaversCredit">
+      <Name>Has Saver's Credit</Name>
+      <Description>Whether taxpayer claims saver's credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Contributions -->
+    <Fact path="/traditionalIRAContributions8880">
+      <Name>Traditional IRA Contributions</Name>
+      <Description>Traditional IRA contributions (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rothIRAContributions8880">
+      <Name>Roth IRA Contributions</Name>
+      <Description>Roth IRA contributions (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/electiveDeferrals8880">
+      <Name>Elective Deferrals</Name>
+      <Description>Elective deferrals to 401(k), 403(b), etc. (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ableContributions8880">
+      <Name>ABLE Contributions</Name>
+      <Description>ABLE account contributions (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalContributions8880">
+      <Name>Total Contributions</Name>
+      <Description>Total retirement contributions (Line 5).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/traditionalIRAContributions8880" />
+            <Dependency path="/rothIRAContributions8880" />
+          </Add>
+          <Add>
+            <Dependency path="/electiveDeferrals8880" />
+            <Dependency path="/ableContributions8880" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxContributionForCredit">
+      <Name>Max Contribution for Credit</Name>
+      <Description>Maximum contribution eligible for credit ($2,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eligibleContributions8880">
+      <Name>Eligible Contributions</Name>
+      <Description>Contributions eligible for credit (Line 6).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/totalContributions8880" />
+          <Dependency path="/maxContributionForCredit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- AGI Thresholds for 2025 -->
+    <Fact path="/saversCreditThreshold1Single">
+      <Name>Threshold 1 Single</Name>
+      <Description>50% rate threshold for single ($24,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>24500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditThreshold2Single">
+      <Name>Threshold 2 Single</Name>
+      <Description>20% rate threshold for single ($26,750).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>26750</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditThreshold3Single">
+      <Name>Threshold 3 Single</Name>
+      <Description>10% rate threshold for single ($41,250).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>41250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditThreshold1MFJ">
+      <Name>Threshold 1 MFJ</Name>
+      <Description>50% rate threshold for MFJ ($49,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>49000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditThreshold2MFJ">
+      <Name>Threshold 2 MFJ</Name>
+      <Description>20% rate threshold for MFJ ($53,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>53500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditThreshold3MFJ">
+      <Name>Threshold 3 MFJ</Name>
+      <Description>10% rate threshold for MFJ ($82,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>82500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/agi8880">
+      <Name>AGI for Saver's Credit</Name>
+      <Description>AGI for determining credit rate.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRate8880">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (50%, 20%, or 10%).</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>0.50</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/saversCreditAmount">
+      <Name>Saver's Credit Amount</Name>
+      <Description>Saver's credit amount (Line 11).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/eligibleContributions8880" />
+          <Dependency path="/creditRate8880" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8880IsDone">
+      <Name>Form 8880 Is Done</Name>
+      <Description>Whether Form 8880 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasSaversCredit" /></Not>
+          <All>
+            <Dependency path="/hasSaversCredit" />
+            <IsComplete><Dependency path="/saversCreditAmount" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8880">
+      <Name>Include Form 8880 in PDF</Name>
+      <Description>Whether to include Form 8880 in the return.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/saversCreditAmount" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

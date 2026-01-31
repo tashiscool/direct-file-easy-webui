@@ -1,0 +1,72 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8820: Orphan Drug Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8820">
+      <Name>Has Form 8820</Name>
+      <Description>Whether taxpayer claims orphan drug credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/orphanDrugQualifiedExpenses">
+      <Name>Qualified Clinical Testing Expenses</Name>
+      <Description>Qualified clinical testing expenses for rare diseases.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/orphanDrugCreditRate">
+      <Name>Orphan Drug Credit Rate</Name>
+      <Description>Credit rate (25%).</Description>
+      <Derived>
+        <Decimal>0.25</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/orphanDrugCredit">
+      <Name>Orphan Drug Credit</Name>
+      <Description>Credit for orphan drug clinical testing.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/orphanDrugQualifiedExpenses" />
+          <Dependency path="/orphanDrugCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8820IsDone">
+      <Name>Form 8820 Is Done</Name>
+      <Description>Whether Form 8820 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8820" /></Not>
+          <All>
+            <Dependency path="/hasForm8820" />
+            <IsComplete><Dependency path="/orphanDrugCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8820">
+      <Name>Include Form 8820 in PDF</Name>
+      <Description>Whether to include Form 8820.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/orphanDrugCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

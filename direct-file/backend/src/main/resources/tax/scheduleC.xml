@@ -1,0 +1,892 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule C: Profit or Loss from Business (Sole Proprietorship) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- BUSINESS INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSelfEmploymentIncome">
+      <Name>Has Self-Employment Income</Name>
+      <Description>Whether the taxpayer has self-employment or business income.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessName">
+      <Name>Business Name</Name>
+      <Description>Name of the sole proprietorship or business.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessEIN">
+      <Name>Business EIN</Name>
+      <Description>Employer Identification Number (if applicable).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessAddress">
+      <Name>Business Address</Name>
+      <Description>Principal business address.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessActivityCode">
+      <Name>Business Activity Code</Name>
+      <Description>Principal business or profession activity code (NAICS).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessAccountingMethod">
+      <Name>Accounting Method</Name>
+      <Description>Accounting method: cash, accrual, or other.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>cash</EnumOption>
+          <EnumOption>accrual</EnumOption>
+          <EnumOption>other</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/materiallyParticipated">
+      <Name>Materially Participated</Name>
+      <Description>Whether taxpayer materially participated in business operations.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GROSS INCOME                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/businessGrossReceipts">
+      <Name>Gross Receipts or Sales</Name>
+      <Description>Gross receipts or sales before returns and allowances.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessReturnsAllowances">
+      <Name>Returns and Allowances</Name>
+      <Description>Returns and allowances from gross receipts.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessNetReceipts">
+      <Name>Net Receipts</Name>
+      <Description>Gross receipts minus returns and allowances.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/businessGrossReceipts" />
+          <Dependency path="/businessReturnsAllowances" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessCostOfGoodsSold">
+      <Name>Cost of Goods Sold</Name>
+      <Description>Cost of goods sold (Schedule C, Part III).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessGrossProfit">
+      <Name>Gross Profit</Name>
+      <Description>Net receipts minus cost of goods sold.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/businessNetReceipts" />
+          <Dependency path="/businessCostOfGoodsSold" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessOtherIncome">
+      <Name>Other Business Income</Name>
+      <Description>Other income including federal and state gas tax credit.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessGrossIncome">
+      <Name>Gross Business Income</Name>
+      <Description>Gross profit plus other income.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/businessGrossProfit" />
+          <Dependency path="/businessOtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BUSINESS EXPENSES                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/businessAdvertising">
+      <Name>Advertising</Name>
+      <Description>Advertising and marketing expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessCarTruck">
+      <Name>Car and Truck Expenses</Name>
+      <Description>Vehicle expenses for business use.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessCommissions">
+      <Name>Commissions and Fees</Name>
+      <Description>Commissions and fees paid to contractors.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessContractLabor">
+      <Name>Contract Labor</Name>
+      <Description>Payments to independent contractors.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessDepletion">
+      <Name>Depletion</Name>
+      <Description>Depletion expense for natural resources.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessDepreciation">
+      <Name>Depreciation and Section 179</Name>
+      <Description>Depreciation and Section 179 expense deduction.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessEmployeeBenefit">
+      <Name>Employee Benefit Programs</Name>
+      <Description>Employee benefit programs other than pension.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessInsurance">
+      <Name>Insurance (Non-Health)</Name>
+      <Description>Business insurance (not health insurance).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessInterestMortgage">
+      <Name>Interest - Mortgage</Name>
+      <Description>Mortgage interest paid to banks.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessInterestOther">
+      <Name>Interest - Other</Name>
+      <Description>Other business interest expense.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessLegalProfessional">
+      <Name>Legal and Professional Services</Name>
+      <Description>Legal and professional service fees.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessOfficeExpense">
+      <Name>Office Expense</Name>
+      <Description>Office supplies and expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessPensionProfit">
+      <Name>Pension and Profit-Sharing Plans</Name>
+      <Description>Contributions to pension and profit-sharing plans.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessRentLease">
+      <Name>Rent or Lease</Name>
+      <Description>Rent or lease payments for business property.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessRepairs">
+      <Name>Repairs and Maintenance</Name>
+      <Description>Repairs and maintenance expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessSupplies">
+      <Name>Supplies</Name>
+      <Description>Supplies used in business operations.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTaxesLicenses">
+      <Name>Taxes and Licenses</Name>
+      <Description>Business taxes and licenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessTravel">
+      <Name>Travel</Name>
+      <Description>Business travel expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessMeals">
+      <Name>Deductible Meals</Name>
+      <Description>Deductible business meals (50% limitation applies separately).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessUtilities">
+      <Name>Utilities</Name>
+      <Description>Utility expenses for business.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessWages">
+      <Name>Wages</Name>
+      <Description>Wages paid to employees (less employment credits).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessOtherExpenses">
+      <Name>Other Expenses</Name>
+      <Description>Other deductible business expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Total Expenses Calculation -->
+    <Fact path="/businessTotalExpenses">
+      <Name>Total Business Expenses</Name>
+      <Description>Sum of all deductible business expenses.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Add>
+                            <Add>
+                              <Add>
+                                <Add>
+                                  <Add>
+                                    <Add>
+                                      <Add>
+                                        <Add>
+                                          <Add>
+                                            <Add>
+                                              <Dependency path="/businessAdvertising" />
+                                              <Dependency path="/businessCarTruck" />
+                                            </Add>
+                                            <Dependency path="/businessCommissions" />
+                                          </Add>
+                                          <Dependency path="/businessContractLabor" />
+                                        </Add>
+                                        <Dependency path="/businessDepletion" />
+                                      </Add>
+                                      <Dependency path="/businessDepreciation" />
+                                    </Add>
+                                    <Dependency path="/businessEmployeeBenefit" />
+                                  </Add>
+                                  <Dependency path="/businessInsurance" />
+                                </Add>
+                                <Dependency path="/businessInterestMortgage" />
+                              </Add>
+                              <Dependency path="/businessInterestOther" />
+                            </Add>
+                            <Dependency path="/businessLegalProfessional" />
+                          </Add>
+                          <Dependency path="/businessOfficeExpense" />
+                        </Add>
+                        <Dependency path="/businessPensionProfit" />
+                      </Add>
+                      <Dependency path="/businessRentLease" />
+                    </Add>
+                    <Dependency path="/businessRepairs" />
+                  </Add>
+                  <Dependency path="/businessSupplies" />
+                </Add>
+                <Dependency path="/businessTaxesLicenses" />
+              </Add>
+              <Dependency path="/businessTravel" />
+            </Add>
+            <Multiply>
+              <Dependency path="/businessMeals" />
+              <Decimal>0.50</Decimal>
+            </Multiply>
+          </Add>
+          <Dependency path="/businessUtilities" />
+        </Add>
+        <Add>
+          <Dependency path="/businessWages" />
+          <Dependency path="/businessOtherExpenses" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- HOME OFFICE DEDUCTION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasHomeOffice">
+      <Name>Has Home Office</Name>
+      <Description>Whether taxpayer uses part of home exclusively for business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/homeOfficeSquareFeet">
+      <Name>Home Office Square Feet</Name>
+      <Description>Square footage of home office space.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>300</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/homeOfficeSimplifiedRate">
+      <Name>Simplified Home Office Rate</Name>
+      <Description>Rate per square foot for simplified method ($5/sq ft).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/homeOfficeDeduction">
+      <Name>Home Office Deduction</Name>
+      <Description>Home office deduction using simplified method (max 300 sq ft).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasHomeOffice" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/homeOfficeSquareFeet" />
+                <Dependency path="/homeOfficeSimplifiedRate" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NET PROFIT/LOSS                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/tentativeProfit">
+      <Name>Tentative Profit</Name>
+      <Description>Gross income minus total expenses.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/businessGrossIncome" />
+          <Dependency path="/businessTotalExpenses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessNetProfitLoss">
+      <Name>Net Profit or Loss</Name>
+      <Description>Net profit (or loss) from business after home office deduction.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Dependency path="/tentativeProfit" />
+          <Dependency path="/homeOfficeDeduction" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessHasProfit">
+      <Name>Business Has Profit</Name>
+      <Description>Whether the business has a net profit.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/businessNetProfitLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/businessHasLoss">
+      <Name>Business Has Loss</Name>
+      <Description>Whether the business has a net loss.</Description>
+      <Derived>
+        <LessThan>
+          <Left><Dependency path="/businessNetProfitLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYMENT TAX                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/selfEmploymentTaxRate">
+      <Name>Self-Employment Tax Rate</Name>
+      <Description>Combined Social Security and Medicare tax rate (15.3%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.153</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityWageBase">
+      <Name>Social Security Wage Base</Name>
+      <Description>Maximum earnings subject to Social Security tax for 2025.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>176100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/selfEmploymentNetEarnings">
+      <Name>Net Self-Employment Earnings</Name>
+      <Description>Net profit multiplied by 92.35% for SE tax calculation.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/businessHasProfit" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/businessNetProfitLoss" />
+                <Decimal>0.9235</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityTaxableAmount">
+      <Name>Social Security Taxable Amount</Name>
+      <Description>Amount subject to Social Security portion (capped at wage base).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Min>
+          <Dependency path="/selfEmploymentNetEarnings" />
+          <Dependency path="/socialSecurityWageBase" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/selfEmploymentTax">
+      <Name>Self-Employment Tax</Name>
+      <Description>Total self-employment tax (Social Security + Medicare).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/selfEmploymentNetEarnings" /></Left>
+                <Right><Dollar>400</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Add>
+                <!-- Social Security (12.4%) on capped amount -->
+                <Multiply>
+                  <Dependency path="/socialSecurityTaxableAmount" />
+                  <Decimal>0.124</Decimal>
+                </Multiply>
+                <!-- Medicare (2.9%) on all net earnings -->
+                <Multiply>
+                  <Dependency path="/selfEmploymentNetEarnings" />
+                  <Decimal>0.029</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/selfEmploymentTaxDeduction">
+      <Name>Self-Employment Tax Deduction</Name>
+      <Description>Deductible portion of self-employment tax (50%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Dependency path="/selfEmploymentTax" />
+          <Decimal>0.50</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ADDITIONAL MEDICARE TAX                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/additionalMedicareTaxThreshold">
+      <Name>Additional Medicare Tax Threshold</Name>
+      <Description>Threshold for additional 0.9% Medicare tax.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>250000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>125000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>200000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTax">
+      <Name>Additional Medicare Tax on Self-Employment</Name>
+      <Description>Additional 0.9% Medicare tax on SE earnings above threshold.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/selfEmploymentNetEarnings" /></Left>
+                <Right><Dependency path="/additionalMedicareTaxThreshold" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/selfEmploymentNetEarnings" />
+                  <Dependency path="/additionalMedicareTaxThreshold" />
+                </Subtract>
+                <Decimal>0.009</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYED HEALTH INSURANCE DEDUCTION    -->
+    <!-- ============================================ -->
+
+    <Fact path="/selfEmployedHealthInsurance">
+      <Name>Self-Employed Health Insurance Premiums</Name>
+      <Description>Health insurance premiums paid for self, spouse, and dependents.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/selfEmployedHealthInsuranceDeduction">
+      <Name>Self-Employed Health Insurance Deduction</Name>
+      <Description>Deductible health insurance premiums (limited to net profit).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/businessHasProfit" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/selfEmployedHealthInsurance" />
+                <Dependency path="/businessNetProfitLoss" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleCIsDone">
+      <Name>Schedule C Is Done</Name>
+      <Description>Whether Schedule C section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No self-employment income -->
+          <Not>
+            <Dependency path="/hasSelfEmploymentIncome" />
+          </Not>
+          <!-- Has SE income and required fields complete -->
+          <All>
+            <Dependency path="/hasSelfEmploymentIncome" />
+            <IsComplete>
+              <Dependency path="/businessGrossReceipts" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleC">
+      <Name>Include Schedule C in PDF</Name>
+      <Description>Whether to include Schedule C in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency path="/hasSelfEmploymentIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleSE">
+      <Name>Include Schedule SE in PDF</Name>
+      <Description>Whether to include Schedule SE in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/selfEmploymentNetEarnings" /></Left>
+          <Right><Dollar>400</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

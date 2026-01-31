@@ -1,0 +1,169 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 461: Limitation on Business Losses -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasExcessBusinessLoss">
+      <Name>Has Excess Business Loss</Name>
+      <Description>Whether taxpayer has excess business loss limitation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessBusinessLossThreshold">
+      <Name>Excess Business Loss Threshold</Name>
+      <Description>Excess business loss threshold ($305,000/$610,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>305000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessBusinessLossThresholdMFJ">
+      <Name>Excess Business Loss Threshold MFJ</Name>
+      <Description>Excess business loss threshold for MFJ.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>610000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- Part I: Total Income and Loss -->
+    <Fact path="/totalBusinessIncome">
+      <Name>Total Business Income</Name>
+      <Description>Total income from all trades/businesses (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalBusinessDeductions">
+      <Name>Total Business Deductions</Name>
+      <Description>Total deductions from all trades/businesses (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netBusinessIncomeLoss">
+      <Name>Net Business Income/Loss</Name>
+      <Description>Net income or loss from all businesses (Line 3).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalBusinessIncome" />
+          <Dependency path="/totalBusinessDeductions" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- Part II: Excess Business Loss -->
+    <Fact path="/applicableThreshold461">
+      <Name>Applicable Threshold</Name>
+      <Description>Applicable threshold based on filing status (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/allowableBusinessLoss">
+      <Name>Allowable Business Loss</Name>
+      <Description>Allowable business loss (Line 8).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/totalBusinessIncome" />
+          <Dependency path="/applicableThreshold461" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/excessBusinessLoss">
+      <Name>Excess Business Loss</Name>
+      <Description>Excess business loss (Line 9).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalBusinessDeductions" />
+            <Dependency path="/allowableBusinessLoss" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleBusinessLoss">
+      <Name>Deductible Business Loss</Name>
+      <Description>Deductible business loss (Line 10).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/netBusinessIncomeLoss" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Min>
+                <Multiply><Dependency path="/netBusinessIncomeLoss" /><Int>-1</Int></Multiply>
+                <Dependency path="/allowableBusinessLoss" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- NOL Carryforward -->
+    <Fact path="/excessBusinessLossNOL">
+      <Name>Excess Business Loss NOL</Name>
+      <Description>Excess business loss treated as NOL carryforward.</Description>
+      <Derived>
+        <Dependency path="/excessBusinessLoss" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form461IsDone">
+      <Name>Form 461 Is Done</Name>
+      <Description>Whether Form 461 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasExcessBusinessLoss" /></Not>
+          <All>
+            <Dependency path="/hasExcessBusinessLoss" />
+            <IsComplete><Dependency path="/excessBusinessLoss" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm461">
+      <Name>Include Form 461 in PDF</Name>
+      <Description>Whether to include Form 461.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/excessBusinessLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,170 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Minnesota Form M1: Individual Income Tax Return -->
+<!-- Minnesota has progressive rates from 5.35% to 9.85% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasMNM1">
+      <Name>Has MN Form M1</Name>
+      <Description>Whether taxpayer files Minnesota Form M1.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>MN</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- MN Standard Deduction -->
+    <Fact path="/mnStdDeductionSingle">
+      <Name>MN Standard Deduction Single</Name>
+      <Description>Minnesota standard deduction for single ($14,575).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14575</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mnStdDeductionMFJ">
+      <Name>MN Standard Deduction MFJ</Name>
+      <Description>Minnesota standard deduction for MFJ ($29,150).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29150</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mnStandardDeduction">
+      <Name>MN Standard Deduction</Name>
+      <Description>Minnesota standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/mnStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/mnStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- MN Taxable Income -->
+    <Fact path="/mnTaxableIncome">
+      <Name>MN Taxable Income</Name>
+      <Description>Minnesota taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/mnStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- MN Income Tax (progressive) -->
+    <Fact path="/mnIncomeTax">
+      <Name>MN Income Tax</Name>
+      <Description>Minnesota income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mnTaxableIncome" /></Left>
+                <Right><Dollar>31690</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/mnTaxableIncome" />
+                <Decimal>0.0535</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mnTaxableIncome" /></Left>
+                <Right><Dollar>104090</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>1695</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/mnTaxableIncome" />
+                    <Dollar>31690</Dollar>
+                  </Subtract>
+                  <Decimal>0.068</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/mnTaxableIncome" /></Left>
+                <Right><Dollar>193240</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>6618</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/mnTaxableIncome" />
+                    <Dollar>104090</Dollar>
+                  </Subtract>
+                  <Decimal>0.0785</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>13614</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/mnTaxableIncome" />
+                  <Dollar>193240</Dollar>
+                </Subtract>
+                <Decimal>0.0985</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mnm1IsDone">
+      <Name>MN Form M1 Is Done</Name>
+      <Description>Whether MN Form M1 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasMNM1" /></Not>
+          <All>
+            <Dependency path="/hasMNM1" />
+            <IsComplete><Dependency path="/mnIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeMNM1">
+      <Name>Include MN Form M1 in PDF</Name>
+      <Description>Whether to include MN Form M1.</Description>
+      <Derived>
+        <Dependency path="/hasMNM1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

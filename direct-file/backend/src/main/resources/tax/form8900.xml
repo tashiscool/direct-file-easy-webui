@@ -1,0 +1,99 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8900: Qualified Railroad Track Maintenance Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8900">
+      <Name>Has Form 8900</Name>
+      <Description>Whether taxpayer claims railroad track maintenance credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedRailroadTrackExpenditures">
+      <Name>Qualified Railroad Track Expenditures</Name>
+      <Description>Qualified railroad track maintenance expenditures.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRate8900">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (50%).</Description>
+      <Derived>
+        <Decimal>0.50</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxCreditPerMile8900">
+      <Name>Max Credit Per Mile</Name>
+      <Description>Maximum credit per mile of track ($3,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/milesOfTrack8900">
+      <Name>Miles of Track</Name>
+      <Description>Miles of railroad track maintained.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/railroadTrackCredit">
+      <Name>Railroad Track Maintenance Credit</Name>
+      <Description>Qualified railroad track maintenance credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Multiply>
+            <Dependency path="/qualifiedRailroadTrackExpenditures" />
+            <Dependency path="/creditRate8900" />
+          </Multiply>
+          <Multiply>
+            <Dependency path="/milesOfTrack8900" />
+            <Dependency path="/maxCreditPerMile8900" />
+          </Multiply>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8900IsDone">
+      <Name>Form 8900 Is Done</Name>
+      <Description>Whether Form 8900 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8900" /></Not>
+          <All>
+            <Dependency path="/hasForm8900" />
+            <IsComplete><Dependency path="/railroadTrackCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8900">
+      <Name>Include Form 8900 in PDF</Name>
+      <Description>Whether to include Form 8900.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/railroadTrackCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

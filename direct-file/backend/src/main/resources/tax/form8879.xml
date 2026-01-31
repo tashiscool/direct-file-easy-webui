@@ -1,0 +1,242 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8879: IRS e-file Signature Authorization -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- E-FILE SIGNATURE AUTHORIZATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEFileSignature">
+      <Name>Has E-File Signature</Name>
+      <Description>Whether e-file signature authorization is used.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXPAYER INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerName8879">
+      <Name>Taxpayer Name</Name>
+      <Description>Taxpayer name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerSSN8879">
+      <Name>Taxpayer SSN</Name>
+      <Description>Taxpayer SSN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseName8879">
+      <Name>Spouse Name</Name>
+      <Description>Spouse name if MFJ.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseSSN8879">
+      <Name>Spouse SSN</Name>
+      <Description>Spouse SSN if MFJ.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAX RETURN INFORMATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/adjustedGrossIncome8879">
+      <Name>Adjusted Gross Income</Name>
+      <Description>AGI from Form 1040 (Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTax8879">
+      <Name>Total Tax</Name>
+      <Description>Total tax from Form 1040 (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalIncomeTaxWithheld8879">
+      <Name>Federal Income Tax Withheld</Name>
+      <Description>Federal income tax withheld (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundAmount8879">
+      <Name>Refund Amount</Name>
+      <Description>Refund amount (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountOwed8879">
+      <Name>Amount Owed</Name>
+      <Description>Amount owed (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: TAXPAYER DECLARATION               -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerPIN">
+      <Name>Taxpayer PIN</Name>
+      <Description>Taxpayer's self-select PIN (5 digits).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spousePIN">
+      <Name>Spouse PIN</Name>
+      <Description>Spouse's self-select PIN if MFJ (5 digits).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerSignatureDate">
+      <Name>Taxpayer Signature Date</Name>
+      <Description>Date taxpayer signed.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseSignatureDate">
+      <Name>Spouse Signature Date</Name>
+      <Description>Date spouse signed if MFJ.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: ERO DECLARATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/eroName8879">
+      <Name>ERO Name</Name>
+      <Description>Electronic Return Originator name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eroEFIN8879">
+      <Name>ERO EFIN</Name>
+      <Description>ERO's EFIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eroPIN8879">
+      <Name>ERO PIN</Name>
+      <Description>ERO's PIN (5 digits).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eroSignatureDate">
+      <Name>ERO Signature Date</Name>
+      <Description>Date ERO signed.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BANK ACCOUNT INFORMATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/routingNumber8879">
+      <Name>Routing Number</Name>
+      <Description>Bank routing number for direct deposit/debit.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountNumber8879">
+      <Name>Account Number</Name>
+      <Description>Bank account number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/accountType8879">
+      <Name>Account Type</Name>
+      <Description>Type of account.</Description>
+      <Writable>
+        <Enum>
+          <Option value="CHECKING">Checking</Option>
+          <Option value="SAVINGS">Savings</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8879IsDone">
+      <Name>Form 8879 Is Done</Name>
+      <Description>Whether Form 8879 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasEFileSignature" /></Not>
+          <All>
+            <Dependency path="/hasEFileSignature" />
+            <IsComplete><Dependency path="/taxpayerPIN" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8879">
+      <Name>Include Form 8879 in PDF</Name>
+      <Description>Whether to include Form 8879 in output.</Description>
+      <Derived>
+        <Dependency path="/hasEFileSignature" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

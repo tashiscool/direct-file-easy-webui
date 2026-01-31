@@ -1,0 +1,271 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule N (Form 990): Liquidation, Termination, Dissolution, or Significant Disposition of Assets -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- DISSOLUTION/LIQUIDATION                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasDissolutionOrLiquidation">
+      <Name>Has Dissolution or Liquidation</Name>
+      <Description>Whether organization liquidated, terminated, dissolved, or had significant disposition.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dissolutionType">
+      <Name>Dissolution Type</Name>
+      <Description>Type of significant event.</Description>
+      <Writable>
+        <Enum>
+          <Option value="LIQUIDATION">Liquidation</Option>
+          <Option value="TERMINATION">Termination</Option>
+          <Option value="DISSOLUTION">Dissolution</Option>
+          <Option value="DISPOSITION">Significant disposition of net assets</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: LIQUIDATION, TERMINATION            -->
+    <!-- ============================================ -->
+
+    <Fact path="/assetsDistributed25Percent">
+      <Name>Assets Distributed 25 Percent</Name>
+      <Description>Whether distributed 25%+ of assets in one transaction (Line 1a).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalNetAssets">
+      <Name>Total Net Assets</Name>
+      <Description>Total fair market value of assets at time of distribution.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Asset Distribution Details -->
+    <Fact path="/asset1Description">
+      <Name>Asset 1 Description</Name>
+      <Description>Description of asset distributed (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/asset1DateDistributed">
+      <Name>Asset 1 Date Distributed</Name>
+      <Description>Date asset was distributed (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/asset1FMV">
+      <Name>Asset 1 FMV</Name>
+      <Description>Fair market value of asset (Line 1b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/asset1RecipientName">
+      <Name>Asset 1 Recipient Name</Name>
+      <Description>Name of recipient (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/asset1RecipientEIN">
+      <Name>Asset 1 Recipient EIN</Name>
+      <Description>EIN of recipient if organization (Line 1b).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/asset1RecipientIRCStatus">
+      <Name>Asset 1 Recipient IRC Status</Name>
+      <Description>IRC section of recipient (Line 1b).</Description>
+      <Writable>
+        <Enum>
+          <Option value="501C3">501(c)(3)</Option>
+          <Option value="501C">Other 501(c)</Option>
+          <Option value="GOVERNMENT">Government</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Successor Information -->
+    <Fact path="/hasSuccessorOrganization">
+      <Name>Has Successor Organization</Name>
+      <Description>Whether there is a successor organization (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/successorName">
+      <Name>Successor Name</Name>
+      <Description>Name of successor organization (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/successorEIN">
+      <Name>Successor EIN</Name>
+      <Description>EIN of successor (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/successorAddress">
+      <Name>Successor Address</Name>
+      <Description>Address of successor (Line 2).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: SALE, EXCHANGE, DISPOSITION        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSignificantDisposition">
+      <Name>Has Significant Disposition</Name>
+      <Description>Whether had significant disposition of assets (Part II).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1Description">
+      <Name>Disposed Asset 1 Description</Name>
+      <Description>Description of disposed asset (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1Date">
+      <Name>Disposed Asset 1 Date</Name>
+      <Description>Date of disposition (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1FMV">
+      <Name>Disposed Asset 1 FMV</Name>
+      <Description>FMV of disposed asset (Part II).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1TransactionType">
+      <Name>Disposed Asset 1 Transaction Type</Name>
+      <Description>Type of transaction (Part II).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SALE">Sale</Option>
+          <Option value="EXCHANGE">Exchange</Option>
+          <Option value="OTHER">Other disposition</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1Acquirer">
+      <Name>Disposed Asset 1 Acquirer</Name>
+      <Description>Name of acquirer (Part II).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/disposedAsset1RelatedParty">
+      <Name>Disposed Asset 1 Related Party</Name>
+      <Description>Whether acquirer is related party (Part II).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CERTIFICATIONS                              -->
+    <!-- ============================================ -->
+
+    <Fact path="/liabilitiesPaid">
+      <Name>Liabilities Paid</Name>
+      <Description>Whether all liabilities were paid (Line 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/assetsDistributedToExempt">
+      <Name>Assets Distributed to Exempt</Name>
+      <Description>Whether assets distributed only to exempt purposes (Line 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/notifiedAttorneyGeneral">
+      <Name>Notified Attorney General</Name>
+      <Description>Whether state attorney general was notified (Line 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleN990IsDone">
+      <Name>Schedule N Is Done</Name>
+      <Description>Whether Schedule N is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasDissolutionOrLiquidation" /></Not>
+          <All>
+            <Dependency path="/hasDissolutionOrLiquidation" />
+            <IsComplete><Dependency path="/totalNetAssets" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleN990">
+      <Name>Include Schedule N in PDF</Name>
+      <Description>Whether to include Schedule N (990) in output.</Description>
+      <Derived>
+        <Dependency path="/hasDissolutionOrLiquidation" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

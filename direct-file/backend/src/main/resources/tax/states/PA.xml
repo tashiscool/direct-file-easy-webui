@@ -1,0 +1,84 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Pennsylvania PA-40: Personal Income Tax Return -->
+<!-- Pennsylvania has a flat 3.07% income tax rate -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasPA40">
+      <Name>Has PA-40</Name>
+      <Description>Whether taxpayer files Pennsylvania PA-40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>PA</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- PA Tax Rate (flat) -->
+    <Fact path="/paTaxRate">
+      <Name>Pennsylvania Tax Rate</Name>
+      <Description>Pennsylvania flat income tax rate (3.07%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.0307</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- PA Taxable Income (same as federal with some modifications) -->
+    <Fact path="/paTaxableIncome">
+      <Name>PA Taxable Income</Name>
+      <Description>Pennsylvania taxable income.</Description>
+      <Derived>
+        <Dependency path="/adjustedGrossIncome" />
+      </Derived>
+    </Fact>
+
+    <!-- PA Income Tax -->
+    <Fact path="/paIncomeTax">
+      <Name>PA Income Tax</Name>
+      <Description>Pennsylvania income tax (flat 3.07%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/paTaxableIncome" />
+          <Dependency path="/paTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- PA Net Tax -->
+    <Fact path="/paNetTax">
+      <Name>PA Net Tax</Name>
+      <Description>Pennsylvania net tax.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/paIncomeTax" />
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pa40IsDone">
+      <Name>PA-40 Is Done</Name>
+      <Description>Whether PA-40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPA40" /></Not>
+          <All>
+            <Dependency path="/hasPA40" />
+            <IsComplete><Dependency path="/paNetTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludePA40">
+      <Name>Include PA-40 in PDF</Name>
+      <Description>Whether to include PA-40.</Description>
+      <Derived>
+        <Dependency path="/hasPA40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

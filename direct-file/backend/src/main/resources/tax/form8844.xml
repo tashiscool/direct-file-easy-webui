@@ -1,0 +1,80 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8844: Empowerment Zone Employment Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8844">
+      <Name>Has Form 8844</Name>
+      <Description>Whether taxpayer claims empowerment zone credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedZoneWages8844">
+      <Name>Qualified Zone Wages</Name>
+      <Description>Qualified wages paid to empowerment zone employees.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxWagesPerEmployee8844">
+      <Name>Max Wages Per Employee</Name>
+      <Description>Maximum qualified wages per employee ($15,000).</Description>
+      <Derived>
+        <Dollar>15000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ezCreditRate">
+      <Name>EZ Credit Rate</Name>
+      <Description>Empowerment zone credit rate (20%).</Description>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/empowermentZoneCredit">
+      <Name>Empowerment Zone Credit</Name>
+      <Description>Empowerment zone employment credit.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/qualifiedZoneWages8844" />
+          <Dependency path="/ezCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8844IsDone">
+      <Name>Form 8844 Is Done</Name>
+      <Description>Whether Form 8844 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8844" /></Not>
+          <All>
+            <Dependency path="/hasForm8844" />
+            <IsComplete><Dependency path="/empowermentZoneCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8844">
+      <Name>Include Form 8844 in PDF</Name>
+      <Description>Whether to include Form 8844.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/empowermentZoneCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

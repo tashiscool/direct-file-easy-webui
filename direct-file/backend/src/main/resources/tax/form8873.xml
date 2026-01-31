@@ -1,0 +1,54 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8873: Extraterritorial Income Exclusion -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8873">
+      <Name>Has Form 8873</Name>
+      <Description>Whether taxpayer has ETI exclusion.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTradingGrossReceipts">
+      <Name>Foreign Trading Gross Receipts</Name>
+      <Description>Foreign trading gross receipts.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/etiExclusionAmount">
+      <Name>ETI Exclusion Amount</Name>
+      <Description>Extraterritorial income exclusion.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8873IsDone">
+      <Name>Form 8873 Is Done</Name>
+      <Description>Whether Form 8873 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8873" /></Not>
+          <All>
+            <Dependency path="/hasForm8873" />
+            <IsComplete><Dependency path="/etiExclusionAmount" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

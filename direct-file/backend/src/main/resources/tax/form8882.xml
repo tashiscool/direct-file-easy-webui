@@ -1,0 +1,35 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8882: Credit for Employer-Provided Childcare Facilities and Services -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8882">
+      <Name>Has Form 8882</Name>
+      <Description>Whether employer claims childcare facilities credit.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/childcareFacilityCosts">
+      <Name>Childcare Facility Costs</Name>
+      <Writable><Dollar><Limit operation="Min" level="ERROR"><DollarNode>0</DollarNode></Limit></Dollar></Writable>
+    </Fact>
+    <Fact path="/childcareFacilityCredit">
+      <Name>Childcare Facility Credit</Name>
+      <Description>25% of qualified costs, max $150,000.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Multiply><Dependency path="/childcareFacilityCosts" /><Decimal>0.25</Decimal></Multiply>
+          <Dollar>150000</Dollar>
+        </Min>
+      </Derived>
+    </Fact>
+    <Fact path="/form8882IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8882" /></Not>
+          <IsComplete><Dependency path="/childcareFacilityCredit" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

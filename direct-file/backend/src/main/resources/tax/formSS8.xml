@@ -1,0 +1,68 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form SS-8: Determination of Worker Status -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasFormSS8">
+      <Name>Has Form SS-8</Name>
+      <Description>Whether filing worker status determination.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/firmNameSS8">
+      <Name>Firm Name</Name>
+      <Description>Name of firm.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/firmEINSS8">
+      <Name>Firm EIN</Name>
+      <Description>Firm's EIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/workerType">
+      <Name>Worker Type</Name>
+      <Description>Claimed worker type.</Description>
+      <Writable>
+        <Enum>
+          <Option>employee</Option>
+          <Option>independentContractor</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalCompensationSS8">
+      <Name>Total Compensation</Name>
+      <Description>Total compensation received.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formSS8IsDone">
+      <Name>Form SS-8 Is Done</Name>
+      <Description>Whether Form SS-8 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasFormSS8" /></Not>
+          <All>
+            <Dependency path="/hasFormSS8" />
+            <IsComplete><Dependency path="/totalCompensationSS8" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,376 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K (Form 1120): Other Information -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- ACCOUNTING INFORMATION                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/accountingMethodCorp">
+      <Name>Accounting Method</Name>
+      <Description>Method of accounting (Question 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Enum>
+          <Option value="CASH">Cash</Option>
+          <Option value="ACCRUAL">Accrual</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/businessActivityCorp">
+      <Name>Business Activity</Name>
+      <Description>Business activity code (Question 2a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/productOrServiceCorp">
+      <Name>Product or Service</Name>
+      <Description>Principal product or service (Question 2b).</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/naicsCodeCorp">
+      <Name>NAICS Code</Name>
+      <Description>Six-digit NAICS code (Question 2c).</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OWNERSHIP AND CONTROL                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/isSubsidiary">
+      <Name>Is Subsidiary</Name>
+      <Description>Is corporation a subsidiary in an affiliated group (Question 3).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/parentCorporationEIN">
+      <Name>Parent Corporation EIN</Name>
+      <Description>EIN of common parent if subsidiary.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isIncludedInConsolidatedReturn">
+      <Name>Is Included in Consolidated Return</Name>
+      <Description>Is corporation included in a consolidated return (Question 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/percentageOfVotingStockOwned">
+      <Name>Percentage of Voting Stock Owned</Name>
+      <Description>Percentage of voting stock owned by common parent.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>100</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE M-3 REQUIREMENTS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/mustFileScheduleM3Corp">
+      <Name>Must File Schedule M-3</Name>
+      <Description>Is corporation required to file Schedule M-3 (Question 5).</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency module="scheduleL1120" path="/totalAssetsEOYCorp" /></Left>
+          <Right><Dollar>10000000</Dollar></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FOREIGN OWNERSHIP                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignOwner">
+      <Name>Has Foreign Owner</Name>
+      <Description>Is any foreign person a 25% or greater owner (Question 6).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignOwnerCountry">
+      <Name>Foreign Owner Country</Name>
+      <Description>Country of foreign owner.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignOwnerPercentage">
+      <Name>Foreign Owner Percentage</Name>
+      <Description>Percentage owned by foreign person.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>25</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>100</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- STOCK OWNERSHIP CHANGES                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hadOwnershipChange">
+      <Name>Had Ownership Change</Name>
+      <Description>Was there an ownership change during the year (Question 7).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/section382LimitationApplies">
+      <Name>Section 382 Limitation Applies</Name>
+      <Description>Does section 382 limitation apply (Question 8).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ELECTIONS AND SPECIAL STATUSES              -->
+    <!-- ============================================ -->
+
+    <Fact path="/electedSubchapterSStatus">
+      <Name>Elected Subchapter S Status</Name>
+      <Description>Did corporation elect subchapter S status for next year (Question 9).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isPersonalServiceCorp">
+      <Name>Is Personal Service Corporation</Name>
+      <Description>Is corporation a personal service corporation (Question 10).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isPersonalHoldingCompany">
+      <Name>Is Personal Holding Company</Name>
+      <Description>Is corporation a personal holding company (Question 11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DISTRIBUTIONS AND ACCUMULATIONS             -->
+    <!-- ============================================ -->
+
+    <Fact path="/distributionsDuringYear">
+      <Name>Distributions During Year</Name>
+      <Description>Total distributions paid during the year (Question 12).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/accumulatedEarningsThreshold">
+      <Name>Accumulated Earnings Threshold</Name>
+      <Description>Threshold for accumulated earnings tax ($250,000 or $150,000 for PSC).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isPersonalServiceCorp" />
+            </When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>250000</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RELATED PARTY TRANSACTIONS                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasRelatedPartyDebt">
+      <Name>Has Related Party Debt</Name>
+      <Description>Does corporation have debt owed to related parties (Question 13).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/relatedPartyDebtAmount">
+      <Name>Related Party Debt Amount</Name>
+      <Description>Amount of debt owed to related parties.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX SHELTER                                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/isTaxShelterCorp">
+      <Name>Is Tax Shelter</Name>
+      <Description>Is corporation a tax shelter (Question 14).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasReportableTransactions">
+      <Name>Has Reportable Transactions</Name>
+      <Description>Did corporation participate in reportable transactions (Question 15).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FOREIGN OPERATIONS                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignBankAccounts">
+      <Name>Has Foreign Bank Accounts</Name>
+      <Description>Does corporation have foreign financial accounts (Question 16).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAccountsCountry">
+      <Name>Foreign Accounts Country</Name>
+      <Description>Countries where foreign accounts are located.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filedFBARForm">
+      <Name>Filed FBAR Form</Name>
+      <Description>Has corporation filed FinCEN Form 114 (FBAR).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasCFC">
+      <Name>Has Controlled Foreign Corporation</Name>
+      <Description>Is corporation a shareholder of a CFC (Question 17).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- COST OF GOODS SOLD                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/inventoryValuationMethod">
+      <Name>Inventory Valuation Method</Name>
+      <Description>Method used to value inventory (Question 18).</Description>
+      <Writable>
+        <Enum>
+          <Option value="COST">Cost</Option>
+          <Option value="LOWER_COST_OR_MARKET">Lower of Cost or Market</Option>
+          <Option value="WRITEDOWN">Writedown of Subnormal Goods</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/inventoryCostingMethod">
+      <Name>Inventory Costing Method</Name>
+      <Description>Method used to cost inventory (Question 19).</Description>
+      <Writable>
+        <Enum>
+          <Option value="FIFO">FIFO</Option>
+          <Option value="LIFO">LIFO</Option>
+          <Option value="AVERAGE">Average Cost</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section263AWasApplied">
+      <Name>Section 263A Was Applied</Name>
+      <Description>Were section 263A costs applied (Question 20).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleKCorpIsDone">
+      <Name>Schedule K Is Done</Name>
+      <Description>Whether Schedule K is complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/accountingMethodCorp" /></IsComplete>
+          <IsComplete><Dependency path="/naicsCodeCorp" /></IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleK1120">
+      <Name>Include Schedule K in PDF</Name>
+      <Description>Whether to include Schedule K in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

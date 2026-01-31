@@ -1,0 +1,560 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8995/8995-A: Qualified Business Income Deduction -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- QBI ELIGIBILITY                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasQualifiedBusinessIncome">
+      <Name>Has Qualified Business Income</Name>
+      <Description>Whether taxpayer has qualified business income from pass-through entities.</Description>
+      <Derived>
+        <Any>
+          <!-- From Schedule C -->
+          <All>
+            <Dependency module="scheduleC" path="/hasSelfEmploymentIncome" />
+            <Dependency module="scheduleC" path="/businessHasProfit" />
+          </All>
+          <!-- From Schedule E -->
+          <All>
+            <Dependency module="scheduleE" path="/hasRentalIncome" />
+            <Dependency module="scheduleE" path="/rentalHasProfit" />
+          </All>
+          <!-- Direct QBI entry -->
+          <GreaterThan>
+            <Left><Dependency path="/directQBI" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/directQBI">
+      <Name>Direct QBI from Pass-Through Entities</Name>
+      <Description>QBI from partnerships, S-corps, or other pass-through entities (K-1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- INCOME THRESHOLDS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/qbiFullDeductionThreshold">
+      <Name>QBI Full Deduction Threshold</Name>
+      <Description>Taxable income threshold below which full 20% deduction applies.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>394600</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>197300</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiPhaseoutRange">
+      <Name>QBI Phase-out Range</Name>
+      <Description>Range over which SSTB limitations phase in.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>100000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>50000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiFullPhaseoutThreshold">
+      <Name>QBI Full Phase-out Threshold</Name>
+      <Description>Taxable income threshold above which SSTB gets no deduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/qbiFullDeductionThreshold" />
+          <Dependency path="/qbiPhaseoutRange" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/belowQBIThreshold">
+      <Name>Below QBI Threshold</Name>
+      <Description>Whether taxable income is below the threshold for simplified calculation.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency module="taxCalculations" path="/taxableIncome" /></Left>
+          <Right><Dependency path="/qbiFullDeductionThreshold" /></Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aboveQBIPhaseout">
+      <Name>Above QBI Phase-out</Name>
+      <Description>Whether taxable income exceeds the phase-out threshold.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency module="taxCalculations" path="/taxableIncome" /></Left>
+          <Right><Dependency path="/qbiFullPhaseoutThreshold" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SPECIFIED SERVICE TRADE OR BUSINESS (SSTB)  -->
+    <!-- ============================================ -->
+
+    <Fact path="/isSSTB">
+      <Name>Is Specified Service Trade or Business</Name>
+      <Description>Whether the business is an SSTB (health, law, accounting, etc.).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sstbApplicablePercentage">
+      <Name>SSTB Applicable Percentage</Name>
+      <Description>Percentage of QBI allowable for SSTB in phase-out range.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Below threshold: 100% -->
+          <Case>
+            <When>
+              <Dependency path="/belowQBIThreshold" />
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+          <!-- Above phase-out: 0% for SSTB -->
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/isSSTB" />
+                <Dependency path="/aboveQBIPhaseout" />
+              </All>
+            </When>
+            <Then>
+              <Decimal>0.0</Decimal>
+            </Then>
+          </Case>
+          <!-- In phase-out for SSTB -->
+          <Case>
+            <When>
+              <Dependency path="/isSSTB" />
+            </When>
+            <Then>
+              <Subtract>
+                <Decimal>1.0</Decimal>
+                <Divide>
+                  <Subtract>
+                    <Dependency module="taxCalculations" path="/taxableIncome" />
+                    <Dependency path="/qbiFullDeductionThreshold" />
+                  </Subtract>
+                  <Dependency path="/qbiPhaseoutRange" />
+                </Divide>
+              </Subtract>
+            </Then>
+          </Case>
+          <!-- Non-SSTB: always 100% -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Decimal>1.0</Decimal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- W-2 WAGES AND PROPERTY                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/w2WagesPaid">
+      <Name>W-2 Wages Paid</Name>
+      <Description>Total W-2 wages paid by the qualified business.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedPropertyBasis">
+      <Name>Qualified Property Basis</Name>
+      <Description>Unadjusted basis of qualified property held at year end.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- W-2/Capital Limitations -->
+    <Fact path="/wageCapitalLimit">
+      <Name>W-2/Capital Limitation</Name>
+      <Description>Greater of 50% of W-2 wages OR 25% wages + 2.5% of property basis.</Description>
+      <Derived>
+        <Max>
+          <Multiply>
+            <Dependency path="/w2WagesPaid" />
+            <Decimal>0.50</Decimal>
+          </Multiply>
+          <Add>
+            <Multiply>
+              <Dependency path="/w2WagesPaid" />
+              <Decimal>0.25</Decimal>
+            </Multiply>
+            <Multiply>
+              <Dependency path="/qualifiedPropertyBasis" />
+              <Decimal>0.025</Decimal>
+            </Multiply>
+          </Add>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI CALCULATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalQBI">
+      <Name>Total Qualified Business Income</Name>
+      <Description>Combined QBI from all sources.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <!-- Schedule C net profit -->
+            <Switch>
+              <Case>
+                <When>
+                  <All>
+                    <Dependency module="scheduleC" path="/hasSelfEmploymentIncome" />
+                    <Dependency module="scheduleC" path="/businessHasProfit" />
+                  </All>
+                </When>
+                <Then>
+                  <Dependency module="scheduleC" path="/businessNetProfitLoss" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <!-- Schedule E rental income (if qualifies) -->
+            <Switch>
+              <Case>
+                <When>
+                  <All>
+                    <Dependency module="scheduleE" path="/hasRentalIncome" />
+                    <Dependency module="scheduleE" path="/rentalHasProfit" />
+                  </All>
+                </When>
+                <Then>
+                  <Dependency module="scheduleE" path="/scheduleETotalIncomeLoss" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+          </Add>
+          <!-- Direct QBI from K-1s -->
+          <Dependency path="/directQBI" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/applicableQBI">
+      <Name>Applicable QBI</Name>
+      <Description>QBI after SSTB reduction.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/totalQBI" />
+            <Dependency path="/sstbApplicablePercentage" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiComponentBeforeLimitation">
+      <Name>QBI Component Before Limitation</Name>
+      <Description>20% of applicable QBI before W-2/capital limitation.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/applicableQBI" />
+          <Decimal>0.20</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiComponentAfterLimitation">
+      <Name>QBI Component After Limitation</Name>
+      <Description>QBI deduction component after W-2/capital limits (if applicable).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <!-- Below threshold: no wage/capital limit -->
+          <Case>
+            <When>
+              <Dependency path="/belowQBIThreshold" />
+            </When>
+            <Then>
+              <Dependency path="/qbiComponentBeforeLimitation" />
+            </Then>
+          </Case>
+          <!-- Above phase-out: fully limited -->
+          <Case>
+            <When>
+              <Dependency path="/aboveQBIPhaseout" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/qbiComponentBeforeLimitation" />
+                <Dependency path="/wageCapitalLimit" />
+              </Min>
+            </Then>
+          </Case>
+          <!-- In phase-out: partial limitation -->
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Dependency path="/qbiComponentBeforeLimitation" />
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/qbiComponentBeforeLimitation" />
+                    <Min>
+                      <Dependency path="/qbiComponentBeforeLimitation" />
+                      <Dependency path="/wageCapitalLimit" />
+                    </Min>
+                  </Subtract>
+                  <Divide>
+                    <Subtract>
+                      <Dependency module="taxCalculations" path="/taxableIncome" />
+                      <Dependency path="/qbiFullDeductionThreshold" />
+                    </Subtract>
+                    <Dependency path="/qbiPhaseoutRange" />
+                  </Divide>
+                </Multiply>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- OVERALL QBI DEDUCTION LIMIT                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableIncomeBeforeQBI">
+      <Name>Taxable Income Before QBI</Name>
+      <Description>Taxable income minus net capital gains.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency module="taxCalculations" path="/taxableIncome" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Dependency module="scheduleD" path="/netCapitalGainLoss" />
+          </Max>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableIncomeLimitation">
+      <Name>Taxable Income Limitation</Name>
+      <Description>20% of taxable income (net of capital gains).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/taxableIncomeBeforeQBI" />
+          <Decimal>0.20</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qbiDeduction">
+      <Name>QBI Deduction</Name>
+      <Description>Final qualified business income deduction.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasQualifiedBusinessIncome" />
+            </When>
+            <Then>
+              <Round>
+                <Min>
+                  <Dependency path="/qbiComponentAfterLimitation" />
+                  <Dependency path="/taxableIncomeLimitation" />
+                </Min>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REIT/PTP COMPONENT                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/reitDividends">
+      <Name>REIT Dividends</Name>
+      <Description>Qualified REIT dividends received.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ptpIncome">
+      <Name>PTP Income</Name>
+      <Description>Qualified publicly traded partnership income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/reitPtpComponent">
+      <Name>REIT/PTP Component</Name>
+      <Description>20% deduction on REIT dividends and PTP income.</Description>
+      <Derived>
+        <Multiply>
+          <Add>
+            <Dependency path="/reitDividends" />
+            <Dependency path="/ptpIncome" />
+          </Add>
+          <Decimal>0.20</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalQBIDeduction">
+      <Name>Total QBI Deduction</Name>
+      <Description>Combined QBI deduction including REIT/PTP component.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Min>
+          <Add>
+            <Dependency path="/qbiDeduction" />
+            <Dependency path="/reitPtpComponent" />
+          </Add>
+          <Dependency path="/taxableIncomeLimitation" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/qbiDeductionIsDone">
+      <Name>QBI Deduction Is Done</Name>
+      <Description>Whether QBI deduction section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No QBI -->
+          <Not>
+            <Dependency path="/hasQualifiedBusinessIncome" />
+          </Not>
+          <!-- Has QBI (auto-calculated) -->
+          <Dependency path="/hasQualifiedBusinessIncome" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/useForm8995A">
+      <Name>Use Form 8995-A</Name>
+      <Description>Whether to use Form 8995-A (complex) instead of 8995 (simplified).</Description>
+      <Derived>
+        <Not>
+          <Dependency path="/belowQBIThreshold" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8995">
+      <Name>Include Form 8995 in PDF</Name>
+      <Description>Whether to include Form 8995/8995-A in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalQBIDeduction" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

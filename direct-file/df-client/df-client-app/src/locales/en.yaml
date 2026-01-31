@@ -11627,6 +11627,18 @@ info:
       studentLoanDeduction:
         th: Student loan interest deduction
         td: "-{{/studentLoanInterestAdjustmentAmount}}"
+      obbbaOvertimeDeduction:
+        th: Overtime income exemption (OBBBA)
+        td: "-{{/overtimeDeductionAmount}}"
+      obbbaTipDeduction:
+        th: Tip income exemption (OBBBA)
+        td: "-{{/tipDeductionAmount}}"
+      obbbaAutoLoanDeduction:
+        th: Auto loan interest deduction (OBBBA)
+        td: "-{{/autoLoanInterestDeductionAmount}}"
+      obbbaSeniorBonusDeduction:
+        th: Senior bonus deduction (OBBBA)
+        td: "-{{/totalSeniorBonusDeduction}}"
       agi:
         th: <strong>AGI</strong>
         td: <strong>{{/agi}}</strong>
@@ -16579,6 +16591,10 @@ info:
       - p: <strong>Deductions</strong>
     educatorDeduction: "Educator expense deduction: — {{/educatorExpensesAdjustment}}"
     studentLoanDeduction: "Student loan interest deduction: — {{/studentLoanInterestAdjustmentAmount}}"
+    obbbaOvertimeDeduction: "Overtime income exemption (OBBBA): — {{/overtimeDeductionAmount}}"
+    obbbaTipDeduction: "Tip income exemption (OBBBA): — {{/tipDeductionAmount}}"
+    obbbaAutoLoanDeduction: "Auto loan interest deduction (OBBBA): — {{/autoLoanInterestDeductionAmount}}"
+    obbbaSeniorBonusDeduction: "Senior bonus deduction (OBBBA): — {{/totalSeniorBonusDeduction}}"
     standardDeduction: "Standard deduction: — {{/standardDeduction}}"
   /info/federal-tax-return/credits:
     body: <strong>Credits</strong>
@@ -24369,3 +24385,107 @@ dataviews:
         lastYearPin: Use last year’s Self-Select PIN
         lastYearAgi: Use last year’s Adjusted Gross Income (AGI)
         cannotFind: They can’t find last year’s Self-Select PIN or AGI
+
+  # =============================================================================
+  # OBBBA 2025 Income Provisions
+  # Source: docs/obbba/new-provisions/
+  # =============================================================================
+
+  /heading/income/obbba/intro: OBBBA 2025 Tax Deductions
+  /heading/income/obbba/overtime: Overtime Income Exemption
+  /heading/income/obbba/overtime/question: Did you receive overtime pay in {{/taxYear}}?
+  /heading/income/obbba/overtime/amount: How much qualified overtime premium did you receive?
+  /heading/income/obbba/tips: Tip Income Exemption
+  /heading/income/obbba/tips/question: Did you receive tip income in {{/taxYear}}?
+  /heading/income/obbba/tips/amount: How much tip income did you receive?
+  /heading/income/obbba/auto-loan: Auto Loan Interest Deduction
+  /heading/income/obbba/auto-loan/question: Did you pay interest on an auto loan in {{/taxYear}}?
+  /heading/income/obbba/auto-loan/vehicle-info: Tell us about your vehicle
+  /heading/income/obbba/auto-loan/amount: How much auto loan interest did you pay?
+  /heading/income/obbba/summary: OBBBA Deductions Summary
+
+  /info/income/obbba/intro: >-
+    The One Big Beautiful Bill Act (OBBBA) of 2025 introduced new above-the-line 
+    deductions that can reduce your taxable income even if you don't itemize. 
+    These deductions are available for tax years 2025-2028.
+  
+  /info/income/obbba/new-provisions-alert: >-
+    These are new tax benefits available for {{/taxYear}}! You may be able to 
+    deduct overtime pay, tip income, and auto loan interest from your taxes.
+  
+  /info/income/obbba/overtime/description: >-
+    If you worked overtime and received time-and-a-half pay, the extra portion 
+    above your regular wage may be deductible. The cap is $12,500 for single 
+    filers or $25,000 for married filing jointly.
+  
+  /info/income/obbba/overtime/amount-help: >-
+    Enter only the PREMIUM portion of your overtime pay - that's the extra 0.5x 
+    above your regular wage, not the full overtime amount.
+  
+  /info/income/obbba/overtime/premium-only: >-
+    Only enter the premium portion. For example, if your regular rate is $20/hour 
+    and you earned $30/hour overtime (1.5x), only count the extra $10/hour.
+  
+  /info/income/obbba/overtime/calculation-methods: How to calculate your overtime premium
+  /info/income/obbba/overtime/method1: >-
+    Method 1: If your pay stub shows "OT Premium" separately, use that amount.
+  /info/income/obbba/overtime/method2: >-
+    Method 2: Total overtime pay × (multiplier - 1) / multiplier. 
+    Example: $450 at 1.5x = $450 × 0.5 / 1.5 = $150
+  /info/income/obbba/overtime/method3: >-
+    Method 3: (Overtime rate - Regular rate) × Hours worked. 
+    Example: ($30 - $20) × 10 hours = $100
+  
+  /info/income/obbba/tips/description: >-
+    If you received tip income in {{/taxYear}}, you may be able to deduct up to 
+    $25,000 from your taxable income. Tips must have been reported to your employer.
+  
+  /info/income/obbba/tips/amount-help: >-
+    Enter your total tip income for the year. This should match Box 7 on your W-2 
+    or your daily tip records.
+  
+  /info/income/obbba/tips/cap-notice: >-
+    The maximum tip income exemption is $25,000. If you earned more than $25,000 
+    in tips, only $25,000 will be deducted.
+  
+  /info/income/obbba/tips/documentation: What documentation do I need?
+  /info/income/obbba/tips/what-qualifies: What types of tips qualify?
+  
+  /info/income/obbba/auto-loan/description: >-
+    If you paid interest on an auto loan for a vehicle manufactured in the 
+    United States, you may deduct up to $10,000 from your taxable income.
+  
+  /info/income/obbba/auto-loan/domestic-only: >-
+    This deduction only applies to vehicles manufactured in the United States. 
+    Foreign-made vehicles do not qualify.
+  
+  /info/income/obbba/auto-loan/amount-help: >-
+    Enter the total auto loan interest you paid in {{/taxYear}}. This information 
+    is usually on Form 1098 from your lender or on your loan statements.
+  
+  /info/income/obbba/auto-loan/form-1098: Where can I find this information?
+  
+  /info/income/obbba/summary/overtime: >-
+    Overtime income exemption: {{/overtimeDeductionAmount}}
+  /info/income/obbba/summary/tips: >-
+    Tip income exemption: {{/tipDeductionAmount}}
+  /info/income/obbba/summary/auto-loan: >-
+    Auto loan interest deduction: {{/autoLoanInterestDeductionAmount}}
+  /info/income/obbba/summary/senior-bonus: >-
+    Senior bonus deduction (65+): {{/totalSeniorBonusDeduction}}
+
+  /info/income/obbba/summary/phase-out-warning: >-
+    Based on your income, some of these deductions may be reduced due to phase-out
+    limits. The final deduction amounts will be calculated on your tax return.
+
+  /info/income/obbba/summary/no-deductions: >-
+    Based on your answers, you don't have any OBBBA deductions to claim.
+    You can continue to the next section.
+
+  /info/income/obbba/learn-more: Learn more about OBBBA deductions
+
+subsubcategories:
+  /flow/income/obbba-deductions:
+    overtime: Overtime income exemption
+    tips: Tip income exemption
+    auto-loan: Auto loan interest deduction

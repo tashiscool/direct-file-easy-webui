@@ -1,0 +1,176 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form W-2G: Certain Gambling Winnings -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- GAMBLING WINNINGS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasW2G">
+      <Name>Has W-2G</Name>
+      <Description>Whether taxpayer received Form W-2G.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2g1PayerName">
+      <Name>W-2G 1 Payer Name</Name>
+      <Description>Name of payer/casino.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2g1GrossWinnings">
+      <Name>W-2G 1 Gross Winnings</Name>
+      <Description>Gross winnings (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2g1FederalWithholding">
+      <Name>W-2G 1 Federal Withholding</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2g1TypeOfWager">
+      <Name>W-2G 1 Type of Wager</Name>
+      <Description>Type of wager (Box 3).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SLOT">Slot machines</Option>
+          <Option value="KENO">Keno</Option>
+          <Option value="BINGO">Bingo</Option>
+          <Option value="POKER">Poker tournament</Option>
+          <Option value="LOTTERY">State lottery</Option>
+          <Option value="HORSE">Horse racing</Option>
+          <Option value="OTHER">Other</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- Second W-2G -->
+    <Fact path="/w2g2GrossWinnings">
+      <Name>W-2G 2 Gross Winnings</Name>
+      <Description>Second W-2G gross winnings.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/w2g2FederalWithholding">
+      <Name>W-2G 2 Federal Withholding</Name>
+      <Description>Second W-2G federal withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalGamblingWinnings">
+      <Name>Total Gambling Winnings</Name>
+      <Description>Total gambling winnings from all W-2G.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/w2g1GrossWinnings" />
+          <Dependency path="/w2g2GrossWinnings" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalGamblingWithholding">
+      <Name>Total Gambling Withholding</Name>
+      <Description>Total federal withholding from W-2G.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/w2g1FederalWithholding" />
+          <Dependency path="/w2g2FederalWithholding" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GAMBLING LOSSES                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/gamblingLosses">
+      <Name>Gambling Losses</Name>
+      <Description>Documented gambling losses for the year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/deductibleGamblingLosses">
+      <Name>Deductible Gambling Losses</Name>
+      <Description>Deductible gambling losses (limited to winnings).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/gamblingLosses" />
+          <Dependency path="/totalGamblingWinnings" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netGamblingIncome">
+      <Name>Net Gambling Income</Name>
+      <Description>Net gambling income (winnings less deductible losses).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/totalGamblingWinnings" />
+          <Dependency path="/deductibleGamblingLosses" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/formW2GIsDone">
+      <Name>Form W-2G Is Done</Name>
+      <Description>Whether W-2G entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasW2G" /></Not>
+          <All>
+            <Dependency path="/hasW2G" />
+            <IsComplete><Dependency path="/totalGamblingWinnings" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

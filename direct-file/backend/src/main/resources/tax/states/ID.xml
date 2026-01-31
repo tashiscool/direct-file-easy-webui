@@ -1,0 +1,116 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Idaho Form 40: Individual Income Tax Return -->
+<!-- Idaho has a flat 5.8% rate (as of 2023) -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasID40">
+      <Name>Has ID Form 40</Name>
+      <Description>Whether taxpayer files Idaho Form 40.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>ID</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- ID Tax Rate (flat) -->
+    <Fact path="/idTaxRate">
+      <Name>Idaho Tax Rate</Name>
+      <Description>Idaho flat income tax rate (5.8%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.058</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ID Standard Deduction (uses federal amounts) -->
+    <Fact path="/idStdDeductionSingle">
+      <Name>ID Standard Deduction Single</Name>
+      <Description>Idaho standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/idStdDeductionMFJ">
+      <Name>ID Standard Deduction MFJ</Name>
+      <Description>Idaho standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/idStandardDeduction">
+      <Name>ID Standard Deduction</Name>
+      <Description>Idaho standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/idStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/idStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ID Taxable Income -->
+    <Fact path="/idTaxableIncome">
+      <Name>ID Taxable Income</Name>
+      <Description>Idaho taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/idStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ID Income Tax -->
+    <Fact path="/idIncomeTax">
+      <Name>ID Income Tax</Name>
+      <Description>Idaho income tax (flat 5.8%).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/idTaxableIncome" />
+          <Dependency path="/idTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/id40IsDone">
+      <Name>ID Form 40 Is Done</Name>
+      <Description>Whether ID Form 40 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasID40" /></Not>
+          <All>
+            <Dependency path="/hasID40" />
+            <IsComplete><Dependency path="/idIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeID40">
+      <Name>Include ID Form 40 in PDF</Name>
+      <Description>Whether to include ID Form 40.</Description>
+      <Derived>
+        <Dependency path="/hasID40" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

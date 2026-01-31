@@ -1,0 +1,90 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 433-A: Collection Information Statement -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm433A">
+      <Name>Has Form 433-A</Name>
+      <Description>Whether taxpayer is filing collection information.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/maritalStatus433A">
+      <Name>Marital Status</Name>
+      <Description>Marital status.</Description>
+      <Writable>
+        <Enum>
+          <Option>married</Option>
+          <Option>unmarried</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthlyGrossWages433A">
+      <Name>Monthly Gross Wages</Name>
+      <Description>Monthly gross wages.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalMonthlyIncome433A">
+      <Name>Total Monthly Income</Name>
+      <Description>Total monthly income.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAssets433A">
+      <Name>Total Assets</Name>
+      <Description>Total assets.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalMonthlyExpenses433A">
+      <Name>Total Monthly Expenses</Name>
+      <Description>Total monthly expenses.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form433AIsDone">
+      <Name>Form 433-A Is Done</Name>
+      <Description>Whether Form 433-A is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm433A" /></Not>
+          <All>
+            <Dependency path="/hasForm433A" />
+            <IsComplete><Dependency path="/totalMonthlyIncome433A" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

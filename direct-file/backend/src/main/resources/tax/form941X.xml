@@ -1,0 +1,154 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 941-X: Adjusted Employer's Quarterly Federal Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm941X">
+      <Name>Has Form 941-X</Name>
+      <Description>Whether employer is filing corrected quarterly return.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/quarterCorrected">
+      <Name>Quarter Being Corrected</Name>
+      <Description>Quarter being corrected (1-4).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>1</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>4</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearCorrected941X">
+      <Name>Year Being Corrected</Name>
+      <Description>Calendar year being corrected.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2000</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isAdjustedReturn">
+      <Name>Is Adjusted Return</Name>
+      <Description>Whether this is an adjusted return (vs. claim for refund).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Corrected Amounts -->
+    <Fact path="/correctedWages941X">
+      <Name>Corrected Wages</Name>
+      <Description>Corrected wages, tips, other compensation (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctedFederalWithholding941X">
+      <Name>Corrected Federal Withholding</Name>
+      <Description>Corrected federal income tax withheld (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctedSSWages941X">
+      <Name>Corrected SS Wages</Name>
+      <Description>Corrected taxable SS wages (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctedSSTax941X">
+      <Name>Corrected SS Tax</Name>
+      <Description>Corrected SS tax (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctedMedicareWages941X">
+      <Name>Corrected Medicare Wages</Name>
+      <Description>Corrected taxable Medicare wages (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/correctedMedicareTax941X">
+      <Name>Corrected Medicare Tax</Name>
+      <Description>Corrected Medicare tax (Line 6).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Differences -->
+    <Fact path="/taxCorrectionAmount">
+      <Name>Tax Correction Amount</Name>
+      <Description>Total tax correction amount.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/correctedFederalWithholding941X" />
+          <Add>
+            <Dependency path="/correctedSSTax941X" />
+            <Dependency path="/correctedMedicareTax941X" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form941XIsDone">
+      <Name>Form 941-X Is Done</Name>
+      <Description>Whether Form 941-X is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm941X" /></Not>
+          <All>
+            <Dependency path="/hasForm941X" />
+            <IsComplete><Dependency path="/correctedWages941X" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,224 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8834/8936: Clean Vehicle Credits -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- CLEAN VEHICLE CREDIT                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCleanVehicleCredit">
+      <Name>Has Clean Vehicle Credit</Name>
+      <Description>Whether taxpayer claims clean vehicle credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleMake">
+      <Name>Vehicle Make</Name>
+      <Description>Make of vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleModel">
+      <Name>Vehicle Model</Name>
+      <Description>Model of vehicle.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleVIN">
+      <Name>Vehicle VIN</Name>
+      <Description>Vehicle Identification Number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/datePlacedInService">
+      <Name>Date Placed In Service</Name>
+      <Description>Date vehicle was placed in service.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/vehicleCost8834">
+      <Name>Vehicle Cost</Name>
+      <Description>Cost of the vehicle.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/isNewCleanVehicle">
+      <Name>Is New Clean Vehicle</Name>
+      <Description>Whether vehicle is new (not previously owned).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/meetsNorthAmericanAssembly8834">
+      <Name>Meets North American Assembly</Name>
+      <Description>Whether vehicle meets North American assembly requirement.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/meetsCriticalMineralReq">
+      <Name>Meets Critical Mineral Requirement</Name>
+      <Description>Whether meets critical mineral requirement ($3,750).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/meetsBatteryComponentReq">
+      <Name>Meets Battery Component Requirement</Name>
+      <Description>Whether meets battery component requirement ($3,750).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/cleanVehicleCreditAmount8834">
+      <Name>Clean Vehicle Credit Amount</Name>
+      <Description>Clean vehicle credit amount.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/meetsNorthAmericanAssembly8834" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/meetsCriticalMineralReq" />
+                <Dependency path="/meetsBatteryComponentReq" />
+              </All>
+            </When>
+            <Then><Dollar>7500</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/meetsCriticalMineralReq" />
+                <Dependency path="/meetsBatteryComponentReq" />
+              </Any>
+            </When>
+            <Then><Dollar>3750</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Used Clean Vehicle -->
+    <Fact path="/isUsedCleanVehicle">
+      <Name>Is Used Clean Vehicle</Name>
+      <Description>Whether claiming used clean vehicle credit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedVehicleSalePrice">
+      <Name>Used Vehicle Sale Price</Name>
+      <Description>Sale price of used vehicle.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxUsedVehicleCredit">
+      <Name>Max Used Vehicle Credit</Name>
+      <Description>Maximum used clean vehicle credit ($4,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedVehicleCreditAmount">
+      <Name>Used Vehicle Credit Amount</Name>
+      <Description>Used clean vehicle credit amount.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isUsedCleanVehicle" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/maxUsedVehicleCredit" />
+                <Multiply>
+                  <Dependency path="/usedVehicleSalePrice" />
+                  <Decimal>0.30</Decimal>
+                </Multiply>
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8834IsDone">
+      <Name>Form 8834 Is Done</Name>
+      <Description>Whether Form 8834 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasCleanVehicleCredit" /></Not>
+          <All>
+            <Dependency path="/hasCleanVehicleCredit" />
+            <Any>
+              <IsComplete><Dependency path="/cleanVehicleCreditAmount8834" /></IsComplete>
+              <IsComplete><Dependency path="/usedVehicleCreditAmount" /></IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8834">
+      <Name>Include Form 8834 in PDF</Name>
+      <Description>Whether to include Form 8834 in the return.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/cleanVehicleCreditAmount8834" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/usedVehicleCreditAmount" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

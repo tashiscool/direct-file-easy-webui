@@ -1,0 +1,208 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-S: Proceeds from Real Estate Transactions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- REAL ESTATE SALE INFORMATION                -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099S">
+      <Name>Has 1099-S</Name>
+      <Description>Whether taxpayer received Form 1099-S.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1GrossProceeds">
+      <Name>Property 1 Gross Proceeds</Name>
+      <Description>Gross proceeds from sale of property 1 (Box 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1Address">
+      <Name>Property 1 Address</Name>
+      <Description>Address or description of property sold (Box 3).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1DateOfClosing">
+      <Name>Property 1 Date of Closing</Name>
+      <Description>Date of closing (Box 1).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1BuyerPartOfProceeds">
+      <Name>Property 1 Buyer Part of Proceeds</Name>
+      <Description>Check if buyer received part of proceeds (Box 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/property1Basis">
+      <Name>Property 1 Basis</Name>
+      <Description>Cost basis in property 1.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Second property -->
+    <Fact path="/property2GrossProceeds">
+      <Name>Property 2 Gross Proceeds</Name>
+      <Description>Gross proceeds from sale of property 2.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/property2Basis">
+      <Name>Property 2 Basis</Name>
+      <Description>Cost basis in property 2.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GAIN/LOSS CALCULATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/property1GainLoss">
+      <Name>Property 1 Gain/Loss</Name>
+      <Description>Gain or loss on property 1.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/property1GrossProceeds" />
+          <Dependency path="/property1Basis" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/property2GainLoss">
+      <Name>Property 2 Gain/Loss</Name>
+      <Description>Gain or loss on property 2.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/property2GrossProceeds" />
+          <Dependency path="/property2Basis" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRealEstateProceeds">
+      <Name>Total Real Estate Proceeds</Name>
+      <Description>Total proceeds from all real estate sales.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/property1GrossProceeds" />
+          <Dependency path="/property2GrossProceeds" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRealEstateGainLoss">
+      <Name>Total Real Estate Gain/Loss</Name>
+      <Description>Total gain or loss from real estate sales.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/property1GainLoss" />
+          <Dependency path="/property2GainLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- HOME SALE EXCLUSION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/isPrimaryResidence">
+      <Name>Is Primary Residence</Name>
+      <Description>Whether sold property was primary residence.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/ownedAndUsed2Of5Years">
+      <Name>Owned and Used 2 of 5 Years</Name>
+      <Description>Owned and used as primary residence 2 of last 5 years.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/homeSaleExclusionSingle">
+      <Name>Home Sale Exclusion - Single</Name>
+      <Description>Maximum exclusion for single filer ($250,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>250000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/homeSaleExclusionMFJ">
+      <Name>Home Sale Exclusion - MFJ</Name>
+      <Description>Maximum exclusion for MFJ ($500,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>500000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiesForHomeSaleExclusion">
+      <Name>Qualifies for Home Sale Exclusion</Name>
+      <Description>Whether sale qualifies for Section 121 exclusion.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/isPrimaryResidence" />
+          <Dependency path="/ownedAndUsed2Of5Years" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099SIsDone">
+      <Name>Form 1099-S Is Done</Name>
+      <Description>Whether Form 1099-S entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099S" /></Not>
+          <All>
+            <Dependency path="/has1099S" />
+            <IsComplete><Dependency path="/totalRealEstateProceeds" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

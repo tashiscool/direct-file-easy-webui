@@ -1,0 +1,143 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 5405: Repayment of First-Time Homebuyer Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm5405">
+      <Name>Has Form 5405</Name>
+      <Description>Whether taxpayer must repay first-time homebuyer credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearCreditClaimed5405">
+      <Name>Year Credit Claimed</Name>
+      <Description>Year homebuyer credit was claimed.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>2008</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>2010</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/originalCreditAmt5405">
+      <Name>Original Credit Amount</Name>
+      <Description>Original credit amount claimed.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/creditRepaidPrior5405">
+      <Name>Credit Repaid Prior Years</Name>
+      <Description>Credit repaid in prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/homeSoldOrDisposed5405">
+      <Name>Home Sold or Disposed</Name>
+      <Description>Whether home was sold or disposed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/gainFromSale5405">
+      <Name>Gain From Sale</Name>
+      <Description>Gain from sale of home.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/remainingBalance5405">
+      <Name>Remaining Credit Balance</Name>
+      <Description>Remaining balance to be repaid.</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/originalCreditAmt5405" />
+          <Dependency path="/creditRepaidPrior5405" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/annualRepayment5405">
+      <Name>Annual Repayment Amount</Name>
+      <Description>Normal annual repayment (1/15 of credit).</Description>
+      <Derived>
+        <Divide>
+          <Dependency path="/originalCreditAmt5405" />
+          <Int>15</Int>
+        </Divide>
+      </Derived>
+    </Fact>
+
+    <Fact path="/repaymentDue5405">
+      <Name>Repayment Due</Name>
+      <Description>Repayment due this year.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/homeSoldOrDisposed5405" /></When>
+            <Then>
+              <Min>
+                <Dependency path="/remainingBalance5405" />
+                <Dependency path="/gainFromSale5405" />
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/annualRepayment5405" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form5405IsDone">
+      <Name>Form 5405 Is Done</Name>
+      <Description>Whether Form 5405 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm5405" /></Not>
+          <All>
+            <Dependency path="/hasForm5405" />
+            <IsComplete><Dependency path="/repaymentDue5405" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm5405">
+      <Name>Include Form 5405 in PDF</Name>
+      <Description>Whether to include Form 5405.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/repaymentDue5405" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

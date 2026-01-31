@@ -1,0 +1,578 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K-1: Partner's/Shareholder's Share of Income, Deductions, Credits -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- K-1 INFORMATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasScheduleK1">
+      <Name>Has Schedule K-1</Name>
+      <Description>Whether the taxpayer received K-1 from partnership, S-corp, estate, or trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1EntityType">
+      <Name>K-1 Entity Type</Name>
+      <Description>Type of entity issuing the K-1.</Description>
+      <Writable>
+        <Enum>
+          <EnumOption>partnership</EnumOption>
+          <EnumOption>scorp</EnumOption>
+          <EnumOption>estate</EnumOption>
+          <EnumOption>trust</EnumOption>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1EntityName">
+      <Name>K-1 Entity Name</Name>
+      <Description>Name of the partnership, S-corp, estate, or trust.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1EntityEIN">
+      <Name>K-1 Entity EIN</Name>
+      <Description>Employer Identification Number of the entity.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OwnershipPercentage">
+      <Name>Ownership Percentage</Name>
+      <Description>Partner's or shareholder's ownership percentage.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>100</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ORDINARY INCOME/LOSS                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1OrdinaryBusinessIncome">
+      <Name>K-1 Ordinary Business Income</Name>
+      <Description>Ordinary business income (loss) from K-1 Box 1 (partnership) or Box 1 (S-corp).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1NetRentalRealEstateIncome">
+      <Name>K-1 Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (loss) from K-1 Box 2.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OtherNetRentalIncome">
+      <Name>K-1 Other Net Rental Income</Name>
+      <Description>Other net rental income (loss) from K-1 Box 3.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1GuaranteedPayments">
+      <Name>K-1 Guaranteed Payments</Name>
+      <Description>Guaranteed payments to partner from K-1 Box 4.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PORTFOLIO INCOME                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1InterestIncome">
+      <Name>K-1 Interest Income</Name>
+      <Description>Interest income from K-1 Box 5.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OrdinaryDividends">
+      <Name>K-1 Ordinary Dividends</Name>
+      <Description>Ordinary dividends from K-1 Box 6a.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1QualifiedDividends">
+      <Name>K-1 Qualified Dividends</Name>
+      <Description>Qualified dividends from K-1 Box 6b.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1Royalties">
+      <Name>K-1 Royalties</Name>
+      <Description>Royalty income from K-1 Box 7.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CAPITAL GAINS/LOSSES                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1NetShortTermCapitalGain">
+      <Name>K-1 Net Short-Term Capital Gain</Name>
+      <Description>Net short-term capital gain (loss) from K-1 Box 8.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1NetLongTermCapitalGain">
+      <Name>K-1 Net Long-Term Capital Gain</Name>
+      <Description>Net long-term capital gain (loss) from K-1 Box 9a.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1CollectiblesGain">
+      <Name>K-1 Collectibles (28%) Gain</Name>
+      <Description>Collectibles (28%) gain (loss) from K-1 Box 9b.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1UnrecapturedSection1250Gain">
+      <Name>K-1 Unrecaptured Section 1250 Gain</Name>
+      <Description>Unrecaptured section 1250 gain from K-1 Box 9c.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SECTION 1231 AND OTHER GAINS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1NetSection1231Gain">
+      <Name>K-1 Net Section 1231 Gain</Name>
+      <Description>Net section 1231 gain (loss) from K-1 Box 10.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OtherIncome">
+      <Name>K-1 Other Income</Name>
+      <Description>Other income (loss) from K-1 Box 11.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DEDUCTIONS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1Section179Deduction">
+      <Name>K-1 Section 179 Deduction</Name>
+      <Description>Section 179 deduction from K-1 Box 12.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OtherDeductions">
+      <Name>K-1 Other Deductions</Name>
+      <Description>Other deductions from K-1 Box 13.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1CharitableContributions">
+      <Name>K-1 Charitable Contributions</Name>
+      <Description>Charitable contributions from K-1 Box 13a.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1InvestmentInterestExpense">
+      <Name>K-1 Investment Interest Expense</Name>
+      <Description>Investment interest expense from K-1 Box 13b.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SELF-EMPLOYMENT                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1SelfEmploymentEarnings">
+      <Name>K-1 Self-Employment Earnings</Name>
+      <Description>Net earnings from self-employment from K-1 Box 14.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1GrossFarmingIncome">
+      <Name>K-1 Gross Farming Income</Name>
+      <Description>Gross farming or fishing income from K-1 Box 14b.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CREDITS                                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1LowIncomeHousingCredit">
+      <Name>K-1 Low-Income Housing Credit</Name>
+      <Description>Low-income housing credit from K-1 Box 15a.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1RehabilitationCredit">
+      <Name>K-1 Rehabilitation Credit</Name>
+      <Description>Rehabilitation credit from K-1 Box 15b.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1OtherCredits">
+      <Name>K-1 Other Credits</Name>
+      <Description>Other rental credits from K-1 Box 15c.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1ForeignTaxesPaid">
+      <Name>K-1 Foreign Taxes Paid</Name>
+      <Description>Foreign taxes paid or accrued from K-1 Box 16.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT ITEMS                                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1AMTAdjustments">
+      <Name>K-1 AMT Adjustments</Name>
+      <Description>Alternative minimum tax (AMT) items from K-1 Box 17.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1AMTDepreciation">
+      <Name>K-1 AMT Depreciation Adjustment</Name>
+      <Description>AMT depreciation adjustment from K-1 Box 17a.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QBI INFORMATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1QBI">
+      <Name>K-1 Qualified Business Income</Name>
+      <Description>Qualified business income for Section 199A deduction from K-1 Box 20.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1W2Wages">
+      <Name>K-1 W-2 Wages</Name>
+      <Description>W-2 wages for QBI limitation from K-1 Box 20.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1UBITaxBasis">
+      <Name>K-1 UBIT Asset Basis</Name>
+      <Description>Unadjusted basis of qualified property for QBI.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1IsSSTB">
+      <Name>K-1 Is SSTB</Name>
+      <Description>Whether K-1 income is from a specified service trade or business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- DISTRIBUTIONS AND BASIS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1Distributions">
+      <Name>K-1 Distributions</Name>
+      <Description>Distributions received from the entity.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1BeginningBasis">
+      <Name>K-1 Beginning Tax Basis</Name>
+      <Description>Partner's/shareholder's tax basis at beginning of year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/k1EndingBasis">
+      <Name>K-1 Ending Tax Basis</Name>
+      <Description>Partner's/shareholder's tax basis at end of year.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Add>
+              <Add>
+                <Dependency path="/k1BeginningBasis" />
+                <Dependency path="/k1OrdinaryBusinessIncome" />
+              </Add>
+              <Dependency path="/k1NetLongTermCapitalGain" />
+            </Add>
+            <Dependency path="/k1Distributions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS FOR TAX RETURN                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/k1TotalOrdinaryIncome">
+      <Name>K-1 Total Ordinary Income</Name>
+      <Description>Total ordinary income from K-1 for Schedule E.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/k1OrdinaryBusinessIncome" />
+              <Dependency path="/k1GuaranteedPayments" />
+            </Add>
+            <Dependency path="/k1NetRentalRealEstateIncome" />
+          </Add>
+          <Dependency path="/k1OtherNetRentalIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1TotalPortfolioIncome">
+      <Name>K-1 Total Portfolio Income</Name>
+      <Description>Total portfolio income from K-1 (interest, dividends, royalties).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/k1InterestIncome" />
+              <Dependency path="/k1OrdinaryDividends" />
+            </Add>
+            <Dependency path="/k1Royalties" />
+          </Add>
+          <Dependency path="/k1OtherIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1TotalCapitalGains">
+      <Name>K-1 Total Capital Gains</Name>
+      <Description>Total capital gains from K-1 for Schedule D.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/k1NetShortTermCapitalGain" />
+              <Dependency path="/k1NetLongTermCapitalGain" />
+            </Add>
+            <Dependency path="/k1CollectiblesGain" />
+          </Add>
+          <Dependency path="/k1NetSection1231Gain" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1TotalDeductions">
+      <Name>K-1 Total Deductions</Name>
+      <Description>Total deductions from K-1.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/k1Section179Deduction" />
+              <Dependency path="/k1OtherDeductions" />
+            </Add>
+            <Dependency path="/k1CharitableContributions" />
+          </Add>
+          <Dependency path="/k1InvestmentInterestExpense" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1TotalCredits">
+      <Name>K-1 Total Credits</Name>
+      <Description>Total credits from K-1.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/k1LowIncomeHousingCredit" />
+            <Dependency path="/k1RehabilitationCredit" />
+          </Add>
+          <Dependency path="/k1OtherCredits" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleK1IsDone">
+      <Name>Schedule K-1 Is Done</Name>
+      <Description>Whether K-1 section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- No K-1 -->
+          <Not>
+            <Dependency path="/hasScheduleK1" />
+          </Not>
+          <!-- Has K-1 and basic info complete -->
+          <All>
+            <Dependency path="/hasScheduleK1" />
+            <IsComplete>
+              <Dependency path="/k1EntityType" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/k1EntityName" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleK1">
+      <Name>Include K-1 Information in PDF</Name>
+      <Description>Whether to include K-1 information in the tax return.</Description>
+      <Derived>
+        <Dependency path="/hasScheduleK1" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

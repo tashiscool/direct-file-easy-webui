@@ -1,0 +1,163 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8332: Release/Revocation of Release of Claim to Exemption for Child -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- RELEASE OF CLAIM                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForm8332">
+      <Name>Has Form 8332</Name>
+      <Description>Whether Form 8332 is being filed.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formPurpose">
+      <Name>Form Purpose</Name>
+      <Description>Purpose of Form 8332.</Description>
+      <Writable>
+        <Enum>
+          <Option value="RELEASE">Release of claim (Part I)</Option>
+          <Option value="REVOCATION">Revocation of release (Part II)</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: RELEASE OF CLAIM                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/custodialParentName">
+      <Name>Custodial Parent Name</Name>
+      <Description>Name of custodial parent releasing claim.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/custodialParentSSN">
+      <Name>Custodial Parent SSN</Name>
+      <Description>SSN of custodial parent.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/childName">
+      <Name>Child Name</Name>
+      <Description>Name of child for whom claim is released.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/childSSN">
+      <Name>Child SSN</Name>
+      <Description>SSN of child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxYearsForRelease">
+      <Name>Tax Years for Release</Name>
+      <Description>Tax years for which claim is released.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isReleaseForCurrentYear">
+      <Name>Is Release for Current Year</Name>
+      <Description>Whether release applies to current tax year.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isReleaseForFutureYears">
+      <Name>Is Release for Future Years</Name>
+      <Description>Whether release applies to future years.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: REVOCATION OF RELEASE              -->
+    <!-- ============================================ -->
+
+    <Fact path="/revocationYear">
+      <Name>Revocation Year</Name>
+      <Description>First tax year revocation applies.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/revocationChildName">
+      <Name>Revocation Child Name</Name>
+      <Description>Name of child for revocation.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/noticeToOtherParent">
+      <Name>Notice to Other Parent</Name>
+      <Description>Whether notice was provided to other parent.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NONCUSTODIAL PARENT INFO                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/noncustodialParentName">
+      <Name>Noncustodial Parent Name</Name>
+      <Description>Name of noncustodial parent claiming child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/noncustodialParentSSN">
+      <Name>Noncustodial Parent SSN</Name>
+      <Description>SSN of noncustodial parent.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8332IsDone">
+      <Name>Form 8332 Is Done</Name>
+      <Description>Whether Form 8332 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8332" /></Not>
+          <All>
+            <Dependency path="/hasForm8332" />
+            <IsComplete><Dependency path="/childName" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8332">
+      <Name>Include Form 8332 in PDF</Name>
+      <Description>Whether to include Form 8332 in the return.</Description>
+      <Derived>
+        <Dependency path="/hasForm8332" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

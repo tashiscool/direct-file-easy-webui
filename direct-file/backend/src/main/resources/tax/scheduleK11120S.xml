@@ -1,0 +1,124 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule K-1 (Form 1120-S): Shareholder's Share of Income -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasScheduleK11120S">
+      <Name>Has Schedule K-1 (1120-S)</Name>
+      <Description>Whether taxpayer received Schedule K-1 from S corporation.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpEIN1120S">
+      <Name>S Corporation EIN</Name>
+      <Description>Corporation's employer identification number.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorpName1120S">
+      <Name>S Corporation Name</Name>
+      <Description>Corporation's name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shareholderOwnershipPct">
+      <Name>Shareholder Ownership Percentage</Name>
+      <Description>Shareholder's ownership percentage.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <Decimal>0</Decimal>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <Decimal>100</Decimal>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryBusinessIncome1120S">
+      <Name>Ordinary Business Income</Name>
+      <Description>Ordinary business income (loss) (Box 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netRentalRealEstate1120S">
+      <Name>Net Rental Real Estate Income</Name>
+      <Description>Net rental real estate income (loss) (Box 2).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestIncome1120S">
+      <Name>Interest Income</Name>
+      <Description>Interest income (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/ordinaryDividends1120S">
+      <Name>Ordinary Dividends</Name>
+      <Description>Ordinary dividends (Box 5a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section199AIncome1120S">
+      <Name>Section 199A Income</Name>
+      <Description>Section 199A qualified business income (Box 17 Code V).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalK1Income1120S">
+      <Name>Total K-1 Income</Name>
+      <Description>Total income from Schedule K-1 (1120-S).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/ordinaryBusinessIncome1120S" />
+          <Add>
+            <Dependency path="/interestIncome1120S" />
+            <Dependency path="/ordinaryDividends1120S" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleK11120SIsDone">
+      <Name>Schedule K-1 (1120-S) Is Done</Name>
+      <Description>Whether Schedule K-1 (1120-S) is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasScheduleK11120S" /></Not>
+          <All>
+            <Dependency path="/hasScheduleK11120S" />
+            <IsComplete><Dependency path="/totalK1Income1120S" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

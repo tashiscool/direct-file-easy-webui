@@ -1,0 +1,193 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 1099-DIV: Dividends and Distributions -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- DIVIDEND INCOME                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/has1099DIV">
+      <Name>Has 1099-DIV</Name>
+      <Description>Whether taxpayer received Form 1099-DIV.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1PayerName">
+      <Name>DIV 1 Payer Name</Name>
+      <Description>Name of first payer.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1TotalDividends">
+      <Name>DIV 1 Total Dividends</Name>
+      <Description>Total ordinary dividends (Box 1a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1QualifiedDividends">
+      <Name>DIV 1 Qualified Dividends</Name>
+      <Description>Qualified dividends (Box 1b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1CapitalGainDistributions">
+      <Name>DIV 1 Capital Gain Distributions</Name>
+      <Description>Capital gain distributions (Box 2a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1Section199ADividends">
+      <Name>DIV 1 Section 199A Dividends</Name>
+      <Description>Section 199A dividends (Box 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1FederalWithholding">
+      <Name>DIV 1 Federal Withholding</Name>
+      <Description>Federal income tax withheld (Box 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div1ForeignTaxPaid">
+      <Name>DIV 1 Foreign Tax Paid</Name>
+      <Description>Foreign tax paid (Box 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Second 1099-DIV -->
+    <Fact path="/div2TotalDividends">
+      <Name>DIV 2 Total Dividends</Name>
+      <Description>Second 1099-DIV total dividends.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div2QualifiedDividends">
+      <Name>DIV 2 Qualified Dividends</Name>
+      <Description>Second 1099-DIV qualified dividends.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/div2FederalWithholding">
+      <Name>DIV 2 Federal Withholding</Name>
+      <Description>Second 1099-DIV federal withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTALS                                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalOrdinaryDividends">
+      <Name>Total Ordinary Dividends</Name>
+      <Description>Total ordinary dividends from all 1099-DIV.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/div1TotalDividends" />
+          <Dependency path="/div2TotalDividends" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalQualifiedDividends">
+      <Name>Total Qualified Dividends</Name>
+      <Description>Total qualified dividends from all 1099-DIV.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/div1QualifiedDividends" />
+          <Dependency path="/div2QualifiedDividends" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalDividendWithholding">
+      <Name>Total Dividend Withholding</Name>
+      <Description>Total federal withholding from 1099-DIV.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/div1FederalWithholding" />
+          <Dependency path="/div2FederalWithholding" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form1099DIVIsDone">
+      <Name>Form 1099-DIV Is Done</Name>
+      <Description>Whether 1099-DIV entry is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/has1099DIV" /></Not>
+          <All>
+            <Dependency path="/has1099DIV" />
+            <IsComplete><Dependency path="/totalOrdinaryDividends" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

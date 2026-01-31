@@ -1,0 +1,85 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8843: Statement for Exempt Individuals -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8843">
+      <Name>Has Form 8843</Name>
+      <Description>Whether taxpayer files exempt individual statement.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exemptType8843">
+      <Name>Exempt Individual Type</Name>
+      <Description>Type of exempt individual.</Description>
+      <Writable>
+        <Enum>
+          <Option>teacher</Option>
+          <Option>trainee</Option>
+          <Option>student</Option>
+          <Option>professionalAthlete</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/visaType8843">
+      <Name>Visa Type</Name>
+      <Description>Current visa type.</Description>
+      <Writable>
+        <Enum>
+          <Option>F</Option>
+          <Option>J</Option>
+          <Option>M</Option>
+          <Option>Q</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/countryOfCitizenship8843">
+      <Name>Country of Citizenship</Name>
+      <Description>Country of citizenship.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/daysInUS8843">
+      <Name>Days in US</Name>
+      <Description>Number of days in US during tax year.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>366</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8843IsDone">
+      <Name>Form 8843 Is Done</Name>
+      <Description>Whether Form 8843 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8843" /></Not>
+          <All>
+            <Dependency path="/hasForm8843" />
+            <IsComplete><Dependency path="/daysInUS8843" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8843">
+      <Name>Include Form 8843 in PDF</Name>
+      <Description>Whether to include Form 8843.</Description>
+      <Derived>
+        <Dependency path="/hasForm8843" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

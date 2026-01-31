@@ -1,0 +1,150 @@
+<?xml-model href="../FactDictionaryModule.rng"?>
+<!-- Maine Form 1040ME: Individual Income Tax Return -->
+<!-- Maine has progressive rates from 5.8% to 7.15% -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasME1040">
+      <Name>Has ME Form 1040ME</Name>
+      <Description>Whether taxpayer files Maine Form 1040ME.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/stateOfResidence" /></Left>
+          <Right><String>ME</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <!-- ME Standard Deduction -->
+    <Fact path="/meStdDeductionSingle">
+      <Name>ME Standard Deduction Single</Name>
+      <Description>Maine standard deduction for single ($14,600).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>14600</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meStdDeductionMFJ">
+      <Name>ME Standard Deduction MFJ</Name>
+      <Description>Maine standard deduction for MFJ ($29,200).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>29200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meStandardDeduction">
+      <Name>ME Standard Deduction</Name>
+      <Description>Maine standard deduction based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/filingStatus" /></Left>
+                <Right><String>MFJ</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/meStdDeductionMFJ" /></Then>
+          </Case>
+          <Default><Dependency path="/meStdDeductionSingle" /></Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ME Taxable Income -->
+    <Fact path="/meTaxableIncome">
+      <Name>ME Taxable Income</Name>
+      <Description>Maine taxable income.</Description>
+      <Derived>
+        <Max>
+          <Subtract>
+            <Dependency path="/adjustedGrossIncome" />
+            <Dependency path="/meStandardDeduction" />
+          </Subtract>
+          <Dollar>0</Dollar>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ME Income Tax (progressive) -->
+    <Fact path="/meIncomeTax">
+      <Name>ME Income Tax</Name>
+      <Description>Maine income tax.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/meTaxableIncome" /></Left>
+                <Right><Dollar>26050</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/meTaxableIncome" />
+                <Decimal>0.058</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/meTaxableIncome" /></Left>
+                <Right><Dollar>61600</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Add>
+                <Dollar>1511</Dollar>
+                <Multiply>
+                  <Subtract>
+                    <Dependency path="/meTaxableIncome" />
+                    <Dollar>26050</Dollar>
+                  </Subtract>
+                  <Decimal>0.0675</Decimal>
+                </Multiply>
+              </Add>
+            </Then>
+          </Case>
+          <Default>
+            <Add>
+              <Dollar>3910</Dollar>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/meTaxableIncome" />
+                  <Dollar>61600</Dollar>
+                </Subtract>
+                <Decimal>0.0715</Decimal>
+              </Multiply>
+            </Add>
+          </Default>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/me1040IsDone">
+      <Name>ME Form 1040ME Is Done</Name>
+      <Description>Whether ME Form 1040ME is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasME1040" /></Not>
+          <All>
+            <Dependency path="/hasME1040" />
+            <IsComplete><Dependency path="/meIncomeTax" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeME1040">
+      <Name>Include ME Form 1040ME in PDF</Name>
+      <Description>Whether to include ME Form 1040ME.</Description>
+      <Derived>
+        <Dependency path="/hasME1040" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

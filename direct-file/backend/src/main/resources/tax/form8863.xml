@@ -1,0 +1,484 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8863: Education Credits (American Opportunity and Lifetime Learning Credits) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: AMERICAN OPPORTUNITY CREDIT         -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsAmericanOpportunityCredit">
+      <Name>Claims American Opportunity Credit</Name>
+      <Description>Whether taxpayer claims American Opportunity Credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfStudentsAOC">
+      <Name>Number of Students - AOC</Name>
+      <Description>Number of students for American Opportunity Credit.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedExpensesStudent1">
+      <Name>Qualified Expenses - Student 1</Name>
+      <Description>Qualified expenses for student 1 (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedExpensesStudent2">
+      <Name>Qualified Expenses - Student 2</Name>
+      <Description>Qualified expenses for student 2 (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedExpensesStudent3">
+      <Name>Qualified Expenses - Student 3</Name>
+      <Description>Qualified expenses for student 3 (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/aocMaxExpenses">
+      <Name>AOC Maximum Expenses</Name>
+      <Description>Maximum qualifying expenses per student ($4,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocMaxCredit">
+      <Name>AOC Maximum Credit</Name>
+      <Description>Maximum credit per student ($2,500).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocCreditPerStudent1">
+      <Name>AOC Credit - Student 1</Name>
+      <Description>American Opportunity Credit for student 1.</Description>
+      <Derived>
+        <Add>
+          <Min>
+            <Dependency path="/qualifiedExpensesStudent1" />
+            <Dollar>2000</Dollar>
+          </Min>
+          <Multiply>
+            <Max>
+              <Dollar>0</Dollar>
+              <Min>
+                <Subtract>
+                  <Dependency path="/qualifiedExpensesStudent1" />
+                  <Dollar>2000</Dollar>
+                </Subtract>
+                <Dollar>2000</Dollar>
+              </Min>
+            </Max>
+            <Decimal>0.25</Decimal>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocCreditPerStudent2">
+      <Name>AOC Credit - Student 2</Name>
+      <Description>American Opportunity Credit for student 2.</Description>
+      <Derived>
+        <Add>
+          <Min>
+            <Dependency path="/qualifiedExpensesStudent2" />
+            <Dollar>2000</Dollar>
+          </Min>
+          <Multiply>
+            <Max>
+              <Dollar>0</Dollar>
+              <Min>
+                <Subtract>
+                  <Dependency path="/qualifiedExpensesStudent2" />
+                  <Dollar>2000</Dollar>
+                </Subtract>
+                <Dollar>2000</Dollar>
+              </Min>
+            </Max>
+            <Decimal>0.25</Decimal>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocCreditPerStudent3">
+      <Name>AOC Credit - Student 3</Name>
+      <Description>American Opportunity Credit for student 3.</Description>
+      <Derived>
+        <Add>
+          <Min>
+            <Dependency path="/qualifiedExpensesStudent3" />
+            <Dollar>2000</Dollar>
+          </Min>
+          <Multiply>
+            <Max>
+              <Dollar>0</Dollar>
+              <Min>
+                <Subtract>
+                  <Dependency path="/qualifiedExpensesStudent3" />
+                  <Dollar>2000</Dollar>
+                </Subtract>
+                <Dollar>2000</Dollar>
+              </Min>
+            </Max>
+            <Decimal>0.25</Decimal>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAOCBeforePhaseout">
+      <Name>Total AOC Before Phaseout</Name>
+      <Description>Total American Opportunity Credit before phaseout (Line 7).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/aocCreditPerStudent1" />
+            <Dependency path="/aocCreditPerStudent2" />
+          </Add>
+          <Dependency path="/aocCreditPerStudent3" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: LIFETIME LEARNING CREDIT           -->
+    <!-- ============================================ -->
+
+    <Fact path="/claimsLifetimeLearningCredit">
+      <Name>Claims Lifetime Learning Credit</Name>
+      <Description>Whether taxpayer claims Lifetime Learning Credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcQualifiedExpenses">
+      <Name>LLC Qualified Expenses</Name>
+      <Description>Qualified expenses for Lifetime Learning Credit (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/llcMaxExpenses">
+      <Name>LLC Maximum Expenses</Name>
+      <Description>Maximum qualifying expenses for LLC ($10,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcCreditRate">
+      <Name>LLC Credit Rate</Name>
+      <Description>Lifetime Learning Credit rate (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcMaxCredit">
+      <Name>LLC Maximum Credit</Name>
+      <Description>Maximum Lifetime Learning Credit ($2,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcBeforePhaseout">
+      <Name>LLC Before Phaseout</Name>
+      <Description>Lifetime Learning Credit before phaseout (Line 13).</Description>
+      <Derived>
+        <Min>
+          <Multiply>
+            <Min>
+              <Dependency path="/llcQualifiedExpenses" />
+              <Dependency path="/llcMaxExpenses" />
+            </Min>
+            <Dependency path="/llcCreditRate" />
+          </Multiply>
+          <Dependency path="/llcMaxCredit" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: PHASEOUT CALCULATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/aocPhaseoutStartSingle">
+      <Name>AOC Phaseout Start - Single</Name>
+      <Description>AOC phaseout begins at this MAGI for single filers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>80000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocPhaseoutEndSingle">
+      <Name>AOC Phaseout End - Single</Name>
+      <Description>AOC phaseout ends at this MAGI for single filers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>90000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocPhaseoutStartMFJ">
+      <Name>AOC Phaseout Start - MFJ</Name>
+      <Description>AOC phaseout begins at this MAGI for MFJ.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>160000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocPhaseoutEndMFJ">
+      <Name>AOC Phaseout End - MFJ</Name>
+      <Description>AOC phaseout ends at this MAGI for MFJ.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>180000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutStartSingle">
+      <Name>LLC Phaseout Start - Single</Name>
+      <Description>LLC phaseout begins at this MAGI for single filers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>80000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutEndSingle">
+      <Name>LLC Phaseout End - Single</Name>
+      <Description>LLC phaseout ends at this MAGI for single filers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>90000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/magiForEducationCredits">
+      <Name>MAGI for Education Credits</Name>
+      <Description>Modified AGI for education credit phaseout (Line 14).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocPhaseoutPercentage">
+      <Name>AOC Phaseout Percentage</Name>
+      <Description>Percentage of AOC allowed after phaseout.</Description>
+      <Derived>
+        <Max>
+          <Decimal>0</Decimal>
+          <Min>
+            <Decimal>1</Decimal>
+            <Divide>
+              <Subtract>
+                <Dependency path="/aocPhaseoutEndSingle" />
+                <Dependency path="/magiForEducationCredits" />
+              </Subtract>
+              <Subtract>
+                <Dependency path="/aocPhaseoutEndSingle" />
+                <Dependency path="/aocPhaseoutStartSingle" />
+              </Subtract>
+            </Divide>
+          </Min>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocAfterPhaseout">
+      <Name>AOC After Phaseout</Name>
+      <Description>American Opportunity Credit after phaseout (Line 18).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/totalAOCBeforePhaseout" />
+          <Dependency path="/aocPhaseoutPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcPhaseoutPercentage">
+      <Name>LLC Phaseout Percentage</Name>
+      <Description>Percentage of LLC allowed after phaseout.</Description>
+      <Derived>
+        <Max>
+          <Decimal>0</Decimal>
+          <Min>
+            <Decimal>1</Decimal>
+            <Divide>
+              <Subtract>
+                <Dependency path="/llcPhaseoutEndSingle" />
+                <Dependency path="/magiForEducationCredits" />
+              </Subtract>
+              <Subtract>
+                <Dependency path="/llcPhaseoutEndSingle" />
+                <Dependency path="/llcPhaseoutStartSingle" />
+              </Subtract>
+            </Divide>
+          </Min>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/llcAfterPhaseout">
+      <Name>LLC After Phaseout</Name>
+      <Description>Lifetime Learning Credit after phaseout (Line 19).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/llcBeforePhaseout" />
+          <Dependency path="/llcPhaseoutPercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REFUNDABLE PORTION OF AOC                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/aocRefundablePercentage">
+      <Name>AOC Refundable Percentage</Name>
+      <Description>Percentage of AOC that is refundable (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocNonrefundablePortion">
+      <Name>AOC Nonrefundable Portion</Name>
+      <Description>Nonrefundable portion of AOC (60%).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/aocAfterPhaseout" />
+          <Decimal>0.60</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/aocRefundablePortion">
+      <Name>AOC Refundable Portion</Name>
+      <Description>Refundable portion of AOC (40%, up to $1,000).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/aocAfterPhaseout" />
+          <Dependency path="/aocRefundablePercentage" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TOTAL EDUCATION CREDITS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalNonrefundableEducationCredits">
+      <Name>Total Nonrefundable Education Credits</Name>
+      <Description>Total nonrefundable education credits (Line 19).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/aocNonrefundablePortion" />
+          <Dependency path="/llcAfterPhaseout" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalRefundableEducationCredits">
+      <Name>Total Refundable Education Credits</Name>
+      <Description>Total refundable education credits.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/aocRefundablePortion" />
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8863IsDone">
+      <Name>Form 8863 Is Done</Name>
+      <Description>Whether Form 8863 is complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Not><Dependency path="/claimsAmericanOpportunityCredit" /></Not>
+            <Not><Dependency path="/claimsLifetimeLearningCredit" /></Not>
+          </All>
+          <All>
+            <Any>
+              <Dependency path="/claimsAmericanOpportunityCredit" />
+              <Dependency path="/claimsLifetimeLearningCredit" />
+            </Any>
+            <IsComplete><Dependency path="/totalNonrefundableEducationCredits" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8863">
+      <Name>Include Form 8863 in PDF</Name>
+      <Description>Whether to include Form 8863 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Add>
+              <Dependency path="/totalNonrefundableEducationCredits" />
+              <Dependency path="/totalRefundableEducationCredits" />
+            </Add>
+          </Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

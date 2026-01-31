@@ -1,0 +1,677 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule D: Capital Gains and Losses -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- CAPITAL GAINS/LOSSES OVERVIEW               -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasCapitalGainsOrLosses">
+      <Name>Has Capital Gains or Losses</Name>
+      <Description>Whether the taxpayer has capital gains or losses to report.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/soldStocksOrBonds">
+      <Name>Sold Stocks or Bonds</Name>
+      <Description>Whether the taxpayer sold stocks, bonds, or other securities.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/soldRealEstate">
+      <Name>Sold Real Estate</Name>
+      <Description>Whether the taxpayer sold real estate (other than main home).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/soldCrypto">
+      <Name>Sold Cryptocurrency</Name>
+      <Description>Whether the taxpayer sold, exchanged, or disposed of cryptocurrency.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SHORT-TERM CAPITAL GAINS (Part I)           -->
+    <!-- Held 1 year or less                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/shortTermGainsBasisReported">
+      <Name>Short-Term Gains - Basis Reported</Name>
+      <Description>Short-term gains/losses from Form 8949 Part I with basis reported to IRS (Box A).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainsBasisNotReported">
+      <Name>Short-Term Gains - Basis Not Reported</Name>
+      <Description>Short-term gains/losses from Form 8949 Part I with basis not reported to IRS (Box B).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainsNotOn8949">
+      <Name>Short-Term Gains - Not on 8949</Name>
+      <Description>Short-term gains/losses not reported on Form 8949 (Box C).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermGainFromK1">
+      <Name>Short-Term Gain from K-1</Name>
+      <Description>Short-term capital gain or loss from partnerships, S corps, estates, and trusts.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/shortTermCarryover">
+      <Name>Short-Term Capital Loss Carryover</Name>
+      <Description>Short-term capital loss carryover from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netShortTermGainOrLoss">
+      <Name>Net Short-Term Capital Gain or Loss</Name>
+      <Description>Net short-term capital gain or loss. Schedule D Line 7.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Add>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/shortTermGainsBasisReported" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/shortTermGainsBasisReported" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/shortTermGainsBasisNotReported" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/shortTermGainsBasisNotReported" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/shortTermGainsNotOn8949" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/shortTermGainsNotOn8949" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/shortTermGainFromK1" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/shortTermGainFromK1" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/shortTermCarryover" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/shortTermCarryover" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LONG-TERM CAPITAL GAINS (Part II)           -->
+    <!-- Held more than 1 year                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/longTermGainsBasisReported">
+      <Name>Long-Term Gains - Basis Reported</Name>
+      <Description>Long-term gains/losses from Form 8949 Part II with basis reported to IRS (Box D).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainsBasisNotReported">
+      <Name>Long-Term Gains - Basis Not Reported</Name>
+      <Description>Long-term gains/losses from Form 8949 Part II with basis not reported to IRS (Box E).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainsNotOn8949">
+      <Name>Long-Term Gains - Not on 8949</Name>
+      <Description>Long-term gains/losses not reported on Form 8949 (Box F).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermGainFromK1">
+      <Name>Long-Term Gain from K-1</Name>
+      <Description>Long-term capital gain or loss from partnerships, S corps, estates, and trusts.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/longTermCarryover">
+      <Name>Long-Term Capital Loss Carryover</Name>
+      <Description>Long-term capital loss carryover from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Max" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netLongTermGainOrLoss">
+      <Name>Net Long-Term Capital Gain or Loss</Name>
+      <Description>Net long-term capital gain or loss. Schedule D Line 15.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Round>
+          <Add>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/longTermGainsBasisReported" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/longTermGainsBasisReported" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/longTermGainsBasisNotReported" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/longTermGainsBasisNotReported" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/longTermGainsNotOn8949" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/longTermGainsNotOn8949" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/longTermGainFromK1" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/longTermGainFromK1" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/longTermCarryover" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/longTermCarryover" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <!-- Capital gain distributions from mutual funds -->
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency module="scheduleB" path="/capitalGainDistributions" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency module="scheduleB" path="/capitalGainDistributions" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUMMARY (Part III)                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/netCapitalGainOrLoss">
+      <Name>Net Capital Gain or Loss</Name>
+      <Description>Combined net short-term and long-term capital gain or loss. Schedule D Line 16.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Dependency path="/netShortTermGainOrLoss" />
+          <Dependency path="/netLongTermGainOrLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/capitalLossDeductionLimit">
+      <Name>Capital Loss Deduction Limit</Name>
+      <Description>Maximum capital loss that can be deducted against ordinary income ($3,000 or $1,500 for MFS).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>1500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>3000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleCapitalLoss">
+      <Name>Deductible Capital Loss</Name>
+      <Description>Amount of capital loss deductible against ordinary income (limited to $3,000).</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/netCapitalGainOrLoss" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/netCapitalGainOrLoss" />
+                <Multiply>
+                  <Dependency path="/capitalLossDeductionLimit" />
+                  <Int>-1</Int>
+                </Multiply>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/capitalLossCarryforward">
+      <Name>Capital Loss Carryforward</Name>
+      <Description>Capital loss to carry forward to next year.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Add>
+                    <Dependency path="/netCapitalGainOrLoss" />
+                    <Dependency path="/capitalLossDeductionLimit" />
+                  </Add>
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/netCapitalGainOrLoss" />
+                <Dependency path="/capitalLossDeductionLimit" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableCapitalGain">
+      <Name>Taxable Capital Gain</Name>
+      <Description>Capital gain to include in taxable income.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/netCapitalGainOrLoss" />
+          <Dependency path="/deductibleCapitalLoss" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CAPITAL GAINS TAX RATES                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/longTermCapitalGainsTaxRate0Threshold">
+      <Name>Long-Term Capital Gains 0% Rate Threshold</Name>
+      <Description>Taxable income threshold for 0% long-term capital gains rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>96700</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>64750</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>48350</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/longTermCapitalGainsTaxRate15Threshold">
+      <Name>Long-Term Capital Gains 15% Rate Threshold</Name>
+      <Description>Taxable income threshold for 15% long-term capital gains rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>600050</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>566700</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>533400</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasQualifiedCapitalGains">
+      <Name>Has Qualified Capital Gains</Name>
+      <Description>Whether the taxpayer has qualified dividends or long-term capital gains eligible for preferential rates.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/netLongTermGainOrLoss" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="scheduleB" path="/totalQualifiedDividends" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleDIsDone">
+      <Name>Schedule D Is Done</Name>
+      <Description>Whether the capital gains section has been completed.</Description>
+      <Derived>
+        <Any>
+          <!-- User has no capital gains/losses -->
+          <Not>
+            <Dependency path="/hasCapitalGainsOrLosses" />
+          </Not>
+          <!-- User has capital gains and entered amounts -->
+          <All>
+            <Dependency path="/hasCapitalGainsOrLosses" />
+            <Any>
+              <IsComplete>
+                <Dependency path="/shortTermGainsBasisReported" />
+              </IsComplete>
+              <IsComplete>
+                <Dependency path="/longTermGainsBasisReported" />
+              </IsComplete>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleD">
+      <Name>Include Schedule D in PDF</Name>
+      <Description>Whether to include Schedule D in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Dependency path="/hasCapitalGainsOrLosses" />
+          <Any>
+            <Not>
+              <Equal>
+                <Left>
+                  <Dependency path="/netCapitalGainOrLoss" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </Not>
+            <IsComplete>
+              <Dependency path="/shortTermCarryover" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/longTermCarryover" />
+            </IsComplete>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

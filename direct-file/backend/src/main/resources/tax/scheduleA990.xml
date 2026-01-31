@@ -1,0 +1,403 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule A (Form 990): Public Charity Status and Public Support -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: PUBLIC CHARITY STATUS               -->
+    <!-- ============================================ -->
+
+    <Fact path="/publicCharityType">
+      <Name>Public Charity Type</Name>
+      <Description>Type of public charity under section 509(a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Enum>
+          <Option value="509A1_170B1AVI">509(a)(1) and 170(b)(1)(A)(vi)</Option>
+          <Option value="509A1_170B1AII">509(a)(1) and 170(b)(1)(A)(ii)</Option>
+          <Option value="509A1_170B1AIII">509(a)(1) and 170(b)(1)(A)(iii)</Option>
+          <Option value="509A1_170B1AIV">509(a)(1) and 170(b)(1)(A)(iv)</Option>
+          <Option value="509A2">509(a)(2)</Option>
+          <Option value="509A3">509(a)(3) Supporting Organization</Option>
+          <Option value="509A4">509(a)(4) Testing for Public Safety</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/is509a3Type">
+      <Name>509(a)(3) Type</Name>
+      <Description>Type of 509(a)(3) supporting organization (I, II, or III).</Description>
+      <Writable>
+        <Enum>
+          <Option value="TYPE_I">Type I</Option>
+          <Option value="TYPE_II">Type II</Option>
+          <Option value="TYPE_III_FUNC">Type III Functionally Integrated</Option>
+          <Option value="TYPE_III_NON_FUNC">Type III Non-Functionally Integrated</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: PUBLIC SUPPORT (5-YEAR TEST)       -->
+    <!-- ============================================ -->
+
+    <Fact path="/giftsGrantsYear1">
+      <Name>Gifts/Grants - Year 1</Name>
+      <Description>Gifts, grants, contributions - Year 1 (Line 1, Col a).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/giftsGrantsYear2">
+      <Name>Gifts/Grants - Year 2</Name>
+      <Description>Gifts, grants, contributions - Year 2 (Line 1, Col b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/giftsGrantsYear3">
+      <Name>Gifts/Grants - Year 3</Name>
+      <Description>Gifts, grants, contributions - Year 3 (Line 1, Col c).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/giftsGrantsYear4">
+      <Name>Gifts/Grants - Year 4</Name>
+      <Description>Gifts, grants, contributions - Year 4 (Line 1, Col d).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/giftsGrantsYear5">
+      <Name>Gifts/Grants - Year 5</Name>
+      <Description>Gifts, grants, contributions - Current Year (Line 1, Col e).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGiftsGrants5Year">
+      <Name>Total Gifts/Grants - 5 Years</Name>
+      <Description>Total gifts, grants, contributions over 5 years.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/giftsGrantsYear1" />
+              <Dependency path="/giftsGrantsYear2" />
+            </Add>
+            <Dependency path="/giftsGrantsYear3" />
+          </Add>
+          <Add>
+            <Dependency path="/giftsGrantsYear4" />
+            <Dependency path="/giftsGrantsYear5" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxRevenueLeviedYear5">
+      <Name>Tax Revenue Levied - 5 Years</Name>
+      <Description>Tax revenues levied for organization's benefit (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/govtServicesValue5Year">
+      <Name>Government Services Value - 5 Years</Name>
+      <Description>Value of services/facilities furnished by government (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalPublicSupport">
+      <Name>Total Public Support</Name>
+      <Description>Total public support (Line 4).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalGiftsGrants5Year" />
+            <Dependency path="/taxRevenueLeviedYear5" />
+          </Add>
+          <Dependency path="/govtServicesValue5Year" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: TOTAL SUPPORT CALCULATION          -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossInvestmentIncome5Year">
+      <Name>Gross Investment Income - 5 Years</Name>
+      <Description>Gross investment income over 5 years (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netUBIT5Year">
+      <Name>Net UBIT - 5 Years</Name>
+      <Description>Net unrelated business taxable income over 5 years (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherIncome5Year">
+      <Name>Other Income - 5 Years</Name>
+      <Description>Other income over 5 years (Line 7).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalSupport">
+      <Name>Total Support</Name>
+      <Description>Total support (Line 8).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/totalPublicSupport" />
+            <Dependency path="/grossInvestmentIncome5Year" />
+          </Add>
+          <Add>
+            <Dependency path="/netUBIT5Year" />
+            <Dependency path="/otherIncome5Year" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PUBLIC SUPPORT PERCENTAGE                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/publicSupportPercentage">
+      <Name>Public Support Percentage</Name>
+      <Description>Public support percentage (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/totalSupport" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Divide>
+                  <Dependency path="/totalPublicSupport" />
+                  <Dependency path="/totalSupport" />
+                </Divide>
+                <Decimal>100</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Decimal>0</Decimal></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/publicSupportThreshold">
+      <Name>Public Support Threshold</Name>
+      <Description>Required public support percentage (33 1/3%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>33.33</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsPublicSupportTest">
+      <Name>Meets Public Support Test</Name>
+      <Description>Whether organization meets public support test.</Description>
+      <Export mef="true" />
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency path="/publicSupportPercentage" /></Left>
+          <Right><Dependency path="/publicSupportThreshold" /></Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FACTS AND CIRCUMSTANCES TEST                -->
+    <!-- ============================================ -->
+
+    <Fact path="/usesFactsAndCircumstancesTest">
+      <Name>Uses Facts and Circumstances Test</Name>
+      <Description>Whether organization uses facts and circumstances test.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/factsAndCircumstancesThreshold">
+      <Name>Facts and Circumstances Threshold</Name>
+      <Description>Minimum for facts and circumstances test (10%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>10</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiesForFactsCircumstances">
+      <Name>Qualifies for Facts and Circumstances</Name>
+      <Description>Whether organization qualifies for facts and circumstances test.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/usesFactsAndCircumstancesTest" />
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/publicSupportPercentage" /></Left>
+            <Right><Dependency path="/factsAndCircumstancesThreshold" /></Right>
+          </GreaterThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: 509(a)(2) SUPPORT TEST            -->
+    <!-- ============================================ -->
+
+    <Fact path="/grossReceipts5Year">
+      <Name>Gross Receipts - 5 Years</Name>
+      <Description>Gross receipts from admissions, merchandise, etc. (Line 1).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxExemptOrgsGrossReceipts">
+      <Name>Gross Receipts from Tax-Exempt Orgs</Name>
+      <Description>Gross receipts from disqualified persons (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossReceiptsFromExemptActivities">
+      <Name>Gross Receipts from Exempt Activities</Name>
+      <Description>Gross receipts from activities related to exempt function (Line 4).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/grossReceipts5Year" />
+          <Dependency path="/taxExemptOrgsGrossReceipts" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/grossReceiptsPercentage">
+      <Name>Gross Receipts Percentage</Name>
+      <Description>Gross receipts percentage of total support.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/totalSupport" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Divide>
+                  <Dependency path="/grossReceiptsFromExemptActivities" />
+                  <Dependency path="/totalSupport" />
+                </Divide>
+                <Decimal>100</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Decimal>0</Decimal></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleA990IsDone">
+      <Name>Schedule A Is Done</Name>
+      <Description>Whether Schedule A is complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/publicCharityType" /></IsComplete>
+          <Any>
+            <Dependency path="/meetsPublicSupportTest" />
+            <Dependency path="/qualifiesForFactsCircumstances" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleA990">
+      <Name>Include Schedule A in PDF</Name>
+      <Description>Whether to include Schedule A in the tax return PDF.</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

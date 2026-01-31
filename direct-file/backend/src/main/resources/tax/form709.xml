@@ -1,0 +1,296 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 709: United States Gift (and Generation-Skipping Transfer) Tax Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- GIFT TAX RETURN INFORMATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasGiftTaxReturn">
+      <Name>Has Gift Tax Return</Name>
+      <Description>Whether gift tax return is required.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/giftTaxYear">
+      <Name>Gift Tax Year</Name>
+      <Description>Calendar year for which return is filed.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART 1: GENERAL INFORMATION                 -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfDonees">
+      <Name>Number of Donees</Name>
+      <Description>Number of gift recipients.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseConsentToSplitGifts">
+      <Name>Spouse Consent to Split Gifts</Name>
+      <Description>Whether spouse consents to gift splitting.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ANNUAL EXCLUSION                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/annualExclusion2025">
+      <Name>Annual Exclusion 2025</Name>
+      <Description>Annual gift tax exclusion per donee ($19,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>19000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/annualExclusionSpouses2025">
+      <Name>Annual Exclusion Spouses 2025</Name>
+      <Description>Annual exclusion with gift splitting ($38,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>38000</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SCHEDULE A: TAXABLE GIFTS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/gift1DoneeName">
+      <Name>Gift 1 Donee Name</Name>
+      <Description>Name of first donee.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/gift1Value">
+      <Name>Gift 1 Value</Name>
+      <Description>Fair market value of gift to first donee.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gift1AnnualExclusion">
+      <Name>Gift 1 Annual Exclusion</Name>
+      <Description>Annual exclusion applied to gift 1.</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/gift1Value" />
+          <Dependency path="/annualExclusion2025" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gift2Value">
+      <Name>Gift 2 Value</Name>
+      <Description>Fair market value of gift to second donee.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gift3Value">
+      <Name>Gift 3 Value</Name>
+      <Description>Fair market value of gift to third donee.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGiftsValue">
+      <Name>Total Gifts Value</Name>
+      <Description>Total value of all gifts.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/gift1Value" />
+            <Dependency path="/gift2Value" />
+          </Add>
+          <Dependency path="/gift3Value" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAnnualExclusions">
+      <Name>Total Annual Exclusions</Name>
+      <Description>Total annual exclusions applied.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableGifts">
+      <Name>Taxable Gifts</Name>
+      <Description>Total taxable gifts (after exclusions).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/totalGiftsValue" />
+            <Dependency path="/totalAnnualExclusions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- LIFETIME EXEMPTION                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/lifetimeGiftExemption2025">
+      <Name>Lifetime Gift Exemption 2025</Name>
+      <Description>Lifetime gift tax exemption ($13,990,000 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>13990000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/priorTaxableGifts">
+      <Name>Prior Taxable Gifts</Name>
+      <Description>Taxable gifts from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/cumulativeTaxableGifts">
+      <Name>Cumulative Taxable Gifts</Name>
+      <Description>Total cumulative taxable gifts.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/taxableGifts" />
+          <Dependency path="/priorTaxableGifts" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/remainingLifetimeExemption">
+      <Name>Remaining Lifetime Exemption</Name>
+      <Description>Remaining lifetime exemption amount.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/lifetimeGiftExemption2025" />
+            <Dependency path="/cumulativeTaxableGifts" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAX COMPUTATION                             -->
+    <!-- ============================================ -->
+
+    <Fact path="/giftTaxRate">
+      <Name>Gift Tax Rate</Name>
+      <Description>Maximum gift tax rate (40%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.40</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/giftTaxDue">
+      <Name>Gift Tax Due</Name>
+      <Description>Gift tax due (after applying exemption).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/cumulativeTaxableGifts" /></Left>
+                <Right><Dependency path="/lifetimeGiftExemption2025" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/cumulativeTaxableGifts" />
+                  <Dependency path="/lifetimeGiftExemption2025" />
+                </Subtract>
+                <Dependency path="/giftTaxRate" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form709IsDone">
+      <Name>Form 709 Is Done</Name>
+      <Description>Whether Form 709 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasGiftTaxReturn" /></Not>
+          <All>
+            <Dependency path="/hasGiftTaxReturn" />
+            <IsComplete><Dependency path="/taxableGifts" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm709">
+      <Name>Include Form 709 in PDF</Name>
+      <Description>Whether to include Form 709 in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/taxableGifts" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,80 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8932: Credit for Employer Differential Wage Payments -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8932">
+      <Name>Has Form 8932</Name>
+      <Description>Whether taxpayer claims differential wage payment credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/differentialWagePaid">
+      <Name>Differential Wage Payments</Name>
+      <Description>Differential wage payments to employees on military duty.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxDifferentialPerEmployee">
+      <Name>Max Differential Per Employee</Name>
+      <Description>Maximum qualified payments per employee ($20,000).</Description>
+      <Derived>
+        <Dollar>20000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/differentialWageCreditRate">
+      <Name>Credit Rate</Name>
+      <Description>Credit rate (20%).</Description>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/differentialWageCredit">
+      <Name>Differential Wage Credit</Name>
+      <Description>Credit for employer differential wage payments.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/differentialWagePaid" />
+          <Dependency path="/differentialWageCreditRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8932IsDone">
+      <Name>Form 8932 Is Done</Name>
+      <Description>Whether Form 8932 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8932" /></Not>
+          <All>
+            <Dependency path="/hasForm8932" />
+            <IsComplete><Dependency path="/differentialWageCredit" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8932">
+      <Name>Include Form 8932 in PDF</Name>
+      <Description>Whether to include Form 8932.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/differentialWageCredit" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

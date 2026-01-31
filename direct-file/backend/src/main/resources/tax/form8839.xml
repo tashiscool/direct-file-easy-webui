@@ -1,0 +1,180 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8839: Qualified Adoption Expenses -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8839">
+      <Name>Has Form 8839</Name>
+      <Description>Whether taxpayer claims adoption expenses credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/childName8839">
+      <Name>Child Name</Name>
+      <Description>Name of adopted child.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/childSSN8839">
+      <Name>Child SSN</Name>
+      <Description>Adopted child's SSN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isSpecialNeedsChild">
+      <Name>Is Special Needs Child</Name>
+      <Description>Whether child is a special needs child.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isForeignAdoption">
+      <Name>Is Foreign Adoption</Name>
+      <Description>Whether this is a foreign adoption.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedAdoptionExpenses">
+      <Name>Qualified Adoption Expenses</Name>
+      <Description>Qualified adoption expenses paid (Line 1).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxAdoptionCredit">
+      <Name>Maximum Adoption Credit</Name>
+      <Description>Maximum adoption credit per child ($16,810 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>16810</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditBeforeLimit">
+      <Name>Adoption Credit Before Limit</Name>
+      <Description>Credit before income limitation (Line 3).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/isSpecialNeedsChild" /></When>
+            <Then><Dependency path="/maxAdoptionCredit" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Min>
+                <Dependency path="/qualifiedAdoptionExpenses" />
+                <Dependency path="/maxAdoptionCredit" />
+              </Min>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/modifiedAGI8839">
+      <Name>Modified AGI</Name>
+      <Description>Modified AGI for adoption credit.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adoptionPhaseoutThreshold">
+      <Name>Adoption Phaseout Threshold</Name>
+      <Description>Income threshold for phaseout ($252,150 for 2025).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>252150</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionPhaseoutRange">
+      <Name>Adoption Phaseout Range</Name>
+      <Description>Phaseout range ($40,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>40000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditPhaseoutPct">
+      <Name>Adoption Credit Phaseout Percentage</Name>
+      <Description>Percentage of credit after phaseout.</Description>
+      <Derived>
+        <Max>
+          <Decimal>0</Decimal>
+          <Subtract>
+            <Decimal>1</Decimal>
+            <Divide>
+              <Max>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Dependency path="/modifiedAGI8839" />
+                  <Dependency path="/adoptionPhaseoutThreshold" />
+                </Subtract>
+              </Max>
+              <Dependency path="/adoptionPhaseoutRange" />
+            </Divide>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adoptionCreditAmount">
+      <Name>Adoption Credit Amount</Name>
+      <Description>Adoption credit after income limitation.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/adoptionCreditBeforeLimit" />
+          <Dependency path="/adoptionCreditPhaseoutPct" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8839IsDone">
+      <Name>Form 8839 Is Done</Name>
+      <Description>Whether Form 8839 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8839" /></Not>
+          <All>
+            <Dependency path="/hasForm8839" />
+            <IsComplete><Dependency path="/adoptionCreditAmount" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8839">
+      <Name>Include Form 8839 in PDF</Name>
+      <Description>Whether to include Form 8839.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/adoptionCreditAmount" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

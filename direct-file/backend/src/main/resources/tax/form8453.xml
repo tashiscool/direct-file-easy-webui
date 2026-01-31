@@ -1,0 +1,219 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8453: U.S. Individual Income Tax Transmittal for an IRS e-file Return -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- E-FILE TRANSMITTAL                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasEFileTransmittal">
+      <Name>Has E-File Transmittal</Name>
+      <Description>Whether Form 8453 is needed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- TAXPAYER INFORMATION                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxpayerName8453">
+      <Name>Taxpayer Name</Name>
+      <Description>Taxpayer name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerSSN8453">
+      <Name>Taxpayer SSN</Name>
+      <Description>Taxpayer SSN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseName8453">
+      <Name>Spouse Name</Name>
+      <Description>Spouse name if MFJ.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseSSN8453">
+      <Name>Spouse SSN</Name>
+      <Description>Spouse SSN if MFJ.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: TAX RETURN INFORMATION              -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxYear8453">
+      <Name>Tax Year</Name>
+      <Description>Tax year of return being transmitted.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedGrossIncome8453">
+      <Name>Adjusted Gross Income</Name>
+      <Description>AGI from Form 1040 (Line 1).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalTax8453">
+      <Name>Total Tax</Name>
+      <Description>Total tax from Form 1040 (Line 2).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalIncomeTaxWithheld8453">
+      <Name>Federal Income Tax Withheld</Name>
+      <Description>Federal income tax withheld (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundAmount8453">
+      <Name>Refund Amount</Name>
+      <Description>Refund amount (Line 4).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amountOwed8453">
+      <Name>Amount Owed</Name>
+      <Description>Amount owed (Line 5).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: ATTACHED STATEMENTS                -->
+    <!-- ============================================ -->
+
+    <Fact path="/attachForm1098C">
+      <Name>Attach Form 1098-C</Name>
+      <Description>Form 1098-C attached (Line 6a).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/attachForm3115">
+      <Name>Attach Form 3115</Name>
+      <Description>Form 3115 attached (Line 6b).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/attachForm8283">
+      <Name>Attach Form 8283</Name>
+      <Description>Form 8283 attached (Line 6c).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/attachForm8332">
+      <Name>Attach Form 8332</Name>
+      <Description>Form 8332 attached (Line 6d).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/attachForm8885">
+      <Name>Attach Form 8885</Name>
+      <Description>Form 8885 attached (Line 6e).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: DECLARATION                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/eroName">
+      <Name>ERO Name</Name>
+      <Description>Electronic Return Originator name.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eroEFIN">
+      <Name>ERO EFIN</Name>
+      <Description>ERO's EFIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eroPIN">
+      <Name>ERO PIN</Name>
+      <Description>ERO's PIN.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8453IsDone">
+      <Name>Form 8453 Is Done</Name>
+      <Description>Whether Form 8453 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasEFileTransmittal" /></Not>
+          <All>
+            <Dependency path="/hasEFileTransmittal" />
+            <IsComplete><Dependency path="/taxpayerName8453" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8453">
+      <Name>Include Form 8453 in PDF</Name>
+      <Description>Whether to include Form 8453 in output.</Description>
+      <Derived>
+        <Dependency path="/hasEFileTransmittal" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

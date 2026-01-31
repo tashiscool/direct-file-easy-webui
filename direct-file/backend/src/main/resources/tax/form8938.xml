@@ -1,0 +1,423 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8938: Statement of Specified Foreign Financial Assets (FATCA) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- FILING REQUIREMENTS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasSpecifiedForeignAssets">
+      <Name>Has Specified Foreign Assets</Name>
+      <Description>Whether taxpayer has specified foreign financial assets.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8938FilingThresholdSingle">
+      <Name>Filing Threshold - Single</Name>
+      <Description>Filing threshold for single/MFS taxpayers ($50,000 year-end, $75,000 anytime).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>50000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8938FilingThresholdMFJ">
+      <Name>Filing Threshold - MFJ</Name>
+      <Description>Filing threshold for MFJ taxpayers ($100,000 year-end, $150,000 anytime).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8938FilingThresholdForeignResident">
+      <Name>Filing Threshold - Foreign Resident</Name>
+      <Description>Higher threshold for bona fide foreign residents ($200,000 single, $400,000 MFJ).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isBonafideForeignResident">
+      <Name>Is Bona Fide Foreign Resident</Name>
+      <Description>Whether taxpayer qualifies as bona fide foreign resident.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/applicableFilingThreshold">
+      <Name>Applicable Filing Threshold</Name>
+      <Description>Applicable filing threshold based on status.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/isBonafideForeignResident" />
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </All>
+            </When>
+            <Then><Dollar>400000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/isBonafideForeignResident" />
+            </When>
+            <Then><Dollar>200000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then><Dependency path="/form8938FilingThresholdMFJ" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/form8938FilingThresholdSingle" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: FOREIGN DEPOSIT ACCOUNTS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignDepositAccounts">
+      <Name>Has Foreign Deposit Accounts</Name>
+      <Description>Whether taxpayer has foreign deposit accounts.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfForeignDepositAccounts">
+      <Name>Number of Foreign Deposit Accounts</Name>
+      <Description>Number of foreign deposit accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxValueForeignDepositAccounts">
+      <Name>Maximum Value - Foreign Deposit Accounts</Name>
+      <Description>Maximum value of all foreign deposit accounts during year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearEndValueForeignDepositAccounts">
+      <Name>Year-End Value - Foreign Deposit Accounts</Name>
+      <Description>Value of foreign deposit accounts at year-end.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: FOREIGN CUSTODIAL ACCOUNTS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasForeignCustodialAccounts">
+      <Name>Has Foreign Custodial Accounts</Name>
+      <Description>Whether taxpayer has foreign custodial accounts.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/numberOfForeignCustodialAccounts">
+      <Name>Number of Foreign Custodial Accounts</Name>
+      <Description>Number of foreign custodial accounts.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxValueForeignCustodialAccounts">
+      <Name>Maximum Value - Foreign Custodial Accounts</Name>
+      <Description>Maximum value of all foreign custodial accounts during year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearEndValueForeignCustodialAccounts">
+      <Name>Year-End Value - Foreign Custodial Accounts</Name>
+      <Description>Value of foreign custodial accounts at year-end.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: OTHER FOREIGN ASSETS              -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasOtherForeignAssets">
+      <Name>Has Other Foreign Assets</Name>
+      <Description>Whether taxpayer has other foreign financial assets.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignStockBonds">
+      <Name>Has Foreign Stock/Bonds</Name>
+      <Description>Whether taxpayer owns foreign stock or securities.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignPartnershipInterest">
+      <Name>Has Foreign Partnership Interest</Name>
+      <Description>Whether taxpayer owns interest in foreign partnership.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignTrustInterest">
+      <Name>Has Foreign Trust Interest</Name>
+      <Description>Whether taxpayer has interest in foreign trust.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForeignRetirementAccount">
+      <Name>Has Foreign Retirement Account</Name>
+      <Description>Whether taxpayer has foreign pension/retirement account.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/maxValueOtherForeignAssets">
+      <Name>Maximum Value - Other Foreign Assets</Name>
+      <Description>Maximum value of other foreign assets during year.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/yearEndValueOtherForeignAssets">
+      <Name>Year-End Value - Other Foreign Assets</Name>
+      <Description>Value of other foreign assets at year-end.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- SUMMARY INFORMATION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalMaxValueAllForeignAssets">
+      <Name>Total Maximum Value - All Foreign Assets</Name>
+      <Description>Total maximum value of all specified foreign assets.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/maxValueForeignDepositAccounts" />
+            <Dependency path="/maxValueForeignCustodialAccounts" />
+          </Add>
+          <Dependency path="/maxValueOtherForeignAssets" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalYearEndValueAllForeignAssets">
+      <Name>Total Year-End Value - All Foreign Assets</Name>
+      <Description>Total year-end value of all specified foreign assets.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/yearEndValueForeignDepositAccounts" />
+            <Dependency path="/yearEndValueForeignCustodialAccounts" />
+          </Add>
+          <Dependency path="/yearEndValueOtherForeignAssets" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exceedsFilingThreshold">
+      <Name>Exceeds Filing Threshold</Name>
+      <Description>Whether foreign assets exceed filing threshold.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/totalYearEndValueAllForeignAssets" /></Left>
+            <Right><Dependency path="/applicableFilingThreshold" /></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/totalMaxValueAllForeignAssets" /></Left>
+            <Right>
+              <Multiply>
+                <Dependency path="/applicableFilingThreshold" />
+                <Decimal>1.5</Decimal>
+              </Multiply>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: INCOME FROM FOREIGN ASSETS         -->
+    <!-- ============================================ -->
+
+    <Fact path="/interestIncomeForeignAssets">
+      <Name>Interest Income - Foreign Assets</Name>
+      <Description>Interest income from specified foreign assets.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendIncomeForeignAssets">
+      <Name>Dividend Income - Foreign Assets</Name>
+      <Description>Dividend income from specified foreign assets.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/royaltyIncomeForeignAssets">
+      <Name>Royalty Income - Foreign Assets</Name>
+      <Description>Royalty income from specified foreign assets.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalGainForeignAssets">
+      <Name>Capital Gain - Foreign Assets</Name>
+      <Description>Capital gains from specified foreign assets.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherIncomeForeignAssets">
+      <Name>Other Income - Foreign Assets</Name>
+      <Description>Other income from specified foreign assets.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalIncomeForeignAssets">
+      <Name>Total Income - Foreign Assets</Name>
+      <Description>Total income from specified foreign assets.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/interestIncomeForeignAssets" />
+              <Dependency path="/dividendIncomeForeignAssets" />
+            </Add>
+            <Dependency path="/royaltyIncomeForeignAssets" />
+          </Add>
+          <Add>
+            <Dependency path="/capitalGainForeignAssets" />
+            <Dependency path="/otherIncomeForeignAssets" />
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8938IsDone">
+      <Name>Form 8938 Is Done</Name>
+      <Description>Whether Form 8938 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasSpecifiedForeignAssets" /></Not>
+          <Not><Dependency path="/exceedsFilingThreshold" /></Not>
+          <All>
+            <Dependency path="/exceedsFilingThreshold" />
+            <IsComplete><Dependency path="/totalMaxValueAllForeignAssets" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8938">
+      <Name>Include Form 8938 in PDF</Name>
+      <Description>Whether to include Form 8938 in the tax return PDF.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasSpecifiedForeignAssets" />
+          <Dependency path="/exceedsFilingThreshold" />
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

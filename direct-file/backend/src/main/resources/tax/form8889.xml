@@ -1,0 +1,381 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8889: Health Savings Accounts (HSAs) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- PART I: HSA CONTRIBUTIONS                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasHSA">
+      <Name>Has HSA</Name>
+      <Description>Whether taxpayer has a Health Savings Account.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hsaCoverageType">
+      <Name>HSA Coverage Type</Name>
+      <Description>Type of HDHP coverage (self-only or family).</Description>
+      <Writable>
+        <Enum>
+          <Option value="SELF_ONLY">Self-only</Option>
+          <Option value="FAMILY">Family</Option>
+        </Enum>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hsaContributionLimitSelfOnly">
+      <Name>HSA Contribution Limit - Self-Only</Name>
+      <Description>Maximum HSA contribution for self-only coverage.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>4300</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hsaContributionLimitFamily">
+      <Name>HSA Contribution Limit - Family</Name>
+      <Description>Maximum HSA contribution for family coverage.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8550</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hsaCatchUpContribution">
+      <Name>HSA Catch-Up Contribution</Name>
+      <Description>Additional contribution allowed for age 55+ ($1,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isAge55OrOlder">
+      <Name>Is Age 55 or Older</Name>
+      <Description>Whether taxpayer is 55 or older (eligible for catch-up).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/monthsEligibleForHSA">
+      <Name>Months Eligible for HSA</Name>
+      <Description>Number of months eligible for HSA (Line 3).</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <IntNode>12</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hsaContributionLimit">
+      <Name>HSA Contribution Limit</Name>
+      <Description>Applicable contribution limit based on coverage type (Line 5).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/hsaCoverageType" /></Left>
+                <Right><String>SELF_ONLY</String></Right>
+              </Equal>
+            </When>
+            <Then><Dependency path="/hsaContributionLimitSelfOnly" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/hsaContributionLimitFamily" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/proratedContributionLimit">
+      <Name>Prorated Contribution Limit</Name>
+      <Description>Prorated contribution limit based on months eligible (Line 6).</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/hsaContributionLimit" />
+          <Divide>
+            <Dependency path="/monthsEligibleForHSA" />
+            <Int>12</Int>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalHSAContributionLimit">
+      <Name>Total HSA Contribution Limit</Name>
+      <Description>Total contribution limit including catch-up (Line 8).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/proratedContributionLimit" />
+          <Switch>
+            <Case>
+              <When><Dependency path="/isAge55OrOlder" /></When>
+              <Then><Dependency path="/hsaCatchUpContribution" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/employerHSAContributions">
+      <Name>Employer HSA Contributions</Name>
+      <Description>Employer contributions to HSA (Line 9).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxpayerHSAContributions">
+      <Name>Taxpayer HSA Contributions</Name>
+      <Description>Your HSA contributions (Line 2).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hsaDeduction">
+      <Name>HSA Deduction</Name>
+      <Description>HSA deduction (Line 13).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/taxpayerHSAContributions" />
+          <Max>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Dependency path="/totalHSAContributionLimit" />
+              <Dependency path="/employerHSAContributions" />
+            </Subtract>
+          </Max>
+        </Min>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: HSA DISTRIBUTIONS                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalHSADistributions">
+      <Name>Total HSA Distributions</Name>
+      <Description>Total distributions from HSA (Line 14a).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rolloveredHSADistributions">
+      <Name>Rollovered HSA Distributions</Name>
+      <Description>Distributions rolled over to another HSA (Line 14b).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/qualifiedMedicalExpenses">
+      <Name>Qualified Medical Expenses</Name>
+      <Description>Qualified medical expenses paid (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableHSADistributions">
+      <Name>Taxable HSA Distributions</Name>
+      <Description>Taxable HSA distributions (Line 16).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Subtract>
+              <Dependency path="/totalHSADistributions" />
+              <Dependency path="/rolloveredHSADistributions" />
+            </Subtract>
+            <Dependency path="/qualifiedMedicalExpenses" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hsaAdditionalTaxRate">
+      <Name>HSA Additional Tax Rate</Name>
+      <Description>Additional tax rate on non-qualified distributions (20%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.20</Decimal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalTaxOnHSA">
+      <Name>Additional Tax on HSA</Name>
+      <Description>20% additional tax on non-qualified distributions (Line 17b).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/taxableHSADistributions" />
+          <Dependency path="/hsaAdditionalTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: INCOME AND ADDITIONAL TAX         -->
+    <!-- ============================================ -->
+
+    <Fact path="/excessHSAContributionsWithdrawn">
+      <Name>Excess HSA Contributions Withdrawn</Name>
+      <Description>Excess contributions withdrawn by due date (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/excessHSAContributionsTaxable">
+      <Name>Excess HSA Contributions Taxable</Name>
+      <Description>Excess contributions subject to 6% tax.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Add>
+              <Dependency path="/taxpayerHSAContributions" />
+              <Dependency path="/employerHSAContributions" />
+            </Add>
+            <Add>
+              <Dependency path="/totalHSAContributionLimit" />
+              <Dependency path="/excessHSAContributionsWithdrawn" />
+            </Add>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxOnExcessHSAContributions">
+      <Name>Tax on Excess HSA Contributions</Name>
+      <Description>6% tax on excess HSA contributions.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/excessHSAContributionsTaxable" />
+          <Decimal>0.06</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- HDHP INFORMATION                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/hdhpMinDeductibleSelfOnly">
+      <Name>HDHP Min Deductible - Self-Only</Name>
+      <Description>Minimum deductible for self-only HDHP.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>1650</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hdhpMinDeductibleFamily">
+      <Name>HDHP Min Deductible - Family</Name>
+      <Description>Minimum deductible for family HDHP.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>3300</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hdhpMaxOutOfPocketSelfOnly">
+      <Name>HDHP Max Out-of-Pocket - Self-Only</Name>
+      <Description>Maximum out-of-pocket for self-only HDHP.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>8300</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hdhpMaxOutOfPocketFamily">
+      <Name>HDHP Max Out-of-Pocket - Family</Name>
+      <Description>Maximum out-of-pocket for family HDHP.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>16600</Dollar>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8889IsDone">
+      <Name>Form 8889 Is Done</Name>
+      <Description>Whether Form 8889 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasHSA" /></Not>
+          <All>
+            <Dependency path="/hasHSA" />
+            <IsComplete><Dependency path="/hsaDeduction" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8889">
+      <Name>Include Form 8889 in PDF</Name>
+      <Description>Whether to include Form 8889 in the tax return PDF.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/hsaDeduction" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/totalHSADistributions" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

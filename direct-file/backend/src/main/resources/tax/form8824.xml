@@ -1,0 +1,252 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8824: Like-Kind Exchanges -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- LIKE-KIND EXCHANGE                          -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasLikeKindExchange">
+      <Name>Has Like-Kind Exchange</Name>
+      <Description>Whether taxpayer completed like-kind exchange.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exchangeDescription">
+      <Name>Exchange Description</Name>
+      <Description>Description of properties exchanged.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/datePropertyGivenUp">
+      <Name>Date Property Given Up</Name>
+      <Description>Date relinquished property was given up.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/datePropertyReceived">
+      <Name>Date Property Received</Name>
+      <Description>Date replacement property was received.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- RELINQUISHED PROPERTY                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/fmvPropertyGivenUp">
+      <Name>FMV Property Given Up</Name>
+      <Description>Fair market value of property given up (Line 12).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/adjustedBasisPropertyGivenUp">
+      <Name>Adjusted Basis Property Given Up</Name>
+      <Description>Adjusted basis of property given up (Line 13).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/realizedGain">
+      <Name>Realized Gain</Name>
+      <Description>Realized gain on exchange (Line 14).</Description>
+      <Derived>
+        <Subtract>
+          <Dependency path="/fmvPropertyGivenUp" />
+          <Dependency path="/adjustedBasisPropertyGivenUp" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- REPLACEMENT PROPERTY                        -->
+    <!-- ============================================ -->
+
+    <Fact path="/fmvPropertyReceived">
+      <Name>FMV Property Received</Name>
+      <Description>Fair market value of replacement property (Line 15).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- BOOT RECEIVED                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/cashBootReceived">
+      <Name>Cash Boot Received</Name>
+      <Description>Cash received (boot) (Line 16).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/fmvOtherPropertyReceived">
+      <Name>FMV Other Property Received</Name>
+      <Description>FMV of other (non-like-kind) property received (Line 17).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/netLiabilitiesAssumed">
+      <Name>Net Liabilities Assumed</Name>
+      <Description>Net liabilities assumed by other party (Line 18).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalBoot">
+      <Name>Total Boot</Name>
+      <Description>Total boot received (Line 19).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/cashBootReceived" />
+            <Dependency path="/fmvOtherPropertyReceived" />
+          </Add>
+          <Dependency path="/netLiabilitiesAssumed" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GAIN RECOGNITION                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/recognizedGain">
+      <Name>Recognized Gain</Name>
+      <Description>Gain recognized on exchange (Line 20).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Min>
+          <Dependency path="/realizedGain" />
+          <Dependency path="/totalBoot" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deferredGain">
+      <Name>Deferred Gain</Name>
+      <Description>Gain deferred (Line 21).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/realizedGain" />
+            <Dependency path="/recognizedGain" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/basisOfReplacementProperty">
+      <Name>Basis of Replacement Property</Name>
+      <Description>Basis of like-kind property received (Line 22).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Subtract>
+          <Add>
+            <Dependency path="/adjustedBasisPropertyGivenUp" />
+            <Dependency path="/recognizedGain" />
+          </Add>
+          <Dependency path="/totalBoot" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- QUALIFIED INTERMEDIARY                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/usedQualifiedIntermediary">
+      <Name>Used Qualified Intermediary</Name>
+      <Description>Whether exchange used qualified intermediary.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/identificationPeriodMet">
+      <Name>Identification Period Met</Name>
+      <Description>Whether 45-day identification period was met.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/exchangePeriodMet">
+      <Name>Exchange Period Met</Name>
+      <Description>Whether 180-day exchange period was met.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/form8824IsDone">
+      <Name>Form 8824 Is Done</Name>
+      <Description>Whether Form 8824 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasLikeKindExchange" /></Not>
+          <All>
+            <Dependency path="/hasLikeKindExchange" />
+            <IsComplete><Dependency path="/recognizedGain" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8824">
+      <Name>Include Form 8824 in PDF</Name>
+      <Description>Whether to include Form 8824 in the return.</Description>
+      <Derived>
+        <Dependency path="/hasLikeKindExchange" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

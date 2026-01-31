@@ -1,0 +1,169 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8867: Paid Preparer's Due Diligence Checklist -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasPaidPreparerDueDiligence">
+      <Name>Has Paid Preparer Due Diligence</Name>
+      <Description>Whether paid preparer must complete due diligence.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part I: Due Diligence Requirements -->
+    <Fact path="/claimsEITC">
+      <Name>Claims EITC</Name>
+      <Description>Whether return claims EITC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimsCTC">
+      <Name>Claims CTC</Name>
+      <Description>Whether return claims CTC/ACTC/ODC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimsAOTC">
+      <Name>Claims AOTC</Name>
+      <Description>Whether return claims AOTC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimsHOH">
+      <Name>Claims HOH</Name>
+      <Description>Whether return claims head of household.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- Part II: Due Diligence Questions -->
+    <Fact path="/interviewedTaxpayer">
+      <Name>Interviewed Taxpayer</Name>
+      <Description>Did you interview taxpayer (Line 1).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/documentedResponses">
+      <Name>Documented Responses</Name>
+      <Description>Did you document taxpayer's responses (Line 2).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/reviewedDocumentation">
+      <Name>Reviewed Documentation</Name>
+      <Description>Did you review documentation (Line 3).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/askedNecessaryQuestions">
+      <Name>Asked Necessary Questions</Name>
+      <Description>Did you ask necessary questions (Line 4).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/satisfiedKnowledgeRequirement">
+      <Name>Satisfied Knowledge Requirement</Name>
+      <Description>Did you satisfy knowledge requirement (Line 5).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- EITC-specific -->
+    <Fact path="/eitcResidencyVerified">
+      <Name>EITC Residency Verified</Name>
+      <Description>Was child's residency verified for EITC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcRelationshipVerified">
+      <Name>EITC Relationship Verified</Name>
+      <Description>Was child's relationship verified for EITC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- CTC-specific -->
+    <Fact path="/ctcDependentInfoVerified">
+      <Name>CTC Dependent Info Verified</Name>
+      <Description>Was dependent info verified for CTC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- AOTC-specific -->
+    <Fact path="/aotcForm1098TReviewed">
+      <Name>AOTC Form 1098-T Reviewed</Name>
+      <Description>Was Form 1098-T reviewed for AOTC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/aotcExpensesDocumented">
+      <Name>AOTC Expenses Documented</Name>
+      <Description>Were qualified expenses documented for AOTC.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- HOH-specific -->
+    <Fact path="/hohQualifyingPersonVerified">
+      <Name>HOH Qualifying Person Verified</Name>
+      <Description>Was qualifying person verified for HOH.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hohCostVerified">
+      <Name>HOH Cost Verified</Name>
+      <Description>Was cost of maintaining home verified for HOH.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8867IsDone">
+      <Name>Form 8867 Is Done</Name>
+      <Description>Whether Form 8867 is complete.</Description>
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasPaidPreparerDueDiligence" /></Not>
+          <All>
+            <Dependency path="/hasPaidPreparerDueDiligence" />
+            <Dependency path="/satisfiedKnowledgeRequirement" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8867">
+      <Name>Include Form 8867 in PDF</Name>
+      <Description>Whether to include Form 8867.</Description>
+      <Derived>
+        <Dependency path="/hasPaidPreparerDueDiligence" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,642 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 6251: Alternative Minimum Tax - Individuals -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- AMT EXEMPTION AMOUNTS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtExemptionBase">
+      <Name>AMT Exemption Amount</Name>
+      <Description>Base AMT exemption amount by filing status.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>137000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>68500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>88100</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtExemptionPhaseoutThreshold">
+      <Name>AMT Exemption Phase-out Threshold</Name>
+      <Description>AMTI threshold where exemption begins to phase out.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>1259100</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>629550</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>626350</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT TAX RATES                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/amt26PercentThreshold">
+      <Name>AMT 26% Rate Threshold</Name>
+      <Description>AMTI threshold for 26% vs 28% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dollar>119950</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>239900</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT ADJUSTMENTS AND PREFERENCES             -->
+    <!-- ============================================ -->
+
+    <!-- Standard Deduction (added back for AMT) -->
+    <Fact path="/amtStandardDeductionAddBack">
+      <Name>AMT Standard Deduction Add Back</Name>
+      <Description>Standard deduction added back for AMT (if claimed).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency module="scheduleA" path="/claimItemizedDeductions" />
+              </Not>
+            </When>
+            <Then>
+              <Dependency module="standardDeduction" path="/standardDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- State and Local Taxes (SALT) - added back for AMT -->
+    <Fact path="/amtSALTAddBack">
+      <Name>AMT SALT Add Back</Name>
+      <Description>State and local taxes added back for AMT.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="scheduleA" path="/claimItemizedDeductions" />
+            </When>
+            <Then>
+              <Dependency module="scheduleA" path="/saltDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- Home Equity Loan Interest (not for acquisition) -->
+    <Fact path="/amtHomeEquityInterestAddBack">
+      <Name>AMT Home Equity Interest Add Back</Name>
+      <Description>Home equity loan interest not used to buy/build/improve home.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Miscellaneous Deductions -->
+    <Fact path="/amtMiscDeductionsAddBack">
+      <Name>AMT Miscellaneous Deductions Add Back</Name>
+      <Description>Miscellaneous itemized deductions subject to 2% floor (pre-TCJA carryover).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Tax Refund -->
+    <Fact path="/amtTaxRefundAddBack">
+      <Name>AMT Tax Refund Add Back</Name>
+      <Description>State/local tax refund if deducted in prior year.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Investment Interest Expense Adjustment -->
+    <Fact path="/amtInvestmentInterestAdjustment">
+      <Name>AMT Investment Interest Adjustment</Name>
+      <Description>Adjustment for investment interest expense.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- Depreciation Adjustment -->
+    <Fact path="/amtDepreciationAdjustment">
+      <Name>AMT Depreciation Adjustment</Name>
+      <Description>Difference between regular and AMT depreciation.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- Net Operating Loss Adjustment -->
+    <Fact path="/amtNOLAdjustment">
+      <Name>AMT NOL Adjustment</Name>
+      <Description>Adjustment for NOL deduction difference.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- Private Activity Bond Interest -->
+    <Fact path="/amtPrivateActivityBondInterest">
+      <Name>Private Activity Bond Interest</Name>
+      <Description>Tax-exempt interest from private activity bonds (AMT preference item).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Incentive Stock Options -->
+    <Fact path="/amtISOAdjustment">
+      <Name>AMT ISO Adjustment</Name>
+      <Description>Incentive stock option spread (exercise price vs FMV at exercise).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- Other AMT Adjustments -->
+    <Fact path="/amtOtherAdjustments">
+      <Name>Other AMT Adjustments</Name>
+      <Description>Other adjustments and preferences for AMT.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMTI CALCULATION                            -->
+    <!-- ============================================ -->
+
+    <Fact path="/totalAMTAdjustments">
+      <Name>Total AMT Adjustments</Name>
+      <Description>Sum of all AMT adjustments and preferences.</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Add>
+                <Add>
+                  <Add>
+                    <Add>
+                      <Add>
+                        <Add>
+                          <Dependency path="/amtStandardDeductionAddBack" />
+                          <Dependency path="/amtSALTAddBack" />
+                        </Add>
+                        <Dependency path="/amtHomeEquityInterestAddBack" />
+                      </Add>
+                      <Dependency path="/amtMiscDeductionsAddBack" />
+                    </Add>
+                    <Dependency path="/amtTaxRefundAddBack" />
+                  </Add>
+                  <Dependency path="/amtInvestmentInterestAdjustment" />
+                </Add>
+                <Dependency path="/amtDepreciationAdjustment" />
+              </Add>
+              <Dependency path="/amtNOLAdjustment" />
+            </Add>
+            <Dependency path="/amtPrivateActivityBondInterest" />
+          </Add>
+          <Dependency path="/amtISOAdjustment" />
+        </Add>
+        <Dependency path="/amtOtherAdjustments" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/alternativeMinimumTaxableIncome">
+      <Name>Alternative Minimum Taxable Income (AMTI)</Name>
+      <Description>Taxable income plus AMT adjustments and preferences.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency module="taxCalculations" path="/taxableIncome" />
+          <Dependency path="/totalAMTAdjustments" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT EXEMPTION CALCULATION                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtExemptionPhaseoutAmount">
+      <Name>AMT Exemption Phase-out Amount</Name>
+      <Description>Amount by which exemption is reduced (25% of excess over threshold).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/alternativeMinimumTaxableIncome" /></Left>
+                <Right><Dependency path="/amtExemptionPhaseoutThreshold" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/alternativeMinimumTaxableIncome" />
+                  <Dependency path="/amtExemptionPhaseoutThreshold" />
+                </Subtract>
+                <Decimal>0.25</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtExemption">
+      <Name>AMT Exemption</Name>
+      <Description>Final AMT exemption after phase-out.</Description>
+      <Export mef="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/amtExemptionBase" />
+            <Dependency path="/amtExemptionPhaseoutAmount" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT TAX CALCULATION                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtTaxableExcessAMTI">
+      <Name>AMT Taxable Excess AMTI</Name>
+      <Description>AMTI minus exemption (amount subject to AMT rates).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/alternativeMinimumTaxableIncome" />
+            <Dependency path="/amtExemption" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtAt26Percent">
+      <Name>AMT at 26%</Name>
+      <Description>AMT tax at 26% rate.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Multiply>
+          <Min>
+            <Dependency path="/amtTaxableExcessAMTI" />
+            <Dependency path="/amt26PercentThreshold" />
+          </Min>
+          <Decimal>0.26</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtAt28Percent">
+      <Name>AMT at 28%</Name>
+      <Description>AMT tax at 28% rate (excess over threshold).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/amtTaxableExcessAMTI" /></Left>
+                <Right><Dependency path="/amt26PercentThreshold" /></Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Dependency path="/amtTaxableExcessAMTI" />
+                  <Dependency path="/amt26PercentThreshold" />
+                </Subtract>
+                <Decimal>0.28</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tentativeMinimumTax">
+      <Name>Tentative Minimum Tax</Name>
+      <Description>Total AMT before reduction for regular tax.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/amtAt26Percent" />
+            <Dependency path="/amtAt28Percent" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT LIABILITY                               -->
+    <!-- ============================================ -->
+
+    <Fact path="/regularTaxBeforeCredits">
+      <Name>Regular Tax Before Credits</Name>
+      <Description>Regular income tax before credits (for AMT comparison).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxBeforeCredits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/alternativeMinimumTax">
+      <Name>Alternative Minimum Tax</Name>
+      <Description>AMT liability (excess of TMT over regular tax).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/tentativeMinimumTax" />
+            <Dependency path="/regularTaxBeforeCredits" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/subjectToAMT">
+      <Name>Subject to AMT</Name>
+      <Description>Whether taxpayer owes AMT.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/alternativeMinimumTax" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- AMT CREDIT CARRYFORWARD                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/priorYearAMTCredit">
+      <Name>Prior Year AMT Credit</Name>
+      <Description>Minimum tax credit carryforward from prior years.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/currentYearAMTForCredit">
+      <Name>Current Year AMT for Credit</Name>
+      <Description>AMT attributable to deferral items (ISO, depreciation) for future credit.</Description>
+      <Derived>
+        <!-- Simplified: assuming ISO adjustment is the main deferral item -->
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/subjectToAMT" />
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/alternativeMinimumTax" />
+                <Multiply>
+                  <Dependency path="/amtISOAdjustment" />
+                  <Decimal>0.26</Decimal>
+                </Multiply>
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtCreditAllowed">
+      <Name>AMT Credit Allowed</Name>
+      <Description>Minimum tax credit that can be used this year.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/subjectToAMT" />
+              </Not>
+            </When>
+            <Then>
+              <Min>
+                <Dependency path="/priorYearAMTCredit" />
+                <Subtract>
+                  <Dependency path="/regularTaxBeforeCredits" />
+                  <Dependency path="/tentativeMinimumTax" />
+                </Subtract>
+              </Min>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/amtCalculationRequired">
+      <Name>AMT Calculation Required</Name>
+      <Description>Whether AMT calculation is needed (has AMT preference items).</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left><Dependency path="/amtISOAdjustment" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/amtPrivateActivityBondInterest" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left><Dependency path="/priorYearAMTCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <!-- High income with large SALT -->
+          <All>
+            <GreaterThan>
+              <Left><Dependency module="taxCalculations" path="/taxableIncome" /></Left>
+              <Right><Dollar>200000</Dollar></Right>
+            </GreaterThan>
+            <GreaterThan>
+              <Left><Dependency path="/amtSALTAddBack" /></Left>
+              <Right><Dollar>10000</Dollar></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtIsDone">
+      <Name>AMT Is Done</Name>
+      <Description>Whether AMT section is complete.</Description>
+      <Derived>
+        <Any>
+          <!-- AMT not required -->
+          <Not>
+            <Dependency path="/amtCalculationRequired" />
+          </Not>
+          <!-- AMT required and calculated -->
+          <Dependency path="/amtCalculationRequired" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm6251">
+      <Name>Include Form 6251 in PDF</Name>
+      <Description>Whether to include Form 6251 in the tax return PDF.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Any>
+          <Dependency path="/subjectToAMT" />
+          <GreaterThan>
+            <Left><Dependency path="/amtCreditAllowed" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

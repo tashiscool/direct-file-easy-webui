@@ -1,0 +1,366 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8960: Net Investment Income Tax (NIIT) -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- THRESHOLDS                                  -->
+    <!-- ============================================ -->
+
+    <Fact path="/niitThresholdSingle">
+      <Name>NIIT Threshold - Single</Name>
+      <Description>NIIT threshold for Single filers ($200,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/niitThresholdMFJ">
+      <Name>NIIT Threshold - MFJ</Name>
+      <Description>NIIT threshold for MFJ filers ($250,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>250000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/niitThresholdMFS">
+      <Name>NIIT Threshold - MFS</Name>
+      <Description>NIIT threshold for MFS filers ($125,000).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>125000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/applicableNIITThreshold">
+      <Name>Applicable NIIT Threshold</Name>
+      <Description>Applicable threshold based on filing status.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then><Dependency path="/niitThresholdMFJ" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then><Dependency path="/niitThresholdMFS" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/niitThresholdSingle" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/niitTaxRate">
+      <Name>NIIT Tax Rate</Name>
+      <Description>Net Investment Income Tax rate (3.8%).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Decimal>0.038</Decimal>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART I: INVESTMENT INCOME                   -->
+    <!-- ============================================ -->
+
+    <Fact path="/taxableInterest8960">
+      <Name>Taxable Interest</Name>
+      <Description>Taxable interest (Line 1).</Description>
+      <Derived>
+        <Dependency module="interest" path="/totalTaxableInterest" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/ordinaryDividends8960">
+      <Name>Ordinary Dividends</Name>
+      <Description>Ordinary dividends (Line 2).</Description>
+      <Derived>
+        <Dependency module="scheduleB" path="/totalOrdinaryDividends" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/annuitiesIncludedInNII">
+      <Name>Annuities Included in NII</Name>
+      <Description>Annuities included in net investment income (Line 3).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalRoyaltyIncome8960">
+      <Name>Rental and Royalty Income</Name>
+      <Description>Rental real estate, royalties from Schedule E (Line 4a).</Description>
+      <Derived>
+        <Dependency module="scheduleE" path="/totalRentalRoyaltyIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/adjustmentsToRentalIncome">
+      <Name>Adjustments to Rental Income</Name>
+      <Description>Adjustment for rental real estate income (Line 4b).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netRentalIncomeForNIIT">
+      <Name>Net Rental Income for NIIT</Name>
+      <Description>Net rental income for NIIT (Line 4c).</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/rentalRoyaltyIncome8960" />
+          <Dependency path="/adjustmentsToRentalIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netGainFromDisposition">
+      <Name>Net Gain from Disposition</Name>
+      <Description>Net gain from disposition of property (Line 5a).</Description>
+      <Derived>
+        <Dependency module="scheduleD" path="/netCapitalGainLoss" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/adjustmentsToNetGain">
+      <Name>Adjustments to Net Gain</Name>
+      <Description>Adjustment to net gain (Line 5b).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/netGainForNIIT">
+      <Name>Net Gain for NIIT</Name>
+      <Description>Net gain for NIIT purposes (Line 5c).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Add>
+            <Dependency path="/netGainFromDisposition" />
+            <Dependency path="/adjustmentsToNetGain" />
+          </Add>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/passiveIncomeFromK1">
+      <Name>Passive Income from K-1</Name>
+      <Description>Net income from trade/business passive activities (Line 6).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/tradingBusinessIncome">
+      <Name>Trading Business Income</Name>
+      <Description>Net income from trading financial instruments (Line 7).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherInvestmentIncome">
+      <Name>Other Investment Income</Name>
+      <Description>Other investment income (Line 8).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/grossInvestmentIncome">
+      <Name>Gross Investment Income</Name>
+      <Description>Total gross investment income (Line 9).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/taxableInterest8960" />
+              <Dependency path="/ordinaryDividends8960" />
+            </Add>
+            <Add>
+              <Dependency path="/annuitiesIncludedInNII" />
+              <Dependency path="/netRentalIncomeForNIIT" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/netGainForNIIT" />
+              <Dependency path="/passiveIncomeFromK1" />
+            </Add>
+            <Add>
+              <Dependency path="/tradingBusinessIncome" />
+              <Dependency path="/otherInvestmentIncome" />
+            </Add>
+          </Add>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART II: DEDUCTIONS                         -->
+    <!-- ============================================ -->
+
+    <Fact path="/investmentInterestExpense">
+      <Name>Investment Interest Expense</Name>
+      <Description>Investment interest expense (Line 10).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateTaxOnInvestmentIncome">
+      <Name>State Tax on Investment Income</Name>
+      <Description>State and local income taxes allocable to NII (Line 11).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherNIIDeductions">
+      <Name>Other NII Deductions</Name>
+      <Description>Other deductions allocable to NII (Line 12).</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalNIIDeductions">
+      <Name>Total NII Deductions</Name>
+      <Description>Total deductions allocable to NII (Line 13).</Description>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/investmentInterestExpense" />
+            <Dependency path="/stateTaxOnInvestmentIncome" />
+          </Add>
+          <Dependency path="/otherNIIDeductions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART III: NET INVESTMENT INCOME             -->
+    <!-- ============================================ -->
+
+    <Fact path="/netInvestmentIncome">
+      <Name>Net Investment Income</Name>
+      <Description>Net investment income (Line 14).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/grossInvestmentIncome" />
+            <Dependency path="/totalNIIDeductions" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- PART IV: TAX CALCULATION                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/modifiedAGI8960">
+      <Name>Modified AGI</Name>
+      <Description>Modified AGI for NIIT purposes (Line 15).</Description>
+      <Derived>
+        <Dependency module="taxCalculations" path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/magiOverThreshold">
+      <Name>MAGI Over Threshold</Name>
+      <Description>MAGI in excess of threshold (Line 17).</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Dependency path="/modifiedAGI8960" />
+            <Dependency path="/applicableNIITThreshold" />
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lesserOfNIIOrExcessMAGI">
+      <Name>Lesser of NII or Excess MAGI</Name>
+      <Description>Lesser of NII or excess MAGI (Line 18).</Description>
+      <Derived>
+        <Min>
+          <Dependency path="/netInvestmentIncome" />
+          <Dependency path="/magiOverThreshold" />
+        </Min>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netInvestmentIncomeTax">
+      <Name>Net Investment Income Tax</Name>
+      <Description>Net Investment Income Tax (Line 19).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/lesserOfNIIOrExcessMAGI" />
+          <Dependency path="/niitTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/owesNIIT">
+      <Name>Owes NIIT</Name>
+      <Description>Whether taxpayer owes NIIT.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/netInvestmentIncomeTax" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8960IsDone">
+      <Name>Form 8960 Is Done</Name>
+      <Description>Whether Form 8960 is complete.</Description>
+      <Derived>
+        <IsComplete><Dependency path="/netInvestmentIncomeTax" /></IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8960">
+      <Name>Include Form 8960 in PDF</Name>
+      <Description>Whether to include Form 8960 in the tax return PDF.</Description>
+      <Derived>
+        <Dependency path="/owesNIIT" />
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

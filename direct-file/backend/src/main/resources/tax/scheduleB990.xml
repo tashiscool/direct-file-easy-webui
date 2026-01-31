@@ -1,0 +1,289 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Schedule B (Form 990): Schedule of Contributors -->
+<FactDictionaryModule>
+  <Facts>
+    <!-- ============================================ -->
+    <!-- CONTRIBUTOR REPORTING THRESHOLDS            -->
+    <!-- ============================================ -->
+
+    <Fact path="/contributorReportingThreshold">
+      <Name>Contributor Reporting Threshold</Name>
+      <Description>Threshold for listing contributors ($5,000 or 2% of revenue).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/twoPercentOfRevenue">
+      <Name>Two Percent of Revenue</Name>
+      <Description>2% of total contributions for reporting threshold.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency module="form990" path="/totalContributions" />
+          <Decimal>0.02</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/effectiveContributorThreshold">
+      <Name>Effective Contributor Threshold</Name>
+      <Description>Greater of $5,000 or 2% of total contributions.</Description>
+      <Derived>
+        <Max>
+          <Dependency path="/contributorReportingThreshold" />
+          <Dependency path="/twoPercentOfRevenue" />
+        </Max>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NUMBER OF CONTRIBUTORS                      -->
+    <!-- ============================================ -->
+
+    <Fact path="/numberOfContributorsOver5000">
+      <Name>Number of Contributors Over $5,000</Name>
+      <Description>Number of contributors giving more than threshold.</Description>
+      <Writable>
+        <Int>
+          <Limit operation="Min" level="ERROR">
+            <IntNode>0</IntNode>
+          </Limit>
+        </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalFromContributorsOver5000">
+      <Name>Total from Contributors Over $5,000</Name>
+      <Description>Total contributions from contributors over threshold.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- NONCASH CONTRIBUTIONS                       -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasNoncashContributions">
+      <Name>Has Noncash Contributions</Name>
+      <Description>Whether organization received noncash contributions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalNoncashContributions">
+      <Name>Total Noncash Contributions</Name>
+      <Description>Total value of noncash contributions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/noncashContributionsArt">
+      <Name>Noncash Contributions - Art</Name>
+      <Description>Value of art and collectibles contributed.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/noncashContributionsSecurities">
+      <Name>Noncash Contributions - Securities</Name>
+      <Description>Value of securities contributed.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/noncashContributionsRealEstate">
+      <Name>Noncash Contributions - Real Estate</Name>
+      <Description>Value of real estate contributed.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/noncashContributionsOther">
+      <Name>Noncash Contributions - Other</Name>
+      <Description>Value of other noncash contributions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- CHARITABLE CONTRIBUTIONS SUBSTANTIATION     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasQuidProQuoContributions">
+      <Name>Has Quid Pro Quo Contributions</Name>
+      <Description>Whether organization received quid pro quo contributions over $75.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/providedQuidProQuoDisclosure">
+      <Name>Provided Quid Pro Quo Disclosure</Name>
+      <Description>Whether organization provided required quid pro quo disclosure.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/providedWrittenAcknowledgments">
+      <Name>Provided Written Acknowledgments</Name>
+      <Description>Whether organization provided written acknowledgments for contributions over $250.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- ANONYMOUS CONTRIBUTIONS                     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasAnonymousContributions">
+      <Name>Has Anonymous Contributions</Name>
+      <Description>Whether organization received anonymous contributions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalAnonymousContributions">
+      <Name>Total Anonymous Contributions</Name>
+      <Description>Total value of anonymous contributions.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- GOVERNMENT GRANTS                           -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasGovernmentGrants">
+      <Name>Has Government Grants</Name>
+      <Description>Whether organization received government grants.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/totalGovernmentGrants">
+      <Name>Total Government Grants</Name>
+      <Description>Total value of government grants.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/federalGovernmentGrants">
+      <Name>Federal Government Grants</Name>
+      <Description>Grants from federal government.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/stateGovernmentGrants">
+      <Name>State Government Grants</Name>
+      <Description>Grants from state government.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/localGovernmentGrants">
+      <Name>Local Government Grants</Name>
+      <Description>Grants from local government.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <!-- ============================================ -->
+    <!-- FLOW CONTROL                                -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleB990IsDone">
+      <Name>Schedule B Is Done</Name>
+      <Description>Whether Schedule B is complete.</Description>
+      <Derived>
+        <Any>
+          <Equals>
+            <Left><Dependency path="/numberOfContributorsOver5000" /></Left>
+            <Right><Int>0</Int></Right>
+          </Equals>
+          <All>
+            <GreaterThan>
+              <Left><Dependency path="/numberOfContributorsOver5000" /></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+            <IsComplete><Dependency path="/totalFromContributorsOver5000" /></IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleB990">
+      <Name>Include Schedule B in PDF</Name>
+      <Description>Whether to include Schedule B in the tax return PDF.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/numberOfContributorsOver5000" /></Left>
+          <Right><Int>0</Int></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

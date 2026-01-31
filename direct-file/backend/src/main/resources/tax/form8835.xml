@@ -1,0 +1,34 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!-- Form 8835: Renewable Electricity Production Credit -->
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/hasForm8835">
+      <Name>Has Form 8835</Name>
+      <Description>Whether taxpayer claims renewable electricity credit.</Description>
+      <Export mef="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/kilowattHoursProduced">
+      <Name>Kilowatt Hours Produced</Name>
+      <Writable><Int><Limit operation="Min" level="ERROR"><IntNode>0</IntNode></Limit></Int></Writable>
+    </Fact>
+    <Fact path="/renewableElectricityCredit">
+      <Name>Renewable Electricity Credit</Name>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/kilowattHoursProduced" />
+          <Decimal>0.028</Decimal>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8835IsDone">
+      <Derived>
+        <Any>
+          <Not><Dependency path="/hasForm8835" /></Not>
+          <IsComplete><Dependency path="/renewableElectricityCredit" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>
