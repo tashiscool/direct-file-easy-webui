@@ -359,8 +359,8 @@ def jones_schedule_a() -> Dict[str, Any]:
         "other_deductions": Decimal("0.00"),
         # Totals
         "total_itemized": Decimal("25700.00"),  # 10000 + 12000 + 3700
-        # Comparison to standard deduction (2025 MFJ: $30,000)
-        "standard_deduction_mfj": Decimal("30000.00"),
+        # Comparison to standard deduction (OBBBA 2025 MFJ: $31,500)
+        "standard_deduction_mfj": Decimal("31500.00"),
         "use_itemized": False,  # Itemized is less than standard
     }
 
@@ -445,7 +445,7 @@ def jones_form_1040_data(
 
     Tax Year: 2025
     Filing Status: Married Filing Jointly (2)
-    Standard Deduction (2025 MFJ): $30,000
+    Standard Deduction (OBBBA 2025 MFJ): $31,500
     """
     # Income calculations
     regular_wages = jones_w2_data["totals"]["regular_wages"]
@@ -464,8 +464,8 @@ def jones_form_1040_data(
     # AGI
     agi = total_income - total_adjustments
 
-    # Deduction (use standard deduction since itemized < standard)
-    standard_deduction = Decimal("30000.00")
+    # Deduction - OBBBA 2025 MFJ standard deduction
+    standard_deduction = Decimal("31500.00")
     deduction_used = standard_deduction
 
     # Taxable income

@@ -198,22 +198,22 @@ public class FactGraphATSScenarioTest {
         }
 
         @Test
-        @DisplayName("Scenario 1 expected values should match IRS ATS")
+        @DisplayName("Scenario 1 expected values should match OBBBA 2025")
         void testScenario1ExpectedValues() throws IOException {
             ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-1-tara-black.json");
             ATSExpectedValues expected = scenario.getExpectedValues();
 
-            // Values from IRS ATS PDF
+            // Values calculated using OBBBA 2025 standard deductions
             assertThat(expected.getTotalWages()).isEqualByComparingTo(new BigDecimal("42470.00"));
             assertThat(expected.getAgi()).isEqualByComparingTo(new BigDecimal("42470.00"));
-            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("15000.00"));
-            assertThat(expected.getTaxableIncome()).isEqualByComparingTo(new BigDecimal("27470.00"));
-            assertThat(expected.getTotalTax()).isEqualByComparingTo(new BigDecimal("2338.00"));
-            assertThat(expected.getRefund()).isEqualByComparingTo(new BigDecimal("375.00"));
+            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("15750.00"));
+            assertThat(expected.getTaxableIncome()).isEqualByComparingTo(new BigDecimal("26720.00"));
+            assertThat(expected.getTotalTax()).isEqualByComparingTo(new BigDecimal("2242.00"));
+            assertThat(expected.getRefund()).isEqualByComparingTo(new BigDecimal("471.00"));
         }
 
         @Test
-        @DisplayName("Scenario 5 expected values should match IRS ATS (HOH with EIC)")
+        @DisplayName("Scenario 5 expected values should match OBBBA 2025 (HOH with EIC)")
         void testScenario5ExpectedValues() throws IOException {
             ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-5-barker.json");
             ATSExpectedValues expected = scenario.getExpectedValues();
@@ -221,22 +221,22 @@ public class FactGraphATSScenarioTest {
             // Bobby Barker - HOH with blind flag, 2 children
             assertThat(expected.getTotalWages()).isEqualByComparingTo(new BigDecimal("38500.00"));
             assertThat(expected.getAgi()).isEqualByComparingTo(new BigDecimal("38500.00"));
-            // HOH standard deduction $22,500 + $1,950 blind = $24,450
-            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("24450.00"));
+            // OBBBA 2025: HOH standard deduction $23,625 + $2,000 blind = $25,625
+            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("25625.00"));
             // EIC should be claimed
             assertThat(expected.getEarnedIncomeCredit()).isGreaterThan(BigDecimal.ZERO);
         }
 
         @Test
-        @DisplayName("Scenario 8 expected values should match IRS ATS (MFS with 1099-R)")
+        @DisplayName("Scenario 8 expected values should match OBBBA 2025 (MFS with 1099-R)")
         void testScenario8ExpectedValues() throws IOException {
             ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-8-lewis.json");
             ATSExpectedValues expected = scenario.getExpectedValues();
 
             // Carter Lewis - MFS, over 65, pension income
             assertThat(expected.getTotalWages()).isEqualByComparingTo(BigDecimal.ZERO);
-            // MFS over 65 standard deduction: $15,000 + $1,550 = $16,550
-            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("16550.00"));
+            // OBBBA 2025: MFS over 65 standard deduction: $15,750 + $1,600 = $17,350
+            assertThat(expected.getStandardDeduction()).isEqualByComparingTo(new BigDecimal("17350.00"));
         }
     }
 

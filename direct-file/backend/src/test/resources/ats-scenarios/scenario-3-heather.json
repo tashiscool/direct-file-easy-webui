@@ -53,19 +53,19 @@
     "totalIncome": 58500.00,
     "adjustmentsToIncome": 3532.00,
     "agi": 54968.00,
-    "standardDeduction": 15000.00,
-    "totalDeductions": 15000.00,
-    "taxableIncome": 39968.00,
-    "taxFromTaxTable": 4556.00,
+    "standardDeduction": 15750.00,
+    "totalDeductions": 15750.00,
+    "taxableIncome": 39218.00,
+    "taxFromTaxTable": 4468.00,
     "selfEmploymentTax": 7065.00,
     "schedule2AdditionalTax": 7065.00,
-    "totalTaxBeforeCredits": 11621.00,
+    "totalTaxBeforeCredits": 11533.00,
     "totalCredits": 0.00,
-    "taxAfterCredits": 11621.00,
-    "totalTax": 11621.00,
+    "taxAfterCredits": 11533.00,
+    "totalTax": 11533.00,
     "federalWithholding": 850.00,
     "totalPayments": 850.00,
     "refund": 0.00,
-    "amountOwed": 10771.00
+    "amountOwed": 10683.00
   }
 }
