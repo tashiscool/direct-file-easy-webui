@@ -1,0 +1,187 @@
+# PDF Form Mappings for Tax Year 2025
+# Maps form identifiers to their configurations
+
+version: "2025.1"
+taxYear: 2025
+
+forms:
+  # Core 1040 Forms
+  IRS1040:
+    displayName: "Form 1040 - U.S. Individual Income Tax Return"
+    template: IRS1040/en/f1040.pdf
+    configuration: IRS1040/en/configuration.yml
+    languages: [en, es]
+
+  IRS1040SR:
+    displayName: "Form 1040-SR - U.S. Tax Return for Seniors"
+    template: IRS1040SR/en/f1040sr.pdf
+    configuration: IRS1040SR/en/configuration.yml
+    languages: [en, es]
+
+  # Schedules 1-3
+  IRS1040S1:
+    displayName: "Schedule 1 - Additional Income and Adjustments"
+    template: IRS1040S1/en/f1040s1.pdf
+    configuration: IRS1040S1/en/configuration.yml
+    languages: [en, es]
+
+  IRS1040S1A:
+    displayName: "Schedule 1-A - Additional Deductions (OBBBA 2025)"
+    template: IRS1040S1A/en/f1040s1a.pdf
+    configuration: IRS1040S1A/en/configuration.yml
+    languages: [en]
+    newFor2025: true
+
+  IRS1040S2:
+    displayName: "Schedule 2 - Additional Taxes"
+    template: IRS1040S2/en/f1040s2.pdf
+    configuration: IRS1040S2/en/configuration.yml
+    languages: [en, es]
+
+  IRS1040S3:
+    displayName: "Schedule 3 - Additional Credits and Payments"
+    template: IRS1040S3/en/f1040s3.pdf
+    configuration: IRS1040S3/en/configuration.yml
+    languages: [en, es]
+
+  # Schedules A-E
+  IRS1040SA:
+    displayName: "Schedule A - Itemized Deductions"
+    template: IRS1040SA/en/f1040sa.pdf
+    configuration: IRS1040SA/en/configuration.yml
+    languages: [en]
+
+  IRS1040SB:
+    displayName: "Schedule B - Interest and Ordinary Dividends"
+    template: IRS1040SB/en/f1040sb.pdf
+    configuration: IRS1040SB/en/configuration.yml
+    languages: [en]
+
+  IRS1040SC:
+    displayName: "Schedule C - Profit or Loss From Business"
+    template: IRS1040SC/en/f1040sc.pdf
+    configuration: IRS1040SC/en/configuration.yml
+    languages: [en]
+
+  IRS1040SD:
+    displayName: "Schedule D - Capital Gains and Losses"
+    template: IRS1040SD/en/f1040sd.pdf
+    configuration: IRS1040SD/en/configuration.yml
+    languages: [en]
+
+  IRS1040SE:
+    displayName: "Schedule E - Supplemental Income and Loss"
+    template: IRS1040SE/en/f1040se.pdf
+    configuration: IRS1040SE/en/configuration.yml
+    languages: [en]
+
+  # Credits Forms
+  IRS8812:
+    displayName: "Schedule 8812 - Credits for Qualifying Children"
+    template: IRS8812/en/f1040s8.pdf
+    configuration: IRS8812/en/configuration.yml
+    languages: [en, es]
+
+  IRS8863:
+    displayName: "Form 8863 - Education Credits"
+    template: IRS8863/en/f8863.pdf
+    configuration: IRS8863/en/configuration.yml
+    languages: [en]
+
+  IRS5695:
+    displayName: "Form 5695 - Residential Energy Credits"
+    template: IRS5695/en/f5695.pdf
+    configuration: IRS5695/en/configuration.yml
+    languages: [en]
+
+  IRS8936:
+    displayName: "Form 8936 - Clean Vehicle Credit"
+    template: IRS8936/en/f8936.pdf
+    configuration: IRS8936/en/configuration.yml
+    languages: [en]
+
+  # Business Forms
+  IRS8995:
+    displayName: "Form 8995 - Qualified Business Income Deduction"
+    template: IRS8995/en/f8995.pdf
+    configuration: IRS8995/en/configuration.yml
+    languages: [en]
+
+  IRS6251:
+    displayName: "Form 6251 - Alternative Minimum Tax"
+    template: IRS6251/en/f6251.pdf
+    configuration: IRS6251/en/configuration.yml
+    languages: [en]
+
+# Form inclusion rules
+inclusionRules:
+  Schedule1:
+    includeWhen:
+      - /hasAdditionalIncome
+      - /hasAdjustments
+
+  Schedule1A:
+    includeWhen:
+      - /hasOvertimeIncome
+      - /hasTipIncome
+      - /hasAutoLoanDeduction
+      - /hasSeniorBonusDeduction
+
+  Schedule2:
+    includeWhen:
+      - /hasAMT
+      - /hasSelfEmploymentTax
+      - /hasAdditionalMedicareTax
+
+  Schedule3:
+    includeWhen:
+      - /hasNonrefundableCredits
+      - /hasRefundableCredits
+      - /hasOtherPayments
+
+  ScheduleA:
+    includeWhen:
+      - /usingItemizedDeductions
+
+  ScheduleB:
+    includeWhen:
+      - /totalInterest > 1500
+      - /totalDividends > 1500
+      - /hasForeignAccounts
+
+  ScheduleC:
+    includeWhen:
+      - /hasSelfEmploymentIncome
+
+  ScheduleD:
+    includeWhen:
+      - /hasCapitalGainsLosses
+
+  ScheduleE:
+    includeWhen:
+      - /hasRentalIncome
+      - /hasK1Income
+
+  Form8812:
+    includeWhen:
+      - /hasQualifyingChildren
+
+  Form8863:
+    includeWhen:
+      - /hasEducationExpenses
+
+  Form5695:
+    includeWhen:
+      - /hasResidentialEnergyCredits
+
+  Form8936:
+    includeWhen:
+      - /hasCleanVehicleCredit
+
+  Form8995:
+    includeWhen:
+      - /hasQBI
+
+  Form6251:
+    includeWhen:
+      - /subjectToAMT

@@ -1,0 +1,125 @@
+# IRS Schedule 1-A - 2025 Configuration
+# Additional Deductions (OBBBA 2025 Provisions)
+
+form:
+  name: Schedule1A
+  year: 2025
+  language: en
+  template: f1040s1a.pdf
+
+description: |
+  Schedule 1-A is new for 2025 and implements the OBBBA tax provisions:
+  - Overtime Income Exemption
+  - Tip Income Exemption
+  - Auto Loan Interest Deduction
+  - Senior Bonus Deduction
+
+fields:
+  # Overtime Income Exemption
+  - name: line1a
+    type: dollar
+    factPath: /totalOvertimeIncome
+    description: "Total overtime income from W-2"
+
+  - name: line1b
+    type: dollar
+    factPath: /overtimeExemptionLimit
+    description: "Exemption limit (Single: $12,500, MFJ: $25,000)"
+
+  - name: line1c
+    type: dollar
+    factPath: /overtimeExemption
+    description: "Overtime exemption amount (lesser of 1a or 1b)"
+
+  # Tip Income Exemption
+  - name: line2a
+    type: dollar
+    factPath: /totalTipIncome
+    description: "Total tip income from W-2"
+
+  - name: line2b
+    type: dollar
+    factPath: /tipExemptionLimit
+    description: "Tip exemption limit ($25,000)"
+
+  - name: line2c
+    type: dollar
+    factPath: /tipExemption
+    description: "Tip exemption amount (lesser of 2a or 2b)"
+
+  # Auto Loan Interest Deduction
+  - name: line3a
+    type: dollar
+    factPath: /autoLoanInterestPaid
+    description: "Auto loan interest paid on US-made vehicle"
+
+  - name: line3b
+    type: dollar
+    factPath: /autoLoanDeductionLimit
+    description: "Deduction limit ($10,000)"
+
+  - name: line3c
+    type: dollar
+    factPath: /autoLoanDeduction
+    description: "Auto loan interest deduction (lesser of 3a or 3b)"
+
+  - name: line3d
+    type: checkbox
+    factPath: /vehicleUSMade
+    description: "Vehicle is US-made"
+
+  # Senior Bonus Deduction
+  - name: line4a
+    type: int
+    factPath: /numSeniorsAge65Plus
+    description: "Number of seniors (65+) on return"
+
+  - name: line4b
+    type: dollar
+    factPath: /seniorBonusPerPerson
+    description: "Bonus amount per senior ($6,000)"
+
+  - name: line4c
+    type: dollar
+    factPath: /seniorBonusDeduction
+    description: "Total senior bonus deduction"
+
+  # Phase-out Calculations
+  - name: line5a
+    type: dollar
+    factPath: /schedule1AMAGI
+    description: "MAGI for phase-out calculation"
+
+  - name: line5b
+    type: dollar
+    factPath: /schedule1APhaseoutThreshold
+    description: "Phase-out threshold (Single: $150K, MFJ: $300K)"
+
+  - name: line5c
+    type: dollar
+    factPath: /schedule1APhaseoutAmount
+    description: "Phase-out reduction amount"
+
+  # Total Schedule 1-A Deductions
+  - name: line6
+    type: dollar
+    factPath: /totalSchedule1ADeductions
+    description: "Total additional deductions (sum of lines 1c, 2c, 3c, 4c minus 5c)"
+
+eligibilityConditions:
+  overtimeExemption:
+    - /hasOvertimeIncome eq true
+    - /magi lt /overtimePhaseoutComplete
+
+  tipExemption:
+    - /hasTipIncome eq true
+    - /magi lt /tipPhaseoutComplete
+
+  autoLoanDeduction:
+    - /hasAutoLoanInterest eq true
+    - /vehicleUSMade eq true
+    - /magi lt /autoLoanPhaseoutComplete
+
+  seniorBonus:
+    - /numSeniorsAge65Plus gt 0
+    - /magi lt /seniorBonusPhaseoutComplete

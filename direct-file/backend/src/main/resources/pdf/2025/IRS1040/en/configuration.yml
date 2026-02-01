@@ -1,0 +1,208 @@
+# IRS Form 1040 - 2025 Configuration
+# U.S. Individual Income Tax Return
+
+form:
+  name: IRS1040
+  year: 2025
+  language: en
+  template: f1040.pdf
+
+fields:
+  # Header Information
+  - name: firstName
+    type: text
+    factPath: /primaryFiler/firstName
+    maxLength: 30
+
+  - name: lastName
+    type: text
+    factPath: /primaryFiler/lastName
+    maxLength: 30
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  - name: spouseFirstName
+    type: text
+    factPath: /spouse/firstName
+    maxLength: 30
+    condition: /filingStatus eq 'MFJ'
+
+  - name: spouseLastName
+    type: text
+    factPath: /spouse/lastName
+    maxLength: 30
+    condition: /filingStatus eq 'MFJ'
+
+  - name: spouseSsn
+    type: text
+    factPath: /spouse/ssn
+    format: "###-##-####"
+    condition: /filingStatus eq 'MFJ'
+
+  # Filing Status Checkboxes
+  - name: filingStatusSingle
+    type: checkbox
+    factPath: /filingStatus
+    value: Single
+
+  - name: filingStatusMFJ
+    type: checkbox
+    factPath: /filingStatus
+    value: MFJ
+
+  - name: filingStatusMFS
+    type: checkbox
+    factPath: /filingStatus
+    value: MFS
+
+  - name: filingStatusHOH
+    type: checkbox
+    factPath: /filingStatus
+    value: HOH
+
+  - name: filingStatusQSS
+    type: checkbox
+    factPath: /filingStatus
+    value: QSS
+
+  # Income Lines
+  - name: line1a
+    type: dollar
+    factPath: /totalWages
+    description: "Total wages, salaries, tips"
+
+  - name: line1b
+    type: dollar
+    factPath: /householdEmployeeWages
+    description: "Household employee wages"
+
+  - name: line1c
+    type: dollar
+    factPath: /tipIncomeNotReported
+    description: "Tip income not reported on W-2"
+
+  - name: line1d
+    type: dollar
+    factPath: /medicaidWaiverPayments
+    description: "Medicaid waiver payments"
+
+  - name: line1e
+    type: dollar
+    factPath: /dependentCareBenefits
+    description: "Dependent care benefits"
+
+  - name: line1f
+    type: dollar
+    factPath: /adoptionBenefits
+    description: "Employer adoption benefits"
+
+  - name: line1g
+    type: dollar
+    factPath: /form8919Wages
+    description: "Wages from Form 8919"
+
+  - name: line1h
+    type: dollar
+    factPath: /combatZonePay
+    description: "Combat zone pay"
+
+  - name: line1i
+    type: dollar
+    factPath: /form8889HSADistributions
+    description: "HSA distributions"
+
+  - name: line1z
+    type: dollar
+    factPath: /totalLine1
+    description: "Total Line 1"
+
+  - name: line2a
+    type: dollar
+    factPath: /taxExemptInterest
+    description: "Tax-exempt interest"
+
+  - name: line2b
+    type: dollar
+    factPath: /taxableInterest
+    description: "Taxable interest"
+
+  - name: line3a
+    type: dollar
+    factPath: /qualifiedDividends
+    description: "Qualified dividends"
+
+  - name: line3b
+    type: dollar
+    factPath: /ordinaryDividends
+    description: "Ordinary dividends"
+
+  # Tax Computation
+  - name: line11
+    type: dollar
+    factPath: /adjustedGrossIncome
+    description: "AGI"
+
+  - name: line12
+    type: dollar
+    factPath: /totalDeductions
+    description: "Standard or itemized deduction"
+
+  - name: line13
+    type: dollar
+    factPath: /qbiDeduction
+    description: "QBI deduction"
+
+  - name: line15
+    type: dollar
+    factPath: /taxableIncome
+    description: "Taxable income"
+
+  - name: line16
+    type: dollar
+    factPath: /taxBeforeCredits
+    description: "Tax"
+
+  # Payments
+  - name: line25a
+    type: dollar
+    factPath: /federalWithholding
+    description: "Federal tax withheld"
+
+  - name: line26
+    type: dollar
+    factPath: /estimatedTaxPayments
+    description: "Estimated tax payments"
+
+  # Refund/Amount Due
+  - name: line34
+    type: dollar
+    factPath: /refundAmount
+    description: "Refund"
+
+  - name: line37
+    type: dollar
+    factPath: /amountOwed
+    description: "Amount you owe"
+
+conditionalInclude:
+  - form: Schedule1
+    condition: /hasSchedule1
+  - form: Schedule2
+    condition: /hasSchedule2
+  - form: Schedule3
+    condition: /hasSchedule3
+  - form: Schedule1A
+    condition: /hasSchedule1A
+  - form: ScheduleA
+    condition: /usingItemizedDeductions
+  - form: ScheduleB
+    condition: /hasScheduleB
+  - form: ScheduleC
+    condition: /hasScheduleC
+  - form: ScheduleD
+    condition: /hasScheduleD
+  - form: ScheduleE
+    condition: /hasScheduleE
