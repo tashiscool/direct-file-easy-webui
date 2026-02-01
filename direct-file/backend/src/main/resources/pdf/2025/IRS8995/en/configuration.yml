@@ -1,0 +1,130 @@
+# IRS Form 8995 - 2025 Configuration
+# Qualified Business Income Deduction Simplified Computation
+
+form:
+  name: IRS8995
+  year: 2025
+  language: en
+  template: f8995.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Trade or Business Information
+  - name: line1aTradeBusinessName1
+    type: text
+    factPath: /form8995/businesses/0/name
+    maxLength: 50
+
+  - name: line1bSSNOrEIN1
+    type: text
+    factPath: /form8995/businesses/0/tinEin
+
+  - name: line1cQBI1
+    type: dollar
+    factPath: /form8995/businesses/0/qualifiedBusinessIncome
+
+  - name: line1aTradeBusinessName2
+    type: text
+    factPath: /form8995/businesses/1/name
+    maxLength: 50
+
+  - name: line1bSSNOrEIN2
+    type: text
+    factPath: /form8995/businesses/1/tinEin
+
+  - name: line1cQBI2
+    type: dollar
+    factPath: /form8995/businesses/1/qualifiedBusinessIncome
+
+  - name: line1aTradeBusinessName3
+    type: text
+    factPath: /form8995/businesses/2/name
+    maxLength: 50
+
+  - name: line1bSSNOrEIN3
+    type: text
+    factPath: /form8995/businesses/2/tinEin
+
+  - name: line1cQBI3
+    type: dollar
+    factPath: /form8995/businesses/2/qualifiedBusinessIncome
+
+  # QBI Calculation
+  - name: line2
+    type: dollar
+    factPath: /form8995/totalQBI
+    description: "Total qualified business income"
+
+  - name: line3
+    type: dollar
+    factPath: /form8995/qualifiedREITDividends
+    description: "Qualified REIT dividends"
+
+  - name: line4
+    type: dollar
+    factPath: /form8995/qualifiedPTPIncome
+    description: "Qualified PTP income"
+
+  - name: line5
+    type: dollar
+    factPath: /form8995/totalQualifiedIncome
+    description: "Total QBI component"
+
+  - name: line6
+    type: dollar
+    factPath: /form8995/qbiComponent
+    description: "Qualified business income component (line 2 x 20%)"
+
+  - name: line7
+    type: dollar
+    factPath: /form8995/reitPtpComponent
+    description: "REIT/PTP component (line 3 + line 4) x 20%"
+
+  - name: line8
+    type: dollar
+    factPath: /form8995/combinedQBIDeduction
+    description: "Combined QBI deduction (line 6 + line 7)"
+
+  - name: line9
+    type: dollar
+    factPath: /form8995/taxableIncome
+    description: "Taxable income before QBI deduction"
+
+  - name: line10
+    type: dollar
+    factPath: /form8995/netCapitalGain
+    description: "Net capital gain"
+
+  - name: line11
+    type: dollar
+    factPath: /form8995/line9MinusLine10
+    description: "Subtract line 10 from line 9"
+
+  - name: line12
+    type: dollar
+    factPath: /form8995/multiply20Percent
+    description: "Multiply line 11 by 20%"
+
+  - name: line13
+    type: dollar
+    factPath: /form8995/smallerOfLine8OrLine12
+    description: "QBI deduction - smaller of line 8 or line 12"
+
+  - name: line14
+    type: dollar
+    factPath: /form8995/totalReitPtpCarryforward
+    description: "Total REIT dividends and PTP loss carryforward"
+
+  - name: line15
+    type: dollar
+    factPath: /form8995/qbiDeduction
+    description: "Qualified business income deduction"

@@ -1,0 +1,212 @@
+# IRS Form 6251 - 2025 Configuration
+# Alternative Minimum Tax - Individuals
+
+form:
+  name: IRS6251
+  year: 2025
+  language: en
+  template: f6251.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Alternative Minimum Taxable Income
+  - name: line1
+    type: dollar
+    factPath: /form6251/taxableIncomeOrAGI
+    description: "Taxable income or AGI if no deductions"
+
+  - name: line2a
+    type: dollar
+    factPath: /form6251/standardDeductionAddBack
+    description: "Standard deduction add-back"
+
+  - name: line2b
+    type: dollar
+    factPath: /form6251/taxRefundsSubtraction
+    description: "Tax refunds subtraction"
+
+  - name: line2c
+    type: dollar
+    factPath: /form6251/investmentInterestExpense
+    description: "Investment interest expense"
+
+  - name: line2d
+    type: dollar
+    factPath: /form6251/depletionAddBack
+    description: "Depletion add-back"
+
+  - name: line2e
+    type: dollar
+    factPath: /form6251/netOperatingLossDeduction
+    description: "Net operating loss deduction"
+
+  - name: line2f
+    type: dollar
+    factPath: /form6251/alternativeTaxNOLDeduction
+    description: "Alternative tax NOL deduction"
+
+  - name: line2g
+    type: dollar
+    factPath: /form6251/interestOnPrivateActivityBonds
+    description: "Interest from private activity bonds"
+
+  - name: line2h
+    type: dollar
+    factPath: /form6251/section1202Exclusion
+    description: "Section 1202 exclusion"
+
+  - name: line2i
+    type: dollar
+    factPath: /form6251/isoExerciseAdjustment
+    description: "Incentive stock options adjustment"
+
+  - name: line2j
+    type: dollar
+    factPath: /form6251/estateTrustAdjustment
+    description: "Estates and trusts adjustment"
+
+  - name: line2k
+    type: dollar
+    factPath: /form6251/electionDispositionProperty
+    description: "Electing large partnerships adjustment"
+
+  - name: line2l
+    type: dollar
+    factPath: /form6251/depreciationAdjustment
+    description: "Depreciation adjustment"
+
+  - name: line2m
+    type: dollar
+    factPath: /form6251/passiveLossAdjustment
+    description: "Passive activity loss adjustment"
+
+  - name: line2n
+    type: dollar
+    factPath: /form6251/beneficiaryAdjustment
+    description: "Beneficiaries of estates and trusts"
+
+  - name: line2o
+    type: dollar
+    factPath: /form6251/taxShelterFarmAdjustment
+    description: "Tax shelter farm activities"
+
+  - name: line2p
+    type: dollar
+    factPath: /form6251/installmentSaleAdjustment
+    description: "Installment sales adjustment"
+
+  - name: line2q
+    type: dollar
+    factPath: /form6251/intangibleDrillingCosts
+    description: "Intangible drilling costs preference"
+
+  - name: line2r
+    type: dollar
+    factPath: /form6251/otherAdjustments
+    description: "Other adjustments"
+
+  - name: line3
+    type: dollar
+    factPath: /form6251/totalAdjustments
+    description: "Total adjustments and preferences"
+
+  - name: line4
+    type: dollar
+    factPath: /form6251/alternativeMinimumTaxableIncome
+    description: "Alternative minimum taxable income"
+
+  # Part II - Alternative Minimum Tax
+  - name: line5
+    type: dollar
+    factPath: /form6251/exemptionAmount
+    description: "AMT exemption amount"
+
+  - name: line6
+    type: dollar
+    factPath: /form6251/amtiLessExemption
+    description: "AMTI minus exemption"
+
+  - name: line7
+    type: dollar
+    factPath: /form6251/amtForeignTaxCredit
+    description: "AMT foreign tax credit"
+
+  - name: line8
+    type: dollar
+    factPath: /form6251/tentativeMinimumTax
+    description: "Tentative minimum tax"
+
+  - name: line9
+    type: dollar
+    factPath: /form6251/regularTax
+    description: "Regular tax before credits"
+
+  - name: line10
+    type: dollar
+    factPath: /form6251/alternativeMinimumTax
+    description: "AMT (line 8 minus line 9 if positive)"
+
+  # Part III - Tax Computation Using Maximum Capital Gains Rates
+  - name: line11
+    type: dollar
+    factPath: /form6251/line6Amount
+    description: "Enter amount from line 6"
+
+  - name: line12
+    type: dollar
+    factPath: /form6251/qualifiedDividendsCapGain
+    description: "Qualified dividends and capital gain"
+
+  - name: line13
+    type: dollar
+    factPath: /form6251/unrecaptured1250Gain
+    description: "Unrecaptured section 1250 gain"
+
+  - name: line14
+    type: dollar
+    factPath: /form6251/smallerOf12Or13
+    description: "Smaller of line 12 or line 13"
+
+  - name: line15
+    type: dollar
+    factPath: /form6251/line12Less14
+    description: "Line 12 minus line 14"
+
+  - name: line16
+    type: dollar
+    factPath: /form6251/line11Less15
+    description: "Line 11 minus line 15"
+
+  - name: line17
+    type: dollar
+    factPath: /form6251/capitalGainsBreakpoint
+    description: "Capital gains rate breakpoint"
+
+  - name: line18
+    type: dollar
+    factPath: /form6251/smallerOf11Or17
+    description: "Smaller of line 11 or line 17"
+
+  - name: line19
+    type: dollar
+    factPath: /form6251/line16TaxAt26Percent
+    description: "Tax on line 16 at 26%"
+
+  - name: line20
+    type: dollar
+    factPath: /form6251/line15TaxAtCapRates
+    description: "Tax on line 15 at capital gains rates"
+
+  - name: line21
+    type: dollar
+    factPath: /form6251/addLines19And20
+    description: "Add lines 19 and 20"

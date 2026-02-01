@@ -1,0 +1,236 @@
+# IRS Schedule 1 - 2025 Configuration
+# Additional Income and Adjustments to Income
+
+form:
+  name: IRS1040S1
+  year: 2025
+  language: en
+  template: f1040s1.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Additional Income
+  - name: line1
+    type: dollar
+    factPath: /taxableRefunds
+    description: "Taxable refunds, credits, or offsets"
+
+  - name: line2a
+    type: dollar
+    factPath: /alimonyReceived
+    description: "Alimony received"
+
+  - name: line3
+    type: dollar
+    factPath: /businessIncome
+    description: "Business income or loss (from Schedule C)"
+
+  - name: line4
+    type: dollar
+    factPath: /otherGainsLosses
+    description: "Other gains or losses (from Form 4797)"
+
+  - name: line5
+    type: dollar
+    factPath: /rentalRoyaltyIncome
+    description: "Rental real estate, royalties (from Schedule E)"
+
+  - name: line6
+    type: dollar
+    factPath: /farmIncome
+    description: "Farm income or loss (from Schedule F)"
+
+  - name: line7
+    type: dollar
+    factPath: /unemploymentCompensation
+    description: "Unemployment compensation"
+
+  - name: line8a
+    type: dollar
+    factPath: /netOperatingLoss
+    description: "Net operating loss"
+
+  - name: line8b
+    type: dollar
+    factPath: /gamblingIncome
+    description: "Gambling income"
+
+  - name: line8c
+    type: dollar
+    factPath: /canceledDebt
+    description: "Cancellation of debt"
+
+  - name: line8d
+    type: dollar
+    factPath: /foreignEarnedIncomeExclusion
+    description: "Foreign earned income exclusion"
+
+  - name: line8e
+    type: dollar
+    factPath: /taxableHSADistribution
+    description: "Taxable HSA distribution"
+
+  - name: line8f
+    type: dollar
+    factPath: /alaskaFund
+    description: "Alaska Permanent Fund dividends"
+
+  - name: line8g
+    type: dollar
+    factPath: /juryDutyPay
+    description: "Jury duty pay"
+
+  - name: line8h
+    type: dollar
+    factPath: /prizesAwards
+    description: "Prizes and awards"
+
+  - name: line8i
+    type: dollar
+    factPath: /activityNotForProfit
+    description: "Activity not for profit income"
+
+  - name: line8j
+    type: dollar
+    factPath: /stockOptions
+    description: "Stock options"
+
+  - name: line8k
+    type: dollar
+    factPath: /incomeFromEstateTrust
+    description: "Income from estates and trusts"
+
+  - name: line8l
+    type: dollar
+    factPath: /foundationPrivateLetter
+    description: "Foundation/private letter"
+
+  - name: line8m
+    type: dollar
+    factPath: /virtualCurrency
+    description: "Virtual currency"
+
+  - name: line8n
+    type: dollar
+    factPath: /olympicMedalIncome
+    description: "Olympic/Paralympic medals and USOC prize money"
+
+  - name: line8o
+    type: dollar
+    factPath: /section951Inclusion
+    description: "Section 951(a) inclusion"
+
+  - name: line8p
+    type: dollar
+    factPath: /section951AInclusion
+    description: "Section 951A inclusion"
+
+  - name: line8q
+    type: dollar
+    factPath: /section461Excess
+    description: "Section 461(l) excess business loss adjustment"
+
+  - name: line8z
+    type: dollar
+    factPath: /otherIncomeTotal
+    description: "Other income"
+
+  - name: line9
+    type: dollar
+    factPath: /totalAdditionalIncome
+    description: "Total other income"
+
+  - name: line10
+    type: dollar
+    factPath: /combinedAdditionalIncome
+    description: "Combine lines 1 through 9"
+
+  # Part II - Adjustments to Income
+  - name: line11
+    type: dollar
+    factPath: /educatorExpenses
+    description: "Educator expenses"
+
+  - name: line12
+    type: dollar
+    factPath: /businessExpensesReservists
+    description: "Business expenses for reservists"
+
+  - name: line13
+    type: dollar
+    factPath: /hsaDeduction
+    description: "HSA deduction"
+
+  - name: line14
+    type: dollar
+    factPath: /movingExpensesArmedForces
+    description: "Moving expenses for armed forces"
+
+  - name: line15
+    type: dollar
+    factPath: /selfEmploymentTaxDeduction
+    description: "Deductible part of self-employment tax"
+
+  - name: line16
+    type: dollar
+    factPath: /sepSimpleQualifiedPlans
+    description: "SEP, SIMPLE, and qualified plans"
+
+  - name: line17
+    type: dollar
+    factPath: /selfEmployedHealthInsurance
+    description: "Self-employed health insurance deduction"
+
+  - name: line18
+    type: dollar
+    factPath: /earlyWithdrawalPenalty
+    description: "Penalty on early withdrawal of savings"
+
+  - name: line19a
+    type: dollar
+    factPath: /alimonyPaid
+    description: "Alimony paid"
+
+  - name: line20
+    type: dollar
+    factPath: /iraDeduction
+    description: "IRA deduction"
+
+  - name: line21
+    type: dollar
+    factPath: /studentLoanInterest
+    description: "Student loan interest deduction"
+
+  - name: line22
+    type: dollar
+    factPath: /reservedForFutureUse
+    description: "Reserved for future use"
+
+  - name: line23
+    type: dollar
+    factPath: /archerMsaDeduction
+    description: "Archer MSA deduction"
+
+  - name: line24a
+    type: dollar
+    factPath: /otherAdjustmentsTotal
+    description: "Other adjustments"
+
+  - name: line25
+    type: dollar
+    factPath: /totalAdjustments
+    description: "Total adjustments"
+
+  - name: line26
+    type: dollar
+    factPath: /adjustedGrossIncome
+    description: "Adjusted gross income"

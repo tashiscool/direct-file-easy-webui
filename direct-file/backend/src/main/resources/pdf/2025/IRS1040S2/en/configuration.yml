@@ -1,0 +1,186 @@
+# IRS Schedule 2 - 2025 Configuration
+# Additional Taxes
+
+form:
+  name: IRS1040S2
+  year: 2025
+  language: en
+  template: f1040s2.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Tax
+  - name: line1
+    type: dollar
+    factPath: /alternativeMinimumTax
+    description: "Alternative minimum tax (Form 6251)"
+
+  - name: line2
+    type: dollar
+    factPath: /excessPremiumTaxCredit
+    description: "Excess advance premium tax credit repayment"
+
+  - name: line3
+    type: dollar
+    factPath: /partITotal
+    description: "Add lines 1 and 2"
+
+  # Part II - Other Taxes
+  - name: line4
+    type: dollar
+    factPath: /selfEmploymentTax
+    description: "Self-employment tax (Schedule SE)"
+
+  - name: line5
+    type: dollar
+    factPath: /socialSecurityMedicareTax
+    description: "Social security and Medicare tax on unreported tip income"
+
+  - name: line6
+    type: dollar
+    factPath: /uncollectedSocialSecurityMedicare
+    description: "Uncollected social security and Medicare tax"
+
+  - name: line7
+    type: dollar
+    factPath: /additionalTaxOnIRAs
+    description: "Additional tax on IRAs (Form 5329)"
+
+  - name: line8
+    type: dollar
+    factPath: /householdEmploymentTaxes
+    description: "Household employment taxes (Schedule H)"
+
+  - name: line9
+    type: dollar
+    factPath: /repaymentFirstTimeHomebuyer
+    description: "Repayment of first-time homebuyer credit"
+
+  - name: line10
+    type: dollar
+    factPath: /additionalMedicareTax
+    description: "Additional Medicare Tax (Form 8959)"
+
+  - name: line11
+    type: dollar
+    factPath: /netInvestmentIncomeTax
+    description: "Net investment income tax (Form 8960)"
+
+  - name: line12
+    type: dollar
+    factPath: /uncollectedSocialSecurityMedicareRRTA
+    description: "Uncollected social security and Medicare or RRTA tax"
+
+  - name: line13
+    type: dollar
+    factPath: /interestOnTaxDue
+    description: "Interest on tax due on installment income"
+
+  - name: line14
+    type: dollar
+    factPath: /interestOnDeferredTax
+    description: "Interest on the deferred tax on gain"
+
+  - name: line15
+    type: dollar
+    factPath: /recaptureOtherCredits
+    description: "Recapture of other credits"
+
+  - name: line16
+    type: dollar
+    factPath: /recaptureFederalMortgageSubsidy
+    description: "Recapture of federal mortgage subsidy"
+
+  - name: line17a
+    type: dollar
+    factPath: /additionalTaxQualifiedPlans
+    description: "Additional tax on qualified plans (Form 5329)"
+
+  - name: line17b
+    type: dollar
+    factPath: /additionalTaxHSA
+    description: "Additional tax on HSAs"
+
+  - name: line17c
+    type: dollar
+    factPath: /additionalTaxCoverdellESA
+    description: "Additional tax on Coverdell ESA"
+
+  - name: line17d
+    type: dollar
+    factPath: /additionalTaxABLE
+    description: "Additional tax on ABLE account"
+
+  - name: line17e
+    type: dollar
+    factPath: /recaptureEducationCredits
+    description: "Recapture of education credits"
+
+  - name: line17f
+    type: dollar
+    factPath: /section409AGain
+    description: "Section 409A inclusion"
+
+  - name: line17g
+    type: dollar
+    factPath: /section457ADeferral
+    description: "Section 457A deferral"
+
+  - name: line17h
+    type: dollar
+    factPath: /section72mPenalty
+    description: "Section 72(m)(5) excess benefits tax"
+
+  - name: line17i
+    type: dollar
+    factPath: /goldenParachute
+    description: "Golden parachute payment"
+
+  - name: line17j
+    type: dollar
+    factPath: /exciseTaxStockCompensation
+    description: "Tax on excess stock compensation"
+
+  - name: line17k
+    type: dollar
+    factPath: /exciseTaxInsiderStock
+    description: "Tax on insider stock"
+
+  - name: line17l
+    type: dollar
+    factPath: /lookBackInterest
+    description: "Look-back interest"
+
+  - name: line17z
+    type: dollar
+    factPath: /otherAdditionalTaxes
+    description: "Other additional taxes"
+
+  - name: line18
+    type: dollar
+    factPath: /partIILine17Total
+    description: "Total other taxes from line 17"
+
+  - name: line19
+    type: dollar
+    factPath: /section965Tax
+    description: "Section 965 net tax liability"
+
+  - name: line20
+    type: dollar
+    factPath: /partIIOtherTotal
+    description: "Total lines 4 through 19"
+
+  - name: line21
+    type: dollar
+    factPath: /totalAdditionalTaxes
+    description: "Add lines 3 and 20"

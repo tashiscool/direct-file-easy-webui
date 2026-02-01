@@ -1,0 +1,138 @@
+# IRS Form 8936 - 2025 Configuration
+# Qualified Plug-in Electric Drive Motor Vehicle Credit
+
+form:
+  name: IRS8936
+  year: 2025
+  language: en
+  template: f8936.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Tentative Credit
+  - name: line1
+    type: text
+    factPath: /form8936/vehicles/0/vin
+    description: "Vehicle identification number (VIN)"
+
+  - name: line2
+    type: text
+    factPath: /form8936/vehicles/0/yearMakeModel
+    description: "Year, make, and model"
+
+  - name: line3
+    type: date
+    factPath: /form8936/vehicles/0/datePlacedInService
+    description: "Date placed in service"
+
+  - name: line4
+    type: checkbox
+    factPath: /form8936/vehicles/0/isNewVehicle
+    description: "Is this a new vehicle?"
+
+  - name: line5
+    type: dollar
+    factPath: /form8936/vehicles/0/tentativeCredit
+    description: "Tentative credit for vehicle"
+
+  - name: totalLine5
+    type: dollar
+    factPath: /form8936/totalTentativeCredit
+    description: "Total tentative credit"
+
+  # Part II - Credit for New Clean Vehicles (Section 30D)
+  - name: line6
+    type: dollar
+    factPath: /form8936/newVehicle/modifiedAGI
+    description: "Enter your modified AGI"
+
+  - name: line7
+    type: dollar
+    factPath: /form8936/newVehicle/magiThreshold
+    description: "Enter MAGI threshold ($150,000/$225,000/$300,000)"
+
+  - name: line8
+    type: checkbox
+    factPath: /form8936/newVehicle/magiExceedsThreshold
+    description: "Is line 6 more than line 7?"
+
+  - name: line9
+    type: dollar
+    factPath: /form8936/newVehicle/creditAmount
+    description: "New clean vehicle credit"
+
+  # Part III - Credit for Previously Owned Clean Vehicles (Section 25E)
+  - name: line10
+    type: dollar
+    factPath: /form8936/usedVehicle/modifiedAGI
+    description: "Enter your modified AGI"
+
+  - name: line11
+    type: dollar
+    factPath: /form8936/usedVehicle/magiThreshold
+    description: "Enter MAGI threshold ($75,000/$112,500/$150,000)"
+
+  - name: line12
+    type: checkbox
+    factPath: /form8936/usedVehicle/magiExceedsThreshold
+    description: "Is line 10 more than line 11?"
+
+  - name: line13
+    type: dollar
+    factPath: /form8936/usedVehicle/salesPrice
+    description: "Enter the sales price"
+
+  - name: line14
+    type: dollar
+    factPath: /form8936/usedVehicle/priceLimit
+    description: "Maximum price ($25,000)"
+
+  - name: line15
+    type: dollar
+    factPath: /form8936/usedVehicle/smallerOfPriceOrLimit
+    description: "Enter smaller of line 13 or line 14"
+
+  - name: line16
+    type: dollar
+    factPath: /form8936/usedVehicle/multiply30Percent
+    description: "Multiply line 15 by 30%"
+
+  - name: line17
+    type: dollar
+    factPath: /form8936/usedVehicle/maxCredit
+    description: "Maximum credit ($4,000)"
+
+  - name: line18
+    type: dollar
+    factPath: /form8936/usedVehicle/creditAmount
+    description: "Previously owned clean vehicle credit"
+
+  # Part IV - Credit Summary
+  - name: line19
+    type: dollar
+    factPath: /form8936/personalUseCredit
+    description: "Total clean vehicle credit for personal use"
+
+  - name: line20
+    type: dollar
+    factPath: /form8936/businessUseCredit
+    description: "Credit for business/investment use"
+
+  - name: line21
+    type: dollar
+    factPath: /form8936/taxLiabilityLimit
+    description: "Tax liability limit"
+
+  - name: line22
+    type: dollar
+    factPath: /form8936/nonrefundableCredit
+    description: "Nonrefundable clean vehicle credit"

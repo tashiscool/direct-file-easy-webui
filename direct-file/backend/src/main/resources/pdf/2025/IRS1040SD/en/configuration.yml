@@ -1,0 +1,147 @@
+# IRS Schedule D - 2025 Configuration
+# Capital Gains and Losses
+
+form:
+  name: IRS1040SD
+  year: 2025
+  language: en
+  template: f1040sd.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Short-Term Capital Gains and Losses
+  - name: line1a
+    type: dollar
+    factPath: /scheduleD/shortTerm/totalsSalesPrice
+    description: "Totals for short-term - sales price"
+
+  - name: line1b
+    type: dollar
+    factPath: /scheduleD/shortTerm/totalsCostBasis
+    description: "Totals for short-term - cost"
+
+  - name: line1h
+    type: dollar
+    factPath: /scheduleD/shortTerm/totalsGainLoss
+    description: "Totals for short-term - gain or loss"
+
+  - name: line2
+    type: dollar
+    factPath: /scheduleD/shortTermGainFromForm4797
+    description: "Short-term gain from Form 4797"
+
+  - name: line3
+    type: dollar
+    factPath: /scheduleD/shortTermGainFromInstallmentSales
+    description: "Short-term gain from installment sales"
+
+  - name: line4
+    type: dollar
+    factPath: /scheduleD/shortTermGainFromLikeKindExchange
+    description: "Short-term gain from like-kind exchanges"
+
+  - name: line5
+    type: dollar
+    factPath: /scheduleD/shortTermCapitalLossCarryover
+    description: "Short-term capital loss carryover"
+
+  - name: line6
+    type: dollar
+    factPath: /scheduleD/netShortTermGainLossFromK1
+    description: "Net short-term gain or loss from K-1s"
+
+  - name: line7
+    type: dollar
+    factPath: /scheduleD/netShortTermCapitalGainLoss
+    description: "Net short-term capital gain or loss"
+
+  # Part II - Long-Term Capital Gains and Losses
+  - name: line8a
+    type: dollar
+    factPath: /scheduleD/longTerm/totalsSalesPrice
+    description: "Totals for long-term - sales price"
+
+  - name: line8b
+    type: dollar
+    factPath: /scheduleD/longTerm/totalsCostBasis
+    description: "Totals for long-term - cost"
+
+  - name: line8h
+    type: dollar
+    factPath: /scheduleD/longTerm/totalsGainLoss
+    description: "Totals for long-term - gain or loss"
+
+  - name: line9
+    type: dollar
+    factPath: /scheduleD/longTermGainFromForm4797
+    description: "Long-term gain from Form 4797"
+
+  - name: line10
+    type: dollar
+    factPath: /scheduleD/longTermGainFromInstallmentSales
+    description: "Long-term gain from installment sales"
+
+  - name: line11
+    type: dollar
+    factPath: /scheduleD/longTermGainFromLikeKindExchange
+    description: "Long-term gain from like-kind exchanges"
+
+  - name: line12
+    type: dollar
+    factPath: /scheduleD/longTermCapitalLossCarryover
+    description: "Long-term capital loss carryover"
+
+  - name: line13
+    type: dollar
+    factPath: /scheduleD/capitalGainDistributions
+    description: "Capital gain distributions"
+
+  - name: line14
+    type: dollar
+    factPath: /scheduleD/netLongTermGainLossFromK1
+    description: "Net long-term gain or loss from K-1s"
+
+  - name: line15
+    type: dollar
+    factPath: /scheduleD/netLongTermCapitalGainLoss
+    description: "Net long-term capital gain or loss"
+
+  # Part III - Summary
+  - name: line16
+    type: dollar
+    factPath: /scheduleD/combinedGainLoss
+    description: "Combine lines 7 and 15"
+
+  - name: line17
+    type: checkbox
+    factPath: /scheduleD/isLine16Gain
+    description: "Is line 16 a gain?"
+
+  - name: line18
+    type: dollar
+    factPath: /scheduleD/unrecapturedSection1250Gain
+    description: "Unrecaptured section 1250 gain"
+
+  - name: line19
+    type: dollar
+    factPath: /scheduleD/section1202ExclusionAmount
+    description: "Section 1202 exclusion"
+
+  - name: line20
+    type: checkbox
+    factPath: /scheduleD/bothGainsPositive
+    description: "Are lines 15 and 16 both gains?"
+
+  - name: line21
+    type: dollar
+    factPath: /scheduleD/capitalLossDeduction
+    description: "Capital loss deduction"

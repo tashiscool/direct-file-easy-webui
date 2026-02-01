@@ -1,0 +1,196 @@
+# IRS Schedule 3 - 2025 Configuration
+# Additional Credits and Payments
+
+form:
+  name: IRS1040S3
+  year: 2025
+  language: en
+  template: f1040s3.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Nonrefundable Credits
+  - name: line1
+    type: dollar
+    factPath: /foreignTaxCredit
+    description: "Foreign tax credit (Form 1116)"
+
+  - name: line2
+    type: dollar
+    factPath: /childDependentCareCredit
+    description: "Credit for child and dependent care expenses (Form 2441)"
+
+  - name: line3
+    type: dollar
+    factPath: /educationCredits
+    description: "Education credits (Form 8863)"
+
+  - name: line4
+    type: dollar
+    factPath: /retirementSavingsCredit
+    description: "Retirement savings contributions credit (Form 8880)"
+
+  - name: line5
+    type: dollar
+    factPath: /residentialEnergyCredits
+    description: "Residential energy credits (Form 5695)"
+
+  - name: line6a
+    type: dollar
+    factPath: /generalBusinessCredit
+    description: "General business credit (Form 3800)"
+
+  - name: line6b
+    type: dollar
+    factPath: /creditPriorYearMinimumTax
+    description: "Credit for prior year minimum tax (Form 8801)"
+
+  - name: line6c
+    type: dollar
+    factPath: /adoptionCredit
+    description: "Adoption credit (Form 8839)"
+
+  - name: line6d
+    type: dollar
+    factPath: /disabledAccessCredit
+    description: "Credit for the elderly or disabled (Schedule R)"
+
+  - name: line6e
+    type: dollar
+    factPath: /alternativeFuelVehicleRefuelingCredit
+    description: "Alternative fuel vehicle refueling property credit (Form 8911)"
+
+  - name: line6f
+    type: dollar
+    factPath: /qualifiedPlugInVehicleCredit
+    description: "Qualified plug-in motor vehicle credit (Form 8936)"
+
+  - name: line6g
+    type: dollar
+    factPath: /mortgageInterestCredit
+    description: "Mortgage interest credit (Form 8396)"
+
+  - name: line6h
+    type: dollar
+    factPath: /dcHomebuyerCredit
+    description: "District of Columbia first-time homebuyer credit"
+
+  - name: line6i
+    type: dollar
+    factPath: /qualifiedElectricVehicleCredit
+    description: "Qualified electric vehicle credit (Form 8834)"
+
+  - name: line6j
+    type: dollar
+    factPath: /alternativeMotorVehicleCredit
+    description: "Alternative motor vehicle credit (Form 8910)"
+
+  - name: line6k
+    type: dollar
+    factPath: /qualifiedPlugInVehicleCredit2
+    description: "Credit for qualified plug-in electric drive motor vehicle"
+
+  - name: line6l
+    type: dollar
+    factPath: /creditBiofuelProducer
+    description: "Credit for biofuel producer"
+
+  - name: line6z
+    type: dollar
+    factPath: /otherNonrefundableCredits
+    description: "Other nonrefundable credits"
+
+  - name: line7
+    type: dollar
+    factPath: /totalOtherCredits
+    description: "Total other credits"
+
+  - name: line8
+    type: dollar
+    factPath: /totalNonrefundableCredits
+    description: "Add lines 1 through 7"
+
+  # Part II - Other Payments and Refundable Credits
+  - name: line9
+    type: dollar
+    factPath: /netPremiumTaxCredit
+    description: "Net premium tax credit (Form 8962)"
+
+  - name: line10
+    type: dollar
+    factPath: /amountPaidWithExtension
+    description: "Amount paid with request for extension to file"
+
+  - name: line11
+    type: dollar
+    factPath: /excessSocialSecurityWithholding
+    description: "Excess social security and tier 1 RRTA tax withheld"
+
+  - name: line12
+    type: dollar
+    factPath: /creditFederalTaxOnFuels
+    description: "Credit for federal tax on fuels (Form 4136)"
+
+  - name: line13a
+    type: dollar
+    factPath: /form2439Credit
+    description: "Credits from Form 2439"
+
+  - name: line13b
+    type: dollar
+    factPath: /creditElecQualifiedVehicles
+    description: "Credit for electing qualifying vehicles"
+
+  - name: line13c
+    type: dollar
+    factPath: /creditHealthCoverage
+    description: "Health coverage tax credit (Form 8885)"
+
+  - name: line13d
+    type: dollar
+    factPath: /creditQualifiedSickLeave
+    description: "Credit for qualified sick and family leave wages"
+
+  - name: line13e
+    type: dollar
+    factPath: /creditRepaymentFirstTimeHomebuyer
+    description: "Credit for repayment of first-time homebuyer credit"
+
+  - name: line13f
+    type: dollar
+    factPath: /deferredAmount
+    description: "Deferred amount"
+
+  - name: line13g
+    type: dollar
+    factPath: /reservedLine13g
+    description: "Reserved for future use"
+
+  - name: line13h
+    type: dollar
+    factPath: /creditCleanVehicle
+    description: "Credit from clean vehicle (Form 8936)"
+
+  - name: line13z
+    type: dollar
+    factPath: /otherPaymentsRefundableCredits
+    description: "Other payments or refundable credits"
+
+  - name: line14
+    type: dollar
+    factPath: /totalOtherPayments
+    description: "Total other payments"
+
+  - name: line15
+    type: dollar
+    factPath: /totalOtherPaymentsRefundable
+    description: "Add lines 9 through 14"

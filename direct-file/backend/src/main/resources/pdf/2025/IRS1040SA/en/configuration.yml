@@ -1,0 +1,156 @@
+# IRS Schedule A - 2025 Configuration
+# Itemized Deductions
+
+form:
+  name: IRS1040SA
+  year: 2025
+  language: en
+  template: f1040sa.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Medical and Dental Expenses
+  - name: line1
+    type: dollar
+    factPath: /medicalDentalExpenses
+    description: "Medical and dental expenses"
+
+  - name: line2
+    type: dollar
+    factPath: /adjustedGrossIncome
+    description: "Enter AGI from Form 1040"
+
+  - name: line3
+    type: dollar
+    factPath: /medicalThreshold
+    description: "Multiply line 2 by 7.5% (0.075)"
+
+  - name: line4
+    type: dollar
+    factPath: /deductibleMedical
+    description: "Subtract line 3 from line 1"
+
+  # Taxes You Paid
+  - name: line5a
+    type: dollar
+    factPath: /stateLocalIncomeTax
+    description: "State and local income taxes or sales taxes"
+
+  - name: line5b
+    type: dollar
+    factPath: /stateLocalRealEstateTax
+    description: "State and local real estate taxes"
+
+  - name: line5c
+    type: dollar
+    factPath: /stateLocalPersonalPropertyTax
+    description: "State and local personal property taxes"
+
+  - name: line5d
+    type: dollar
+    factPath: /totalStateTaxes
+    description: "Add lines 5a through 5c"
+
+  - name: line5e
+    type: dollar
+    factPath: /saltDeductionLimit
+    description: "Enter the smaller of line 5d or $10,000"
+
+  - name: line6
+    type: dollar
+    factPath: /otherTaxes
+    description: "Other taxes"
+
+  - name: line7
+    type: dollar
+    factPath: /totalTaxesPaid
+    description: "Add lines 5e and 6"
+
+  # Interest You Paid
+  - name: line8a
+    type: dollar
+    factPath: /homeMortgageInterest1098
+    description: "Home mortgage interest from Form 1098"
+
+  - name: line8b
+    type: dollar
+    factPath: /homeMortgageInterestNot1098
+    description: "Home mortgage interest not reported on Form 1098"
+
+  - name: line8c
+    type: dollar
+    factPath: /pointsNotReported
+    description: "Points not reported on Form 1098"
+
+  - name: line8d
+    type: dollar
+    factPath: /mortgageInsurancePremiums
+    description: "Mortgage insurance premiums"
+
+  - name: line8e
+    type: dollar
+    factPath: /totalHomeMortgageInterest
+    description: "Add lines 8a through 8d"
+
+  - name: line9
+    type: dollar
+    factPath: /investmentInterest
+    description: "Investment interest (Form 4952)"
+
+  - name: line10
+    type: dollar
+    factPath: /totalInterestPaid
+    description: "Add lines 8e and 9"
+
+  # Gifts to Charity
+  - name: line11
+    type: dollar
+    factPath: /giftsByCash
+    description: "Gifts by cash or check"
+
+  - name: line12
+    type: dollar
+    factPath: /giftsOtherThanCash
+    description: "Other than by cash or check (Form 8283)"
+
+  - name: line13
+    type: dollar
+    factPath: /carryoverFromPriorYear
+    description: "Carryover from prior year"
+
+  - name: line14
+    type: dollar
+    factPath: /totalGiftsToCharity
+    description: "Add lines 11 through 13"
+
+  # Casualty and Theft Losses
+  - name: line15
+    type: dollar
+    factPath: /casualtyTheftLosses
+    description: "Casualty and theft losses from federally declared disaster"
+
+  # Other Itemized Deductions
+  - name: line16
+    type: dollar
+    factPath: /otherItemizedDeductions
+    description: "Other itemized deductions"
+
+  # Total Itemized Deductions
+  - name: line17
+    type: dollar
+    factPath: /totalItemizedDeductions
+    description: "Add lines 4, 7, 10, 14, 15, and 16"
+
+  - name: line18
+    type: checkbox
+    factPath: /electToItemize
+    description: "Elect to itemize even if less than standard deduction"

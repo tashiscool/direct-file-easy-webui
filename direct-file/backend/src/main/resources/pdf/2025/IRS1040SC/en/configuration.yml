@@ -1,0 +1,230 @@
+# IRS Schedule C - 2025 Configuration
+# Profit or Loss From Business (Sole Proprietorship)
+
+form:
+  name: IRS1040SC
+  year: 2025
+  language: en
+  template: f1040sc.pdf
+
+fields:
+  # Header
+  - name: proprietorName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  - name: businessName
+    type: text
+    factPath: /scheduleC/businessName
+    maxLength: 75
+
+  - name: principalBusinessCode
+    type: text
+    factPath: /scheduleC/principalBusinessCode
+
+  - name: businessAddress
+    type: text
+    factPath: /scheduleC/businessAddress
+
+  - name: ein
+    type: text
+    factPath: /scheduleC/employerIdNumber
+    format: "##-#######"
+
+  - name: accountingMethod
+    type: radio
+    factPath: /scheduleC/accountingMethod
+    options: [cash, accrual, other]
+
+  - name: didMaterializeParticipate
+    type: checkbox
+    factPath: /scheduleC/materiallyParticipated
+
+  - name: startedInCurrentYear
+    type: checkbox
+    factPath: /scheduleC/startedOrAcquiredInYear
+
+  - name: madePaymentsRequiring1099
+    type: checkbox
+    factPath: /scheduleC/madePaymentsRequiring1099
+
+  - name: filed1099Forms
+    type: checkbox
+    factPath: /scheduleC/filedRequired1099Forms
+
+  # Part I - Income
+  - name: line1
+    type: dollar
+    factPath: /scheduleC/grossReceiptsOrSales
+    description: "Gross receipts or sales"
+
+  - name: line2
+    type: dollar
+    factPath: /scheduleC/returnsAndAllowances
+    description: "Returns and allowances"
+
+  - name: line3
+    type: dollar
+    factPath: /scheduleC/netReceiptsLine3
+    description: "Subtract line 2 from line 1"
+
+  - name: line4
+    type: dollar
+    factPath: /scheduleC/costOfGoodsSold
+    description: "Cost of goods sold (from line 42)"
+
+  - name: line5
+    type: dollar
+    factPath: /scheduleC/grossProfit
+    description: "Gross profit"
+
+  - name: line6
+    type: dollar
+    factPath: /scheduleC/otherIncome
+    description: "Other income"
+
+  - name: line7
+    type: dollar
+    factPath: /scheduleC/grossIncome
+    description: "Gross income"
+
+  # Part II - Expenses
+  - name: line8
+    type: dollar
+    factPath: /scheduleC/advertising
+    description: "Advertising"
+
+  - name: line9
+    type: dollar
+    factPath: /scheduleC/carTruckExpenses
+    description: "Car and truck expenses"
+
+  - name: line10
+    type: dollar
+    factPath: /scheduleC/commissionsAndFees
+    description: "Commissions and fees"
+
+  - name: line11
+    type: dollar
+    factPath: /scheduleC/contractLabor
+    description: "Contract labor"
+
+  - name: line12
+    type: dollar
+    factPath: /scheduleC/depletion
+    description: "Depletion"
+
+  - name: line13
+    type: dollar
+    factPath: /scheduleC/depreciation
+    description: "Depreciation and section 179"
+
+  - name: line14
+    type: dollar
+    factPath: /scheduleC/employeeBenefitPrograms
+    description: "Employee benefit programs"
+
+  - name: line15
+    type: dollar
+    factPath: /scheduleC/insurance
+    description: "Insurance (other than health)"
+
+  - name: line16a
+    type: dollar
+    factPath: /scheduleC/mortgageInterest
+    description: "Interest (mortgage)"
+
+  - name: line16b
+    type: dollar
+    factPath: /scheduleC/otherInterest
+    description: "Interest (other)"
+
+  - name: line17
+    type: dollar
+    factPath: /scheduleC/legalProfessionalServices
+    description: "Legal and professional services"
+
+  - name: line18
+    type: dollar
+    factPath: /scheduleC/officeExpense
+    description: "Office expense"
+
+  - name: line19
+    type: dollar
+    factPath: /scheduleC/pensionProfitSharing
+    description: "Pension and profit-sharing plans"
+
+  - name: line20a
+    type: dollar
+    factPath: /scheduleC/vehicleRent
+    description: "Rent (vehicles, machinery, equipment)"
+
+  - name: line20b
+    type: dollar
+    factPath: /scheduleC/otherBusinessPropertyRent
+    description: "Rent (other business property)"
+
+  - name: line21
+    type: dollar
+    factPath: /scheduleC/repairs
+    description: "Repairs and maintenance"
+
+  - name: line22
+    type: dollar
+    factPath: /scheduleC/supplies
+    description: "Supplies"
+
+  - name: line23
+    type: dollar
+    factPath: /scheduleC/taxesLicenses
+    description: "Taxes and licenses"
+
+  - name: line24a
+    type: dollar
+    factPath: /scheduleC/travel
+    description: "Travel"
+
+  - name: line24b
+    type: dollar
+    factPath: /scheduleC/mealsDeductible
+    description: "Deductible meals"
+
+  - name: line25
+    type: dollar
+    factPath: /scheduleC/utilities
+    description: "Utilities"
+
+  - name: line26
+    type: dollar
+    factPath: /scheduleC/wages
+    description: "Wages"
+
+  - name: line27a
+    type: dollar
+    factPath: /scheduleC/otherExpenses
+    description: "Other expenses"
+
+  - name: line28
+    type: dollar
+    factPath: /scheduleC/totalExpenses
+    description: "Total expenses before home office"
+
+  - name: line29
+    type: dollar
+    factPath: /scheduleC/tentativeProfit
+    description: "Tentative profit"
+
+  - name: line30
+    type: dollar
+    factPath: /scheduleC/businessUseOfHome
+    description: "Expenses for business use of home"
+
+  - name: line31
+    type: dollar
+    factPath: /scheduleC/netProfitOrLoss
+    description: "Net profit or loss"

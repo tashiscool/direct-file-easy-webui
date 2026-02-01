@@ -1,0 +1,196 @@
+# IRS Form 5695 - 2025 Configuration
+# Residential Energy Credits
+
+form:
+  name: IRS5695
+  year: 2025
+  language: en
+  template: f5695.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Residential Clean Energy Credit
+  - name: line1
+    type: dollar
+    factPath: /form5695/qualifiedSolarElectricProperty
+    description: "Qualified solar electric property costs"
+
+  - name: line2
+    type: dollar
+    factPath: /form5695/qualifiedSolarWaterHeating
+    description: "Qualified solar water heating property costs"
+
+  - name: line3
+    type: dollar
+    factPath: /form5695/qualifiedFuelCellProperty
+    description: "Qualified fuel cell property costs"
+
+  - name: line4
+    type: dollar
+    factPath: /form5695/qualifiedSmallWindEnergy
+    description: "Qualified small wind energy property costs"
+
+  - name: line5
+    type: dollar
+    factPath: /form5695/qualifiedGeothermal
+    description: "Qualified geothermal heat pump property costs"
+
+  - name: line6a
+    type: dollar
+    factPath: /form5695/qualifiedBatteryStorage
+    description: "Qualified battery storage technology costs"
+
+  - name: line6b
+    type: dollar
+    factPath: /form5695/addLines1Through6a
+    description: "Add lines 1 through 6a"
+
+  - name: line6c
+    type: dollar
+    factPath: /form5695/multiplyBy30Percent
+    description: "Multiply line 6b by 30%"
+
+  - name: line7
+    type: dollar
+    factPath: /form5695/fuelCellKilowattCapacity
+    description: "Fuel cell property kilowatt capacity"
+
+  - name: line8
+    type: dollar
+    factPath: /form5695/fuelCellCapacityCredit
+    description: "Multiply line 7 by $1,000"
+
+  - name: line9
+    type: dollar
+    factPath: /form5695/fuelCellCreditLimitation
+    description: "Enter smaller of line 6c or line 8"
+
+  - name: line10
+    type: dollar
+    factPath: /form5695/carryforwardCredit
+    description: "Credit carryforward from prior year"
+
+  - name: line11
+    type: dollar
+    factPath: /form5695/addLines9And10
+    description: "Add lines 9 and 10"
+
+  - name: line12
+    type: dollar
+    factPath: /form5695/taxLimitationPartI
+    description: "Tax limitation"
+
+  - name: line13
+    type: dollar
+    factPath: /form5695/residentialCleanEnergyCredit
+    description: "Residential clean energy credit"
+
+  # Part II - Energy Efficient Home Improvement Credit
+  - name: line17a
+    type: checkbox
+    factPath: /form5695/qualifiedImprovements
+    description: "Qualified energy efficiency improvements"
+
+  - name: line17b
+    type: checkbox
+    factPath: /form5695/originalUserOfProperty
+    description: "Were you the original user of the property"
+
+  - name: line17c
+    type: checkbox
+    factPath: /form5695/expectedToRemain5Years
+    description: "Expected to remain in use for 5 years"
+
+  - name: line17d
+    type: checkbox
+    factPath: /form5695/notForConstruction
+    description: "Property was not used in construction"
+
+  - name: line18
+    type: dollar
+    factPath: /form5695/exteriorDoorsCost
+    description: "Exterior doors - max $500"
+
+  - name: line19
+    type: dollar
+    factPath: /form5695/exteriorWindowsCost
+    description: "Exterior windows and skylights - max $600"
+
+  - name: line20
+    type: dollar
+    factPath: /form5695/insulationCost
+    description: "Insulation"
+
+  - name: line21
+    type: dollar
+    factPath: /form5695/roofsCost
+    description: "Roofs (metal or asphalt)"
+
+  - name: line22
+    type: dollar
+    factPath: /form5695/centralAirConditionerCost
+    description: "Central air conditioners - max $600"
+
+  - name: line23
+    type: dollar
+    factPath: /form5695/naturalGasFurnaceCost
+    description: "Natural gas, propane, or oil furnaces - max $600"
+
+  - name: line24
+    type: dollar
+    factPath: /form5695/hotWaterBoilerCost
+    description: "Natural gas, propane, or oil hot water boilers - max $600"
+
+  - name: line25
+    type: dollar
+    factPath: /form5695/biomassStoveCost
+    description: "Biomass stoves and boilers - max $2,000"
+
+  - name: line26
+    type: dollar
+    factPath: /form5695/heatPumpWaterHeaterCost
+    description: "Electric or natural gas heat pump water heaters - max $2,000"
+
+  - name: line27
+    type: dollar
+    factPath: /form5695/heatPumpCost
+    description: "Electric or natural gas heat pumps - max $2,000"
+
+  - name: line28
+    type: dollar
+    factPath: /form5695/homeEnergyAuditCost
+    description: "Home energy audits - max $150"
+
+  - name: line29
+    type: dollar
+    factPath: /form5695/addLines18Through28
+    description: "Add lines 18 through 28"
+
+  - name: line30
+    type: dollar
+    factPath: /form5695/annualLimit
+    description: "Maximum annual credit limit ($1,200 or $2,000)"
+
+  - name: line31
+    type: dollar
+    factPath: /form5695/priorYearCreditUsed
+    description: "Prior year credits used"
+
+  - name: line32
+    type: dollar
+    factPath: /form5695/energyEfficientHomeCredit
+    description: "Energy efficient home improvement credit"
+
+  - name: line33
+    type: dollar
+    factPath: /form5695/totalResidentialEnergyCredits
+    description: "Total residential energy credits"

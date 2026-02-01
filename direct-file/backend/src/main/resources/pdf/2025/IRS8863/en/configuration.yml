@@ -1,0 +1,173 @@
+# IRS Form 8863 - 2025 Configuration
+# Education Credits (American Opportunity and Lifetime Learning Credits)
+
+form:
+  name: IRS8863
+  year: 2025
+  language: en
+  template: f8863.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Refundable American Opportunity Credit
+  - name: line1
+    type: dollar
+    factPath: /form8863/tentativeAOTCFromPartIII
+    description: "Enter tentative AOTC from Part III"
+
+  - name: line2
+    type: dollar
+    factPath: /form8863/modifiedAGIForRefundable
+    description: "Enter your modified AGI"
+
+  - name: line3
+    type: dollar
+    factPath: /form8863/enterThresholdAmount
+    description: "Enter $80,000 ($160,000 if MFJ)"
+
+  - name: line4
+    type: dollar
+    factPath: /form8863/line2MinusLine3
+    description: "Subtract line 3 from line 2"
+
+  - name: line5
+    type: dollar
+    factPath: /form8863/phaseoutRange
+    description: "Enter $10,000 ($20,000 if MFJ)"
+
+  - name: line6
+    type: decimal
+    factPath: /form8863/line4DividedByLine5
+    description: "Divide line 4 by line 5 (3 decimal places)"
+
+  - name: line7
+    type: dollar
+    factPath: /form8863/line1TimesLine6
+    description: "Multiply line 1 by line 6"
+
+  - name: line8
+    type: dollar
+    factPath: /form8863/refundableAOTC
+    description: "Refundable American opportunity credit"
+
+  # Part II - Nonrefundable Education Credits
+  - name: line9
+    type: dollar
+    factPath: /form8863/nonrefundableAOTCFromPartIII
+    description: "Nonrefundable AOTC from Part III"
+
+  - name: line10
+    type: dollar
+    factPath: /form8863/lifetimeLearningCredit
+    description: "Lifetime learning credit from Part III"
+
+  - name: line11
+    type: dollar
+    factPath: /form8863/addLines9And10
+    description: "Add lines 9 and 10"
+
+  - name: line12
+    type: dollar
+    factPath: /form8863/modifiedAGIForNonrefundable
+    description: "Enter modified AGI"
+
+  - name: line13
+    type: dollar
+    factPath: /form8863/llcThreshold
+    description: "Enter $80,000 ($160,000 if MFJ)"
+
+  - name: line14
+    type: dollar
+    factPath: /form8863/line12MinusLine13
+    description: "Subtract line 13 from line 12"
+
+  - name: line15
+    type: dollar
+    factPath: /form8863/llcPhaseoutRange
+    description: "Enter $10,000 ($20,000 if MFJ)"
+
+  - name: line16
+    type: decimal
+    factPath: /form8863/line14DividedByLine15
+    description: "Divide line 14 by line 15"
+
+  - name: line17
+    type: dollar
+    factPath: /form8863/line11TimesLine16
+    description: "Multiply line 11 by line 16"
+
+  - name: line18
+    type: dollar
+    factPath: /form8863/taxLiabilityLimit
+    description: "Tax liability limit"
+
+  - name: line19
+    type: dollar
+    factPath: /form8863/nonrefundableEducationCredits
+    description: "Nonrefundable education credits"
+
+  # Part III - Student and Educational Institution Information
+  - name: studentName1
+    type: text
+    factPath: /form8863/students/0/name
+    maxLength: 50
+
+  - name: studentSsn1
+    type: text
+    factPath: /form8863/students/0/ssn
+    format: "###-##-####"
+
+  - name: institutionName1
+    type: text
+    factPath: /form8863/students/0/institutionName
+    maxLength: 50
+
+  - name: institutionAddress1
+    type: text
+    factPath: /form8863/students/0/institutionAddress
+
+  - name: institutionEin1
+    type: text
+    factPath: /form8863/students/0/institutionEIN
+    format: "##-#######"
+
+  - name: wasFirstFourYears1
+    type: checkbox
+    factPath: /form8863/students/0/wasFirstFourYears
+
+  - name: completedFourYears1
+    type: checkbox
+    factPath: /form8863/students/0/completedFourYears
+
+  - name: atLeastHalfTime1
+    type: checkbox
+    factPath: /form8863/students/0/atLeastHalfTime
+
+  - name: qualifiedExpenses1
+    type: dollar
+    factPath: /form8863/students/0/qualifiedExpenses
+
+  - name: scholarshipsGrants1
+    type: dollar
+    factPath: /form8863/students/0/scholarshipsGrants
+
+  - name: adjustedExpenses1
+    type: dollar
+    factPath: /form8863/students/0/adjustedExpenses
+
+  - name: aotcCredit1
+    type: dollar
+    factPath: /form8863/students/0/aotcCredit
+
+  - name: llcCredit1
+    type: dollar
+    factPath: /form8863/students/0/llcCredit

@@ -1,0 +1,121 @@
+# IRS Schedule B - 2025 Configuration
+# Interest and Ordinary Dividends
+
+form:
+  name: IRS1040SB
+  year: 2025
+  language: en
+  template: f1040sb.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Interest
+  - name: interestPayerName1
+    type: text
+    factPath: /interestPayers/0/name
+    maxLength: 50
+
+  - name: interestAmount1
+    type: dollar
+    factPath: /interestPayers/0/amount
+
+  - name: interestPayerName2
+    type: text
+    factPath: /interestPayers/1/name
+    maxLength: 50
+
+  - name: interestAmount2
+    type: dollar
+    factPath: /interestPayers/1/amount
+
+  - name: interestPayerName3
+    type: text
+    factPath: /interestPayers/2/name
+    maxLength: 50
+
+  - name: interestAmount3
+    type: dollar
+    factPath: /interestPayers/2/amount
+
+  - name: line1Total
+    type: dollar
+    factPath: /totalInterestIncome
+    description: "Total interest"
+
+  - name: line2
+    type: dollar
+    factPath: /excludableSavingsBondInterest
+    description: "Excludable interest on series EE/I savings bonds"
+
+  - name: line3
+    type: dollar
+    factPath: /interestLine3Subtotal
+    description: "Subtract line 2 from line 1"
+
+  - name: line4
+    type: dollar
+    factPath: /taxableInterest
+    description: "Taxable interest"
+
+  # Part II - Ordinary Dividends
+  - name: dividendPayerName1
+    type: text
+    factPath: /dividendPayers/0/name
+    maxLength: 50
+
+  - name: dividendAmount1
+    type: dollar
+    factPath: /dividendPayers/0/amount
+
+  - name: dividendPayerName2
+    type: text
+    factPath: /dividendPayers/1/name
+    maxLength: 50
+
+  - name: dividendAmount2
+    type: dollar
+    factPath: /dividendPayers/1/amount
+
+  - name: dividendPayerName3
+    type: text
+    factPath: /dividendPayers/2/name
+    maxLength: 50
+
+  - name: dividendAmount3
+    type: dollar
+    factPath: /dividendPayers/2/amount
+
+  - name: line5Total
+    type: dollar
+    factPath: /totalOrdinaryDividends
+    description: "Total ordinary dividends"
+
+  - name: line6
+    type: dollar
+    factPath: /qualifiedDividends
+    description: "Qualified dividends"
+
+  # Part III - Foreign Accounts and Trusts
+  - name: line7a
+    type: checkbox
+    factPath: /hadForeignAccounts
+    description: "Had a financial interest in foreign account"
+
+  - name: line7b
+    type: text
+    factPath: /foreignAccountCountry
+    description: "Country name"
+
+  - name: line8
+    type: checkbox
+    factPath: /receivedForeignTrustDistribution
+    description: "Received a distribution from a foreign trust"

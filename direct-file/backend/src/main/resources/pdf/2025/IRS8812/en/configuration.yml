@@ -1,0 +1,167 @@
+# IRS Schedule 8812 - 2025 Configuration
+# Credits for Qualifying Children and Other Dependents
+
+form:
+  name: IRS8812
+  year: 2025
+  language: en
+  template: f1040s8.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Child Tax Credit and Credit for Other Dependents
+  - name: line1
+    type: number
+    factPath: /form8812/numberOfQualifyingChildren
+    description: "Number of qualifying children under age 17"
+
+  - name: line2
+    type: dollar
+    factPath: /form8812/multiplyLine1By2000
+    description: "Multiply line 1 by $2,000"
+
+  - name: line3
+    type: number
+    factPath: /form8812/numberOfOtherDependents
+    description: "Number of other dependents"
+
+  - name: line4
+    type: dollar
+    factPath: /form8812/multiplyLine3By500
+    description: "Multiply line 3 by $500"
+
+  - name: line5
+    type: dollar
+    factPath: /form8812/addLines2And4
+    description: "Add lines 2 and 4"
+
+  - name: line6
+    type: dollar
+    factPath: /form8812/modifiedAGI
+    description: "Enter your modified AGI"
+
+  - name: line7
+    type: dollar
+    factPath: /form8812/phaseoutThreshold
+    description: "Enter phase-out threshold ($200,000 or $400,000 if MFJ)"
+
+  - name: line8
+    type: dollar
+    factPath: /form8812/line6MinusLine7
+    description: "Subtract line 7 from line 6 (if zero or less, enter 0)"
+
+  - name: line9
+    type: dollar
+    factPath: /form8812/multiplyLine8By5Percent
+    description: "Multiply line 8 by 5%"
+
+  - name: line10
+    type: dollar
+    factPath: /form8812/line5MinusLine9
+    description: "Subtract line 9 from line 5 (if zero or less, enter 0)"
+
+  - name: line11
+    type: dollar
+    factPath: /form8812/taxLiabilityLimit
+    description: "Tax liability limit"
+
+  - name: line12
+    type: dollar
+    factPath: /form8812/childTaxCredit
+    description: "Child tax credit - enter smaller of line 10 or line 11"
+
+  # Part II-A - Additional Child Tax Credit (ACTC)
+  - name: line13
+    type: dollar
+    factPath: /form8812/line2Amount
+    description: "Enter amount from line 2"
+
+  - name: line14
+    type: dollar
+    factPath: /form8812/line12Amount
+    description: "Enter amount from line 12"
+
+  - name: line15
+    type: dollar
+    factPath: /form8812/line13MinusLine14
+    description: "Subtract line 14 from line 13"
+
+  - name: line16a
+    type: dollar
+    factPath: /form8812/earnedIncomeAmount
+    description: "Enter your earned income"
+
+  - name: line16b
+    type: dollar
+    factPath: /form8812/nonTaxableCombatPay
+    description: "Enter nontaxable combat pay"
+
+  - name: line17
+    type: dollar
+    factPath: /form8812/earnedIncomeThreshold
+    description: "Earned income threshold ($2,500)"
+
+  - name: line18
+    type: dollar
+    factPath: /form8812/line16aMinusLine17
+    description: "Subtract line 17 from line 16a"
+
+  - name: line19
+    type: dollar
+    factPath: /form8812/multiplyLine18By15Percent
+    description: "Multiply line 18 by 15%"
+
+  - name: line20
+    type: number
+    factPath: /form8812/numberOfQualifyingChildrenFor3Plus
+    description: "Number of qualifying children for 3+ calculation"
+
+  - name: line21
+    type: dollar
+    factPath: /form8812/socialSecurityTaxWithheld
+    description: "Social security and Medicare taxes withheld"
+
+  - name: line22
+    type: dollar
+    factPath: /form8812/scheduleSETax
+    description: "Self-employment tax from Schedule SE"
+
+  - name: line23
+    type: dollar
+    factPath: /form8812/additionalMedicareTax
+    description: "Additional Medicare Tax and RRTA taxes"
+
+  - name: line24
+    type: dollar
+    factPath: /form8812/addLines21Through23
+    description: "Add lines 21 through 23"
+
+  - name: line25
+    type: dollar
+    factPath: /form8812/earnedIncomeCredit
+    description: "Earned income credit"
+
+  - name: line26
+    type: dollar
+    factPath: /form8812/line24MinusLine25
+    description: "Subtract line 25 from line 24"
+
+  - name: line27
+    type: dollar
+    factPath: /form8812/largerOfLine19OrLine26
+    description: "Enter larger of line 19 or line 26"
+
+  # Part II-B - Certain Filers Who Have Three or More Qualifying Children
+  - name: line28
+    type: dollar
+    factPath: /form8812/smallerOfLine15OrLine27
+    description: "ACTC - enter smaller of line 15 or line 27"

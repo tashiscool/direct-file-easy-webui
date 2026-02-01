@@ -1,0 +1,190 @@
+# IRS Schedule E - 2025 Configuration
+# Supplemental Income and Loss
+
+form:
+  name: IRS1040SE
+  year: 2025
+  language: en
+  template: f1040se.pdf
+
+fields:
+  # Header
+  - name: taxpayerName
+    type: text
+    factPath: /primaryFiler/fullName
+
+  - name: ssn
+    type: text
+    factPath: /primaryFiler/ssn
+    format: "###-##-####"
+
+  # Part I - Income or Loss From Rental Real Estate and Royalties
+  - name: line1aAddress1
+    type: text
+    factPath: /scheduleE/properties/0/address
+    maxLength: 50
+
+  - name: line1aType1
+    type: text
+    factPath: /scheduleE/properties/0/type
+
+  - name: line1aFairRentalDays1
+    type: number
+    factPath: /scheduleE/properties/0/fairRentalDays
+
+  - name: line1aPersonalUseDays1
+    type: number
+    factPath: /scheduleE/properties/0/personalUseDays
+
+  - name: line2QJV1
+    type: checkbox
+    factPath: /scheduleE/properties/0/isQJV
+
+  - name: line3Rents1
+    type: dollar
+    factPath: /scheduleE/properties/0/rentsReceived
+
+  - name: line4Royalties1
+    type: dollar
+    factPath: /scheduleE/properties/0/royaltiesReceived
+
+  # Expenses for Property 1
+  - name: line5Advertising1
+    type: dollar
+    factPath: /scheduleE/properties/0/advertising
+
+  - name: line6Auto1
+    type: dollar
+    factPath: /scheduleE/properties/0/autoTravel
+
+  - name: line7Cleaning1
+    type: dollar
+    factPath: /scheduleE/properties/0/cleaningMaintenance
+
+  - name: line8Commissions1
+    type: dollar
+    factPath: /scheduleE/properties/0/commissions
+
+  - name: line9Insurance1
+    type: dollar
+    factPath: /scheduleE/properties/0/insurance
+
+  - name: line10Legal1
+    type: dollar
+    factPath: /scheduleE/properties/0/legalProfessional
+
+  - name: line11Management1
+    type: dollar
+    factPath: /scheduleE/properties/0/managementFees
+
+  - name: line12MortgageInterest1
+    type: dollar
+    factPath: /scheduleE/properties/0/mortgageInterest
+
+  - name: line13OtherInterest1
+    type: dollar
+    factPath: /scheduleE/properties/0/otherInterest
+
+  - name: line14Repairs1
+    type: dollar
+    factPath: /scheduleE/properties/0/repairs
+
+  - name: line15Supplies1
+    type: dollar
+    factPath: /scheduleE/properties/0/supplies
+
+  - name: line16Taxes1
+    type: dollar
+    factPath: /scheduleE/properties/0/taxes
+
+  - name: line17Utilities1
+    type: dollar
+    factPath: /scheduleE/properties/0/utilities
+
+  - name: line18Depreciation1
+    type: dollar
+    factPath: /scheduleE/properties/0/depreciation
+
+  - name: line19Other1
+    type: dollar
+    factPath: /scheduleE/properties/0/otherExpenses
+
+  - name: line20TotalExpenses1
+    type: dollar
+    factPath: /scheduleE/properties/0/totalExpenses
+
+  - name: line21IncomeOrLoss1
+    type: dollar
+    factPath: /scheduleE/properties/0/incomeOrLoss
+
+  # Totals
+  - name: line23a
+    type: dollar
+    factPath: /scheduleE/totalIncomeAllProperties
+    description: "Total income"
+
+  - name: line23b
+    type: dollar
+    factPath: /scheduleE/totalLossAllProperties
+    description: "Total losses"
+
+  - name: line24
+    type: dollar
+    factPath: /scheduleE/totalRentalRealEstateRoyalties
+    description: "Net rental real estate and royalty income or loss"
+
+  # Part II - Income or Loss From Partnerships and S Corporations
+  - name: line28a
+    type: text
+    factPath: /scheduleE/partnerships/0/name
+
+  - name: line28b
+    type: checkbox
+    factPath: /scheduleE/partnerships/0/isForeign
+
+  - name: line28c
+    type: text
+    factPath: /scheduleE/partnerships/0/ein
+
+  - name: line28d
+    type: checkbox
+    factPath: /scheduleE/partnerships/0/atRisk
+
+  - name: line28f
+    type: dollar
+    factPath: /scheduleE/partnerships/0/passiveIncome
+
+  - name: line28g
+    type: dollar
+    factPath: /scheduleE/partnerships/0/passiveLoss
+
+  - name: line28h
+    type: dollar
+    factPath: /scheduleE/partnerships/0/nonpassiveIncome
+
+  - name: line28i
+    type: dollar
+    factPath: /scheduleE/partnerships/0/nonpassiveLoss
+
+  - name: line32
+    type: dollar
+    factPath: /scheduleE/totalPartnershipSCorpIncome
+    description: "Total partnership and S corporation income"
+
+  # Part III - Income or Loss From Estates and Trusts
+  - name: line37
+    type: dollar
+    factPath: /scheduleE/totalEstateTrustIncome
+    description: "Total estate and trust income"
+
+  # Part IV - Income or Loss From REMICs
+  - name: line42
+    type: dollar
+    factPath: /scheduleE/totalREMICIncome
+    description: "Total REMIC income"
+
+  # Part V - Summary
+  - name: line43
+    type: dollar
+    factPath: /scheduleE/totalSupplementalIncome
+    description: "Total supplemental income or loss"
