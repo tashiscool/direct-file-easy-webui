@@ -1,0 +1,139 @@
+{
+  "scenarioId": "22",
+  "scenarioName": "Tommy Nguyen - Cryptocurrency Transactions",
+  "description": "Single filer with cryptocurrency trading activity including short-term and long-term capital gains/losses. Tests digital assets reporting and Form 8949.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Tommy",
+    "lastName": "Nguyen",
+    "ssn": "400-22-1057",
+    "dateOfBirth": "1995-10-20",
+    "occupation": "Software Developer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "888 Crypto Court",
+      "city": "Miami",
+      "state": "FL",
+      "zip": "33101"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Tommy Nguyen",
+      "employerName": "Blockchain Startup Inc",
+      "employerEin": "65-1234567",
+      "employerAddress": {
+        "street": "100 Web3 Way",
+        "city": "Miami",
+        "state": "FL",
+        "zip": "33131"
+      },
+      "wages": 125000.00,
+      "federalWithholding": 22500.00,
+      "ssWages": 125000.00,
+      "ssTax": 7750.00,
+      "medicareWages": 125000.00,
+      "medicareTax": 1813.00,
+      "state": "FL",
+      "stateWages": 0.00,
+      "stateTax": 0.00
+    }
+  ],
+  "form1099Rs": [],
+  "digitalAssets": true,
+  "digitalAssetTransactions": [
+    {
+      "exchange": "Coinbase",
+      "asset": "Bitcoin (BTC)",
+      "dateAcquired": "2021-01-15",
+      "dateSold": "2025-03-20",
+      "proceeds": 45000.00,
+      "costBasis": 25000.00,
+      "gain": 20000.00,
+      "isLongTerm": true
+    },
+    {
+      "exchange": "Coinbase",
+      "asset": "Ethereum (ETH)",
+      "dateAcquired": "2022-06-10",
+      "dateSold": "2025-08-15",
+      "proceeds": 18000.00,
+      "costBasis": 12000.00,
+      "gain": 6000.00,
+      "isLongTerm": true
+    },
+    {
+      "exchange": "Kraken",
+      "asset": "Solana (SOL)",
+      "dateAcquired": "2025-02-01",
+      "dateSold": "2025-04-15",
+      "proceeds": 8000.00,
+      "costBasis": 10000.00,
+      "gain": -2000.00,
+      "isLongTerm": false
+    },
+    {
+      "exchange": "Kraken",
+      "asset": "Cardano (ADA)",
+      "dateAcquired": "2025-03-10",
+      "dateSold": "2025-06-20",
+      "proceeds": 3500.00,
+      "costBasis": 5000.00,
+      "gain": -1500.00,
+      "isLongTerm": false
+    },
+    {
+      "exchange": "Binance.US",
+      "asset": "Polygon (MATIC)",
+      "dateAcquired": "2025-01-05",
+      "dateSold": "2025-07-10",
+      "proceeds": 4200.00,
+      "costBasis": 3000.00,
+      "gain": 1200.00,
+      "isLongTerm": false
+    }
+  ],
+  "stakingRewards": {
+    "asset": "Ethereum (ETH)",
+    "amount": 0.5,
+    "fairMarketValue": 1800.00,
+    "reportedAsOrdinaryIncome": true
+  },
+  "scheduleD": {
+    "shortTermGains": -2300.00,
+    "longTermGains": 26000.00,
+    "netCapitalGain": 23700.00
+  },
+  "presidentialCampaign": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasScheduleD": true,
+  "hasForm8949": true,
+  "expectedValues": {
+    "totalWages": 125000.00,
+    "stakingIncome": 1800.00,
+    "shortTermCapitalGains": -2300.00,
+    "longTermCapitalGains": 26000.00,
+    "netCapitalGain": 23700.00,
+    "totalIncome": 150500.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 150500.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 134750.00,
+    "taxOnOrdinaryIncome": 20886.00,
+    "taxOnLongTermCapGains": 3900.00,
+    "totalTax": 24786.00,
+    "federalWithholding": 22500.00,
+    "totalPayments": 22500.00,
+    "refund": 0.00,
+    "amountOwed": 2286.00
+  }
+}

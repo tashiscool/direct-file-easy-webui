@@ -1,0 +1,158 @@
+{
+  "scenarioId": "19",
+  "scenarioName": "Carlos & Sofia Garcia - Itemized Deductions",
+  "description": "MFJ couple with high state taxes, mortgage interest, and charitable contributions exceeding standard deduction. Tests Schedule A itemized deductions and SALT cap.",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Carlos",
+    "lastName": "Garcia",
+    "ssn": "400-19-1048",
+    "dateOfBirth": "1972-04-18",
+    "occupation": "Attorney",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "2500 Park Avenue",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94115"
+    }
+  },
+  "spouse": {
+    "firstName": "Sofia",
+    "lastName": "Garcia",
+    "ssn": "400-19-1049",
+    "dateOfBirth": "1975-08-22",
+    "occupation": "Physician",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [
+    {
+      "firstName": "Isabella",
+      "lastName": "Garcia",
+      "ssn": "400-19-1050",
+      "dateOfBirth": "2010-03-12",
+      "relationship": "daughter",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false
+    },
+    {
+      "firstName": "Diego",
+      "lastName": "Garcia",
+      "ssn": "400-19-1051",
+      "dateOfBirth": "2013-11-05",
+      "relationship": "son",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "Carlos Garcia",
+      "employerName": "Garcia & Associates LLP",
+      "employerEin": "94-1234567",
+      "employerAddress": {
+        "street": "One Market Plaza",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94105"
+      },
+      "wages": 225000.00,
+      "federalWithholding": 45000.00,
+      "ssWages": 168600.00,
+      "ssTax": 10453.00,
+      "medicareWages": 225000.00,
+      "medicareTax": 3263.00,
+      "state": "CA",
+      "stateWages": 225000.00,
+      "stateTax": 22050.00
+    },
+    {
+      "employeeName": "Sofia Garcia",
+      "employerName": "UCSF Medical Center",
+      "employerEin": "94-6036493",
+      "employerAddress": {
+        "street": "505 Parnassus Ave",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94143"
+      },
+      "wages": 275000.00,
+      "federalWithholding": 55000.00,
+      "ssWages": 168600.00,
+      "ssTax": 10453.00,
+      "medicareWages": 275000.00,
+      "medicareTax": 3988.00,
+      "state": "CA",
+      "stateWages": 275000.00,
+      "stateTax": 27225.00
+    }
+  ],
+  "form1099Rs": [],
+  "form1098": {
+    "lenderName": "Wells Fargo Home Mortgage",
+    "lenderEin": "94-1347393",
+    "mortgageInterestPaid": 36000.00,
+    "outstandingPrincipal": 850000.00,
+    "propertyTaxes": 18000.00,
+    "mortgageInsurancePremiums": 0.00
+  },
+  "scheduleA": {
+    "medicalExpenses": {
+      "totalMedical": 8000.00,
+      "agiThreshold": 37500.00,
+      "deductibleMedical": 0.00
+    },
+    "stateAndLocalTaxes": {
+      "stateIncomeTax": 49275.00,
+      "realEstateTax": 18000.00,
+      "totalSALT": 67275.00,
+      "saltDeductionCapped": 10000.00
+    },
+    "interestExpenses": {
+      "homeMortgageInterest": 36000.00,
+      "investmentInterest": 0.00,
+      "totalInterest": 36000.00
+    },
+    "charitableContributions": {
+      "cashContributions": 25000.00,
+      "noncashContributions": 5000.00,
+      "carryoverContributions": 0.00,
+      "totalCharitable": 30000.00
+    },
+    "casualtyLosses": 0.00,
+    "otherItemizedDeductions": 0.00,
+    "totalItemizedDeductions": 76000.00
+  },
+  "presidentialCampaign": true,
+  "digitalAssets": false,
+  "hasSchedule1": false,
+  "hasSchedule2": true,
+  "hasScheduleA": true,
+  "expectedValues": {
+    "totalWages": 500000.00,
+    "totalIncome": 500000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 500000.00,
+    "itemizedDeduction": 76000.00,
+    "totalDeductions": 76000.00,
+    "taxableIncome": 424000.00,
+    "taxOnOrdinaryIncome": 100740.00,
+    "childTaxCredit": 4000.00,
+    "additionalMedicareTax": 2700.00,
+    "totalTax": 99440.00,
+    "federalWithholding": 100000.00,
+    "totalPayments": 100000.00,
+    "refund": 560.00,
+    "amountOwed": 0.00
+  }
+}

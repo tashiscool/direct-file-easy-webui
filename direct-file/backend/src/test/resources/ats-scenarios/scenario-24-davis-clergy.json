@@ -1,0 +1,96 @@
+{
+  "scenarioId": "24",
+  "scenarioName": "Pastor David Davis - Clergy Housing Allowance",
+  "description": "Single clergy member with parsonage allowance exclusion, dual-status (employee and self-employed for SE tax), and ministerial income.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "David",
+    "lastName": "Davis",
+    "ssn": "400-24-1061",
+    "dateOfBirth": "1970-12-25",
+    "occupation": "Pastor",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "isClergy": true,
+    "address": {
+      "street": "123 Church Lane",
+      "city": "Nashville",
+      "state": "TN",
+      "zip": "37203"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "David Davis",
+      "employerName": "First Community Church",
+      "employerEin": "62-1234567",
+      "employerAddress": {
+        "street": "500 Faith Avenue",
+        "city": "Nashville",
+        "state": "TN",
+        "zip": "37203"
+      },
+      "wages": 55000.00,
+      "federalWithholding": 5500.00,
+      "ssWages": 0.00,
+      "ssTax": 0.00,
+      "medicareWages": 0.00,
+      "medicareTax": 0.00,
+      "state": "TN",
+      "stateWages": 0.00,
+      "stateTax": 0.00,
+      "box14Other": "Housing: 24000",
+      "isClergyW2": true
+    }
+  ],
+  "form1099Rs": [],
+  "clergyInfo": {
+    "parsonageAllowance": 24000.00,
+    "fairRentalValueOfParsonage": 24000.00,
+    "housingExpenses": {
+      "rent": 18000.00,
+      "utilities": 3600.00,
+      "insurance": 1200.00,
+      "maintenance": 1200.00,
+      "total": 24000.00
+    },
+    "excludableHousingAllowance": 24000.00,
+    "ministerialEarningsForSE": 79000.00
+  },
+  "scheduleSE": {
+    "netEarningsFromSE": 79000.00,
+    "selfEmploymentTax": 11158.00,
+    "deductibleSETax": 5579.00
+  },
+  "form4361Exemption": false,
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 55000.00,
+    "housingAllowanceExclusion": 24000.00,
+    "taxableWages": 31000.00,
+    "totalIncome": 31000.00,
+    "deductibleSETax": 5579.00,
+    "adjustmentsToIncome": 5579.00,
+    "agi": 25421.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 9671.00,
+    "taxFromTaxTable": 970.00,
+    "selfEmploymentTax": 11158.00,
+    "totalTax": 12128.00,
+    "federalWithholding": 5500.00,
+    "totalPayments": 5500.00,
+    "refund": 0.00,
+    "amountOwed": 6628.00
+  }
+}

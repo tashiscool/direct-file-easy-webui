@@ -1,0 +1,198 @@
+{
+  "scenarioId": "17",
+  "scenarioName": "Raj & Priya Patel - Investment Income",
+  "description": "MFJ couple with significant investment income including capital gains, qualified dividends, and municipal bond interest. Tests Schedule B, Schedule D, and Form 8949.",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Raj",
+    "lastName": "Patel",
+    "ssn": "400-17-1044",
+    "dateOfBirth": "1975-11-08",
+    "occupation": "Software Engineer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "789 Investment Way",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98101"
+    }
+  },
+  "spouse": {
+    "firstName": "Priya",
+    "lastName": "Patel",
+    "ssn": "400-17-1045",
+    "dateOfBirth": "1978-02-14",
+    "occupation": "Financial Analyst",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [
+    {
+      "firstName": "Anika",
+      "lastName": "Patel",
+      "ssn": "400-17-1046",
+      "dateOfBirth": "2012-06-30",
+      "relationship": "daughter",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "Raj Patel",
+      "employerName": "Tech Giants Inc",
+      "employerEin": "91-1234567",
+      "employerAddress": {
+        "street": "400 Broad Street",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98109"
+      },
+      "wages": 185000.00,
+      "federalWithholding": 35000.00,
+      "ssWages": 168600.00,
+      "ssTax": 10453.00,
+      "medicareWages": 185000.00,
+      "medicareTax": 2683.00,
+      "state": "WA",
+      "stateWages": 0.00,
+      "stateTax": 0.00
+    },
+    {
+      "employeeName": "Priya Patel",
+      "employerName": "Investment Bank Corp",
+      "employerEin": "91-7654321",
+      "employerAddress": {
+        "street": "500 Pine Street",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98101"
+      },
+      "wages": 125000.00,
+      "federalWithholding": 22000.00,
+      "ssWages": 125000.00,
+      "ssTax": 7750.00,
+      "medicareWages": 125000.00,
+      "medicareTax": 1813.00,
+      "state": "WA",
+      "stateWages": 0.00,
+      "stateTax": 0.00
+    }
+  ],
+  "form1099Rs": [],
+  "form1099Int": [
+    {
+      "payerName": "Chase Bank",
+      "payerEin": "13-4994650",
+      "interestIncome": 3500.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "Treasury Direct",
+      "payerEin": "52-1113456",
+      "interestIncome": 8200.00,
+      "federalWithholding": 0.00,
+      "usSavingsBondInterest": true
+    }
+  ],
+  "form1099Div": [
+    {
+      "payerName": "Vanguard S&P 500 ETF",
+      "payerEin": "23-1945930",
+      "ordinaryDividends": 12500.00,
+      "qualifiedDividends": 11800.00,
+      "totalCapitalGainDistributions": 4500.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "Fidelity Growth Fund",
+      "payerEin": "04-3523567",
+      "ordinaryDividends": 8200.00,
+      "qualifiedDividends": 7500.00,
+      "totalCapitalGainDistributions": 3200.00,
+      "federalWithholding": 0.00
+    }
+  ],
+  "form1099B": [
+    {
+      "brokerName": "Charles Schwab",
+      "brokerEin": "94-1609521",
+      "transactions": [
+        {
+          "description": "100 shares AAPL",
+          "dateAcquired": "2020-03-15",
+          "dateSold": "2025-08-20",
+          "proceeds": 22500.00,
+          "costBasis": 12000.00,
+          "gain": 10500.00,
+          "isLongTerm": true,
+          "washSale": false
+        },
+        {
+          "description": "50 shares MSFT",
+          "dateAcquired": "2021-06-10",
+          "dateSold": "2025-05-15",
+          "proceeds": 21000.00,
+          "costBasis": 14000.00,
+          "gain": 7000.00,
+          "isLongTerm": true,
+          "washSale": false
+        },
+        {
+          "description": "200 shares XYZ Corp",
+          "dateAcquired": "2025-01-15",
+          "dateSold": "2025-04-20",
+          "proceeds": 8000.00,
+          "costBasis": 10000.00,
+          "gain": -2000.00,
+          "isLongTerm": false,
+          "washSale": false
+        }
+      ]
+    }
+  ],
+  "scheduleD": {
+    "shortTermGains": -2000.00,
+    "longTermGains": 17500.00,
+    "capitalGainDistributions": 7700.00,
+    "netCapitalGain": 23200.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": false,
+  "hasSchedule2": true,
+  "hasSchedule3": true,
+  "hasScheduleB": true,
+  "hasScheduleD": true,
+  "hasForm8949": true,
+  "expectedValues": {
+    "totalWages": 310000.00,
+    "interestIncome": 11700.00,
+    "dividendIncome": 20700.00,
+    "qualifiedDividends": 19300.00,
+    "capitalGains": 23200.00,
+    "totalIncome": 365600.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 365600.00,
+    "standardDeduction": 31500.00,
+    "taxableIncome": 334100.00,
+    "taxOnOrdinaryIncome": 52420.00,
+    "taxOnQualifiedDividendsCapGains": 6345.00,
+    "childTaxCredit": 2000.00,
+    "netInvestmentIncomeTax": 3040.00,
+    "additionalMedicareTax": 675.00,
+    "totalTax": 60480.00,
+    "federalWithholding": 57000.00,
+    "totalPayments": 57000.00,
+    "refund": 0.00,
+    "amountOwed": 3480.00
+  }
+}

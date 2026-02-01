@@ -1,0 +1,126 @@
+{
+  "scenarioId": "16",
+  "scenarioName": "Emily Johnson - College Student with Education Credits",
+  "description": "Single college student claiming American Opportunity Tax Credit (AOTC) and student loan interest deduction. Tests Form 8863 education credits and Form 1098-T/1098-E processing.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Emily",
+    "lastName": "Johnson",
+    "ssn": "400-16-1043",
+    "dateOfBirth": "2003-05-22",
+    "occupation": "Student",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "isFullTimeStudent": true,
+    "address": {
+      "street": "456 College Ave Apt 302",
+      "city": "Boston",
+      "state": "MA",
+      "zip": "02215"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Emily Johnson",
+      "employerName": "University Dining Services",
+      "employerEin": "04-2103456",
+      "employerAddress": {
+        "street": "100 Commonwealth Ave",
+        "city": "Boston",
+        "state": "MA",
+        "zip": "02215"
+      },
+      "wages": 12500.00,
+      "federalWithholding": 625.00,
+      "ssWages": 12500.00,
+      "ssTax": 775.00,
+      "medicareWages": 12500.00,
+      "medicareTax": 181.00,
+      "state": "MA",
+      "stateWages": 12500.00,
+      "stateTax": 625.00
+    },
+    {
+      "employeeName": "Emily Johnson",
+      "employerName": "Summer Camp Adventures",
+      "employerEin": "04-8765432",
+      "employerAddress": {
+        "street": "50 Camp Road",
+        "city": "Plymouth",
+        "state": "MA",
+        "zip": "02360"
+      },
+      "wages": 6000.00,
+      "federalWithholding": 300.00,
+      "ssWages": 6000.00,
+      "ssTax": 372.00,
+      "medicareWages": 6000.00,
+      "medicareTax": 87.00,
+      "state": "MA",
+      "stateWages": 6000.00,
+      "stateTax": 300.00
+    }
+  ],
+  "form1099Rs": [],
+  "form1098T": {
+    "institutionName": "Boston University",
+    "institutionEin": "04-2103456",
+    "institutionAddress": {
+      "street": "One Silber Way",
+      "city": "Boston",
+      "state": "MA",
+      "zip": "02215"
+    },
+    "qualifiedTuitionAndFees": 48000.00,
+    "scholarshipsGrants": 25000.00,
+    "adjustedQualifiedExpenses": 23000.00,
+    "isAtLeastHalfTime": true,
+    "isGraduateStudent": false,
+    "academicPeriod": "Spring and Fall 2025"
+  },
+  "form1098E": {
+    "lenderName": "Federal Student Loan Servicer",
+    "lenderEin": "26-1234567",
+    "studentLoanInterestPaid": 1800.00
+  },
+  "educationCredits": {
+    "aotcEligible": true,
+    "yearOfStudy": 3,
+    "qualifiedExpenses": 4000.00,
+    "aotcAmount": 2500.00,
+    "refundableAotc": 1000.00,
+    "nonrefundableAotc": 1500.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasSchedule3": true,
+  "hasForm8863": true,
+  "expectedValues": {
+    "totalWages": 18500.00,
+    "totalIncome": 18500.00,
+    "studentLoanInterestDeduction": 1800.00,
+    "adjustmentsToIncome": 1800.00,
+    "agi": 16700.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 950.00,
+    "taxFromTaxTable": 95.00,
+    "aotcCredit": 2500.00,
+    "refundableAotc": 1000.00,
+    "nonrefundableAotc": 95.00,
+    "totalTax": 0.00,
+    "federalWithholding": 925.00,
+    "refundableCredits": 1000.00,
+    "totalPayments": 1925.00,
+    "refund": 1925.00,
+    "amountOwed": 0.00
+  }
+}

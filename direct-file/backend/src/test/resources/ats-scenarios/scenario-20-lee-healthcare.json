@@ -1,0 +1,119 @@
+{
+  "scenarioId": "20",
+  "scenarioName": "David Lee - Premium Tax Credit",
+  "description": "Single filer who purchased health insurance through the Marketplace and received advance premium tax credits. Tests Form 8962 Premium Tax Credit reconciliation.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "David",
+    "lastName": "Lee",
+    "ssn": "400-20-1052",
+    "dateOfBirth": "1988-12-03",
+    "occupation": "Freelance Writer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "789 Freelancer Way",
+      "city": "Portland",
+      "state": "OR",
+      "zip": "97201"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "form1099Nec": [
+    {
+      "payerName": "Magazine Publishers Inc",
+      "payerEin": "93-1234567",
+      "nonemployeeCompensation": 38000.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "Online Content LLC",
+      "payerEin": "93-7654321",
+      "nonemployeeCompensation": 12000.00,
+      "federalWithholding": 0.00
+    }
+  ],
+  "scheduleC": {
+    "businessName": "David Lee Writing Services",
+    "businessCode": "711510",
+    "businessDescription": "Freelance Writing",
+    "accountingMethod": "cash",
+    "grossReceipts": 50000.00,
+    "expenses": {
+      "officeExpense": 1200.00,
+      "supplies": 600.00,
+      "utilities": 800.00,
+      "internet": 1200.00,
+      "software": 500.00,
+      "totalExpenses": 4300.00
+    },
+    "netProfit": 45700.00
+  },
+  "scheduleSE": {
+    "netEarningsFromSE": 45700.00,
+    "selfEmploymentTax": 6454.00,
+    "deductibleSETax": 3227.00
+  },
+  "form1095A": {
+    "marketplaceName": "Cover Oregon",
+    "policyNumber": "12345678",
+    "coverageMonths": 12,
+    "monthlyEnrollmentPremium": 450.00,
+    "monthlySlcsp": 520.00,
+    "monthlyAdvancePtc": 280.00,
+    "annualEnrollmentPremium": 5400.00,
+    "annualSlcsp": 6240.00,
+    "annualAdvancePtc": 3360.00
+  },
+  "form8962": {
+    "householdIncome": 42473.00,
+    "federalPovertyLine": 15060.00,
+    "householdIncomeAsPercentFPL": 282,
+    "applicableFigure": 0.085,
+    "annualContributionAmount": 3610.00,
+    "annualPtcAllowed": 2630.00,
+    "advancePtcReceived": 3360.00,
+    "excessAdvancePtc": 730.00,
+    "repaymentLimitation": 730.00,
+    "netPtc": 0.00
+  },
+  "healthInsurance": {
+    "hadMinimumEssentialCoverage": true,
+    "coverageType": "Marketplace",
+    "monthsCovered": 12
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleC": true,
+  "hasScheduleSE": true,
+  "hasForm8962": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "businessIncome": 45700.00,
+    "totalIncome": 45700.00,
+    "selfEmployedHealthInsurance": 2040.00,
+    "deductibleSETax": 3227.00,
+    "adjustmentsToIncome": 5267.00,
+    "agi": 40433.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 24683.00,
+    "taxFromTaxTable": 2750.00,
+    "selfEmploymentTax": 6454.00,
+    "excessAdvancePtcRepayment": 730.00,
+    "totalTax": 9934.00,
+    "estimatedTaxPayments": 8000.00,
+    "totalPayments": 8000.00,
+    "refund": 0.00,
+    "amountOwed": 1934.00
+  }
+}

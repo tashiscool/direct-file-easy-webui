@@ -1,0 +1,123 @@
+{
+  "scenarioId": "14",
+  "scenarioName": "Maria Martinez - Self-Employed Gig Worker",
+  "description": "Single filer with multiple 1099-NEC forms from gig economy work (rideshare, delivery), Schedule C business expenses, and Schedule SE self-employment tax.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Maria",
+    "lastName": "Martinez",
+    "ssn": "400-14-1040",
+    "dateOfBirth": "1992-08-12",
+    "occupation": "Rideshare Driver",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "1234 Gig Economy Lane",
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78701"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "form1099Nec": [
+    {
+      "payerName": "RideShare Inc",
+      "payerEin": "82-1234567",
+      "payerAddress": {
+        "street": "1 Market Street",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94105"
+      },
+      "nonemployeeCompensation": 42000.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "DeliveryApp LLC",
+      "payerEin": "83-7654321",
+      "payerAddress": {
+        "street": "500 Delivery Drive",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601"
+      },
+      "nonemployeeCompensation": 18000.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "TaskRunner Corp",
+      "payerEin": "84-1111222",
+      "payerAddress": {
+        "street": "200 Task Blvd",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001"
+      },
+      "nonemployeeCompensation": 8000.00,
+      "federalWithholding": 0.00
+    }
+  ],
+  "scheduleC": {
+    "businessName": "Maria's Mobile Services",
+    "businessCode": "485300",
+    "businessDescription": "Rideshare and Delivery Services",
+    "accountingMethod": "cash",
+    "grossReceipts": 68000.00,
+    "expenses": {
+      "carAndTruck": 12500.00,
+      "insurance": 2400.00,
+      "supplies": 800.00,
+      "utilities": 1200.00,
+      "otherExpenses": 600.00,
+      "totalExpenses": 17500.00
+    },
+    "netProfit": 50500.00,
+    "vehicleInfo": {
+      "dateInService": "2023-01-15",
+      "businessMiles": 25000,
+      "totalMiles": 30000,
+      "standardMileageRate": true
+    }
+  },
+  "scheduleSE": {
+    "netEarningsFromSE": 50500.00,
+    "selfEmploymentTax": 7131.00,
+    "deductibleSETax": 3566.00
+  },
+  "estimatedTaxPayments": [
+    {"quarter": 1, "amount": 2500.00, "datePaid": "2025-04-15"},
+    {"quarter": 2, "amount": 2500.00, "datePaid": "2025-06-15"},
+    {"quarter": 3, "amount": 2500.00, "datePaid": "2025-09-15"},
+    {"quarter": 4, "amount": 2500.00, "datePaid": "2026-01-15"}
+  ],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleC": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "businessIncome": 50500.00,
+    "totalIncome": 50500.00,
+    "adjustmentsToIncome": 3566.00,
+    "agi": 46934.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 31184.00,
+    "taxFromTaxTable": 3498.00,
+    "selfEmploymentTax": 7131.00,
+    "totalTax": 10629.00,
+    "estimatedTaxPayments": 10000.00,
+    "totalPayments": 10000.00,
+    "refund": 0.00,
+    "amountOwed": 629.00
+  }
+}

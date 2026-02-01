@@ -41,6 +41,7 @@ public class FactGraphATSScenarioTest {
      */
     static Stream<Arguments> atsScenarioProvider() {
         return Stream.of(
+            // IRS ATS Scenarios (Form 1040)
             Arguments.of("scenario-1-tara-black.json", "Scenario 1 - Tara Black"),
             Arguments.of("scenario-2-jones.json", "Scenario 2 - John & Judy Jones"),
             Arguments.of("scenario-3-heather.json", "Scenario 3 - Lynette Heather"),
@@ -51,6 +52,19 @@ public class FactGraphATSScenarioTest {
             Arguments.of("scenario-8-lewis.json", "Scenario 8 - Carter Lewis"),
             Arguments.of("scenario-12-gardenia.json", "Scenario 12 - Sam Gardenia"),
             Arguments.of("scenario-13-birch.json", "Scenario 13 - William & Nancy Birch"),
+            // Extended Scenarios (additional coverage)
+            Arguments.of("scenario-14-martinez-gig.json", "Scenario 14 - Maria Martinez (Gig Worker)"),
+            Arguments.of("scenario-15-wilson-retired.json", "Scenario 15 - Robert & Patricia Wilson (Retired)"),
+            Arguments.of("scenario-16-johnson-student.json", "Scenario 16 - Emily Johnson (Student)"),
+            Arguments.of("scenario-17-patel-investor.json", "Scenario 17 - Raj & Priya Patel (Investors)"),
+            Arguments.of("scenario-18-thompson-rental.json", "Scenario 18 - Michael Thompson (Rental)"),
+            Arguments.of("scenario-19-garcia-itemized.json", "Scenario 19 - Carlos & Sofia Garcia (Itemized)"),
+            Arguments.of("scenario-20-lee-healthcare.json", "Scenario 20 - David Lee (PTC)"),
+            Arguments.of("scenario-21-kim-childcare.json", "Scenario 21 - Jennifer & Kevin Kim (CDCC)"),
+            Arguments.of("scenario-22-nguyen-crypto.json", "Scenario 22 - Tommy Nguyen (Crypto)"),
+            Arguments.of("scenario-23-brown-military.json", "Scenario 23 - James Brown (Military)"),
+            Arguments.of("scenario-24-davis-clergy.json", "Scenario 24 - Pastor David Davis (Clergy)"),
+            // IRS ATS Scenarios (Form 1040-NR)
             Arguments.of("scenario-nr1-leblanc.json", "Scenario NR-1 - Lucas LeBlanc"),
             Arguments.of("scenario-nr2-desilva.json", "Scenario NR-2 - Genesis DeSilva"),
             Arguments.of("scenario-nr3-alfaro.json", "Scenario NR-3 - Jace Alfaro"),
@@ -82,7 +96,7 @@ public class FactGraphATSScenarioTest {
         void testLoadAllScenarios() {
             var scenarios = ATSScenarioLoader.loadAllScenarios();
 
-            assertThat(scenarios).hasSize(16);
+            assertThat(scenarios).hasSize(27);
             assertThat(scenarios).allMatch(s -> s.getPrimaryTaxpayer() != null);
         }
     }

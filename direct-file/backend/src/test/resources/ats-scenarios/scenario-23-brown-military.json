@@ -1,0 +1,121 @@
+{
+  "scenarioId": "23",
+  "scenarioName": "James Brown - Military Service Member",
+  "description": "MFS military service member with combat zone tax exclusion, moving expenses, and nontaxable combat pay used for EIC calculation.",
+  "taxYear": 2025,
+  "filingStatus": 3,
+  "filingStatusDescription": "Married Filing Separately",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "James",
+    "lastName": "Brown",
+    "ssn": "400-23-1058",
+    "dateOfBirth": "1990-07-04",
+    "occupation": "U.S. Army Sergeant",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "isMilitary": true,
+    "militaryBranch": "Army",
+    "combatZoneService": true,
+    "combatZoneMonths": 6,
+    "address": {
+      "street": "Fort Bragg Housing Unit 42",
+      "city": "Fayetteville",
+      "state": "NC",
+      "zip": "28307"
+    }
+  },
+  "spouse": {
+    "firstName": "Sarah",
+    "lastName": "Brown",
+    "ssn": "400-23-1059",
+    "dateOfBirth": "1992-11-15",
+    "occupation": "Nurse",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [
+    {
+      "firstName": "Michael",
+      "lastName": "Brown",
+      "ssn": "400-23-1060",
+      "dateOfBirth": "2018-05-20",
+      "relationship": "son",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "James Brown",
+      "employerName": "Department of Defense",
+      "employerEin": "00-0000000",
+      "employerAddress": {
+        "street": "The Pentagon",
+        "city": "Arlington",
+        "state": "VA",
+        "zip": "22202"
+      },
+      "wages": 48000.00,
+      "federalWithholding": 4800.00,
+      "ssWages": 48000.00,
+      "ssTax": 2976.00,
+      "medicareWages": 48000.00,
+      "medicareTax": 696.00,
+      "state": "NC",
+      "stateWages": 48000.00,
+      "stateTax": 2400.00,
+      "box12Codes": [
+        {"code": "Q", "amount": 18000.00}
+      ],
+      "isMilitaryW2": true,
+      "combatPay": 18000.00
+    }
+  ],
+  "form1099Rs": [],
+  "militaryInfo": {
+    "activeDuty": true,
+    "combatZone": "Kuwait",
+    "combatZoneEntry": "2025-01-15",
+    "combatZoneExit": "2025-07-15",
+    "nontaxableCombatPay": 18000.00,
+    "basePay": 48000.00,
+    "housingAllowance": 18000.00,
+    "subsistenceAllowance": 4500.00,
+    "hazardPay": 3000.00
+  },
+  "movingExpenses": {
+    "militaryPCS": true,
+    "movingExpensesPaid": 4500.00,
+    "reimbursementReceived": 3000.00,
+    "deductibleMovingExpenses": 1500.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasForm3903": true,
+  "expectedValues": {
+    "totalWages": 48000.00,
+    "combatPayExclusion": 18000.00,
+    "adjustedWages": 30000.00,
+    "totalIncome": 30000.00,
+    "movingExpenseDeduction": 1500.00,
+    "adjustmentsToIncome": 1500.00,
+    "agi": 28500.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 12750.00,
+    "taxFromTaxTable": 1278.00,
+    "childTaxCredit": 1278.00,
+    "totalTax": 0.00,
+    "federalWithholding": 4800.00,
+    "additionalChildTaxCredit": 722.00,
+    "totalPayments": 5522.00,
+    "refund": 5522.00,
+    "amountOwed": 0.00
+  }
+}

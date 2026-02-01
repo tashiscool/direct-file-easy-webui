@@ -1,0 +1,164 @@
+{
+  "scenarioId": "21",
+  "scenarioName": "Jennifer & Kevin Kim - Child and Dependent Care Credit",
+  "description": "MFJ couple with two young children in daycare, claiming Child and Dependent Care Credit (Form 2441). Tests CDCC calculation with employer-provided dependent care benefits.",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Jennifer",
+    "lastName": "Kim",
+    "ssn": "400-21-1053",
+    "dateOfBirth": "1987-06-15",
+    "occupation": "Accountant",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "456 Family Circle",
+      "city": "Charlotte",
+      "state": "NC",
+      "zip": "28202"
+    }
+  },
+  "spouse": {
+    "firstName": "Kevin",
+    "lastName": "Kim",
+    "ssn": "400-21-1054",
+    "dateOfBirth": "1985-03-28",
+    "occupation": "Project Manager",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [
+    {
+      "firstName": "Lily",
+      "lastName": "Kim",
+      "ssn": "400-21-1055",
+      "dateOfBirth": "2021-08-10",
+      "relationship": "daughter",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false,
+      "qualifiesForCDCC": true
+    },
+    {
+      "firstName": "Ethan",
+      "lastName": "Kim",
+      "ssn": "400-21-1056",
+      "dateOfBirth": "2023-02-14",
+      "relationship": "son",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false,
+      "qualifiesForCDCC": true
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "Jennifer Kim",
+      "employerName": "Big Four Accounting",
+      "employerEin": "37-1234567",
+      "employerAddress": {
+        "street": "200 South Tryon Street",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28202"
+      },
+      "wages": 92000.00,
+      "federalWithholding": 13800.00,
+      "ssWages": 92000.00,
+      "ssTax": 5704.00,
+      "medicareWages": 92000.00,
+      "medicareTax": 1334.00,
+      "state": "NC",
+      "stateWages": 92000.00,
+      "stateTax": 4600.00,
+      "box10DependentCareBenefits": 5000.00
+    },
+    {
+      "employeeName": "Kevin Kim",
+      "employerName": "Tech Solutions Corp",
+      "employerEin": "37-7654321",
+      "employerAddress": {
+        "street": "300 South College Street",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28202"
+      },
+      "wages": 88000.00,
+      "federalWithholding": 13200.00,
+      "ssWages": 88000.00,
+      "ssTax": 5456.00,
+      "medicareWages": 88000.00,
+      "medicareTax": 1276.00,
+      "state": "NC",
+      "stateWages": 88000.00,
+      "stateTax": 4400.00,
+      "box10DependentCareBenefits": 0.00
+    }
+  ],
+  "form1099Rs": [],
+  "form2441": {
+    "careProviders": [
+      {
+        "providerName": "Sunshine Daycare Center",
+        "providerAddress": {
+          "street": "100 Childcare Lane",
+          "city": "Charlotte",
+          "state": "NC",
+          "zip": "28205"
+        },
+        "providerEin": "37-9876543",
+        "amountPaid": 24000.00,
+        "qualifyingPersons": ["Lily Kim", "Ethan Kim"]
+      }
+    ],
+    "qualifyingPersons": [
+      {
+        "name": "Lily Kim",
+        "ssn": "400-21-1055",
+        "qualifyingExpenses": 12000.00
+      },
+      {
+        "name": "Ethan Kim",
+        "ssn": "400-21-1056",
+        "qualifyingExpenses": 12000.00
+      }
+    ],
+    "totalQualifyingExpenses": 24000.00,
+    "dependentCareBenefitsReceived": 5000.00,
+    "expensesLimit": 6000.00,
+    "allowableExpenses": 1000.00,
+    "earnedIncomeLimit": 88000.00,
+    "creditPercentage": 20,
+    "creditAmount": 200.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": false,
+  "hasSchedule2": false,
+  "hasSchedule3": true,
+  "hasForm2441": true,
+  "expectedValues": {
+    "totalWages": 180000.00,
+    "dependentCareBenefitsExcluded": 5000.00,
+    "totalIncome": 175000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 175000.00,
+    "standardDeduction": 31500.00,
+    "taxableIncome": 143500.00,
+    "taxFromTaxTable": 23316.00,
+    "childTaxCredit": 4000.00,
+    "childAndDependentCareCredit": 200.00,
+    "totalCredits": 4200.00,
+    "totalTax": 19116.00,
+    "federalWithholding": 27000.00,
+    "totalPayments": 27000.00,
+    "refund": 7884.00,
+    "amountOwed": 0.00
+  }
+}

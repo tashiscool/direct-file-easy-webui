@@ -47,6 +47,7 @@ public class ATSScenarioLoader {
     public static List<ATSScenarioData> loadAllScenarios() {
         List<ATSScenarioData> scenarios = new ArrayList<>();
         String[] scenarioFiles = {
+            // IRS ATS Scenarios (Form 1040)
             "scenario-1-tara-black.json",
             "scenario-2-jones.json",
             "scenario-3-heather.json",
@@ -57,6 +58,19 @@ public class ATSScenarioLoader {
             "scenario-8-lewis.json",
             "scenario-12-gardenia.json",
             "scenario-13-birch.json",
+            // Extended Scenarios (additional coverage)
+            "scenario-14-martinez-gig.json",
+            "scenario-15-wilson-retired.json",
+            "scenario-16-johnson-student.json",
+            "scenario-17-patel-investor.json",
+            "scenario-18-thompson-rental.json",
+            "scenario-19-garcia-itemized.json",
+            "scenario-20-lee-healthcare.json",
+            "scenario-21-kim-childcare.json",
+            "scenario-22-nguyen-crypto.json",
+            "scenario-23-brown-military.json",
+            "scenario-24-davis-clergy.json",
+            // IRS ATS Scenarios (Form 1040-NR)
             "scenario-nr1-leblanc.json",
             "scenario-nr2-desilva.json",
             "scenario-nr3-alfaro.json",

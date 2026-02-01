@@ -1,0 +1,115 @@
+{
+  "scenarioId": "18",
+  "scenarioName": "Michael Thompson - Rental Property Owner",
+  "description": "Single filer with W-2 income and rental property income. Tests Schedule E rental income/expenses, depreciation, and passive activity loss rules.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Michael",
+    "lastName": "Thompson",
+    "ssn": "400-18-1047",
+    "dateOfBirth": "1980-09-25",
+    "occupation": "Marketing Manager",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "100 Main Street",
+      "city": "Denver",
+      "state": "CO",
+      "zip": "80202"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Michael Thompson",
+      "employerName": "Marketing Solutions Inc",
+      "employerEin": "84-1234567",
+      "employerAddress": {
+        "street": "1600 Broadway",
+        "city": "Denver",
+        "state": "CO",
+        "zip": "80202"
+      },
+      "wages": 95000.00,
+      "federalWithholding": 14250.00,
+      "ssWages": 95000.00,
+      "ssTax": 5890.00,
+      "medicareWages": 95000.00,
+      "medicareTax": 1378.00,
+      "state": "CO",
+      "stateWages": 95000.00,
+      "stateTax": 4180.00
+    }
+  ],
+  "form1099Rs": [],
+  "scheduleE": {
+    "rentalProperties": [
+      {
+        "propertyAddress": {
+          "street": "456 Rental Lane",
+          "city": "Denver",
+          "state": "CO",
+          "zip": "80203"
+        },
+        "propertyType": "Single Family Residence",
+        "fairRentalDays": 365,
+        "personalUseDays": 0,
+        "grossRents": 28800.00,
+        "expenses": {
+          "advertising": 200.00,
+          "autoAndTravel": 350.00,
+          "cleaning": 600.00,
+          "commissions": 0.00,
+          "insurance": 1800.00,
+          "legal": 0.00,
+          "management": 2880.00,
+          "mortgageInterest": 8400.00,
+          "repairs": 2500.00,
+          "supplies": 400.00,
+          "taxes": 3200.00,
+          "utilities": 0.00,
+          "depreciation": 7273.00,
+          "other": 500.00,
+          "totalExpenses": 28103.00
+        },
+        "netIncome": 697.00,
+        "depreciationInfo": {
+          "propertyBasis": 200000.00,
+          "landValue": 40000.00,
+          "buildingBasis": 160000.00,
+          "dateInService": "2022-06-01",
+          "method": "Straight-line",
+          "recoveryPeriod": 27.5,
+          "currentYearDepreciation": 7273.00
+        }
+      }
+    ],
+    "totalRentalIncome": 697.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasScheduleE": true,
+  "expectedValues": {
+    "totalWages": 95000.00,
+    "rentalIncome": 697.00,
+    "totalIncome": 95697.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 95697.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 79947.00,
+    "taxFromTaxTable": 13269.00,
+    "totalTax": 13269.00,
+    "federalWithholding": 14250.00,
+    "totalPayments": 14250.00,
+    "refund": 981.00,
+    "amountOwed": 0.00
+  }
+}
