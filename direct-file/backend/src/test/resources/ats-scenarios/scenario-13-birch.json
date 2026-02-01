@@ -1,0 +1,110 @@
+{
+  "scenarioId": "13",
+  "scenarioName": "William & Nancy Birch - MFJ with EV Credit and AMT",
+  "description": "Married Filing Jointly with Form 8911 (EV Refueling Credit), Form 6251 (Alternative Minimum Tax), and Schedule 3.",
+  "pdfReference": "ty25-1040-mef-ats-scenario-13.pdf",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "William",
+    "lastName": "Birch",
+    "ssn": "400-01-1313",
+    "ssnAtsReference": "400-00-1313",
+    "dateOfBirth": "1972-08-22",
+    "occupation": "Software Engineer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "888 Tech Valley Road",
+      "city": "San Jose",
+      "state": "CA",
+      "zip": "95110",
+      "country": "US"
+    }
+  },
+  "spouse": {
+    "firstName": "Nancy",
+    "lastName": "Birch",
+    "ssn": "400-01-1314",
+    "ssnAtsReference": "400-00-1314",
+    "dateOfBirth": "1974-03-10",
+    "occupation": "Marketing Director",
+    "isPrimaryFiler": false,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "William Birch",
+      "employerName": "Tech Giant Inc",
+      "employerEin": "12-3456790",
+      "employerAddress": {
+        "street": "1 Infinite Loop",
+        "city": "Cupertino",
+        "state": "CA",
+        "zip": "95014"
+      },
+      "wages": 185000.00,
+      "federalWithholding": 35150.00,
+      "ssWages": 176100.00,
+      "ssTax": 10918.00,
+      "medicareWages": 185000.00,
+      "medicareTax": 2683.00,
+      "state": "CA",
+      "stateWages": 185000.00,
+      "stateTax": 15725.00
+    },
+    {
+      "employeeName": "Nancy Birch",
+      "employerName": "Marketing Solutions LLC",
+      "employerEin": "12-3456791",
+      "employerAddress": {
+        "street": "500 Marketing Blvd",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95110"
+      },
+      "wages": 125000.00,
+      "federalWithholding": 21250.00,
+      "ssWages": 125000.00,
+      "ssTax": 7750.00,
+      "medicareWages": 125000.00,
+      "medicareTax": 1813.00,
+      "state": "CA",
+      "stateWages": 125000.00,
+      "stateTax": 10625.00
+    }
+  ],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "spousePresidentialCampaign": false,
+  "digitalAssets": true,
+  "hasSchedule2": true,
+  "hasSchedule3": true,
+  "expectedValues": {
+    "totalWages": 310000.00,
+    "totalIncome": 310000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 310000.00,
+    "standardDeduction": 30000.00,
+    "totalDeductions": 30000.00,
+    "taxableIncome": 280000.00,
+    "taxFromTaxTable": 55179.00,
+    "schedule2AdditionalTax": 2015.00,
+    "totalTaxBeforeCredits": 57194.00,
+    "schedule3Credits": 1000.00,
+    "totalCredits": 1000.00,
+    "taxAfterCredits": 56194.00,
+    "totalTax": 56194.00,
+    "federalWithholding": 56400.00,
+    "totalPayments": 56400.00,
+    "refund": 206.00,
+    "amountOwed": 0.00
+  }
+}

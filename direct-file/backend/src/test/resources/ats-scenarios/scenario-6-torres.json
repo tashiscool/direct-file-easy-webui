@@ -1,0 +1,53 @@
+{
+  "scenarioId": "6",
+  "scenarioName": "Juan Torres - 1040-SS Puerto Rico",
+  "description": "Form 1040-SS filer from Puerto Rico with Schedule C self-employment income and Schedule SE self-employment tax.",
+  "pdfReference": "1040ss-mef-ats-scenario-6-10202025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040-SS",
+  "primaryTaxpayer": {
+    "firstName": "Juan",
+    "lastName": "Torres",
+    "ssn": "400-01-1041",
+    "ssnAtsReference": "400-00-1041",
+    "dateOfBirth": "1975-05-10",
+    "occupation": "Auto Mechanic",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "Calle Sol 123",
+      "city": "San Juan",
+      "state": "PR",
+      "zip": "00901",
+      "country": "US"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasScheduleC": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "totalIncome": 45000.00,
+    "adjustmentsToIncome": 3181.00,
+    "agi": 41819.00,
+    "standardDeduction": 0.00,
+    "totalDeductions": 0.00,
+    "taxableIncome": 0.00,
+    "taxFromTaxTable": 0.00,
+    "selfEmploymentTax": 6362.00,
+    "totalTax": 6362.00,
+    "federalWithholding": 0.00,
+    "totalPayments": 0.00,
+    "refund": 0.00,
+    "amountOwed": 6362.00
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "scenarioId": "4",
+  "scenarioName": "Sarah Smith - Single with Energy Credits",
+  "description": "Single filer with Form 8835 (Solar/Renewable Electricity Production Credit), Form 8936 (Clean Vehicle Credit), and Form 3800 (General Business Credit).",
+  "pdfReference": "ty25-1040-mef-ats-scenario-4-12012025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Sarah",
+    "lastName": "Smith",
+    "ssn": "400-01-1037",
+    "ssnAtsReference": "400-00-1037",
+    "dateOfBirth": "1978-09-20",
+    "occupation": "Solar Energy Consultant",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "789 Sunshine Drive",
+      "city": "Denver",
+      "state": "CO",
+      "zip": "80202",
+      "country": "US"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Sarah Smith",
+      "employerName": "SunPower Solutions",
+      "employerEin": "12-3456787",
+      "employerAddress": {
+        "street": "100 Solar Way",
+        "city": "Denver",
+        "state": "CO",
+        "zip": "80202"
+      },
+      "wages": 85000.00,
+      "federalWithholding": 12750.00,
+      "ssWages": 85000.00,
+      "ssTax": 5270.00,
+      "medicareWages": 85000.00,
+      "medicareTax": 1233.00,
+      "state": "CO",
+      "stateWages": 85000.00,
+      "stateTax": 3825.00
+    }
+  ],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule3": true,
+  "hasForm3800": true,
+  "hasForm8835": true,
+  "hasForm8936": true,
+  "expectedValues": {
+    "totalWages": 85000.00,
+    "totalIncome": 85000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 85000.00,
+    "standardDeduction": 15000.00,
+    "totalDeductions": 15000.00,
+    "taxableIncome": 70000.00,
+    "taxFromTaxTable": 10852.00,
+    "totalTaxBeforeCredits": 10852.00,
+    "schedule3Credits": 8155.00,
+    "totalCredits": 8155.00,
+    "taxAfterCredits": 2697.00,
+    "totalTax": 2697.00,
+    "federalWithholding": 12750.00,
+    "totalPayments": 12750.00,
+    "refund": 10053.00,
+    "amountOwed": 0.00
+  }
+}

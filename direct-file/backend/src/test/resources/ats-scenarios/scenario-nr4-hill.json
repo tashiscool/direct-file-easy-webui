@@ -1,0 +1,105 @@
+{
+  "scenarioId": "NR-4",
+  "scenarioName": "Isaac Hill - 1040-NR QSS with Energy Credits",
+  "description": "Form 1040-NR Qualifying Surviving Spouse with W-2, IRA distribution, Form 5329, Form 8835 (Solar), Form 8936 (Clean Vehicle), Form 3800, and foreign address (Thailand).",
+  "pdfReference": "ty25-1040-nr-mef-ats-scenario-4-10212025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 5,
+  "filingStatusDescription": "Qualifying Surviving Spouse (1040-NR)",
+  "formType": "1040-NR",
+  "primaryTaxpayer": {
+    "firstName": "Isaac",
+    "lastName": "Hill",
+    "ssn": "123-01-5555",
+    "ssnAtsReference": "123-00-5555",
+    "dateOfBirth": "1968-02-14",
+    "occupation": "Engineer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "456 Sukhumvit Road",
+      "city": "Bangkok",
+      "state": "",
+      "zip": "10110",
+      "country": "TH"
+    }
+  },
+  "spouse": null,
+  "dependents": [
+    {
+      "firstName": "Emma",
+      "lastName": "Hill",
+      "ssn": "123-01-5556",
+      "relationship": "daughter",
+      "dateOfBirth": "2012-05-20",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifyingChildUnder17": true,
+      "creditForOtherDependents": false,
+      "usCitizenOrResident": true
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "Isaac Hill",
+      "employerName": "Global Engineering Corp",
+      "employerEin": "12-3456795",
+      "employerAddress": {
+        "street": "500 Industrial Way",
+        "city": "Houston",
+        "state": "TX",
+        "zip": "77001"
+      },
+      "wages": 120000.00,
+      "federalWithholding": 21600.00,
+      "ssWages": 120000.00,
+      "ssTax": 7440.00,
+      "medicareWages": 120000.00,
+      "medicareTax": 1740.00,
+      "state": "TX",
+      "stateWages": 120000.00,
+      "stateTax": 0.00
+    }
+  ],
+  "form1099Rs": [
+    {
+      "payerName": "Traditional IRA Custodian",
+      "payerEin": "12-3456796",
+      "grossDistribution": 10000.00,
+      "taxableAmount": 10000.00,
+      "federalWithholding": 1000.00,
+      "distributionCode": "1",
+      "iraSepSimple": true
+    }
+  ],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule2": true,
+  "hasSchedule3": true,
+  "hasForm3800": true,
+  "hasForm5329": true,
+  "hasForm8835": true,
+  "hasForm8936": true,
+  "expectedValues": {
+    "totalWages": 120000.00,
+    "totalIncome": 130000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 130000.00,
+    "standardDeduction": 30000.00,
+    "totalDeductions": 30000.00,
+    "taxableIncome": 100000.00,
+    "taxFromTaxTable": 13234.00,
+    "schedule2AdditionalTax": 1000.00,
+    "totalTaxBeforeCredits": 14234.00,
+    "childTaxCredit": 2000.00,
+    "schedule3Credits": 655.00,
+    "totalCredits": 2655.00,
+    "taxAfterCredits": 11579.00,
+    "totalTax": 11579.00,
+    "federalWithholding": 22600.00,
+    "totalPayments": 22600.00,
+    "refund": 11021.00,
+    "amountOwed": 0.00
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "scenarioId": "NR-1",
+  "scenarioName": "Lucas LeBlanc - 1040-NR Nonresident Alien",
+  "description": "Form 1040-NR nonresident alien filer with 2 W-2s, Schedule C, Schedule SE (Form 4361 exemption), Form 5329, and foreign address.",
+  "pdfReference": "ty25-1040-nr-mef-ats-scenario-1-10202025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 3,
+  "filingStatusDescription": "Married Filing Separately (1040-NR)",
+  "formType": "1040-NR",
+  "primaryTaxpayer": {
+    "firstName": "Lucas",
+    "lastName": "LeBlanc",
+    "ssn": "123-01-1111",
+    "ssnAtsReference": "123-00-1111",
+    "dateOfBirth": "1985-06-20",
+    "occupation": "Software Developer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "45 Rue de Paris",
+      "city": "Montreal",
+      "state": "QC",
+      "zip": "H2X 1Y6",
+      "country": "CA"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Lucas LeBlanc",
+      "employerName": "US Tech Corp",
+      "employerEin": "12-3456792",
+      "employerAddress": {
+        "street": "100 Silicon Valley Blvd",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94102"
+      },
+      "wages": 75000.00,
+      "federalWithholding": 11250.00,
+      "ssWages": 75000.00,
+      "ssTax": 4650.00,
+      "medicareWages": 75000.00,
+      "medicareTax": 1088.00,
+      "state": "CA",
+      "stateWages": 75000.00,
+      "stateTax": 6375.00
+    },
+    {
+      "employeeName": "Lucas LeBlanc",
+      "employerName": "Consulting Firm LLC",
+      "employerEin": "12-3456793",
+      "employerAddress": {
+        "street": "200 Business Center",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001"
+      },
+      "wages": 25000.00,
+      "federalWithholding": 3750.00,
+      "ssWages": 25000.00,
+      "ssTax": 1550.00,
+      "medicareWages": 25000.00,
+      "medicareTax": 363.00,
+      "state": "NY",
+      "stateWages": 25000.00,
+      "stateTax": 1500.00
+    }
+  ],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleC": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 100000.00,
+    "totalIncome": 115000.00,
+    "adjustmentsToIncome": 1060.00,
+    "agi": 113940.00,
+    "standardDeduction": 0.00,
+    "itemizedDeduction": 10000.00,
+    "totalDeductions": 10000.00,
+    "taxableIncome": 103940.00,
+    "taxFromTaxTable": 18022.00,
+    "selfEmploymentTax": 2120.00,
+    "schedule2AdditionalTax": 2120.00,
+    "totalTaxBeforeCredits": 20142.00,
+    "totalCredits": 0.00,
+    "taxAfterCredits": 20142.00,
+    "totalTax": 20142.00,
+    "federalWithholding": 15000.00,
+    "totalPayments": 15000.00,
+    "refund": 0.00,
+    "amountOwed": 5142.00
+  }
+}

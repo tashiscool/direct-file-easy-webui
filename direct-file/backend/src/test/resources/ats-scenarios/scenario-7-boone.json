@@ -1,0 +1,44 @@
+{
+  "scenarioId": "7",
+  "scenarioName": "Charlie Boone - Form 4868 Extension Only",
+  "description": "Single filer requesting automatic extension to file (Form 4868). No tax return data, only extension request.",
+  "pdfReference": "1040_mef_ats_scenario_7_09152025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "4868",
+  "primaryTaxpayer": {
+    "firstName": "Charlie",
+    "lastName": "Boone",
+    "ssn": "400-01-1042",
+    "ssnAtsReference": "400-00-1042",
+    "dateOfBirth": "1988-12-01",
+    "occupation": "Freelance Writer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "555 Author Lane",
+      "city": "Portland",
+      "state": "OR",
+      "zip": "97201",
+      "country": "US"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "totalIncome": 0.00,
+    "agi": 0.00,
+    "totalTax": 0.00,
+    "totalPayments": 5000.00,
+    "refund": 0.00,
+    "amountOwed": 0.00
+  }
+}

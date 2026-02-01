@@ -1,0 +1,77 @@
+{
+  "scenarioId": "NR-3",
+  "scenarioName": "Jace Alfaro - 1040-NR with Itemized Deductions",
+  "description": "Form 1040-NR with Schedule A (Itemized Deductions with SALT cap), Form 8283 (Vehicle donation), Form 8888 (Refund allocation), and 301.9100-2 filing.",
+  "pdfReference": "ty25-1040-nr-mef-ats-scenario-3-12012025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single (1040-NR)",
+  "formType": "1040-NR",
+  "primaryTaxpayer": {
+    "firstName": "Jace",
+    "lastName": "Alfaro",
+    "ssn": "123-01-4444",
+    "ssnAtsReference": "123-00-4444",
+    "dateOfBirth": "1982-07-30",
+    "occupation": "Professor",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "Calle Mayor 15",
+      "city": "Madrid",
+      "state": "",
+      "zip": "28013",
+      "country": "ES"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Jace Alfaro",
+      "employerName": "State University",
+      "employerEin": "12-3456794",
+      "employerAddress": {
+        "street": "1 University Plaza",
+        "city": "Boston",
+        "state": "MA",
+        "zip": "02115"
+      },
+      "wages": 95000.00,
+      "federalWithholding": 14250.00,
+      "ssWages": 95000.00,
+      "ssTax": 5890.00,
+      "medicareWages": 95000.00,
+      "medicareTax": 1378.00,
+      "state": "MA",
+      "stateWages": 95000.00,
+      "stateTax": 4750.00
+    }
+  ],
+  "form1099Rs": [],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasScheduleA": true,
+  "hasForm8283": true,
+  "expectedValues": {
+    "totalWages": 95000.00,
+    "totalIncome": 95000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 95000.00,
+    "standardDeduction": 0.00,
+    "itemizedDeduction": 18500.00,
+    "totalDeductions": 18500.00,
+    "taxableIncome": 76500.00,
+    "taxFromTaxTable": 12282.00,
+    "totalTaxBeforeCredits": 12282.00,
+    "totalCredits": 0.00,
+    "taxAfterCredits": 12282.00,
+    "totalTax": 12282.00,
+    "federalWithholding": 14250.00,
+    "totalPayments": 14250.00,
+    "refund": 1968.00,
+    "amountOwed": 0.00
+  }
+}

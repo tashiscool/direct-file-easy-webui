@@ -1,0 +1,71 @@
+{
+  "scenarioId": "3",
+  "scenarioName": "Lynette Heather - Single with Farm Income",
+  "description": "Single filer with 1099-R distribution, Schedule F farm income, Schedule SE self-employment tax, Schedule D capital gains, and Schedule E rental income.",
+  "pdfReference": "ty25-1040-mef-ats-scenario-3-12012025.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Lynette",
+    "lastName": "Heather",
+    "ssn": "400-01-1035",
+    "ssnAtsReference": "400-00-1035",
+    "dateOfBirth": "1970-11-08",
+    "occupation": "Farmer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "Rural Route 5",
+      "city": "Lincoln",
+      "state": "NE",
+      "zip": "68501",
+      "country": "US"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [
+    {
+      "payerName": "Farm Bureau Retirement",
+      "payerEin": "12-3456786",
+      "grossDistribution": 8500.00,
+      "taxableAmount": 8500.00,
+      "federalWithholding": 850.00,
+      "distributionCode": "7",
+      "iraSepSimple": false
+    }
+  ],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleD": true,
+  "hasScheduleE": true,
+  "hasScheduleF": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "totalIncome": 58500.00,
+    "adjustmentsToIncome": 3532.00,
+    "agi": 54968.00,
+    "standardDeduction": 15000.00,
+    "totalDeductions": 15000.00,
+    "taxableIncome": 39968.00,
+    "taxFromTaxTable": 4556.00,
+    "selfEmploymentTax": 7065.00,
+    "schedule2AdditionalTax": 7065.00,
+    "totalTaxBeforeCredits": 11621.00,
+    "totalCredits": 0.00,
+    "taxAfterCredits": 11621.00,
+    "totalTax": 11621.00,
+    "federalWithholding": 850.00,
+    "totalPayments": 850.00,
+    "refund": 0.00,
+    "amountOwed": 10771.00
+  }
+}
