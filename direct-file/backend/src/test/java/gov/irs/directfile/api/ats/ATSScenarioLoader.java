@@ -61,6 +61,7 @@ public class ATSScenarioLoader {
             "scenario-nr2-desilva.json",
             "scenario-nr3-alfaro.json",
             "scenario-nr4-hill.json",
+            "scenario-nr5-chen.json",
             "scenario-nr12-harrier.json"
         };
 

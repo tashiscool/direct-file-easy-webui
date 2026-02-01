@@ -55,6 +55,7 @@ public class FactGraphATSScenarioTest {
             Arguments.of("scenario-nr2-desilva.json", "Scenario NR-2 - Genesis DeSilva"),
             Arguments.of("scenario-nr3-alfaro.json", "Scenario NR-3 - Jace Alfaro"),
             Arguments.of("scenario-nr4-hill.json", "Scenario NR-4 - Isaac Hill"),
+            Arguments.of("scenario-nr5-chen.json", "Scenario NR-5 - Wei Chen"),
             Arguments.of("scenario-nr12-harrier.json", "Scenario NR-12 - John Harrier")
         );
     }
@@ -81,7 +82,7 @@ public class FactGraphATSScenarioTest {
         void testLoadAllScenarios() {
             var scenarios = ATSScenarioLoader.loadAllScenarios();
 
-            assertThat(scenarios).hasSize(15);
+            assertThat(scenarios).hasSize(16);
             assertThat(scenarios).allMatch(s -> s.getPrimaryTaxpayer() != null);
         }
     }

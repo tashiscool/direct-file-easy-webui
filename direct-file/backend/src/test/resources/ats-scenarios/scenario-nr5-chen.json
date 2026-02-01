@@ -1,0 +1,101 @@
+{
+  "scenarioId": "NR-5",
+  "scenarioName": "Wei Chen - 1040-NR Scholarship Income",
+  "description": "Form 1040-NR nonresident alien student with scholarship income, stipend, and tax treaty benefits from China.",
+  "pdfReference": "ty24-1040-nr-mef-ats-scenario-5-12162024.pdf",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single (1040-NR)",
+  "formType": "1040-NR",
+  "primaryTaxpayer": {
+    "firstName": "Wei",
+    "lastName": "Chen",
+    "ssn": "123-05-1115",
+    "ssnAtsReference": "123-00-1115",
+    "dateOfBirth": "1998-03-15",
+    "occupation": "Graduate Student",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "countryOfResidence": "CN",
+    "visaType": "F-1",
+    "firstYearInUS": "2022",
+    "taxTreatyCountry": "China",
+    "address": {
+      "street": "500 University Ave Apt 204",
+      "city": "Stanford",
+      "state": "CA",
+      "zip": "94305",
+      "country": "US"
+    },
+    "foreignAddress": {
+      "street": "123 Nanjing Road",
+      "city": "Shanghai",
+      "province": "Shanghai",
+      "postalCode": "200001",
+      "country": "CN"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "form1099Misc": [
+    {
+      "payerName": "Stanford University",
+      "payerEin": "94-1156365",
+      "payerAddress": {
+        "street": "450 Serra Mall",
+        "city": "Stanford",
+        "state": "CA",
+        "zip": "94305"
+      },
+      "otherIncome": 0.00,
+      "federalWithholding": 0.00,
+      "scholarshipIncome": 5000.00,
+      "stipend": 24000.00,
+      "description": "Graduate Research Stipend"
+    }
+  ],
+  "scholarshipIncome": {
+    "totalScholarship": 45000.00,
+    "qualifiedEducationExpenses": 40000.00,
+    "taxableScholarship": 5000.00
+  },
+  "taxTreatyBenefits": {
+    "treatyCountry": "China",
+    "articleNumber": "20",
+    "exemptIncome": 5000.00,
+    "description": "Student/Trainee Article - Up to $5,000 exempt"
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasScheduleC": false,
+  "hasScheduleSE": false,
+  "hasScheduleOI": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "stipendIncome": 24000.00,
+    "taxableScholarship": 5000.00,
+    "totalIncome": 29000.00,
+    "taxTreatyExemption": 5000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 24000.00,
+    "standardDeduction": 0.00,
+    "itemizedDeduction": 0.00,
+    "totalDeductions": 0.00,
+    "taxableIncome": 24000.00,
+    "taxFromTaxTable": 2626.00,
+    "totalTaxBeforeCredits": 2626.00,
+    "totalCredits": 0.00,
+    "taxAfterCredits": 2626.00,
+    "totalTax": 2626.00,
+    "federalWithholding": 0.00,
+    "totalPayments": 0.00,
+    "refund": 0.00,
+    "amountOwed": 2626.00
+  }
+}
