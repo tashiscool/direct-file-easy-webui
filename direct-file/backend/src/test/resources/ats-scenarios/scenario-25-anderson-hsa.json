@@ -1,0 +1,111 @@
+{
+  "scenarioId": "25",
+  "scenarioName": "Sarah Anderson - HSA and IRA Contributions",
+  "description": "Single filer with high-deductible health plan, HSA contributions, traditional IRA deduction, and educator expenses. Tests Form 8889 HSA and IRA deduction.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Sarah",
+    "lastName": "Anderson",
+    "ssn": "400-25-1062",
+    "dateOfBirth": "1985-04-15",
+    "occupation": "High School Teacher",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "isEducator": true,
+    "address": {
+      "street": "234 Teacher Lane",
+      "city": "Minneapolis",
+      "state": "MN",
+      "zip": "55401"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Sarah Anderson",
+      "employerName": "Minneapolis Public Schools",
+      "employerEin": "41-1234567",
+      "employerAddress": {
+        "street": "1250 West Broadway",
+        "city": "Minneapolis",
+        "state": "MN",
+        "zip": "55411"
+      },
+      "wages": 62000.00,
+      "federalWithholding": 7440.00,
+      "ssWages": 62000.00,
+      "ssTax": 3844.00,
+      "medicareWages": 62000.00,
+      "medicareTax": 899.00,
+      "state": "MN",
+      "stateWages": 62000.00,
+      "stateTax": 3720.00,
+      "box12Codes": [
+        {"code": "W", "amount": 2400.00}
+      ]
+    }
+  ],
+  "form1099Rs": [],
+  "form8889HSA": {
+    "hsaContributions": {
+      "employerContributions": 2400.00,
+      "personalContributions": 1750.00,
+      "totalContributions": 4150.00,
+      "contributionLimit": 4150.00,
+      "excessContributions": 0.00
+    },
+    "hsaDistributions": {
+      "totalDistributions": 1200.00,
+      "qualifiedMedicalExpenses": 1200.00,
+      "taxableDistributions": 0.00
+    },
+    "coverageType": "Self-only",
+    "hdhpCoverageMonths": 12,
+    "hsaDeduction": 1750.00
+  },
+  "iraContributions": {
+    "traditionalIRA": {
+      "contributions": 7000.00,
+      "deductibleAmount": 7000.00,
+      "nondeductibleAmount": 0.00
+    },
+    "rothIRA": {
+      "contributions": 0.00
+    },
+    "coveredByEmployerPlan": true,
+    "magiForIRA": 53250.00,
+    "fullDeductionAllowed": true
+  },
+  "educatorExpenses": {
+    "qualifiedExpenses": 400.00,
+    "deductibleAmount": 300.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasForm8889": true,
+  "expectedValues": {
+    "totalWages": 62000.00,
+    "totalIncome": 62000.00,
+    "hsaDeduction": 1750.00,
+    "iraDeduction": 7000.00,
+    "educatorExpenseDeduction": 300.00,
+    "adjustmentsToIncome": 9050.00,
+    "agi": 52950.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 37200.00,
+    "taxFromTaxTable": 4214.00,
+    "totalTax": 4214.00,
+    "federalWithholding": 7440.00,
+    "totalPayments": 7440.00,
+    "refund": 3226.00,
+    "amountOwed": 0.00
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "scenarioId": "29",
+  "scenarioName": "Christopher White - Partnership K-1 Income",
+  "description": "Single filer with Schedule K-1 partnership income, guaranteed payments, and self-employment income from partnership. Tests Schedule E Part II.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Christopher",
+    "lastName": "White",
+    "ssn": "400-29-1067",
+    "dateOfBirth": "1975-08-05",
+    "occupation": "Partner",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "100 Partner Plaza",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60601"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "scheduleK1": [
+    {
+      "entityName": "White & Associates LLP",
+      "entityEin": "36-1234567",
+      "entityType": "Partnership",
+      "partnershipAddress": {
+        "street": "200 LaSalle Street",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601"
+      },
+      "partnerType": "General",
+      "ownershipPercentage": 25.00,
+      "box1OrdinaryIncome": 85000.00,
+      "box2NetRentalIncome": 0.00,
+      "box3OtherNetRentalIncome": 0.00,
+      "box4GuaranteedPayments": 60000.00,
+      "box5Interest": 1200.00,
+      "box6Dividends": 800.00,
+      "box7Royalties": 0.00,
+      "box8NetShortTermCapGain": 0.00,
+      "box9aNetLongTermCapGain": 5500.00,
+      "box10Net1231Gain": 0.00,
+      "box11OtherIncome": 0.00,
+      "box12Section179": 0.00,
+      "box13OtherDeductions": 2500.00,
+      "box14SelfEmploymentEarnings": 145000.00,
+      "box15Credits": 0.00,
+      "box16ForeignTransactions": 0.00,
+      "box17AMTItems": 0.00,
+      "box18TaxExemptIncome": 0.00,
+      "box19Distributions": 50000.00,
+      "box20OtherInfo": 0.00
+    }
+  ],
+  "scheduleSE": {
+    "netEarningsFromSE": 145000.00,
+    "selfEmploymentTax": 19461.00,
+    "deductibleSETax": 9731.00
+  },
+  "scheduleE": {
+    "partnershipIncome": {
+      "ordinaryIncome": 85000.00,
+      "guaranteedPayments": 60000.00,
+      "interest": 1200.00,
+      "dividends": 800.00,
+      "longTermCapitalGain": 5500.00,
+      "deductions": 2500.00,
+      "netPartnershipIncome": 150000.00
+    }
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleD": true,
+  "hasScheduleE": true,
+  "hasScheduleSE": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "partnershipIncome": 145000.00,
+    "interestIncome": 1200.00,
+    "dividendIncome": 800.00,
+    "capitalGains": 5500.00,
+    "totalIncome": 152500.00,
+    "partnershipDeductions": 2500.00,
+    "deductibleSETax": 9731.00,
+    "adjustmentsToIncome": 12231.00,
+    "agi": 140269.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 124519.00,
+    "taxFromTaxTable": 23418.00,
+    "selfEmploymentTax": 19461.00,
+    "totalTax": 42879.00,
+    "estimatedTaxPayments": 45000.00,
+    "totalPayments": 45000.00,
+    "refund": 2121.00,
+    "amountOwed": 0.00
+  }
+}

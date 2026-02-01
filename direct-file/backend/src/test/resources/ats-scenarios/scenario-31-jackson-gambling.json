@@ -1,0 +1,144 @@
+{
+  "scenarioId": "31",
+  "scenarioName": "Robert Jackson - Gambling Winnings",
+  "description": "Single filer with gambling winnings from casino and lottery, with gambling losses to offset. Tests Form W-2G and gambling loss deduction.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Robert",
+    "lastName": "Jackson",
+    "ssn": "400-31-1069",
+    "dateOfBirth": "1968-05-20",
+    "occupation": "Sales Representative",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "777 Lucky Lane",
+      "city": "Las Vegas",
+      "state": "NV",
+      "zip": "89101"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Robert Jackson",
+      "employerName": "National Sales Corp",
+      "employerEin": "88-1234567",
+      "employerAddress": {
+        "street": "500 Commerce Street",
+        "city": "Las Vegas",
+        "state": "NV",
+        "zip": "89109"
+      },
+      "wages": 72000.00,
+      "federalWithholding": 10800.00,
+      "ssWages": 72000.00,
+      "ssTax": 4464.00,
+      "medicareWages": 72000.00,
+      "medicareTax": 1044.00,
+      "state": "NV",
+      "stateWages": 0.00,
+      "stateTax": 0.00
+    }
+  ],
+  "form1099Rs": [],
+  "formW2G": [
+    {
+      "payerName": "Bellagio Casino",
+      "payerEin": "88-9876543",
+      "payerAddress": {
+        "street": "3600 Las Vegas Blvd S",
+        "city": "Las Vegas",
+        "state": "NV",
+        "zip": "89109"
+      },
+      "grossWinnings": 15000.00,
+      "federalWithholding": 3600.00,
+      "typeOfWager": "Slot Machine",
+      "dateWon": "2025-03-15"
+    },
+    {
+      "payerName": "Nevada State Lottery",
+      "payerEin": "88-1111222",
+      "payerAddress": {
+        "street": "555 E Washington Ave",
+        "city": "Las Vegas",
+        "state": "NV",
+        "zip": "89101"
+      },
+      "grossWinnings": 8500.00,
+      "federalWithholding": 2040.00,
+      "typeOfWager": "Lottery",
+      "dateWon": "2025-07-20"
+    },
+    {
+      "payerName": "MGM Grand",
+      "payerEin": "88-3333444",
+      "payerAddress": {
+        "street": "3799 Las Vegas Blvd S",
+        "city": "Las Vegas",
+        "state": "NV",
+        "zip": "89109"
+      },
+      "grossWinnings": 5200.00,
+      "federalWithholding": 1248.00,
+      "typeOfWager": "Blackjack",
+      "dateWon": "2025-11-10"
+    }
+  ],
+  "gamblingActivity": {
+    "totalWinnings": 28700.00,
+    "documentedLosses": 22000.00,
+    "gamblingDiary": true,
+    "deductibleLosses": 22000.00
+  },
+  "scheduleA": {
+    "medicalExpenses": {
+      "totalMedical": 0.00,
+      "deductibleMedical": 0.00
+    },
+    "stateAndLocalTaxes": {
+      "stateIncomeTax": 0.00,
+      "realEstateTax": 0.00,
+      "saltDeductionCapped": 0.00
+    },
+    "interestExpenses": {
+      "homeMortgageInterest": 0.00,
+      "totalInterest": 0.00
+    },
+    "charitableContributions": {
+      "totalCharitable": 0.00
+    },
+    "otherItemizedDeductions": {
+      "gamblingLosses": 22000.00
+    },
+    "totalItemizedDeductions": 22000.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "hasScheduleA": true,
+  "expectedValues": {
+    "totalWages": 72000.00,
+    "gamblingWinnings": 28700.00,
+    "totalIncome": 100700.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 100700.00,
+    "itemizedDeduction": 22000.00,
+    "totalDeductions": 22000.00,
+    "taxableIncome": 78700.00,
+    "taxFromTaxTable": 12997.00,
+    "totalTax": 12997.00,
+    "federalWithholding": 17688.00,
+    "totalPayments": 17688.00,
+    "refund": 4691.00,
+    "amountOwed": 0.00
+  }
+}

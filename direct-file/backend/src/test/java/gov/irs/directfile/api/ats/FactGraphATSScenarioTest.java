@@ -64,6 +64,15 @@ public class FactGraphATSScenarioTest {
             Arguments.of("scenario-22-nguyen-crypto.json", "Scenario 22 - Tommy Nguyen (Crypto)"),
             Arguments.of("scenario-23-brown-military.json", "Scenario 23 - James Brown (Military)"),
             Arguments.of("scenario-24-davis-clergy.json", "Scenario 24 - Pastor David Davis (Clergy)"),
+            Arguments.of("scenario-25-anderson-hsa.json", "Scenario 25 - Mark Anderson (HSA/IRA)"),
+            Arguments.of("scenario-26-clark-foreign.json", "Scenario 26 - Susan Clark (Foreign Tax Credit)"),
+            Arguments.of("scenario-27-moore-energy.json", "Scenario 27 - Richard & Lisa Moore (Energy Credits)"),
+            Arguments.of("scenario-28-taylor-qbi.json", "Scenario 28 - Jason Taylor (QBI Deduction)"),
+            Arguments.of("scenario-29-white-k1.json", "Scenario 29 - Christopher White (K-1 Partnership)"),
+            Arguments.of("scenario-30-harris-unemployment.json", "Scenario 30 - Jessica Harris (Unemployment)"),
+            Arguments.of("scenario-31-jackson-gambling.json", "Scenario 31 - Robert Jackson (Gambling)"),
+            Arguments.of("scenario-32-chen-ev.json", "Scenario 32 - Amy Chen (EV Credit)"),
+            Arguments.of("scenario-33-wright-amt.json", "Scenario 33 - Steven & Michelle Wright (AMT)"),
             // IRS ATS Scenarios (Form 1040-NR)
             Arguments.of("scenario-nr1-leblanc.json", "Scenario NR-1 - Lucas LeBlanc"),
             Arguments.of("scenario-nr2-desilva.json", "Scenario NR-2 - Genesis DeSilva"),
@@ -96,7 +105,7 @@ public class FactGraphATSScenarioTest {
         void testLoadAllScenarios() {
             var scenarios = ATSScenarioLoader.loadAllScenarios();
 
-            assertThat(scenarios).hasSize(27);
+            assertThat(scenarios).hasSize(36);
             assertThat(scenarios).allMatch(s -> s.getPrimaryTaxpayer() != null);
         }
     }

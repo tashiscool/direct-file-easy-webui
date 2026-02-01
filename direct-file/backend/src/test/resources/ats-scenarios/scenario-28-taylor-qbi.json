@@ -1,0 +1,110 @@
+{
+  "scenarioId": "28",
+  "scenarioName": "Marcus Taylor - Qualified Business Income Deduction",
+  "description": "Single filer with Schedule C business income eligible for QBI deduction. Tests Form 8995 Qualified Business Income Deduction.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Marcus",
+    "lastName": "Taylor",
+    "ssn": "400-28-1066",
+    "dateOfBirth": "1979-03-12",
+    "occupation": "Consultant",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "456 Business Park Dr",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30301"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [],
+  "form1099Rs": [],
+  "form1099Nec": [
+    {
+      "payerName": "Enterprise Solutions Inc",
+      "payerEin": "58-1234567",
+      "nonemployeeCompensation": 95000.00,
+      "federalWithholding": 0.00
+    },
+    {
+      "payerName": "Tech Consulting Group",
+      "payerEin": "58-7654321",
+      "nonemployeeCompensation": 45000.00,
+      "federalWithholding": 0.00
+    }
+  ],
+  "scheduleC": {
+    "businessName": "Taylor Consulting Services",
+    "businessCode": "541611",
+    "businessDescription": "Management Consulting",
+    "accountingMethod": "cash",
+    "grossReceipts": 140000.00,
+    "expenses": {
+      "advertising": 2500.00,
+      "officeExpense": 3000.00,
+      "supplies": 1500.00,
+      "travel": 8000.00,
+      "meals": 2000.00,
+      "insurance": 3600.00,
+      "professionalServices": 4000.00,
+      "software": 2400.00,
+      "totalExpenses": 27000.00
+    },
+    "netProfit": 113000.00
+  },
+  "scheduleSE": {
+    "netEarningsFromSE": 113000.00,
+    "selfEmploymentTax": 15961.00,
+    "deductibleSETax": 7981.00
+  },
+  "form8995QBI": {
+    "qualifiedBusinessIncome": 113000.00,
+    "qualifiedBusinessIncomeComponent": 22600.00,
+    "taxableIncomeBeforeQBI": 89269.00,
+    "taxableIncomeLimitation": 17854.00,
+    "qbiDeduction": 17854.00,
+    "isSpecifiedServiceBusiness": false,
+    "w2WagesTest": "N/A",
+    "ubia": 0.00
+  },
+  "estimatedTaxPayments": [
+    {"quarter": 1, "amount": 7500.00, "datePaid": "2025-04-15"},
+    {"quarter": 2, "amount": 7500.00, "datePaid": "2025-06-15"},
+    {"quarter": 3, "amount": 7500.00, "datePaid": "2025-09-15"},
+    {"quarter": 4, "amount": 7500.00, "datePaid": "2026-01-15"}
+  ],
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": true,
+  "hasScheduleC": true,
+  "hasScheduleSE": true,
+  "hasForm8995": true,
+  "expectedValues": {
+    "totalWages": 0.00,
+    "businessIncome": 113000.00,
+    "totalIncome": 113000.00,
+    "deductibleSETax": 7981.00,
+    "adjustmentsToIncome": 7981.00,
+    "agi": 105019.00,
+    "standardDeduction": 15750.00,
+    "qbiDeduction": 17854.00,
+    "totalDeductions": 33604.00,
+    "taxableIncome": 71415.00,
+    "taxFromTaxTable": 11424.00,
+    "selfEmploymentTax": 15961.00,
+    "totalTax": 27385.00,
+    "estimatedTaxPayments": 30000.00,
+    "totalPayments": 30000.00,
+    "refund": 2615.00,
+    "amountOwed": 0.00
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "scenarioId": "27",
+  "scenarioName": "Daniel & Lisa Moore - Residential Energy Credits",
+  "description": "MFJ couple who installed solar panels and made energy-efficient home improvements. Tests Form 5695 Residential Energy Credits.",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Daniel",
+    "lastName": "Moore",
+    "ssn": "400-27-1064",
+    "dateOfBirth": "1982-01-18",
+    "occupation": "Environmental Engineer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "789 Solar Drive",
+      "city": "San Diego",
+      "state": "CA",
+      "zip": "92101"
+    }
+  },
+  "spouse": {
+    "firstName": "Lisa",
+    "lastName": "Moore",
+    "ssn": "400-27-1065",
+    "dateOfBirth": "1984-06-22",
+    "occupation": "Marketing Director",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Daniel Moore",
+      "employerName": "Clean Energy Solutions",
+      "employerEin": "95-1234567",
+      "employerAddress": {
+        "street": "100 Green Way",
+        "city": "San Diego",
+        "state": "CA",
+        "zip": "92121"
+      },
+      "wages": 115000.00,
+      "federalWithholding": 18400.00,
+      "ssWages": 115000.00,
+      "ssTax": 7130.00,
+      "medicareWages": 115000.00,
+      "medicareTax": 1668.00,
+      "state": "CA",
+      "stateWages": 115000.00,
+      "stateTax": 8625.00
+    },
+    {
+      "employeeName": "Lisa Moore",
+      "employerName": "Tech Marketing Inc",
+      "employerEin": "95-7654321",
+      "employerAddress": {
+        "street": "200 Innovation Blvd",
+        "city": "San Diego",
+        "state": "CA",
+        "zip": "92122"
+      },
+      "wages": 95000.00,
+      "federalWithholding": 14250.00,
+      "ssWages": 95000.00,
+      "ssTax": 5890.00,
+      "medicareWages": 95000.00,
+      "medicareTax": 1378.00,
+      "state": "CA",
+      "stateWages": 95000.00,
+      "stateTax": 7125.00
+    }
+  ],
+  "form1099Rs": [],
+  "form5695ResidentialEnergy": {
+    "residentialCleanEnergyCredit": {
+      "solarElectric": {
+        "cost": 28000.00,
+        "creditRate": 0.30,
+        "credit": 8400.00
+      },
+      "solarWaterHeating": {
+        "cost": 0.00,
+        "creditRate": 0.30,
+        "credit": 0.00
+      },
+      "batteryStorage": {
+        "cost": 12000.00,
+        "creditRate": 0.30,
+        "credit": 3600.00
+      },
+      "totalCleanEnergyCredit": 12000.00
+    },
+    "energyEfficientHomeImprovementCredit": {
+      "qualifiedImprovements": {
+        "insulation": 2500.00,
+        "exteriorDoors": 1200.00,
+        "windows": 4000.00,
+        "totalImprovements": 7700.00
+      },
+      "annualLimit": 1200.00,
+      "creditAmount": 1200.00,
+      "heatPumps": {
+        "cost": 8500.00,
+        "creditLimit": 2000.00,
+        "credit": 2000.00
+      },
+      "totalHomeImprovementCredit": 3200.00
+    },
+    "totalResidentialEnergyCredits": 15200.00
+  },
+  "presidentialCampaign": true,
+  "digitalAssets": false,
+  "hasSchedule1": false,
+  "hasSchedule2": false,
+  "hasSchedule3": true,
+  "hasForm5695": true,
+  "expectedValues": {
+    "totalWages": 210000.00,
+    "totalIncome": 210000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 210000.00,
+    "standardDeduction": 31500.00,
+    "taxableIncome": 178500.00,
+    "taxFromTaxTable": 30234.00,
+    "residentialCleanEnergyCredit": 12000.00,
+    "energyEfficientHomeCredit": 3200.00,
+    "totalCredits": 15200.00,
+    "totalTax": 15034.00,
+    "federalWithholding": 32650.00,
+    "totalPayments": 32650.00,
+    "refund": 17616.00,
+    "amountOwed": 0.00
+  }
+}

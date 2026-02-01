@@ -1,0 +1,158 @@
+{
+  "scenarioId": "33",
+  "scenarioName": "Steven & Michelle Wright - Alternative Minimum Tax",
+  "description": "MFJ high-income couple subject to Alternative Minimum Tax due to large SALT deduction and ISO exercise. Tests Form 6251 AMT calculation.",
+  "taxYear": 2025,
+  "filingStatus": 2,
+  "filingStatusDescription": "Married Filing Jointly",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Steven",
+    "lastName": "Wright",
+    "ssn": "400-33-1071",
+    "dateOfBirth": "1970-07-14",
+    "occupation": "Chief Technology Officer",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "1 Executive Drive",
+      "city": "Greenwich",
+      "state": "CT",
+      "zip": "06830"
+    }
+  },
+  "spouse": {
+    "firstName": "Michelle",
+    "lastName": "Wright",
+    "ssn": "400-33-1072",
+    "dateOfBirth": "1972-09-22",
+    "occupation": "Investment Banker",
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false
+  },
+  "dependents": [
+    {
+      "firstName": "Alexander",
+      "lastName": "Wright",
+      "ssn": "400-33-1073",
+      "dateOfBirth": "2008-04-10",
+      "relationship": "son",
+      "monthsLivedWithTaxpayer": 12,
+      "qualifiesForCTC": true,
+      "qualifiesForODC": false
+    }
+  ],
+  "w2Forms": [
+    {
+      "employeeName": "Steven Wright",
+      "employerName": "Tech Corporation",
+      "employerEin": "06-1234567",
+      "employerAddress": {
+        "street": "100 Innovation Way",
+        "city": "Stamford",
+        "state": "CT",
+        "zip": "06901"
+      },
+      "wages": 450000.00,
+      "federalWithholding": 108000.00,
+      "ssWages": 168600.00,
+      "ssTax": 10453.00,
+      "medicareWages": 450000.00,
+      "medicareTax": 6525.00,
+      "state": "CT",
+      "stateWages": 450000.00,
+      "stateTax": 29250.00,
+      "box12Codes": [
+        {"code": "V", "amount": 125000.00}
+      ]
+    },
+    {
+      "employeeName": "Michelle Wright",
+      "employerName": "Global Investment Bank",
+      "employerEin": "13-9876543",
+      "employerAddress": {
+        "street": "200 Wall Street",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10005"
+      },
+      "wages": 380000.00,
+      "federalWithholding": 91200.00,
+      "ssWages": 168600.00,
+      "ssTax": 10453.00,
+      "medicareWages": 380000.00,
+      "medicareTax": 5510.00,
+      "state": "NY",
+      "stateWages": 380000.00,
+      "stateTax": 28500.00
+    }
+  ],
+  "form1099Rs": [],
+  "isoExercise": {
+    "sharesExercised": 5000,
+    "exercisePrice": 25.00,
+    "fairMarketValue": 50.00,
+    "bargainElement": 125000.00,
+    "amtAdjustment": 125000.00
+  },
+  "scheduleA": {
+    "medicalExpenses": {
+      "totalMedical": 0.00,
+      "deductibleMedical": 0.00
+    },
+    "stateAndLocalTaxes": {
+      "stateIncomeTax": 57750.00,
+      "realEstateTax": 42000.00,
+      "totalSALT": 99750.00,
+      "saltDeductionCapped": 10000.00
+    },
+    "interestExpenses": {
+      "homeMortgageInterest": 48000.00,
+      "totalInterest": 48000.00
+    },
+    "charitableContributions": {
+      "cashContributions": 50000.00,
+      "totalCharitable": 50000.00
+    },
+    "totalItemizedDeductions": 108000.00
+  },
+  "form6251AMT": {
+    "regularTaxableIncome": 722000.00,
+    "addBackSALT": 89750.00,
+    "isoAdjustment": 125000.00,
+    "otherAdjustments": 0.00,
+    "amti": 936750.00,
+    "amtExemption": 0.00,
+    "amtExemptionPhaseout": true,
+    "tentativeMinimumTax": 243555.00,
+    "regularTax": 217420.00,
+    "amt": 26135.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": true,
+  "hasSchedule1": false,
+  "hasSchedule2": true,
+  "hasScheduleA": true,
+  "hasForm6251": true,
+  "expectedValues": {
+    "totalWages": 830000.00,
+    "totalIncome": 830000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 830000.00,
+    "itemizedDeduction": 108000.00,
+    "taxableIncome": 722000.00,
+    "regularTax": 217420.00,
+    "amt": 26135.00,
+    "childTaxCredit": 0.00,
+    "additionalMedicareTax": 5850.00,
+    "netInvestmentIncomeTax": 3040.00,
+    "totalTax": 252445.00,
+    "federalWithholding": 199200.00,
+    "totalPayments": 199200.00,
+    "refund": 0.00,
+    "amountOwed": 53245.00
+  }
+}

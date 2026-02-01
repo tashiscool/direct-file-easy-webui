@@ -1,0 +1,101 @@
+{
+  "scenarioId": "32",
+  "scenarioName": "Amy Chen - Electric Vehicle Credit",
+  "description": "Single filer who purchased a new electric vehicle qualifying for the clean vehicle credit. Tests Form 8936 Clean Vehicle Credit.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Amy",
+    "lastName": "Chen",
+    "ssn": "400-32-1070",
+    "dateOfBirth": "1993-02-28",
+    "occupation": "Product Manager",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "888 Electric Ave",
+      "city": "Palo Alto",
+      "state": "CA",
+      "zip": "94301"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Amy Chen",
+      "employerName": "Silicon Valley Tech",
+      "employerEin": "94-1234567",
+      "employerAddress": {
+        "street": "1 Infinite Loop",
+        "city": "Cupertino",
+        "state": "CA",
+        "zip": "95014"
+      },
+      "wages": 135000.00,
+      "federalWithholding": 24300.00,
+      "ssWages": 135000.00,
+      "ssTax": 8370.00,
+      "medicareWages": 135000.00,
+      "medicareTax": 1958.00,
+      "state": "CA",
+      "stateWages": 135000.00,
+      "stateTax": 12150.00
+    }
+  ],
+  "form1099Rs": [],
+  "form8936CleanVehicle": {
+    "newCleanVehicle": {
+      "vin": "5YJ3E1EA1NF123456",
+      "year": 2025,
+      "make": "Tesla",
+      "model": "Model 3",
+      "datePlacedInService": "2025-04-15",
+      "purchasePrice": 42990.00,
+      "msrp": 42990.00,
+      "msrpLimit": 55000.00,
+      "qualifiesMSRPTest": true,
+      "finalAssemblyUS": true,
+      "batteryCapacity": 60,
+      "criticalMineralsRequirement": true,
+      "batteryComponentsRequirement": true,
+      "baseCredit": 3750.00,
+      "criticalMineralsCredit": 3750.00,
+      "batteryComponentsCredit": 3750.00,
+      "totalNewVehicleCredit": 7500.00
+    },
+    "magiTest": {
+      "modifiedAGI": 135000.00,
+      "magiThreshold": 150000.00,
+      "qualifiesMAGITest": true
+    },
+    "creditTransferredToDealer": false,
+    "totalCleanVehicleCredit": 7500.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": false,
+  "hasSchedule2": false,
+  "hasSchedule3": true,
+  "hasForm8936": true,
+  "expectedValues": {
+    "totalWages": 135000.00,
+    "totalIncome": 135000.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 135000.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 119250.00,
+    "taxFromTaxTable": 21046.00,
+    "cleanVehicleCredit": 7500.00,
+    "totalCredits": 7500.00,
+    "totalTax": 13546.00,
+    "federalWithholding": 24300.00,
+    "totalPayments": 24300.00,
+    "refund": 10754.00,
+    "amountOwed": 0.00
+  }
+}

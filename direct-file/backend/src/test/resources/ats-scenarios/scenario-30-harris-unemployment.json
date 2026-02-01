@@ -1,0 +1,103 @@
+{
+  "scenarioId": "30",
+  "scenarioName": "Jessica Harris - Unemployment Compensation",
+  "description": "Single filer who received unemployment compensation during job transition. Tests Form 1099-G unemployment income reporting.",
+  "taxYear": 2025,
+  "filingStatus": 1,
+  "filingStatusDescription": "Single",
+  "formType": "1040",
+  "primaryTaxpayer": {
+    "firstName": "Jessica",
+    "lastName": "Harris",
+    "ssn": "400-30-1068",
+    "dateOfBirth": "1990-11-25",
+    "occupation": "Project Manager",
+    "isPrimaryFiler": true,
+    "isBlind": false,
+    "isOver65": false,
+    "isDeceased": false,
+    "address": {
+      "street": "567 Transition Lane",
+      "city": "Columbus",
+      "state": "OH",
+      "zip": "43215"
+    }
+  },
+  "spouse": null,
+  "dependents": [],
+  "w2Forms": [
+    {
+      "employeeName": "Jessica Harris",
+      "employerName": "Previous Employer Corp",
+      "employerEin": "31-1234567",
+      "employerAddress": {
+        "street": "100 Corporate Blvd",
+        "city": "Columbus",
+        "state": "OH",
+        "zip": "43215"
+      },
+      "wages": 25000.00,
+      "federalWithholding": 3000.00,
+      "ssWages": 25000.00,
+      "ssTax": 1550.00,
+      "medicareWages": 25000.00,
+      "medicareTax": 363.00,
+      "state": "OH",
+      "stateWages": 25000.00,
+      "stateTax": 1000.00
+    },
+    {
+      "employeeName": "Jessica Harris",
+      "employerName": "New Employer Inc",
+      "employerEin": "31-7654321",
+      "employerAddress": {
+        "street": "200 Innovation Way",
+        "city": "Columbus",
+        "state": "OH",
+        "zip": "43220"
+      },
+      "wages": 42000.00,
+      "federalWithholding": 5040.00,
+      "ssWages": 42000.00,
+      "ssTax": 2604.00,
+      "medicareWages": 42000.00,
+      "medicareTax": 609.00,
+      "state": "OH",
+      "stateWages": 42000.00,
+      "stateTax": 1680.00
+    }
+  ],
+  "form1099Rs": [],
+  "form1099G": {
+    "payerName": "Ohio Department of Job and Family Services",
+    "payerAddress": {
+      "street": "145 S Front Street",
+      "city": "Columbus",
+      "state": "OH",
+      "zip": "43215"
+    },
+    "unemploymentCompensation": 12600.00,
+    "federalWithholding": 1260.00,
+    "stateWithholding": 504.00,
+    "repaidAmount": 0.00
+  },
+  "presidentialCampaign": false,
+  "digitalAssets": false,
+  "hasSchedule1": true,
+  "hasSchedule2": false,
+  "expectedValues": {
+    "totalWages": 67000.00,
+    "unemploymentCompensation": 12600.00,
+    "totalIncome": 79600.00,
+    "adjustmentsToIncome": 0.00,
+    "agi": 79600.00,
+    "standardDeduction": 15750.00,
+    "taxableIncome": 63850.00,
+    "taxFromTaxTable": 9672.00,
+    "totalTax": 9672.00,
+    "federalWithholding": 9300.00,
+    "totalPayments": 9300.00,
+    "refund": 0.00,
+    "amountOwed": 372.00
+  }
+}
