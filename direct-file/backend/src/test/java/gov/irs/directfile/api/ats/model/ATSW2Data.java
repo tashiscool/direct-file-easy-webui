@@ -2,6 +2,8 @@ package gov.irs.directfile.api.ats.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -66,6 +68,30 @@ public class ATSW2Data {
 
     @JsonProperty("box12Amount")
     private BigDecimal box12Amount = BigDecimal.ZERO;
+
+    // Box 12: Multiple codes (extended format)
+    @JsonProperty("box12Codes")
+    private List<Map<String, Object>> box12Codes;
+
+    // Box 14: Other (can be String or List<Map<String, Object>>)
+    @JsonProperty("box14Other")
+    private Object box14Other;
+
+    // Box 10: Dependent care benefits (alternative field name)
+    @JsonProperty("box10DependentCareBenefits")
+    private BigDecimal box10DependentCareBenefits = BigDecimal.ZERO;
+
+    // Military W-2 flag
+    @JsonProperty("isMilitaryW2")
+    private boolean isMilitaryW2;
+
+    // Combat pay (for military W-2s)
+    @JsonProperty("combatPay")
+    private BigDecimal combatPay = BigDecimal.ZERO;
+
+    // Clergy W-2 flag
+    @JsonProperty("isClergyW2")
+    private boolean isClergyW2;
 
     // Box 13: Checkboxes
     @JsonProperty("statutoryEmployee")
@@ -159,6 +185,18 @@ public class ATSW2Data {
     public BigDecimal getBox12Amount() { return box12Amount; }
     public void setBox12Amount(BigDecimal box12Amount) { this.box12Amount = box12Amount; }
 
+    public List<Map<String, Object>> getBox12Codes() { return box12Codes; }
+    public void setBox12Codes(List<Map<String, Object>> box12Codes) { this.box12Codes = box12Codes; }
+
+    public Object getBox14Other() { return box14Other; }
+    public void setBox14Other(Object box14Other) { this.box14Other = box14Other; }
+
+    public BigDecimal getBox10DependentCareBenefits() { return box10DependentCareBenefits; }
+    public void setBox10DependentCareBenefits(BigDecimal box10DependentCareBenefits) { this.box10DependentCareBenefits = box10DependentCareBenefits; }
+
+    public boolean isMilitaryW2() { return isMilitaryW2; }
+    public void setMilitaryW2(boolean militaryW2) { isMilitaryW2 = militaryW2; }
+
     public boolean isStatutoryEmployee() { return statutoryEmployee; }
     public void setStatutoryEmployee(boolean statutoryEmployee) { this.statutoryEmployee = statutoryEmployee; }
 
@@ -188,6 +226,12 @@ public class ATSW2Data {
 
     public String getLocalityName() { return localityName; }
     public void setLocalityName(String localityName) { this.localityName = localityName; }
+
+    public BigDecimal getCombatPay() { return combatPay; }
+    public void setCombatPay(BigDecimal combatPay) { this.combatPay = combatPay; }
+
+    public boolean isClergyW2() { return isClergyW2; }
+    public void setClergyW2(boolean clergyW2) { isClergyW2 = clergyW2; }
 
     @Override
     public boolean equals(Object o) {

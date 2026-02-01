@@ -103,6 +103,13 @@ public class ATS1099RData {
     @JsonProperty("localityName")
     private String localityName;
 
+    // Alternative field names used in some scenarios
+    @JsonProperty("isIRA")
+    private boolean isIRA;
+
+    @JsonProperty("pensionPlan")
+    private String pensionPlan;
+
     public ATS1099RData() {}
 
     // Getters and Setters
@@ -185,6 +192,12 @@ public class ATS1099RData {
 
     public String getLocalityName() { return localityName; }
     public void setLocalityName(String localityName) { this.localityName = localityName; }
+
+    public boolean isIRA() { return isIRA; }
+    public void setIRA(boolean isIRA) { this.isIRA = isIRA; }
+
+    public String getPensionPlan() { return pensionPlan; }
+    public void setPensionPlan(String pensionPlan) { this.pensionPlan = pensionPlan; }
 
     @Override
     public boolean equals(Object o) {

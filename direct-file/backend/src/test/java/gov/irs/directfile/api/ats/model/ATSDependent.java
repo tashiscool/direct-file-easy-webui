@@ -42,6 +42,22 @@ public class ATSDependent {
     @JsonProperty("usCitizenOrResident")
     private boolean usCitizenOrResident = true;
 
+    // Alternative field names used in some scenarios
+    @JsonProperty("qualifiesForCTC")
+    private boolean qualifiesForCTC;
+
+    @JsonProperty("qualifiesForODC")
+    private boolean qualifiesForODC;
+
+    @JsonProperty("isFullTimeStudent")
+    private boolean isFullTimeStudent;
+
+    @JsonProperty("isDisabled")
+    private boolean isDisabled;
+
+    @JsonProperty("qualifiesForCDCC")
+    private boolean qualifiesForCDCC;
+
     public ATSDependent() {}
 
     // Getters and Setters
@@ -94,6 +110,21 @@ public class ATSDependent {
 
     public boolean isUsCitizenOrResident() { return usCitizenOrResident; }
     public void setUsCitizenOrResident(boolean usCitizenOrResident) { this.usCitizenOrResident = usCitizenOrResident; }
+
+    public boolean isQualifiesForCTC() { return qualifiesForCTC; }
+    public void setQualifiesForCTC(boolean qualifiesForCTC) { this.qualifiesForCTC = qualifiesForCTC; }
+
+    public boolean isQualifiesForODC() { return qualifiesForODC; }
+    public void setQualifiesForODC(boolean qualifiesForODC) { this.qualifiesForODC = qualifiesForODC; }
+
+    public boolean isFullTimeStudent() { return isFullTimeStudent; }
+    public void setFullTimeStudent(boolean fullTimeStudent) { isFullTimeStudent = fullTimeStudent; }
+
+    public boolean isDisabled() { return isDisabled; }
+    public void setDisabled(boolean disabled) { isDisabled = disabled; }
+
+    public boolean isQualifiesForCDCC() { return qualifiesForCDCC; }
+    public void setQualifiesForCDCC(boolean qualifiesForCDCC) { this.qualifiesForCDCC = qualifiesForCDCC; }
 
     @Override
     public boolean equals(Object o) {

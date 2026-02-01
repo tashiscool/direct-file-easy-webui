@@ -3,6 +3,7 @@ package gov.irs.directfile.api.ats.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Complete ATS (Assurance Testing System) scenario data.
@@ -56,6 +57,169 @@ public class ATSScenarioData {
 
     @JsonProperty("form1099Rs")
     private List<ATS1099RData> form1099Rs = new ArrayList<>();
+
+    // Additional income forms (stored as generic maps for flexibility)
+    @JsonProperty("form1099Nec")
+    private List<Map<String, Object>> form1099Nec = new ArrayList<>();
+
+    @JsonProperty("form1099G")
+    private Map<String, Object> form1099G;
+
+    @JsonProperty("form1099Div")
+    private List<Map<String, Object>> form1099Div = new ArrayList<>();
+
+    @JsonProperty("form1099Int")
+    private List<Map<String, Object>> form1099Int = new ArrayList<>();
+
+    @JsonProperty("formW2G")
+    private List<Map<String, Object>> formW2G = new ArrayList<>();
+
+    @JsonProperty("scheduleK1")
+    private List<Map<String, Object>> scheduleK1 = new ArrayList<>();
+
+    @JsonProperty("formSSA1099")
+    private List<Map<String, Object>> formSSA1099 = new ArrayList<>();
+
+    @JsonProperty("form1099B")
+    private List<Map<String, Object>> form1099B = new ArrayList<>();
+
+    @JsonProperty("form1095A")
+    private Map<String, Object> form1095A;
+
+    @JsonProperty("form1098")
+    private Map<String, Object> form1098;
+
+    @JsonProperty("form1098T")
+    private Map<String, Object> form1098T;
+
+    @JsonProperty("form1116ForeignTaxCredit")
+    private Map<String, Object> form1116ForeignTaxCredit;
+
+    @JsonProperty("form1098E")
+    private Map<String, Object> form1098E;
+
+    @JsonProperty("form8962")
+    private Map<String, Object> form8962;
+
+    @JsonProperty("scheduleD")
+    private Map<String, Object> scheduleD;
+
+    // Schedule data
+    @JsonProperty("scheduleA")
+    private Map<String, Object> scheduleA;
+
+    @JsonProperty("scheduleC")
+    private Map<String, Object> scheduleC;
+
+    @JsonProperty("scheduleE")
+    private Map<String, Object> scheduleE;
+
+    @JsonProperty("scheduleSE")
+    private Map<String, Object> scheduleSE;
+
+    // Credits and special forms
+    @JsonProperty("form8936CleanVehicle")
+    private Map<String, Object> form8936CleanVehicle;
+
+    @JsonProperty("form5695ResidentialEnergy")
+    private Map<String, Object> form5695ResidentialEnergy;
+
+    @JsonProperty("form8889HSA")
+    private Map<String, Object> form8889HSA;
+
+    @JsonProperty("form8863Education")
+    private Map<String, Object> form8863Education;
+
+    @JsonProperty("form8962PTC")
+    private Map<String, Object> form8962PTC;
+
+    @JsonProperty("form2441ChildCare")
+    private Map<String, Object> form2441ChildCare;
+
+    @JsonProperty("form1116ForeignTax")
+    private Map<String, Object> form1116ForeignTax;
+
+    @JsonProperty("form8995QBI")
+    private Map<String, Object> form8995QBI;
+
+    @JsonProperty("form6251AMT")
+    private Map<String, Object> form6251AMT;
+
+    // Special scenarios
+    @JsonProperty("isoExercise")
+    private Map<String, Object> isoExercise;
+
+    @JsonProperty("gamblingActivity")
+    private Map<String, Object> gamblingActivity;
+
+    @JsonProperty("digitalAssetTransactions")
+    private List<Map<String, Object>> digitalAssetTransactions = new ArrayList<>();
+
+    @JsonProperty("iraContributions")
+    private Map<String, Object> iraContributions;
+
+    @JsonProperty("hsaContributions")
+    private Map<String, Object> hsaContributions;
+
+    @JsonProperty("militaryIncome")
+    private Map<String, Object> militaryIncome;
+
+    @JsonProperty("militaryInfo")
+    private Map<String, Object> militaryInfo;
+
+    @JsonProperty("taxTreatyBenefits")
+    private Map<String, Object> taxTreatyBenefits;
+
+    @JsonProperty("movingExpenses")
+    private Map<String, Object> movingExpenses;
+
+    @JsonProperty("clergyIncome")
+    private Map<String, Object> clergyIncome;
+
+    @JsonProperty("clergyInfo")
+    private Map<String, Object> clergyInfo;
+
+    @JsonProperty("form4361Exemption")
+    private boolean form4361Exemption;
+
+    @JsonProperty("rentalProperties")
+    private List<Map<String, Object>> rentalProperties = new ArrayList<>();
+
+    @JsonProperty("stakingRewards")
+    private Map<String, Object> stakingRewards;
+
+    @JsonProperty("educatorExpenses")
+    private Map<String, Object> educatorExpenses;
+
+    @JsonProperty("estimatedTaxPayments")
+    private List<Map<String, Object>> estimatedTaxPayments = new ArrayList<>();
+
+    @JsonProperty("educationCredits")
+    private Map<String, Object> educationCredits;
+
+    @JsonProperty("healthInsurance")
+    private Map<String, Object> healthInsurance;
+
+    @JsonProperty("parsonageAllowance")
+    private Map<String, Object> parsonageAllowance;
+
+    @JsonProperty("childCareExpenses")
+    private Map<String, Object> childCareExpenses;
+
+    @JsonProperty("businessIncome")
+    private Map<String, Object> businessIncome;
+
+    @JsonProperty("form2441")
+    private Map<String, Object> form2441;
+
+    @JsonProperty("stakingIncome")
+    private Map<String, Object> stakingIncome;
+
+    @JsonProperty("scholarshipIncome")
+    private Map<String, Object> scholarshipIncome;
+
+    @JsonProperty("form1099Misc")
+    private List<Map<String, Object>> form1099Misc = new ArrayList<>();
 
     // Checkboxes
     @JsonProperty("presidentialCampaign")
@@ -130,6 +294,30 @@ public class ATSScenarioData {
 
     @JsonProperty("hasForm8936")
     private boolean hasForm8936;
+
+    @JsonProperty("hasForm5329")
+    private boolean hasForm5329;
+
+    @JsonProperty("hasForm6251")
+    private boolean hasForm6251;
+
+    @JsonProperty("hasForm1116")
+    private boolean hasForm1116;
+
+    @JsonProperty("hasForm8889")
+    private boolean hasForm8889;
+
+    @JsonProperty("hasForm8962")
+    private boolean hasForm8962;
+
+    @JsonProperty("hasForm8995")
+    private boolean hasForm8995;
+
+    @JsonProperty("hasScheduleOI")
+    private boolean hasScheduleOI;
+
+    @JsonProperty("hasForm3903")
+    private boolean hasForm3903;
 
     // Expected calculation results for validation
     @JsonProperty("expectedValues")
@@ -248,6 +436,139 @@ public class ATSScenarioData {
 
     public boolean isHasForm8936() { return hasForm8936; }
     public void setHasForm8936(boolean hasForm8936) { this.hasForm8936 = hasForm8936; }
+
+    public boolean isHasForm5329() { return hasForm5329; }
+    public void setHasForm5329(boolean hasForm5329) { this.hasForm5329 = hasForm5329; }
+
+    public boolean isHasForm6251() { return hasForm6251; }
+    public void setHasForm6251(boolean hasForm6251) { this.hasForm6251 = hasForm6251; }
+
+    public boolean isHasForm1116() { return hasForm1116; }
+    public void setHasForm1116(boolean hasForm1116) { this.hasForm1116 = hasForm1116; }
+
+    public boolean isHasForm8889() { return hasForm8889; }
+    public void setHasForm8889(boolean hasForm8889) { this.hasForm8889 = hasForm8889; }
+
+    public boolean isHasForm8962() { return hasForm8962; }
+    public void setHasForm8962(boolean hasForm8962) { this.hasForm8962 = hasForm8962; }
+
+    public boolean isHasForm8995() { return hasForm8995; }
+    public void setHasForm8995(boolean hasForm8995) { this.hasForm8995 = hasForm8995; }
+
+    public boolean isHasScheduleOI() { return hasScheduleOI; }
+    public void setHasScheduleOI(boolean hasScheduleOI) { this.hasScheduleOI = hasScheduleOI; }
+
+    public boolean isHasForm3903() { return hasForm3903; }
+    public void setHasForm3903(boolean hasForm3903) { this.hasForm3903 = hasForm3903; }
+
+    // Additional income forms getters/setters
+    public List<Map<String, Object>> getForm1099Nec() { return form1099Nec; }
+    public void setForm1099Nec(List<Map<String, Object>> form1099Nec) { this.form1099Nec = form1099Nec; }
+
+    public Map<String, Object> getForm1099G() { return form1099G; }
+    public void setForm1099G(Map<String, Object> form1099G) { this.form1099G = form1099G; }
+
+    public List<Map<String, Object>> getForm1099Div() { return form1099Div; }
+    public void setForm1099Div(List<Map<String, Object>> form1099Div) { this.form1099Div = form1099Div; }
+
+    public List<Map<String, Object>> getForm1099Int() { return form1099Int; }
+    public void setForm1099Int(List<Map<String, Object>> form1099Int) { this.form1099Int = form1099Int; }
+
+    public List<Map<String, Object>> getFormW2G() { return formW2G; }
+    public void setFormW2G(List<Map<String, Object>> formW2G) { this.formW2G = formW2G; }
+
+    public List<Map<String, Object>> getScheduleK1() { return scheduleK1; }
+    public void setScheduleK1(List<Map<String, Object>> scheduleK1) { this.scheduleK1 = scheduleK1; }
+
+    public List<Map<String, Object>> getFormSSA1099() { return formSSA1099; }
+    public void setFormSSA1099(List<Map<String, Object>> formSSA1099) { this.formSSA1099 = formSSA1099; }
+
+    // Schedule data getters/setters
+    public Map<String, Object> getScheduleA() { return scheduleA; }
+    public void setScheduleA(Map<String, Object> scheduleA) { this.scheduleA = scheduleA; }
+
+    public Map<String, Object> getScheduleC() { return scheduleC; }
+    public void setScheduleC(Map<String, Object> scheduleC) { this.scheduleC = scheduleC; }
+
+    public Map<String, Object> getScheduleE() { return scheduleE; }
+    public void setScheduleE(Map<String, Object> scheduleE) { this.scheduleE = scheduleE; }
+
+    public Map<String, Object> getScheduleSE() { return scheduleSE; }
+    public void setScheduleSE(Map<String, Object> scheduleSE) { this.scheduleSE = scheduleSE; }
+
+    // Credit form getters/setters
+    public Map<String, Object> getForm8936CleanVehicle() { return form8936CleanVehicle; }
+    public void setForm8936CleanVehicle(Map<String, Object> form8936CleanVehicle) { this.form8936CleanVehicle = form8936CleanVehicle; }
+
+    public Map<String, Object> getForm5695ResidentialEnergy() { return form5695ResidentialEnergy; }
+    public void setForm5695ResidentialEnergy(Map<String, Object> form5695ResidentialEnergy) { this.form5695ResidentialEnergy = form5695ResidentialEnergy; }
+
+    public Map<String, Object> getForm8889HSA() { return form8889HSA; }
+    public void setForm8889HSA(Map<String, Object> form8889HSA) { this.form8889HSA = form8889HSA; }
+
+    public Map<String, Object> getForm8863Education() { return form8863Education; }
+    public void setForm8863Education(Map<String, Object> form8863Education) { this.form8863Education = form8863Education; }
+
+    public Map<String, Object> getForm8962PTC() { return form8962PTC; }
+    public void setForm8962PTC(Map<String, Object> form8962PTC) { this.form8962PTC = form8962PTC; }
+
+    public Map<String, Object> getForm2441ChildCare() { return form2441ChildCare; }
+    public void setForm2441ChildCare(Map<String, Object> form2441ChildCare) { this.form2441ChildCare = form2441ChildCare; }
+
+    public Map<String, Object> getForm1116ForeignTax() { return form1116ForeignTax; }
+    public void setForm1116ForeignTax(Map<String, Object> form1116ForeignTax) { this.form1116ForeignTax = form1116ForeignTax; }
+
+    public Map<String, Object> getForm8995QBI() { return form8995QBI; }
+    public void setForm8995QBI(Map<String, Object> form8995QBI) { this.form8995QBI = form8995QBI; }
+
+    public Map<String, Object> getForm6251AMT() { return form6251AMT; }
+    public void setForm6251AMT(Map<String, Object> form6251AMT) { this.form6251AMT = form6251AMT; }
+
+    // Special scenario getters/setters
+    public Map<String, Object> getIsoExercise() { return isoExercise; }
+    public void setIsoExercise(Map<String, Object> isoExercise) { this.isoExercise = isoExercise; }
+
+    public Map<String, Object> getGamblingActivity() { return gamblingActivity; }
+    public void setGamblingActivity(Map<String, Object> gamblingActivity) { this.gamblingActivity = gamblingActivity; }
+
+    public List<Map<String, Object>> getDigitalAssetTransactions() { return digitalAssetTransactions; }
+    public void setDigitalAssetTransactions(List<Map<String, Object>> digitalAssetTransactions) { this.digitalAssetTransactions = digitalAssetTransactions; }
+
+    public Map<String, Object> getIraContributions() { return iraContributions; }
+    public void setIraContributions(Map<String, Object> iraContributions) { this.iraContributions = iraContributions; }
+
+    public Map<String, Object> getHsaContributions() { return hsaContributions; }
+    public void setHsaContributions(Map<String, Object> hsaContributions) { this.hsaContributions = hsaContributions; }
+
+    public Map<String, Object> getMilitaryIncome() { return militaryIncome; }
+    public void setMilitaryIncome(Map<String, Object> militaryIncome) { this.militaryIncome = militaryIncome; }
+
+    public Map<String, Object> getMilitaryInfo() { return militaryInfo; }
+    public void setMilitaryInfo(Map<String, Object> militaryInfo) { this.militaryInfo = militaryInfo; }
+
+    public Map<String, Object> getTaxTreatyBenefits() { return taxTreatyBenefits; }
+    public void setTaxTreatyBenefits(Map<String, Object> taxTreatyBenefits) { this.taxTreatyBenefits = taxTreatyBenefits; }
+
+    public Map<String, Object> getMovingExpenses() { return movingExpenses; }
+    public void setMovingExpenses(Map<String, Object> movingExpenses) { this.movingExpenses = movingExpenses; }
+
+    public Map<String, Object> getClergyIncome() { return clergyIncome; }
+    public void setClergyIncome(Map<String, Object> clergyIncome) { this.clergyIncome = clergyIncome; }
+
+    public Map<String, Object> getClergyInfo() { return clergyInfo; }
+    public void setClergyInfo(Map<String, Object> clergyInfo) { this.clergyInfo = clergyInfo; }
+
+    public boolean isForm4361Exemption() { return form4361Exemption; }
+    public void setForm4361Exemption(boolean form4361Exemption) { this.form4361Exemption = form4361Exemption; }
+
+    public List<Map<String, Object>> getRentalProperties() { return rentalProperties; }
+    public void setRentalProperties(List<Map<String, Object>> rentalProperties) { this.rentalProperties = rentalProperties; }
+
+    public List<Map<String, Object>> getEstimatedTaxPayments() { return estimatedTaxPayments; }
+    public void setEstimatedTaxPayments(List<Map<String, Object>> estimatedTaxPayments) { this.estimatedTaxPayments = estimatedTaxPayments; }
+
+    public Map<String, Object> getScholarshipIncome() { return scholarshipIncome; }
+    public void setScholarshipIncome(Map<String, Object> scholarshipIncome) { this.scholarshipIncome = scholarshipIncome; }
 
     public ATSExpectedValues getExpectedValues() { return expectedValues; }
     public void setExpectedValues(ATSExpectedValues expectedValues) { this.expectedValues = expectedValues; }
