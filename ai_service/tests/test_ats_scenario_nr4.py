@@ -713,12 +713,12 @@ class TestForm1040NRTaxCalculation:
         assert isaac_hill_form_1040nr_data["line_11a_agi"] == Decimal("56992.00")
 
     def test_standard_deduction_qss(self, isaac_hill_form_1040nr_data):
-        """Test QSS standard deduction used."""
-        assert isaac_hill_form_1040nr_data["line_14_total_deductions"] == Decimal("30000.00")
+        """Test OBBBA 2025 QSS standard deduction used."""
+        assert isaac_hill_form_1040nr_data["line_14_total_deductions"] == Decimal("31500.00")
 
     def test_taxable_income(self, isaac_hill_form_1040nr_data):
         """Test taxable income calculation."""
-        expected = Decimal("56992.00") - Decimal("30000.00")
+        expected = Decimal("56992.00") - Decimal("31500.00")
         assert isaac_hill_form_1040nr_data["line_15_taxable_income"] == expected
 
     def test_total_credits(self, isaac_hill_form_1040nr_data):
@@ -788,9 +788,9 @@ class TestScenarioNR4BusinessRules:
         assert isaac_hill_form_1040nr_data["taxpayer"]["is_nonresident_alien"] is True
 
     def test_qss_can_use_standard_deduction(self, isaac_hill_form_1040nr_data):
-        """Test QSS filer can use standard deduction."""
+        """Test QSS filer can use OBBBA 2025 standard deduction."""
         assert isaac_hill_form_1040nr_data["filing_status"] == "QSS"
-        assert isaac_hill_form_1040nr_data["line_14_total_deductions"] == Decimal("30000.00")
+        assert isaac_hill_form_1040nr_data["line_14_total_deductions"] == Decimal("31500.00")
 
     def test_magi_within_clean_vehicle_limit(self, isaac_hill_form_8936, isaac_hill_taxpayer):
         """Test MAGI is within clean vehicle credit limit."""
