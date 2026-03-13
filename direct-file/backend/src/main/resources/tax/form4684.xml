@@ -17,7 +17,16 @@
 
     <Fact path="/isInFederalDisasterArea">
       <Name>Is In Federal Disaster Area</Name>
-      <Description>Whether loss is in a federally declared disaster area.</Description>
+      <Description>Whether the personal casualty loss is attributable to a federally declared disaster.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isQualifiedDisasterLoss">
+      <Name>Is Qualified Disaster Loss</Name>
+      <Description>Whether the federally declared disaster loss is a qualified disaster loss eligible for the
+        special $500 floor and no 10% AGI reduction.</Description>
       <Writable>
         <Boolean />
       </Writable>
@@ -150,10 +159,26 @@
 
     <Fact path="/perCasualtyFloor">
       <Name>Per Casualty Floor</Name>
-      <Description>Per-casualty floor amount ($100).</Description>
+      <Description>Per-casualty floor amount. Qualified disaster losses use $500; other personal federally
+        declared disaster losses use $100.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>100</Dollar>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isQualifiedDisasterLoss" />
+            </When>
+            <Then>
+              <Dollar>500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dollar>100</Dollar>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -190,7 +215,17 @@
         <Switch>
           <Case>
             <When>
-              <Dependency path="/isInFederalDisasterArea" />
+              <Not>
+                <Dependency path="/isInFederalDisasterArea" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/isQualifiedDisasterLoss" />
             </When>
             <Then>
               <Dependency path="/lossAfterPerCasualtyFloor" />

@@ -13,19 +13,19 @@
 
     <Fact path="/qbiThresholdSingle8995A">
       <Name>QBI Threshold Single</Name>
-      <Description>Threshold for single filers ($191,950 for 2025).</Description>
+      <Description>Threshold for single, MFS, and HOH filers ($197,300 for 2025).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>191950</Dollar>
+        <Dollar>197300</Dollar>
       </Derived>
     </Fact>
 
     <Fact path="/qbiThresholdMFJ8995A">
       <Name>QBI Threshold MFJ</Name>
-      <Description>Threshold for MFJ filers ($383,900 for 2025).</Description>
+      <Description>Threshold for MFJ and QSS filers ($394,600 for 2025).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>383900</Dollar>
+        <Dollar>394600</Dollar>
       </Derived>
     </Fact>
 

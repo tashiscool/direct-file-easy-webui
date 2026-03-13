@@ -54,7 +54,10 @@
         <Switch>
           <Case>
             <When>
-              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+              </Any>
             </When>
             <Then>
               <Dollar>394600</Dollar>
@@ -80,7 +83,10 @@
         <Switch>
           <Case>
             <When>
-              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+              </Any>
             </When>
             <Then>
               <Dollar>100000</Dollar>

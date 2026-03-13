@@ -131,7 +131,7 @@ direct-file-easy-webui/
 New above-the-line deductions on Schedule 1-A:
 - **Overtime Income Exemption**: $12,500/$25,000 cap
 - **Tip Income Exemption**: $25,000 cap
-- **Auto Loan Interest Deduction**: $10,000 cap (US-made vehicles)
+- **Auto Loan Interest Deduction**: $10,000 cap (vehicles meeting the final-assembly-in-the-United-States requirement)
 - **Senior Bonus Deduction**: $6,000 per senior (65+)
 
 #### Core Tax Provisions

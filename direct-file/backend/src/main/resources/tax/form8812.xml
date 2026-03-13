@@ -27,10 +27,10 @@
 
     <Fact path="/ctcAmountPerChild">
       <Name>CTC Amount Per Child</Name>
-      <Description>Child tax credit amount per child ($2,000).</Description>
+      <Description>Child tax credit amount per child ($2,200 for 2025).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>2000</Dollar>
+        <Dollar>2200</Dollar>
       </Derived>
     </Fact>
 

@@ -235,19 +235,19 @@
 
     <Fact path="/qbiThresholdSingle">
       <Name>QBI Threshold - Single</Name>
-      <Description>Taxable income threshold for simplified computation (single).</Description>
+      <Description>Taxable income threshold for simplified computation ($197,300 for single, MFS, and HOH in 2025).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>191950</Dollar>
+        <Dollar>197300</Dollar>
       </Derived>
     </Fact>
 
     <Fact path="/qbiThresholdMFJ">
       <Name>QBI Threshold - MFJ</Name>
-      <Description>Taxable income threshold for simplified computation (MFJ).</Description>
+      <Description>Taxable income threshold for simplified computation ($394,600 for MFJ and QSS in 2025).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>383900</Dollar>
+        <Dollar>394600</Dollar>
       </Derived>
     </Fact>
 
@@ -255,10 +255,31 @@
       <Name>Can Use Simplified Method</Name>
       <Description>Whether taxable income is below threshold for simplified method.</Description>
       <Derived>
-        <LessThanOrEqual>
-          <Left><Dependency path="/taxableIncomeBeforeQBI" /></Left>
-          <Right><Dependency path="/qbiThresholdSingle" /></Right>
-        </LessThanOrEqual>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+              </Any>
+            </When>
+            <Then>
+              <LessThanOrEqual>
+                <Left><Dependency path="/taxableIncomeBeforeQBI" /></Left>
+                <Right><Dependency path="/qbiThresholdMFJ" /></Right>
+              </LessThanOrEqual>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <LessThanOrEqual>
+                <Left><Dependency path="/taxableIncomeBeforeQBI" /></Left>
+                <Right><Dependency path="/qbiThresholdSingle" /></Right>
+              </LessThanOrEqual>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
