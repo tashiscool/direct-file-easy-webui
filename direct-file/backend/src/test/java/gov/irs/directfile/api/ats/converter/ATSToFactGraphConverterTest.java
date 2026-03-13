@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -394,7 +395,7 @@ class ATSToFactGraphConverterTest {
         w2.setMedicareWages(new BigDecimal("50000.00"));
         w2.setMedicareTax(new BigDecimal("725.00"));
 
-        scenario.setW2Forms(List.of(w2));
+        scenario.setW2Forms(new ArrayList<>(List.of(w2)));
         return scenario;
     }
 

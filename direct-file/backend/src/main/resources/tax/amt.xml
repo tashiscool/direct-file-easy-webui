@@ -280,26 +280,28 @@
                     <Add>
                       <Add>
                         <Add>
-                          <Dependency path="/amtStandardDeductionAddBack" />
-                          <Dependency path="/amtSALTAddBack" />
+                          <Add>
+                            <Dependency path="/amtStandardDeductionAddBack" />
+                            <Dependency path="/amtSALTAddBack" />
+                          </Add>
+                          <Dependency path="/amtHomeEquityInterestAddBack" />
                         </Add>
-                        <Dependency path="/amtHomeEquityInterestAddBack" />
+                        <Dependency path="/amtMiscDeductionsAddBack" />
                       </Add>
-                      <Dependency path="/amtMiscDeductionsAddBack" />
+                      <Dependency path="/amtTaxRefundAddBack" />
                     </Add>
-                    <Dependency path="/amtTaxRefundAddBack" />
+                    <Dependency path="/amtInvestmentInterestAdjustment" />
                   </Add>
-                  <Dependency path="/amtInvestmentInterestAdjustment" />
+                  <Dependency path="/amtDepreciationAdjustment" />
                 </Add>
-                <Dependency path="/amtDepreciationAdjustment" />
+                <Dependency path="/amtNOLAdjustment" />
               </Add>
-              <Dependency path="/amtNOLAdjustment" />
+              <Dependency path="/amtPrivateActivityBondInterest" />
             </Add>
-            <Dependency path="/amtPrivateActivityBondInterest" />
+            <Dependency path="/amtISOAdjustment" />
           </Add>
-          <Dependency path="/amtISOAdjustment" />
+          <Dependency path="/amtOtherAdjustments" />
         </Add>
-        <Dependency path="/amtOtherAdjustments" />
       </Derived>
     </Fact>
 

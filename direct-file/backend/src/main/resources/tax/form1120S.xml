@@ -459,7 +459,7 @@
     </Fact>
 
     <Fact path="/sCorpAccumulatedEarningsAndProfits">
-      <Name>Accumulated E&P</Name>
+      <Name>Accumulated E&amp;P</Name>
       <Description>Accumulated earnings and profits from C corp years.</Description>
       <Writable>
         <Dollar>

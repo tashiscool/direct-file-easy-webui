@@ -524,7 +524,7 @@
     </Fact>
     <Fact path="/wvMunicipalTaxRate">
       <Name>WV Municipal Tax Rate</Name>
-      <Description>WV municipal B&O or service taxes (varies by city).</Description>
+      <Description>WV municipal B&amp;O or service taxes (varies by city).</Description>
       <Derived>
         <Switch>
           <Case><Equal><Dependency path="/wvMunicipality" /><String>Charleston</String></Equal><Decimal>0.02</Decimal></Case>

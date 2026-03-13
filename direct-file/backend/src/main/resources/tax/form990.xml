@@ -1039,7 +1039,7 @@
 
     <Fact path="/requiresForm990EZ">
       <Name>Requires Form 990-EZ</Name>
-      <Description>Whether organization can file Form 990-EZ (receipts $50K-$200K, assets < $500K).</Description>
+      <Description>Whether organization can file Form 990-EZ (receipts $50K-$200K, assets &lt; $500K).</Description>
       <Derived>
         <All>
           <GreaterThanOrEqual>

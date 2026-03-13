@@ -2,6 +2,8 @@ package gov.irs.directfile.api.loaders.processor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +83,10 @@ public class XmlProcessor {
 
                 for (int i = 0; i < factNodes.getLength(); i++) {
                     TaxFact taxFact = readFact(factNodes.item(i));
-                    factMap.put(taxFact.path(), taxFact);
+                    List<TaxFact> expandedFacts = expandFactWithInlineEnumOptions(taxFact);
+                    for (TaxFact expandedFact : expandedFacts) {
+                        factMap.put(expandedFact.path(), expandedFact);
+                    }
                 }
             }
             return new TaxDictionaryDigest(folderName, factMap);
@@ -132,6 +137,63 @@ public class XmlProcessor {
         return new TaxFact(path, name, description, exportZero, writable, derived, placeholder, export);
     }
 
+    private List<TaxFact> expandFactWithInlineEnumOptions(TaxFact taxFact) {
+        List<TaxFact> facts = new ArrayList<>();
+        TaxWritable writable = taxFact.writable();
+        if (writable == null) {
+            facts.add(taxFact);
+            return facts;
+        }
+
+        String writableTypeName = writable.typeName();
+        boolean isEnumWritable = "Enum".equals(writableTypeName) || "MultiEnum".equals(writableTypeName);
+        if (!isEnumWritable) {
+            facts.add(taxFact);
+            return facts;
+        }
+
+        Map<String, String> writableOptions = new HashMap<>(writable.options());
+        if (writableOptions.containsKey("optionsPath") || !writableOptions.containsKey("values")) {
+            facts.add(taxFact);
+            return facts;
+        }
+
+        List<String> inlineValues = parseInlineEnumValues(writableOptions.remove("values"));
+        if (inlineValues.isEmpty()) {
+            facts.add(taxFact);
+            return facts;
+        }
+
+        String optionsPath = buildInlineEnumOptionsPath(taxFact.path());
+        writableOptions.put("optionsPath", optionsPath);
+
+        TaxWritable normalizedWritable = new TaxWritable(
+                writableTypeName, writableOptions, writable.collectionItemAlias(), writable.limits());
+        TaxFact normalizedTaxFact = new TaxFact(
+                taxFact.path(),
+                taxFact.name(),
+                taxFact.description(),
+                taxFact.exportZero(),
+                normalizedWritable,
+                taxFact.derived(),
+                taxFact.placeholder(),
+                taxFact.export());
+        facts.add(normalizedTaxFact);
+
+        TaxCompNode enumOptionsNode = buildInlineEnumOptionsNode(inlineValues);
+        TaxFact enumOptionsFact = new TaxFact(
+                optionsPath,
+                taxFact.name() + " Options",
+                taxFact.description(),
+                false,
+                null,
+                enumOptionsNode,
+                null,
+                null);
+        facts.add(enumOptionsFact);
+        return facts;
+    }
+
     private TaxWritable readWritableNode(List<Element> writableElementList) {
         if (writableElementList.size() == 0) {
             return null;
@@ -149,17 +211,18 @@ public class XmlProcessor {
                     throw new XmlProcessorException("Writable node has more than 1 non-Limit child");
                 }
                 foundWritableNode = true;
-                writableNodeName = el.getNodeName();
+                writableNodeName = normalizeNodeTypeName(el.getNodeName());
 
                 String textNodeValue = "";
                 NodeList childNodes = el.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     Node childNode = childNodes.item(i);
                     if (childNode.getNodeType() == Node.TEXT_NODE) {
-                        textNodeValue = el.getNodeValue();
+                        textNodeValue = childNode.getNodeValue();
                     }
                 }
                 options = convertTextValueAndAttributesToOptionMap(textNodeValue, el.getAttributes());
+                options = normalizeOptionsForNodeType(writableNodeName, options);
 
                 // collection aliases are handled specially:  they are passed as an attribute, but
                 // stripped
@@ -190,12 +253,35 @@ public class XmlProcessor {
         Element childElement = getDirectChildElement(el, childName);
         List<Element> grandchildren = getAllDirectChildElements(childElement);
         if (grandchildren.size() > 1) {
+            if (FACT_DERIVED_CHILD_NAME.equals(childName)) {
+                List<TaxCompNode> derivedExpressions = new ArrayList<>();
+                for (Element grandchild : grandchildren) {
+                    derivedExpressions.add(readCompNode(grandchild));
+                }
+                return foldDerivedExpressionsWithAdd(derivedExpressions);
+            }
             throw new XmlProcessorException(String.format("Fact %s: %s has more than 1 child", path, childElement));
         } else if (grandchildren.size() == 1) {
             return readCompNode(grandchildren.get(0));
         }
         // child didn't exist
         return null;
+    }
+
+    private TaxCompNode foldDerivedExpressionsWithAdd(List<TaxCompNode> expressions) {
+        if (expressions.isEmpty()) {
+            return null;
+        }
+
+        TaxCompNode accumulator = expressions.get(0);
+        for (int i = 1; i < expressions.size(); i++) {
+            List<TaxCompNode> addChildren = new ArrayList<>();
+            addChildren.add(accumulator);
+            addChildren.add(expressions.get(i));
+            accumulator = new TaxCompNode("Add", new HashMap<>(), addChildren);
+        }
+
+        return accumulator;
     }
 
     private TaxCompNode readCompNode(Node node) {
@@ -220,9 +306,11 @@ public class XmlProcessor {
             }
         }
 
+        String nodeTypeName = normalizeNodeTypeName(node.getNodeName());
         Map<String, String> options = convertTextValueAndAttributesToOptionMap(textNodeValue, node.getAttributes());
+        options = normalizeOptionsForNodeType(nodeTypeName, options);
 
-        return new TaxCompNode(node.getNodeName(), options, children);
+        return new TaxCompNode(nodeTypeName, options, children);
     }
 
     private TaxLimit readLimit(Element el) {
@@ -250,7 +338,7 @@ public class XmlProcessor {
     private Map<String, String> convertTextValueAndAttributesToOptionMap(String textVal, NamedNodeMap attributes) {
         Map<String, String> options = convertAttributesToOptionMap(attributes);
 
-        String textValue = textVal.strip();
+        String textValue = textVal == null ? "" : textVal.strip();
         if (!"".equals(textValue)) {
             options.put(TEXT_NODE_VALUE_NAME, textValue);
         }
@@ -270,6 +358,92 @@ public class XmlProcessor {
         }
 
         return options;
+    }
+
+    private String normalizeNodeTypeName(String nodeTypeName) {
+        if ("Decimal".equals(nodeTypeName)) {
+            return "Rational";
+        }
+        return nodeTypeName;
+    }
+
+    private Map<String, String> normalizeOptionsForNodeType(String nodeTypeName, Map<String, String> options) {
+        if (!"Rational".equals(nodeTypeName)) {
+            return options;
+        }
+
+        String value = options.get(TEXT_NODE_VALUE_NAME);
+        if (value == null || value.contains("/")) {
+            return options;
+        }
+
+        options.put(TEXT_NODE_VALUE_NAME, decimalStringToRationalLiteral(value));
+        return options;
+    }
+
+    private String decimalStringToRationalLiteral(String value) {
+        String trimmed = value.strip();
+        if (trimmed.isEmpty()) {
+            return trimmed;
+        }
+
+        try {
+            BigDecimal decimal = new BigDecimal(trimmed);
+            int scale = decimal.scale();
+            if (scale <= 0) {
+                return decimal.toBigIntegerExact().toString();
+            }
+
+            BigInteger numerator = decimal.unscaledValue();
+            BigInteger denominator = BigInteger.TEN.pow(scale);
+            BigInteger gcd = numerator.gcd(denominator);
+            numerator = numerator.divide(gcd);
+            denominator = denominator.divide(gcd);
+
+            if (BigInteger.ONE.equals(denominator)) {
+                return numerator.toString();
+            }
+            return numerator + "/" + denominator;
+        } catch (NumberFormatException | ArithmeticException ignored) {
+            return trimmed;
+        }
+    }
+
+    private TaxCompNode buildInlineEnumOptionsNode(List<String> enumValues) {
+        List<TaxCompNode> optionNodes = new ArrayList<>();
+        for (String enumValue : enumValues) {
+            Map<String, String> option = new HashMap<>();
+            option.put(TEXT_NODE_VALUE_NAME, enumValue);
+            optionNodes.add(new TaxCompNode("String", option, new ArrayList<>()));
+        }
+        return new TaxCompNode("EnumOptions", new HashMap<>(), optionNodes);
+    }
+
+    private List<String> parseInlineEnumValues(String rawValues) {
+        List<String> values = new ArrayList<>();
+        if (rawValues == null || rawValues.isBlank()) {
+            return values;
+        }
+
+        for (String value : rawValues.split(",")) {
+            String normalized = value.strip();
+            if (normalized.startsWith("\"") && normalized.endsWith("\"") && normalized.length() >= 2) {
+                normalized = normalized.substring(1, normalized.length() - 1).strip();
+            }
+            if (!normalized.isEmpty()) {
+                values.add(normalized);
+            }
+        }
+        return values;
+    }
+
+    private String buildInlineEnumOptionsPath(String factPath) {
+        String normalizedPath = factPath == null ? "" : factPath.strip();
+        if (normalizedPath.startsWith("/")) {
+            normalizedPath = normalizedPath.substring(1);
+        }
+        normalizedPath = normalizedPath.replace('/', '_');
+        return "/__enumOptions/" + normalizedPath;
     }
 
     private Element getDirectChildElement(Element parent, String name) {
