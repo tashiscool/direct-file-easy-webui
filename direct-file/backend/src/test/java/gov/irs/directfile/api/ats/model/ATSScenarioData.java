@@ -474,6 +474,9 @@ public class ATSScenarioData {
     public List<Map<String, Object>> getForm1099Int() { return form1099Int; }
     public void setForm1099Int(List<Map<String, Object>> form1099Int) { this.form1099Int = form1099Int; }
 
+    public List<Map<String, Object>> getForm1099Misc() { return form1099Misc; }
+    public void setForm1099Misc(List<Map<String, Object>> form1099Misc) { this.form1099Misc = form1099Misc; }
+
     public List<Map<String, Object>> getFormW2G() { return formW2G; }
     public void setFormW2G(List<Map<String, Object>> formW2G) { this.formW2G = formW2G; }
 

@@ -37,6 +37,7 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
     private static final String BOOLEAN_WRAPPER = "gov.irs.factgraph.persisters.BooleanWrapper";
     private static final String DOLLAR_WRAPPER = "gov.irs.factgraph.persisters.DollarWrapper";
+    private static final String ENUM_WRAPPER = "gov.irs.factgraph.persisters.EnumWrapper";
 
     @Autowired
     private FactGraphService factGraphService;
@@ -193,6 +194,38 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("500.00"));
     }
 
+    @Test
+    @DisplayName("Form 1040-NR derives tax on ECI from 2025 nonresident brackets")
+    void testForm1040NrDerivesTaxOnEciFrom2025Brackets() {
+        Map<String, FactTypeWithItem> facts = new HashMap<>();
+        facts.put("/isNonresidentAlien", booleanWrapper(true));
+        facts.put("/filingStatus", filingStatusWrapper("marriedFilingSeparately"));
+        facts.put("/isFilingStatusSingle", booleanWrapper(false));
+        facts.put("/isFilingStatusMFJ", booleanWrapper(false));
+        facts.put("/isFilingStatusMFS", booleanWrapper(true));
+        facts.put("/isFilingStatusHOH", booleanWrapper(false));
+        facts.put("/isFilingStatusQSS", booleanWrapper(false));
+        facts.put("/wagesECI", dollarWrapper("100000"));
+        facts.put("/businessIncomeECI", dollarWrapper("15000"));
+        facts.put("/scholarshipIncomeECI", dollarWrapper("0"));
+        facts.put("/capitalGainsECI", dollarWrapper("0"));
+        facts.put("/itemizedDeductionsNR", dollarWrapper("10000"));
+        facts.put("/dividendsFDAP", dollarWrapper("1000"));
+        facts.put("/interestFDAP", dollarWrapper("0"));
+        facts.put("/royaltiesFDAP", dollarWrapper("500"));
+
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/taxableIncomeNR"))
+            .isEqualByComparingTo(new BigDecimal("105000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/taxOnECI"))
+            .isEqualByComparingTo(new BigDecimal("18047.00"));
+        assertThat(getFactAsBigDecimal(graph, "/taxOnFDAP"))
+            .isEqualByComparingTo(new BigDecimal("450.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalTaxNR"))
+            .isEqualByComparingTo(new BigDecimal("18497.00"));
+    }
+
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
         return new HashMap<>(converter.convert(scenario));
@@ -234,6 +267,15 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
     private FactTypeWithItem dollarWrapper(String value) {
         return new FactTypeWithItem(DOLLAR_WRAPPER, nodeFactory.textNode(value));
+    }
+
+    private FactTypeWithItem filingStatusWrapper(String value) {
+        var enumNode = nodeFactory.objectNode();
+        var valueArray = nodeFactory.arrayNode();
+        valueArray.add(value);
+        enumNode.set("value", valueArray);
+        enumNode.put("enumOptionsPath", "/filingStatusOptions");
+        return new FactTypeWithItem(ENUM_WRAPPER, enumNode);
     }
 
     private Boolean getFactAsBoolean(Graph graph, String path) {

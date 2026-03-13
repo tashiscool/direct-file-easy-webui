@@ -95,6 +95,7 @@ public class ATSToFactGraphConverter {
         addScheduleCFacts(facts, scenario);
         addScheduleSEFacts(facts, scenario);
         addQbiFacts(facts, scenario);
+        addNonresidentFacts(facts, scenario);
 
         // Add checkboxes
         addCheckboxFacts(facts, scenario);
@@ -207,6 +208,95 @@ public class ATSToFactGraphConverter {
         enumNode.put("enumOptionsPath", "/filingStatusOptions");
 
         facts.put("/filingStatus", new FactTypeWithItem(ENUM_WRAPPER, enumNode));
+        facts.put("/isFilingStatusSingle", booleanWrapper(filingStatus == 1));
+        facts.put("/isFilingStatusMFJ", booleanWrapper(filingStatus == 2));
+        facts.put("/isFilingStatusMFS", booleanWrapper(filingStatus == 3));
+        facts.put("/isFilingStatusHOH", booleanWrapper(filingStatus == 4));
+        facts.put("/isFilingStatusQSS", booleanWrapper(filingStatus == 5));
+    }
+
+    private void addNonresidentFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        if (!"1040-NR".equalsIgnoreCase(scenario.getFormType())) {
+            return;
+        }
+
+        facts.put("/isNonresidentAlien", booleanWrapper(true));
+
+        if (scenario.getPrimaryTaxpayer() != null) {
+            ATSTaxpayer taxpayer = scenario.getPrimaryTaxpayer();
+            String countryOfResidence = taxpayer.getCountryOfResidence();
+            if (countryOfResidence == null && taxpayer.getAddress() != null) {
+                countryOfResidence = taxpayer.getAddress().getCountry();
+            }
+            putIfPresentString(facts, "/countryOfResidence", countryOfResidence);
+            putIfPresentString(facts, "/visaType", taxpayer.getVisaType());
+
+            String treatyCountry = taxpayer.getTreatyCountry();
+            if (treatyCountry == null) {
+                treatyCountry = taxpayer.getTaxTreatyCountry();
+            }
+            putIfPresentString(facts, "/treatyCountry", treatyCountry);
+        }
+
+        boolean claimsTreatyBenefits =
+            scenario.getTaxTreatyBenefits() != null && !scenario.getTaxTreatyBenefits().isEmpty();
+        facts.put("/claimsTreatyBenefits", booleanWrapper(claimsTreatyBenefits));
+
+        if (scenario.getExpectedValues() != null) {
+            putIfPresentDollar(
+                facts,
+                "/itemizedDeductionsNR",
+                scenario.getExpectedValues().getItemizedDeduction()
+            );
+        }
+
+        BigDecimal wagesEci = defaultZero(sumW2Wages(scenario.getW2Forms()));
+        BigDecimal businessIncomeEci = nonresidentBusinessIncomeFallback(scenario, wagesEci);
+        BigDecimal dividendsFdap = sumField(scenario.getForm1099Div(), "ordinaryDividends");
+        BigDecimal interestFdap = nonZeroOrNull(
+            sumField(scenario.getForm1099Int(), "taxableInterest"),
+            sumField(scenario.getForm1099Int(), "interestIncome")
+        );
+        BigDecimal royaltiesFdap = sumField(scenario.getForm1099Misc(), "royalties");
+
+        facts.put("/wagesECI", createDollarWrapper(wagesEci));
+        facts.put("/businessIncomeECI", createDollarWrapper(businessIncomeEci));
+        facts.put("/scholarshipIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/capitalGainsECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/dividendsFDAP", createDollarWrapper(defaultZero(dividendsFdap)));
+        facts.put("/interestFDAP", createDollarWrapper(defaultZero(interestFdap)));
+        facts.put("/royaltiesFDAP", createDollarWrapper(defaultZero(royaltiesFdap)));
+    }
+
+    private BigDecimal nonresidentBusinessIncomeFallback(ATSScenarioData scenario, BigDecimal wagesEci) {
+        Map<String, Object> scheduleC = scenario.getScheduleC();
+        if (scheduleC != null && !scheduleC.isEmpty()) {
+            BigDecimal netProfit = nonZeroOrNull(
+                decimalValue(scheduleC.get("netProfit")),
+                decimalValue(scheduleC.get("netProfitOrLoss"))
+            );
+            if (netProfit != null) {
+                return netProfit;
+            }
+        }
+
+        if (scenario.getExpectedValues() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal totalIncome = defaultZero(scenario.getExpectedValues().getTotalIncome());
+        BigDecimal knownNonBusinessIncome =
+            wagesEci
+                .add(defaultZero(scenario.getExpectedValues().getInterestIncome()))
+                .add(defaultZero(scenario.getExpectedValues().getDividendIncome()))
+                .add(defaultZero(scenario.getExpectedValues().getCapitalGains()))
+                .add(defaultZero(scenario.getExpectedValues().getRentalIncome()))
+                .add(defaultZero(scenario.getExpectedValues().getPartnershipIncome()))
+                .add(defaultZero(scenario.getExpectedValues().getSocialSecurityBenefits()))
+                .add(defaultZero(scenario.getExpectedValues().getUnemploymentCompensation()));
+
+        BigDecimal remainder = totalIncome.subtract(knownNonBusinessIncome);
+        return remainder.compareTo(BigDecimal.ZERO) > 0 ? remainder : BigDecimal.ZERO;
     }
 
     private void addW2Forms(Map<String, FactTypeWithItem> facts, List<ATSW2Data> w2Forms,
