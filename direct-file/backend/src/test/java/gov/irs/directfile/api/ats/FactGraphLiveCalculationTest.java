@@ -18,11 +18,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,11 +46,12 @@ import static org.assertj.core.api.Assertions.within;
  */
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class FactGraphLiveCalculationTest extends BaseIntegrationTest {
-
     // Fact paths for key tax calculations
     private static final String PATH_AGI = "/agi";
     private static final String PATH_STANDARD_DEDUCTION = "/standardDeduction";
+    private static final String PATH_TOTAL_DEDUCTIONS = "/totalDeductions";
     private static final String PATH_TAXABLE_INCOME = "/taxableIncome";
     private static final String PATH_TOTAL_TAX = "/totalTax";
     private static final String PATH_TOTAL_PAYMENTS = "/totalPayments";
@@ -64,6 +69,17 @@ public class FactGraphLiveCalculationTest extends BaseIntegrationTest {
     @BeforeEach
     void setUpConverter() {
         converter = new ATSToFactGraphConverter();
+    }
+
+    @DynamicPropertySource
+    static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
+        String dbUrl = buildTestDbUrl("factgraph-live");
+        registry.add("spring.datasource.url", () -> dbUrl);
+        registry.add("spring.liquibase.url", () -> dbUrl);
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+        registry.add("spring.liquibase.user", () -> "sa");
+        registry.add("spring.liquibase.password", () -> "");
     }
 
     /**
@@ -408,15 +424,15 @@ public class FactGraphLiveCalculationTest extends BaseIntegrationTest {
             Graph graph = factGraphService.getGraph(facts);
 
             BigDecimal agi = getFactAsBigDecimal(graph, PATH_AGI);
-            BigDecimal stdDed = getFactAsBigDecimal(graph, PATH_STANDARD_DEDUCTION);
+            BigDecimal totalDeductions = getFactAsBigDecimal(graph, PATH_TOTAL_DEDUCTIONS);
             BigDecimal taxableIncome = getFactAsBigDecimal(graph, PATH_TAXABLE_INCOME);
 
-            // Verify: taxableIncome = max(0, agi - standardDeduction)
-            if (agi != null && stdDed != null && taxableIncome != null) {
-                BigDecimal expectedTaxableIncome = agi.subtract(stdDed).max(BigDecimal.ZERO);
+            // Verify: taxableIncome = max(0, agi - total deductions)
+            if (agi != null && totalDeductions != null && taxableIncome != null) {
+                BigDecimal expectedTaxableIncome = agi.subtract(totalDeductions).max(BigDecimal.ZERO);
 
                 assertThat(taxableIncome)
-                    .as("Taxable income should equal AGI minus standard deduction (or zero) for %s", scenarioName)
+                    .as("Taxable income should equal AGI minus total deductions (or zero) for %s", scenarioName)
                     .isCloseTo(expectedTaxableIncome, within(DOLLAR_TOLERANCE));
             }
         }
@@ -433,7 +449,7 @@ public class FactGraphLiveCalculationTest extends BaseIntegrationTest {
                 Map<String, FactTypeWithItem> facts = converter.convert(scenario);
                 ATSExpectedValues expected = scenario.getExpectedValues();
 
-                if (expected == null || expected.getStandardDeduction() == null) {
+                if (expected == null || !usesStandardDeduction(expected)) {
                     continue;
                 }
 
@@ -540,5 +556,16 @@ public class FactGraphLiveCalculationTest extends BaseIntegrationTest {
             // Fact not available or error
         }
         return null;
+    }
+
+    private boolean usesStandardDeduction(ATSExpectedValues expected) {
+        return expected.getStandardDeduction() != null &&
+            expected.getStandardDeduction().compareTo(BigDecimal.ZERO) > 0 &&
+            (expected.getItemizedDeduction() == null || expected.getItemizedDeduction().compareTo(BigDecimal.ZERO) == 0);
+    }
+
+    private static String buildTestDbUrl(String prefix) {
+        return "jdbc:h2:mem:" + prefix + "_" + UUID.randomUUID().toString().replace("-", "")
+                + ";DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH";
     }
 }

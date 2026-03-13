@@ -13,7 +13,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.io.IOException;
 import java.util.Map;
@@ -32,13 +35,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
-
     private ATSToFactGraphConverter converter;
 
     @BeforeEach
     void setUpConverter() {
         converter = new ATSToFactGraphConverter();
+    }
+
+    @DynamicPropertySource
+    static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
+        String dbUrl = buildTestDbUrl("ats-submission");
+        registry.add("spring.datasource.url", () -> dbUrl);
+        registry.add("spring.liquibase.url", () -> dbUrl);
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+        registry.add("spring.liquibase.user", () -> "sa");
+        registry.add("spring.liquibase.password", () -> "");
     }
 
     /**
@@ -72,7 +86,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
 
             // Create TaxReturn
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -96,7 +110,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -121,7 +135,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -146,7 +160,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -173,7 +187,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -198,7 +212,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -222,7 +236,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -265,7 +279,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -276,7 +290,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             assertThat(retrieved.getFacts()).containsKey("/form1099Rs");
 
             long form1099RCount = retrieved.getFacts().keySet().stream()
-                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/grossDistribution"))
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableGrossDistribution"))
                 .count();
 
             assertThat(form1099RCount).isEqualTo(2);
@@ -289,7 +303,7 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = gov.irs.directfile.api.util.SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(gov.irs.directfile.api.util.SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(
                 userExternalId, facts);
@@ -307,5 +321,10 @@ public class TaxReturnATSSubmissionTest extends BaseIntegrationTest {
             assertThat(retrieved.getFacts().get("/filingStatus")
                 .item().get("value").get(0).asText()).isEqualTo("marriedFilingJointly");
         }
+    }
+
+    private static String buildTestDbUrl(String prefix) {
+        return "jdbc:h2:mem:" + prefix + "_" + UUID.randomUUID().toString().replace("-", "")
+                + ";DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH";
     }
 }

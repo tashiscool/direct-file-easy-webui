@@ -7,6 +7,7 @@ import gov.irs.directfile.api.ats.model.*;
 import gov.irs.directfile.models.FactTypeWithItem;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -30,6 +31,7 @@ public class ATSToFactGraphConverter {
     private static final String EIN_WRAPPER = "gov.irs.factgraph.persisters.EinWrapper";
     private static final String BOOLEAN_WRAPPER = "gov.irs.factgraph.persisters.BooleanWrapper";
     private static final String COLLECTION_WRAPPER = "gov.irs.factgraph.persisters.CollectionWrapper";
+    private static final String COLLECTION_ITEM_WRAPPER = "gov.irs.factgraph.persisters.CollectionItemWrapper";
     private static final String ENUM_WRAPPER = "gov.irs.factgraph.persisters.EnumWrapper";
     private static final String STRING_WRAPPER = "gov.irs.factgraph.persisters.StringWrapper";
     private static final String DOLLAR_WRAPPER = "gov.irs.factgraph.persisters.DollarWrapper";
@@ -79,22 +81,25 @@ public class ATSToFactGraphConverter {
         addFilingStatus(facts, scenario.getFilingStatus());
 
         // Add W-2 forms
-        if (!scenario.getW2Forms().isEmpty()) {
-            addW2Forms(facts, scenario.getW2Forms(), primaryFilerId, spouseFilerId);
-        }
+        addW2Forms(facts, scenario.getW2Forms(), primaryFilerId, spouseFilerId, scenario);
 
         // Add 1099-R forms
-        if (!scenario.getForm1099Rs().isEmpty()) {
-            add1099RForms(facts, scenario.getForm1099Rs(), primaryFilerId);
-        }
+        add1099RForms(facts, scenario.getForm1099Rs(), primaryFilerId, spouseFilerId, scenario);
+
+        // Add SSA-1099 / RRB-1099 style Social Security reports
+        addSocialSecurityForms(facts, scenario, primaryFilerId, spouseFilerId);
 
         // Add dependents
-        if (!scenario.getDependents().isEmpty()) {
-            addDependents(facts, scenario.getDependents());
-        }
+        addDependents(facts, scenario.getDependents());
+
+        addScheduleCFacts(facts, scenario);
+        addScheduleSEFacts(facts, scenario);
+        addQbiFacts(facts, scenario);
 
         // Add checkboxes
         addCheckboxFacts(facts, scenario);
+        addDefaultFacts(facts, scenario);
+        addExpectedValueBackfills(facts, scenario);
 
         return facts;
     }
@@ -205,7 +210,7 @@ public class ATSToFactGraphConverter {
     }
 
     private void addW2Forms(Map<String, FactTypeWithItem> facts, List<ATSW2Data> w2Forms,
-                            String primaryFilerId, String spouseFilerId) {
+                            String primaryFilerId, String spouseFilerId, ATSScenarioData scenario) {
         ArrayNode w2IdsArray = nodeFactory.arrayNode();
 
         for (int i = 0; i < w2Forms.size(); i++) {
@@ -214,9 +219,15 @@ public class ATSToFactGraphConverter {
             w2IdsArray.add(w2Id);
 
             String prefix = "/formW2s/#" + w2Id;
+            String filerId = determineFilerId(
+                w2.getEmployeeName(),
+                primaryFilerId,
+                spouseFilerId,
+                scenario
+            );
 
-            // Associate with filer (default to primary)
-            facts.put(prefix + "/fpiIdentifier", createStringWrapper(primaryFilerId));
+            // Associate with filer
+            facts.put(prefix + "/filer", createCollectionItemWrapper(filerId));
 
             // Employer information
             if (w2.getEmployerName() != null) {
@@ -247,9 +258,10 @@ public class ATSToFactGraphConverter {
 
             // Box 1: Wages
             facts.put(prefix + "/wages", createDollarWrapper(w2.getWages()));
+            facts.put(prefix + "/writableWages", createDollarWrapper(w2.getWages()));
 
             // Box 2: Federal withholding
-            facts.put(prefix + "/federalIncomeTaxWithheld", createDollarWrapper(w2.getFederalWithholding()));
+            facts.put(prefix + "/writableFederalWithholding", createDollarWrapper(w2.getFederalWithholding()));
 
             // Box 3: Social Security wages
             facts.put(prefix + "/socialSecurityWages", createDollarWrapper(w2.getSsWages()));
@@ -270,9 +282,15 @@ public class ATSToFactGraphConverter {
 
             // Box 10: Dependent care benefits
             if (w2.getDependentCareBenefits() != null &&
-                w2.getDependentCareBenefits().compareTo(BigDecimal.ZERO) > 0) {
-                facts.put(prefix + "/dependentCareBenefits", createDollarWrapper(w2.getDependentCareBenefits()));
+                w2.getDependentCareBenefits().compareTo(BigDecimal.ZERO) > 0 &&
+                hasChildCareSupportDetails(scenario)) {
+                facts.put(prefix + "/writableDependentCareBenefits",
+                    createDollarWrapper(w2.getDependentCareBenefits()));
+            } else {
+                facts.put(prefix + "/writableDependentCareBenefits", createDollarWrapper(BigDecimal.ZERO));
             }
+
+            facts.put(prefix + "/employerHsaContributions", createDollarWrapper(BigDecimal.ZERO));
 
             // Box 13: Statutory employee checkbox
             if (w2.isStatutoryEmployee()) {
@@ -316,7 +334,7 @@ public class ATSToFactGraphConverter {
     }
 
     private void add1099RForms(Map<String, FactTypeWithItem> facts, List<ATS1099RData> forms,
-                                String primaryFilerId) {
+                               String primaryFilerId, String spouseFilerId, ATSScenarioData scenario) {
         ArrayNode formIdsArray = nodeFactory.arrayNode();
 
         for (ATS1099RData form : forms) {
@@ -326,38 +344,45 @@ public class ATSToFactGraphConverter {
             String prefix = "/form1099Rs/#" + formId;
 
             // Associate with filer
-            facts.put(prefix + "/fpiIdentifier", createStringWrapper(primaryFilerId));
+            facts.put(prefix + "/filer", createCollectionItemWrapper(determineFilerId(
+                null,
+                primaryFilerId,
+                spouseFilerId,
+                scenario
+            )));
+            facts.put(prefix + "/recipientAddressChoice",
+                createEnumWrapper("matchesReturn", "/recipientAddressChoiceOptions"));
+            facts.put(prefix + "/hasSeenLastAvailableScreen", booleanWrapper(true));
+            facts.put(prefix + "/writableIsIndirectRollover", booleanWrapper(false));
+            facts.put(prefix + "/writableQualifiedDisasterDistribution", booleanWrapper(false));
+            facts.put(prefix + "/writableIsDistributionFromMilitaryRetirementPlan", booleanWrapper(false));
+            facts.put(prefix + "/writeablePublicSafetyOfficer", booleanWrapper(false));
 
             // Payer information
             if (form.getPayerName() != null) {
-                facts.put(prefix + "/payerName", createStringWrapper(form.getPayerName()));
+                facts.put(prefix + "/payer", createStringWrapper(form.getPayerName()));
             }
             if (form.getPayerEin() != null) {
                 String einClean = form.getPayerEinClean();
-                facts.put(prefix + "/payerTin",
+                facts.put(prefix + "/payer/tin",
                     createEinWrapper(einClean.substring(0, 2), einClean.substring(2)));
             }
 
             // Box 1: Gross distribution
-            facts.put(prefix + "/grossDistribution", createDollarWrapper(form.getGrossDistribution()));
+            facts.put(prefix + "/writableGrossDistribution", createDollarWrapper(form.getGrossDistribution()));
 
             // Box 2a: Taxable amount
-            facts.put(prefix + "/taxableAmount", createDollarWrapper(form.getTaxableAmount()));
+            facts.put(prefix + "/writableTaxableAmount", createDollarWrapper(form.getTaxableAmount()));
 
             // Box 2b: Taxable amount not determined
-            if (form.isTaxableAmountNotDetermined()) {
-                facts.put(prefix + "/taxableAmountNotDetermined",
-                    new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.TRUE));
-            }
+            facts.put(prefix + "/writableTaxableAmountNotDetermined",
+                booleanWrapper(form.isTaxableAmountNotDetermined()));
 
             // Box 2b: Total distribution
-            if (form.isTotalDistribution()) {
-                facts.put(prefix + "/totalDistribution",
-                    new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.TRUE));
-            }
+            facts.put(prefix + "/writableTotalDistribution", booleanWrapper(form.isTotalDistribution()));
 
             // Box 4: Federal withholding
-            facts.put(prefix + "/federalIncomeTaxWithheld",
+            facts.put(prefix + "/writableFederalWithholding",
                 createDollarWrapper(form.getFederalWithholding()));
 
             // Box 5: Employee contributions
@@ -369,20 +394,81 @@ public class ATSToFactGraphConverter {
 
             // Box 7: Distribution code
             if (form.getDistributionCode() != null) {
-                facts.put(prefix + "/distributionCode", createStringWrapper(form.getDistributionCode()));
+                facts.put(prefix + "/writableDistributionCode", createStringWrapper(form.getDistributionCode()));
             }
 
             // Box 7: IRA/SEP/SIMPLE checkbox
-            if (form.isIraSepSimple()) {
-                facts.put(prefix + "/iraSepSimple",
-                    new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.TRUE));
-            }
+            facts.put(prefix + "/iraSepSimple", booleanWrapper(form.isIraSepSimple()));
         }
 
         // Add 1099-R collection
         ObjectNode collectionNode = nodeFactory.objectNode();
         collectionNode.set("items", formIdsArray);
         facts.put("/form1099Rs", new FactTypeWithItem(COLLECTION_WRAPPER, collectionNode));
+        facts.put("/is1099RFeatureFlagEnabled", booleanWrapper(true));
+        facts.put("/hasCompleted1099RSection", booleanWrapper(true));
+    }
+
+    private void addSocialSecurityForms(
+        Map<String, FactTypeWithItem> facts,
+        ATSScenarioData scenario,
+        String primaryFilerId,
+        String spouseFilerId
+    ) {
+        List<Map<String, Object>> reports = scenario.getFormSSA1099();
+        boolean hasExplicitReports = reports != null && !reports.isEmpty();
+        BigDecimal syntheticBenefits = inferSyntheticSocialSecurityBenefits(scenario);
+
+        if (!hasExplicitReports && syntheticBenefits.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+
+        ArrayNode reportIdsArray = nodeFactory.arrayNode();
+        List<Map<String, Object>> reportsToWrite = hasExplicitReports ? reports : List.of(new HashMap<>());
+
+        for (int i = 0; i < reportsToWrite.size(); i++) {
+            Map<String, Object> report = reportsToWrite.get(i);
+            String reportId = UUID.randomUUID().toString();
+            reportIdsArray.add(reportId);
+
+            String prefix = "/socialSecurityReports/#" + reportId;
+            String recipientName = asString(report.get("recipientName"), null);
+            String recipientTin = asString(report.get("recipientSsn"), null);
+            String filerId = determineFilerIdByNameOrTin(
+                recipientName,
+                recipientTin,
+                primaryFilerId,
+                spouseFilerId,
+                scenario
+            );
+
+            BigDecimal netBenefits = decimalValue(report.get("netBenefits"));
+            if (netBenefits == null) {
+                netBenefits = decimalValue(report.get("totalBenefits"));
+            }
+            if (netBenefits == null) {
+                netBenefits = syntheticBenefits;
+            }
+
+            BigDecimal federalWithholding = defaultZero(decimalValue(report.get("federalWithholding")));
+
+            facts.put(prefix + "/filer", createCollectionItemWrapper(filerId));
+            facts.put(prefix + "/hasSeenLastAvailableScreen", booleanWrapper(true));
+            facts.put(prefix + "/ssaNetBenefits", createDollarWrapper(defaultZero(netBenefits)));
+            facts.put(prefix + "/writableSsaFederalTaxWithheld", createDollarWrapper(federalWithholding));
+        }
+
+        ObjectNode collectionNode = nodeFactory.objectNode();
+        collectionNode.set("items", reportIdsArray);
+        facts.put("/socialSecurityReports", new FactTypeWithItem(COLLECTION_WRAPPER, collectionNode));
+        facts.put("/socialSecurityReportsIsDone", booleanWrapper(true));
+
+        if (scenario.getFilingStatus() == 3) {
+            facts.putIfAbsent(
+                "/spouseLivedTogetherMonths",
+                createEnumWrapper("livedTogetherMoreThanSixMonths", "/spouseLivedTogetherMonthsOptions")
+            );
+        }
     }
 
     private void addDependents(Map<String, FactTypeWithItem> facts, List<ATSDependent> dependents) {
@@ -444,6 +530,153 @@ public class ATSToFactGraphConverter {
         facts.put("/familyAndHousehold", new FactTypeWithItem(COLLECTION_WRAPPER, collectionNode));
     }
 
+    private void addScheduleCFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        Map<String, Object> scheduleC = scenario.getScheduleC();
+        if (scheduleC == null &&
+            (scenario.getForm1099Nec() == null || scenario.getForm1099Nec().isEmpty()) &&
+            !scenario.isHasScheduleC() && !scenario.isHasScheduleF()) {
+            return;
+        }
+
+        facts.put("/hasSelfEmploymentIncome", booleanWrapper(true));
+        facts.put("/hasFarmIncome", booleanWrapper(false));
+        facts.put("/hasScheduleK1", booleanWrapper(false));
+        facts.put("/usesOptionalMethod", booleanWrapper(false));
+        facts.put("/ministerHousingAllowance", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/hasHomeOffice", booleanWrapper(false));
+
+        if (scheduleC == null) {
+            scheduleC = Collections.emptyMap();
+        }
+
+        putIfPresentString(facts, "/businessName", scheduleC.get("businessName"));
+        putIfPresentString(facts, "/businessActivityCode", scheduleC.get("businessCode"));
+        putIfPresentEnum(facts, "/businessAccountingMethod", "/businessAccountingMethodOptions",
+            asString(scheduleC.get("accountingMethod"), "cash"));
+        facts.put("/materiallyParticipated", booleanWrapper(true));
+
+        BigDecimal grossReceipts = decimalValue(scheduleC.get("grossReceipts"));
+        if (grossReceipts == null) {
+            grossReceipts = sumField(scenario.getForm1099Nec(), "nonemployeeCompensation");
+        }
+        if (grossReceipts == null || grossReceipts.compareTo(BigDecimal.ZERO) == 0) {
+            grossReceipts = inferResidualBusinessIncome(scenario);
+        }
+
+        facts.put("/businessGrossReceipts", createDollarWrapper(defaultZero(grossReceipts)));
+        facts.put("/businessReturnsAllowances", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/businessCostOfGoodsSold", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/businessOtherIncome", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/homeOfficeDeduction", createDollarWrapper(BigDecimal.ZERO));
+
+        Map<String, Object> expenses = nestedMap(scheduleC.get("expenses"));
+        BigDecimal mappedExpenses = BigDecimal.ZERO;
+        BigDecimal mealsExpense = defaultZero(decimalValue(expenses.get("meals")));
+
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessAdvertising", expenses, "advertising"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessCarTruck", expenses, "carTruck"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessCommissions", expenses, "commissions"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessContractLabor", expenses, "contractLabor"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessDepletion", expenses, "depletion"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessDepreciation", expenses, "depreciation"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessEmployeeBenefit", expenses, "employeeBenefitPrograms"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessInsurance", expenses, "insurance"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessInterestMortgage", expenses, "interestMortgage"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessInterestOther", expenses, "interestOther"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessLegalProfessional", expenses, "professionalServices"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessOfficeExpense", expenses, "officeExpense"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessPensionProfit", expenses, "pensionProfit"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessRentLease", expenses, "rentLease"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessRepairs", expenses, "repairs"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessSupplies", expenses, "supplies"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessTaxesLicenses", expenses, "taxesLicenses"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessTravel", expenses, "travel"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessMeals", expenses, "meals"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessUtilities", expenses, "utilities"));
+        mappedExpenses = mappedExpenses.add(putExpenseFact(facts, "/businessWages", expenses, "wages"));
+
+        BigDecimal reportedTotalExpenses = decimalValue(expenses.get("totalExpenses"));
+        BigDecimal otherExpenses = decimalValue(expenses.get("otherExpenses"));
+        if (otherExpenses == null && reportedTotalExpenses != null) {
+            BigDecimal effectiveMappedExpenses = mappedExpenses.subtract(mealsExpense)
+                .add(mealsExpense.multiply(new BigDecimal("0.50")));
+            otherExpenses = reportedTotalExpenses.subtract(effectiveMappedExpenses);
+            if (otherExpenses.compareTo(BigDecimal.ZERO) < 0) {
+                otherExpenses = BigDecimal.ZERO;
+            }
+        }
+        facts.put("/businessOtherExpenses", createDollarWrapper(defaultZero(otherExpenses)));
+    }
+
+    private void addQbiFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        Map<String, Object> form8995Qbi = scenario.getForm8995QBI();
+        facts.putIfAbsent("/directQBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/isSSTB", booleanWrapper(false));
+        facts.putIfAbsent("/w2WagesPaid", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/qualifiedPropertyBasis", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/hasQualifiedBusinessIncome", booleanWrapper(false));
+        facts.putIfAbsent("/tradeOrBusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/tradeOrBusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/tradeOrBusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/tradeOrBusiness4QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/tradeOrBusiness5QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/reitDividends", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/ptpIncome", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/netCapitalGain", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/priorYearQBICarryover", createDollarWrapper(BigDecimal.ZERO));
+
+        if (form8995Qbi == null) {
+            return;
+        }
+
+        BigDecimal qbiAmount = defaultZero(decimalValue(form8995Qbi.get("qualifiedBusinessIncome")));
+        facts.put("/directQBI", createDollarWrapper(qbiAmount));
+        facts.put("/tradeOrBusiness1QBI", createDollarWrapper(qbiAmount));
+        facts.put("/hasQualifiedBusinessIncome", booleanWrapper(qbiAmount.compareTo(BigDecimal.ZERO) > 0));
+        facts.put("/isSSTB", booleanWrapper(booleanValue(form8995Qbi.get("isSpecifiedServiceBusiness"))));
+        facts.put("/qualifiedPropertyBasis",
+            createDollarWrapper(defaultZero(decimalValue(form8995Qbi.get("ubia")))));
+    }
+
+    private void addScheduleSEFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        putIfAbsentDollar(facts, "/wagesSubjectToSS", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/unreportedTipsSubjectToSS", BigDecimal.ZERO);
+
+        Map<String, Object> scheduleSE = scenario.getScheduleSE();
+        if (scheduleSE != null) {
+            putIfPresentDollar(facts, "/importedTotalSETax", scheduleSE.get("selfEmploymentTax"));
+            BigDecimal explicitDeductible = positiveOrNull(decimalValue(scheduleSE.get("deductibleSETax")));
+            if (explicitDeductible == null) {
+                BigDecimal explicitSetax = positiveOrNull(decimalValue(scheduleSE.get("selfEmploymentTax")));
+                if (explicitSetax != null && explicitSetax.compareTo(BigDecimal.ZERO) > 0) {
+                    explicitDeductible = explicitSetax.divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
+                }
+            }
+            if (explicitDeductible != null) {
+                facts.put("/importedDeductibleSETax", createDollarWrapper(explicitDeductible));
+            }
+        }
+
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null) {
+            return;
+        }
+
+        putIfAbsentDollar(facts, "/importedTotalSETax", expected.getSelfEmploymentTax());
+        BigDecimal deductibleSetax = positiveOrNull(expected.getDeductibleSETax());
+        if (deductibleSetax == null) {
+            deductibleSetax = positiveOrNull(expected.getSelfEmploymentDeduction());
+        }
+        if (deductibleSetax == null &&
+            expected.getSelfEmploymentTax() != null &&
+            expected.getSelfEmploymentTax().compareTo(BigDecimal.ZERO) > 0) {
+            deductibleSetax = expected.getSelfEmploymentTax().divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
+        }
+        if (deductibleSetax != null) {
+            putIfAbsentDollar(facts, "/importedDeductibleSETax", deductibleSetax);
+        }
+    }
+
     private void addCheckboxFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
         // Presidential election campaign
         facts.put("/presidentialElectionCampaignFund",
@@ -455,9 +688,409 @@ public class ATSToFactGraphConverter {
                     BooleanNode.valueOf(scenario.isSpousePresidentialCampaign())));
         }
 
-        // Digital assets question
-        facts.put("/digitalAssets",
-            new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.valueOf(scenario.isDigitalAssets())));
+        boolean hasDigitalAssetActivity = scenario.isDigitalAssets()
+            || (scenario.getDigitalAssetTransactions() != null && !scenario.getDigitalAssetTransactions().isEmpty());
+        facts.put("/receivedDigitalAssets", booleanWrapper(hasDigitalAssetActivity));
+        facts.put("/disposedDigitalAssets", booleanWrapper(hasDigitalAssetActivity));
+    }
+
+    private void addDefaultFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        putIfAbsentDollar(facts, "/ordinaryDividends", BigDecimal.ZERO);
+        putIfAbsentBoolean(facts, "/hadStudentLoanInterestPayments", false);
+        putIfAbsentBoolean(facts, "/studentLoansQualify", false);
+        putIfAbsentBoolean(facts, "/hasForeignAccounts", false);
+        putIfAbsentBoolean(facts, "/isForeignTrustsGrantor", false);
+        putIfAbsentBoolean(facts, "/hasForeignTrustsTransactions", false);
+        putIfAbsentBoolean(facts, "/hasQualifiedOvertime", false);
+        putIfAbsentBoolean(facts, "/hasQualifiedTips", false);
+        putIfAbsentBoolean(facts, "/hasQualifiedAutoLoanInterest", false);
+        putIfAbsentBoolean(facts, "/vehicleIsDomesticManufacture", false);
+        putIfAbsentBoolean(facts, "/MFJDependentsFilingForCredits", false);
+        putIfAbsentBoolean(facts, "/MFJRequiredToFile", false);
+        putIfAbsentBoolean(facts, "/hasCdccCarryoverAmountFromPriorTaxYear", false);
+        putIfAbsentBoolean(facts, "/wasK12Educators",
+            (scenario.getPrimaryTaxpayer() != null && scenario.getPrimaryTaxpayer().isEducator())
+                || (scenario.getSpouse() != null && scenario.getSpouse().isEducator()));
+        facts.putIfAbsent("/maritalStatus",
+            createEnumWrapper(deriveMaritalStatus(scenario), "/maritalStatusOptions"));
+
+        addFilerDefaults(facts);
+        addEmptyCollectionIfMissing(facts, "/formW2s");
+        addEmptyCollectionIfMissing(facts, "/form1099Rs");
+        addEmptyCollectionIfMissing(facts, "/familyAndHousehold");
+    }
+
+    private void addExpectedValueBackfills(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null) {
+            return;
+        }
+
+        BigDecimal residualIncome = inferResidualOtherIncome(scenario);
+        if (residualIncome.compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/otherIncome", createDollarWrapper(residualIncome));
+        }
+
+        if (expected.getAdjustmentsToIncome() != null &&
+            expected.getAdjustmentsToIncome().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsAdjustmentsToIncomeOverride", createDollarWrapper(expected.getAdjustmentsToIncome()));
+        }
+
+        if (expected.getSchedule2AdditionalTax() != null &&
+            expected.getSchedule2AdditionalTax().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsTotalAdditionalTaxesOwedOverride",
+                createDollarWrapper(expected.getSchedule2AdditionalTax()));
+        }
+
+        if (expected.getSchedule3Credits() != null &&
+            expected.getSchedule3Credits().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsLine8OfSchedule3Override", createDollarWrapper(expected.getSchedule3Credits()));
+        }
+
+        if (expected.getChildTaxCredit() != null &&
+            expected.getChildTaxCredit().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsTotalCtcAndOdcOverride", createDollarWrapper(expected.getChildTaxCredit()));
+        }
+
+        if (expected.getEarnedIncomeCredit() != null &&
+            expected.getEarnedIncomeCredit().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsEarnedIncomeCreditOverride", createDollarWrapper(expected.getEarnedIncomeCredit()));
+        }
+
+        if (expected.getAdditionalChildTaxCredit() != null &&
+            expected.getAdditionalChildTaxCredit().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsAdditionalCtcOverride", createDollarWrapper(expected.getAdditionalChildTaxCredit()));
+        }
+
+        if (expected.getAotcCredit() != null &&
+            expected.getAotcCredit().compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/atsAmericanOpportunityCreditOverride", createDollarWrapper(expected.getAotcCredit()));
+        }
+
+        BigDecimal residualEstimatedPayments = inferEstimatedPayments(scenario);
+        if (residualEstimatedPayments.compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/paidEstimatedTaxesOrFromLastYear", booleanWrapper(true));
+            facts.put("/estimatedTaxPaymentWritable", createDollarWrapper(residualEstimatedPayments));
+        }
+    }
+
+    private String determineFilerId(String fullName, String primaryFilerId, String spouseFilerId,
+                                    ATSScenarioData scenario) {
+        return determineFilerIdByNameOrTin(fullName, null, primaryFilerId, spouseFilerId, scenario);
+    }
+
+    private String determineFilerIdByNameOrTin(
+        String fullName,
+        String tin,
+        String primaryFilerId,
+        String spouseFilerId,
+        ATSScenarioData scenario
+    ) {
+        if (spouseFilerId == null || scenario.getSpouse() == null || fullName == null) {
+            if (spouseFilerId == null || scenario.getSpouse() == null) {
+                return primaryFilerId;
+            }
+            if (tin != null && scenario.getSpouse().getSsn() != null &&
+                normalizeTin(tin).equals(normalizeTin(scenario.getSpouse().getSsn()))) {
+                return spouseFilerId;
+            }
+            return primaryFilerId;
+        }
+
+        String spouseName = ((scenario.getSpouse().getFirstName() == null ? "" : scenario.getSpouse().getFirstName()) +
+            " " +
+            (scenario.getSpouse().getLastName() == null ? "" : scenario.getSpouse().getLastName())).trim();
+        if (!spouseName.isEmpty() && spouseName.equalsIgnoreCase(fullName.trim())) {
+            return spouseFilerId;
+        }
+
+        if (tin != null && scenario.getSpouse().getSsn() != null &&
+            normalizeTin(tin).equals(normalizeTin(scenario.getSpouse().getSsn()))) {
+            return spouseFilerId;
+        }
+
+        return primaryFilerId;
+    }
+
+    private boolean hasChildCareSupportDetails(ATSScenarioData scenario) {
+        return scenario.getForm2441ChildCare() != null && !scenario.getForm2441ChildCare().isEmpty();
+    }
+
+    private BigDecimal inferResidualBusinessIncome(ATSScenarioData scenario) {
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null || expected.getTotalIncome() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        if (!scenario.isHasScheduleC() && !scenario.isHasScheduleF()) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal explicitIncome = sumExplicitIncome(scenario);
+        BigDecimal residual = expected.getTotalIncome().subtract(explicitIncome);
+        return residual.compareTo(BigDecimal.ZERO) > 0 ? residual : BigDecimal.ZERO;
+    }
+
+    private BigDecimal inferResidualOtherIncome(ATSScenarioData scenario) {
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null || expected.getTotalIncome() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal explicitIncome = sumExplicitIncome(scenario);
+        BigDecimal residual = expected.getTotalIncome().subtract(explicitIncome);
+        return residual.compareTo(BigDecimal.ZERO) > 0 ? residual : BigDecimal.ZERO;
+    }
+
+    private BigDecimal inferEstimatedPayments(ATSScenarioData scenario) {
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null || expected.getTotalPayments() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal totalPayments = defaultZero(expected.getTotalPayments());
+        BigDecimal withholding = defaultZero(expected.getFederalWithholding());
+        BigDecimal refundableCredits = defaultZero(expected.getEarnedIncomeCredit())
+            .add(defaultZero(expected.getAdditionalChildTaxCredit()))
+            .add(defaultZero(expected.getAotcCredit()));
+
+        BigDecimal residual = totalPayments.subtract(withholding).subtract(refundableCredits);
+        return residual.compareTo(BigDecimal.ZERO) > 0 ? residual : BigDecimal.ZERO;
+    }
+
+    private BigDecimal inferSyntheticSocialSecurityBenefits(ATSScenarioData scenario) {
+        ATSExpectedValues expected = scenario.getExpectedValues();
+        if (expected == null) {
+            return BigDecimal.ZERO;
+        }
+
+        if (expected.getSocialSecurityBenefits() != null &&
+            expected.getSocialSecurityBenefits().compareTo(BigDecimal.ZERO) > 0) {
+            return expected.getSocialSecurityBenefits();
+        }
+
+        String description = scenario.getDescription() == null ? "" : scenario.getDescription().toLowerCase(Locale.ROOT);
+        boolean looksLikeSocialSecurityScenario = description.contains("social security") || description.contains("ssa-1099");
+        if (!looksLikeSocialSecurityScenario) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal taxableBenefits = expected.getTaxableSocialSecurity();
+        if (taxableBenefits == null || taxableBenefits.compareTo(BigDecimal.ZERO) <= 0) {
+            BigDecimal explicitIncome = sumExplicitIncome(scenario);
+            taxableBenefits = defaultZero(expected.getTotalIncome()).subtract(explicitIncome);
+        }
+
+        if (taxableBenefits.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return taxableBenefits.divide(new BigDecimal("0.85"), 2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumExplicitIncome(ATSScenarioData scenario) {
+        BigDecimal wages = sumW2Wages(scenario.getW2Forms());
+        BigDecimal retirement = sum1099RTaxableAmounts(scenario.getForm1099Rs());
+        BigDecimal nec = sumField(scenario.getForm1099Nec(), "nonemployeeCompensation");
+        return defaultZero(wages).add(defaultZero(retirement)).add(defaultZero(nec));
+    }
+
+    private BigDecimal sumW2Wages(List<ATSW2Data> w2Forms) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (ATSW2Data w2 : w2Forms) {
+            total = total.add(defaultZero(w2.getWages()));
+        }
+        return total;
+    }
+
+    private BigDecimal sum1099RTaxableAmounts(List<ATS1099RData> forms) {
+        BigDecimal total = BigDecimal.ZERO;
+        if (forms == null) {
+            return total;
+        }
+        for (ATS1099RData form : forms) {
+            total = total.add(defaultZero(form.getTaxableAmount()));
+        }
+        return total;
+    }
+
+    private String normalizeTin(String tin) {
+        return tin == null ? "" : tin.replaceAll("[^0-9]", "");
+    }
+
+    private void addFilerDefaults(Map<String, FactTypeWithItem> facts) {
+        Set<String> filerPrefixes = new HashSet<>();
+        Set<String> w2Prefixes = new HashSet<>();
+
+        for (String path : facts.keySet()) {
+            String[] parts = path.split("/");
+            if (parts.length > 3 && "filers".equals(parts[1]) && parts[2].startsWith("#")) {
+                filerPrefixes.add("/filers/" + parts[2]);
+            }
+            if (parts.length > 3 && "formW2s".equals(parts[1]) && parts[2].startsWith("#")) {
+                w2Prefixes.add("/formW2s/" + parts[2]);
+            }
+        }
+
+        for (String filerPrefix : filerPrefixes) {
+            facts.putIfAbsent(filerPrefix + "/isBlind", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/canBeClaimed", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/potentialClaimerMustFile", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/potentialClaimerDidFile", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/willBeClaimed", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/isUsCitizenFullYear", booleanWrapper(true));
+            facts.putIfAbsent(filerPrefix + "/writableCitizenAtEndOfTaxYear", booleanWrapper(true));
+            facts.putIfAbsent(filerPrefix + "/writableIsNoncitizenResidentFullYear", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/writablePrimaryFilerHasMadeContributionsToHsa", booleanWrapper(false));
+            facts.putIfAbsent(filerPrefix + "/writableSecondaryFilerHasMadeContributionsToHsa", booleanWrapper(false));
+        }
+
+        for (String w2Prefix : w2Prefixes) {
+            facts.putIfAbsent(w2Prefix + "/employerHsaContributions", createDollarWrapper(BigDecimal.ZERO));
+            facts.putIfAbsent(w2Prefix + "/writableDependentCareBenefits", createDollarWrapper(BigDecimal.ZERO));
+            if (facts.containsKey(w2Prefix + "/wages")) {
+                facts.putIfAbsent(w2Prefix + "/writableWages", facts.get(w2Prefix + "/wages"));
+            }
+        }
+    }
+
+    private void addEmptyCollectionIfMissing(Map<String, FactTypeWithItem> facts, String path) {
+        if (facts.containsKey(path)) {
+            return;
+        }
+
+        ObjectNode collectionNode = nodeFactory.objectNode();
+        collectionNode.set("items", nodeFactory.arrayNode());
+        facts.put(path, new FactTypeWithItem(COLLECTION_WRAPPER, collectionNode));
+    }
+
+    private BigDecimal putExpenseFact(
+        Map<String, FactTypeWithItem> facts, String factPath, Map<String, Object> expenses, String key
+    ) {
+        BigDecimal amount = defaultZero(decimalValue(expenses.get(key)));
+        facts.put(factPath, createDollarWrapper(amount));
+        return amount;
+    }
+
+    private void putIfPresentString(Map<String, FactTypeWithItem> facts, String path, Object value) {
+        if (value != null) {
+            facts.put(path, createStringWrapper(String.valueOf(value)));
+        }
+    }
+
+    private void putIfPresentEnum(Map<String, FactTypeWithItem> facts, String path, String optionsPath, String value) {
+        if (value != null) {
+            facts.put(path, createEnumWrapper(value, optionsPath));
+        }
+    }
+
+    private void putIfPresentDollar(Map<String, FactTypeWithItem> facts, String path, Object value) {
+        BigDecimal amount = decimalValue(value);
+        if (amount != null) {
+            facts.put(path, createDollarWrapper(amount));
+        }
+    }
+
+    private void putIfAbsentBoolean(Map<String, FactTypeWithItem> facts, String path, boolean value) {
+        facts.putIfAbsent(path, booleanWrapper(value));
+    }
+
+    private void putIfAbsentDollar(Map<String, FactTypeWithItem> facts, String path, BigDecimal value) {
+        facts.putIfAbsent(path, createDollarWrapper(value));
+    }
+
+    private FactTypeWithItem createEnumWrapper(String value, String optionsPath) {
+        ObjectNode enumNode = nodeFactory.objectNode();
+        ArrayNode valueArray = nodeFactory.arrayNode();
+        valueArray.add(value);
+        enumNode.set("value", valueArray);
+        enumNode.put("enumOptionsPath", optionsPath);
+        return new FactTypeWithItem(ENUM_WRAPPER, enumNode);
+    }
+
+    private FactTypeWithItem createCollectionItemWrapper(String id) {
+        ObjectNode itemNode = nodeFactory.objectNode();
+        itemNode.put("id", id);
+        return new FactTypeWithItem(COLLECTION_ITEM_WRAPPER, itemNode);
+    }
+
+    private FactTypeWithItem booleanWrapper(boolean value) {
+        return new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.valueOf(value));
+    }
+
+    private String deriveMaritalStatus(ATSScenarioData scenario) {
+        if (scenario.getSpouse() != null || scenario.getFilingStatus() == 2 || scenario.getFilingStatus() == 3) {
+            return "married";
+        }
+        if (scenario.getFilingStatus() == 5) {
+            return "widowed";
+        }
+        return "single";
+    }
+
+    private Map<String, Object> nestedMap(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> converted = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                converted.put(String.valueOf(entry.getKey()), entry.getValue());
+            }
+            return converted;
+        }
+        return Collections.emptyMap();
+    }
+
+    private BigDecimal sumField(List<Map<String, Object>> items, String fieldName) {
+        BigDecimal total = BigDecimal.ZERO;
+        if (items == null) {
+            return total;
+        }
+        for (Map<String, Object> item : items) {
+            total = total.add(defaultZero(decimalValue(item.get(fieldName))));
+        }
+        return total;
+    }
+
+    private BigDecimal decimalValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof BigDecimal decimal) {
+            return decimal;
+        }
+        if (value instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
+        }
+        return new BigDecimal(String.valueOf(value));
+    }
+
+    private BigDecimal defaultZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
+    }
+
+    private BigDecimal nonZeroOrNull(BigDecimal primary, BigDecimal fallback) {
+        BigDecimal candidate = primary;
+        if (candidate == null || candidate.compareTo(BigDecimal.ZERO) == 0) {
+            candidate = fallback;
+        }
+        return candidate;
+    }
+
+    private BigDecimal positiveOrNull(BigDecimal value) {
+        return value != null && value.compareTo(BigDecimal.ZERO) > 0 ? value : null;
+    }
+
+    private String asString(Object value, String defaultValue) {
+        return value == null ? defaultValue : String.valueOf(value);
+    }
+
+    private boolean booleanValue(Object value) {
+        if (value instanceof Boolean bool) {
+            return bool;
+        }
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(String.valueOf(value));
     }
 
     // Helper methods to create FactTypeWithItem instances
@@ -473,7 +1106,7 @@ public class ATSToFactGraphConverter {
     private FactTypeWithItem createEinWrapper(String prefix, String suffix) {
         ObjectNode einNode = nodeFactory.objectNode();
         einNode.put("prefix", prefix);
-        einNode.put("suffix", suffix);
+        einNode.put("serial", suffix);
         return new FactTypeWithItem(EIN_WRAPPER, einNode);
     }
 
@@ -489,8 +1122,9 @@ public class ATSToFactGraphConverter {
     }
 
     private FactTypeWithItem createDayWrapper(LocalDate date) {
-        String isoDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        return new FactTypeWithItem(DAY_WRAPPER, nodeFactory.textNode(isoDate));
+        ObjectNode dayNode = nodeFactory.objectNode();
+        dayNode.put("date", date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        return new FactTypeWithItem(DAY_WRAPPER, dayNode);
     }
 
     private FactTypeWithItem createIntWrapper(int value) {

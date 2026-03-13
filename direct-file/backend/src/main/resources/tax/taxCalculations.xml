@@ -54,13 +54,39 @@
       <Export downstreamFacts="true" mef="true" />
 
       <Derived>
-        <Round>
-          <Add>
-            <Dependency module="studentLoanAdjustment" path="/studentLoanInterestAdjustmentAmount" />
-            <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterest" />
-          </Add>
-        </Round>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsAdjustmentsToIncomeOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsAdjustmentsToIncomeOverride" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <Add>
+                  <Dependency module="studentLoanAdjustment" path="/studentLoanInterestAdjustmentAmount" />
+                  <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
+    </Fact>
+
+    <Fact path="/atsAdjustmentsToIncomeOverride">
+      <Description>ATS-only override for aggregate adjustments to income when detailed adjustment facts are unavailable.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
     </Fact>
 
     <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A">
@@ -72,6 +98,8 @@
         <Add>
           <!-- Educator Expenses -->
           <Dependency module="educatorAdjustment" path="/educatorExpensesAdjustment" />
+          <!-- Deductible part of self-employment tax -->
+          <Dependency module="scheduleSE" path="/deductibleSETax" />
           <!-- Health savings account deduction -->
           <Switch>
             <Case>
@@ -109,33 +137,12 @@
 
     <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterest">
       <Description>The adjustments to income used in the calculation of non-IRA deduction MAGIs to determine deductible
-        amounts. Used in the Student Loan Interest Deduction and Social Security Benefits Worksheets. Updated for
-        2025 to include Schedule 1-A additional deductions.</Description>
+        amounts. Used in the Student Loan Interest Deduction and Social Security Benefits Worksheets. Schedule 1-A
+        deductions are excluded because they transfer to Form 1040 line 13b / Form 1040-NR line 13c rather than
+        Form 1040 line 10.</Description>
       <Export downstreamFacts="true" />
       <Derived>
-        <Add>
-          <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
-          <Switch>
-            <Case>
-              <When>
-                <IsComplete>
-                  <Dependency module="schedule1A" path="/totalSchedule1ADeductions" />
-                </IsComplete>
-              </When>
-              <Then>
-                <Dependency module="schedule1A" path="/totalSchedule1ADeductions" />
-              </Then>
-            </Case>
-            <Case>
-              <When>
-                <True />
-              </When>
-              <Then>
-                <Dollar>0</Dollar>
-              </Then>
-            </Case>
-          </Switch>
-        </Add>
+        <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
       </Derived>
     </Fact>
 
@@ -158,23 +165,25 @@
       </Derived>
     </Fact>
 
-    <Fact path="/agiBeforeSchedule1ADeductions">
-      <Name>Adjusted Gross Income Before Schedule 1-A Deductions</Name>
-      <Description>AGI computed before the Schedule 1-A deductions are applied. This is the income base used for
-        the 2025 Schedule 1-A phaseout calculations.</Description>
+    <Fact path="/adjustedGrossIncome">
+      <Name>Adjusted Gross Income Alias</Name>
+      <Description>Compatibility alias for legacy modules that still reference adjustedGrossIncome.</Description>
       <Export downstreamFacts="true" />
 
       <Derived>
-        <Round>
-          <Subtract>
-            <Minuend>
-              <Dependency module="income" path="/totalIncome" />
-            </Minuend>
-            <Subtrahends>
-              <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
-            </Subtrahends>
-          </Subtract>
-        </Round>
+        <Dependency path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/agiBeforeSchedule1ADeductions">
+      <Name>Adjusted Gross Income Before Schedule 1-A Deductions</Name>
+      <Description>AGI used for the 2025 Schedule 1-A phaseout calculations. Because Schedule 1-A transfers to
+        Form 1040 line 13b / Form 1040-NR line 13c instead of Form 1040 line 10, AGI already excludes the
+        Schedule 1-A deductions.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Dependency path="/agi" />
       </Derived>
     </Fact>
 
@@ -234,19 +243,46 @@
       <Name>Qualified business income deduction</Name>
       <Description>Qualified business income deductions for line 13 of Form 1040</Description>
       <Derived>
-        <Dollar>0</Dollar>
+        <Dependency path="/qbiDeduction" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableIncomeBeforeQBI">
+      <Name>Taxable income before qualified business income deduction</Name>
+      <Description>Taxable income after standard or itemized deductions and Schedule 1-A deductions, but before
+        the qualified business income deduction.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/agi" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/standardOrItemizedDeductions" />
+                <Dependency module="schedule1A" path="/totalSchedule1ADeductions" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
       </Derived>
     </Fact>
 
     <Fact path="/totalDeductions">
       <Name>Total deductions</Name>
-      <Description>Total deductions as reported on line 14 of Form 1040.</Description>
+      <Description>Total deductions as reported in the deductions section of Form 1040, including standard or
+        itemized deductions, Schedule 1-A additional deductions, and the qualified business income deduction.</Description>
       <Export mef="true" />
 
       <Derived>
         <Round>
           <Add>
             <Dependency path="/standardOrItemizedDeductions" />
+            <Dependency module="schedule1A" path="/totalSchedule1ADeductions" />
+            <Dependency path="/qualifiedBusinessIncomeDeduction" />
           </Add>
         </Round>
       </Derived>
@@ -1448,6 +1484,22 @@
       </Derived>
     </Fact>
 
+    <Fact path="/taxBeforeCredits">
+      <Name>Tax Before Credits</Name>
+      <Description>Legacy compatibility alias for tentative tax before non-refundable credits.</Description>
+      <Derived>
+        <Dependency path="/totalTentativeTax" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxAfterCredits">
+      <Name>Tax After Credits</Name>
+      <Description>Legacy compatibility alias for tax after non-refundable credits.</Description>
+      <Derived>
+        <Dependency path="/taxLessNonRefundableCredits" />
+      </Derived>
+    </Fact>
+
     <Fact path="/line21OfSchedule2">
       <Name>Line 21 of Schedule 2</Name>
       <Description>Other taxes, including self-employment Line 21 of schedule 2 for line 23 of form
@@ -1531,11 +1583,37 @@
       </Derived>
     </Fact>
 
+    <Fact path="/atsAmericanOpportunityCreditOverride">
+      <Description>ATS-only override for the refundable American opportunity credit when detailed education credit inputs are unavailable.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
     <Fact path="/americanOpportunityCredit">
       <Name>American Opportunity Credit</Name>
       <Description>American opportunity credit from Form 8863, line 8 (line 29 1040)</Description>
       <Derived>
-        <Dollar>0</Dollar>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsAmericanOpportunityCreditOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsAmericanOpportunityCreditOverride" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

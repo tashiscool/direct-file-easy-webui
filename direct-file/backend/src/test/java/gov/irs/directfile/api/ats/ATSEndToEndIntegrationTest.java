@@ -32,7 +32,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -58,8 +61,8 @@ import static org.mockito.Mockito.*;
  */
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
-
     @Autowired
     private TaxReturnService taxReturnService;
 
@@ -96,6 +99,17 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
         when(advisoryLockRepository.acquireLock(anyInt())).thenReturn(true);
     }
 
+    @DynamicPropertySource
+    static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
+        String dbUrl = buildTestDbUrl("ats-e2e");
+        registry.add("spring.datasource.url", () -> dbUrl);
+        registry.add("spring.liquibase.url", () -> dbUrl);
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+        registry.add("spring.liquibase.user", () -> "sa");
+        registry.add("spring.liquibase.password", () -> "");
+    }
+
     /**
      * Provides standard Form 1040 ATS scenarios for E2E testing.
      */
@@ -124,7 +138,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
 
             // Get test user
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
             User user = userRepository.findByExternalId(userExternalId).orElseThrow();
 
             // Create TaxReturn
@@ -151,7 +165,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
 
             // Get test user
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             // Create TaxReturn
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
@@ -188,7 +202,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
 
             // Create and verify TaxReturn
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
 
             // Load graph and verify structure
@@ -240,7 +254,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
 
@@ -265,7 +279,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
             TaxReturn retrieved = taxReturnRepository.findById(taxReturn.getId()).orElseThrow();
@@ -293,7 +307,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
             TaxReturn retrieved = taxReturnRepository.findById(taxReturn.getId()).orElseThrow();
@@ -315,7 +329,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
             TaxReturn retrieved = taxReturnRepository.findById(taxReturn.getId()).orElseThrow();
@@ -325,7 +339,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
 
             // Count 1099-R entries (Carter has 2 1099-Rs)
             long form1099RCount = retrieved.getFacts().keySet().stream()
-                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/grossDistribution"))
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableGrossDistribution"))
                 .count();
             assertThat(form1099RCount).isEqualTo(2);
         }
@@ -342,7 +356,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             UUID userExternalId = SecurityTestConfiguration.testUserMap
-                .get("testUser").getExternalId();
+                .get(SecurityTestConfiguration.TEST_USER_1).getExternalId();
 
             TaxReturn taxReturn = testDataFactory.addTaxReturnToUserByUserExternalId(userExternalId, facts);
 
@@ -366,7 +380,7 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
 
             for (ATSScenarioData scenario : scenarios) {
                 ATSExpectedValues expected = scenario.getExpectedValues();
-                if (expected == null || expected.getStandardDeduction() == null) {
+                if (expected == null || !usesStandardDeduction(expected)) {
                     continue; // Skip scenarios without expected values
                 }
 
@@ -397,6 +411,8 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
                             .as("Scenario %s (%s) should use OBBBA 2025 HOH base",
                                 scenario.getScenarioId(), scenario.getPrimaryTaxpayer().getFirstName())
                             .isGreaterThanOrEqualTo(new BigDecimal("23625.00"));
+                        break;
+                    default:
                         break;
                 }
             }
@@ -522,5 +538,16 @@ public class ATSEndToEndIntegrationTest extends BaseIntegrationTest {
             case 5 -> "qualifyingSurvivingSpouse";
             default -> throw new IllegalArgumentException("Unknown filing status: " + filingStatus);
         };
+    }
+
+    private boolean usesStandardDeduction(ATSExpectedValues expected) {
+        return expected.getStandardDeduction() != null &&
+            expected.getStandardDeduction().compareTo(BigDecimal.ZERO) > 0 &&
+            (expected.getItemizedDeduction() == null || expected.getItemizedDeduction().compareTo(BigDecimal.ZERO) == 0);
+    }
+
+    private static String buildTestDbUrl(String prefix) {
+        return "jdbc:h2:mem:" + prefix + "_" + UUID.randomUUID().toString().replace("-", "")
+                + ";DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH";
     }
 }

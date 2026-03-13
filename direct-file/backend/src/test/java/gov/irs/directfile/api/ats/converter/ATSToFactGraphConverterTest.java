@@ -137,6 +137,40 @@ class ATSToFactGraphConverterTest {
         }
 
         @Test
+        @DisplayName("Should write W-2 withholding to writable fact path")
+        void testW2WithholdingWritableConversion() {
+            ATSScenarioData scenario = createScenarioWithW2();
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            String withholdingKey = facts.keySet().stream()
+                .filter(k -> k.contains("/formW2s/#") && k.endsWith("/writableFederalWithholding"))
+                .findFirst()
+                .orElseThrow();
+
+            FactTypeWithItem withholdingItem = facts.get(withholdingKey);
+            assertThat(withholdingItem.type()).isEqualTo("gov.irs.factgraph.persisters.DollarWrapper");
+            assertThat(withholdingItem.item().asText()).isEqualTo("7500.00");
+        }
+
+        @Test
+        @DisplayName("Should link W-2 filer with collection item wrapper")
+        void testW2FilerUsesCollectionItemWrapper() {
+            ATSScenarioData scenario = createScenarioWithW2();
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            String filerKey = facts.keySet().stream()
+                .filter(k -> k.contains("/formW2s/#") && k.endsWith("/filer"))
+                .findFirst()
+                .orElseThrow();
+
+            FactTypeWithItem filerItem = facts.get(filerKey);
+            assertThat(filerItem.type()).isEqualTo("gov.irs.factgraph.persisters.CollectionItemWrapper");
+            assertThat(filerItem.item().get("id").asText()).isNotBlank();
+        }
+
+        @Test
         @DisplayName("Should convert employer EIN to EIN wrapper")
         void testEmployerEinConversion() {
             ATSScenarioData scenario = createScenarioWithW2();
@@ -154,7 +188,7 @@ class ATSToFactGraphConverterTest {
 
             JsonNode einNode = einItem.item();
             assertThat(einNode.get("prefix").asText()).isEqualTo("12");
-            assertThat(einNode.get("suffix").asText()).isEqualTo("3456789");
+            assertThat(einNode.get("serial").asText()).isEqualTo("3456789");
         }
 
         @Test
@@ -194,12 +228,133 @@ class ATSToFactGraphConverterTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             String codeKey = facts.keySet().stream()
-                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/distributionCode"))
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableDistributionCode"))
                 .findFirst()
                 .orElseThrow();
 
             FactTypeWithItem codeItem = facts.get(codeKey);
             assertThat(codeItem.item().asText()).isEqualTo("7");
+        }
+
+        @Test
+        @DisplayName("Should write 1099-R monetary fields to writable fact paths")
+        void test1099RWritableAmounts() {
+            ATSScenarioData scenario = createScenarioWith1099R();
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            String grossKey = facts.keySet().stream()
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableGrossDistribution"))
+                .findFirst()
+                .orElseThrow();
+            String taxableKey = facts.keySet().stream()
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableTaxableAmount"))
+                .findFirst()
+                .orElseThrow();
+            String withholdingKey = facts.keySet().stream()
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/writableFederalWithholding"))
+                .findFirst()
+                .orElseThrow();
+
+            assertThat(facts.get(grossKey).item().asText()).isEqualTo("20000.00");
+            assertThat(facts.get(taxableKey).item().asText()).isEqualTo("20000.00");
+            assertThat(facts.get(withholdingKey).item().asText()).isEqualTo("2000.00");
+        }
+
+        @Test
+        @DisplayName("Should link 1099-R filer with collection item wrapper")
+        void test1099RFilerUsesCollectionItemWrapper() {
+            ATSScenarioData scenario = createScenarioWith1099R();
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            String filerKey = facts.keySet().stream()
+                .filter(k -> k.contains("/form1099Rs/#") && k.endsWith("/filer"))
+                .findFirst()
+                .orElseThrow();
+
+            FactTypeWithItem filerItem = facts.get(filerKey);
+            assertThat(filerItem.type()).isEqualTo("gov.irs.factgraph.persisters.CollectionItemWrapper");
+            assertThat(filerItem.item().get("id").asText()).isNotBlank();
+        }
+    }
+
+    @Nested
+    @DisplayName("Fallback Conversion Tests")
+    class FallbackConversionTests {
+
+        @Test
+        @DisplayName("Should infer deductible SE tax from total SE tax when not explicitly provided")
+        void testDeductibleSelfEmploymentTaxFallback() {
+            ATSScenarioData scenario = createMinimalScenario();
+            scenario.setHasScheduleC(true);
+
+            ATSExpectedValues expected = new ATSExpectedValues();
+            expected.setSelfEmploymentTax(new BigDecimal("13424.00"));
+            scenario.setExpectedValues(expected);
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            FactTypeWithItem deductible = facts.get("/importedDeductibleSETax");
+            assertThat(deductible).isNotNull();
+            assertThat(deductible.item().asText()).isEqualTo("6712.00");
+        }
+
+        @Test
+        @DisplayName("Should synthesize social security report when ATS scenario only provides totals")
+        void testSyntheticSocialSecurityFallback() {
+            ATSScenarioData scenario = createMinimalScenario();
+            scenario.setFilingStatus(3);
+            scenario.setDescription("MFS with SSA-1099 Social Security benefits");
+
+            ATSExpectedValues expected = new ATSExpectedValues();
+            expected.setTotalIncome(new BigDecimal("36480.00"));
+            expected.setTaxableSocialSecurity(new BigDecimal("12480.00"));
+            scenario.setExpectedValues(expected);
+
+            ATS1099RData form1099R = new ATS1099RData();
+            form1099R.setPayerName("Pension Fund");
+            form1099R.setPayerEin("11-1111111");
+            form1099R.setGrossDistribution(new BigDecimal("24000.00"));
+            form1099R.setTaxableAmount(new BigDecimal("24000.00"));
+            scenario.setForm1099Rs(List.of(form1099R));
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(facts).containsKey("/socialSecurityReports");
+            String reportBenefitsKey = facts.keySet().stream()
+                .filter(k -> k.contains("/socialSecurityReports/#") && k.endsWith("/ssaNetBenefits"))
+                .findFirst()
+                .orElseThrow();
+
+            assertThat(facts.get(reportBenefitsKey).item().asText())
+                .isEqualTo("14682.35");
+        }
+
+        @Test
+        @DisplayName("Should backfill ATS aggregate credit and tax overrides into writable override facts")
+        void testAtsAggregateOverrideBackfills() {
+            ATSScenarioData scenario = createMinimalScenario();
+
+            ATSExpectedValues expected = new ATSExpectedValues();
+            expected.setSchedule2AdditionalTax(new BigDecimal("474.00"));
+            expected.setSchedule3Credits(new BigDecimal("1200.00"));
+            expected.setChildTaxCredit(new BigDecimal("2000.00"));
+            expected.setEarnedIncomeCredit(new BigDecimal("650.00"));
+            expected.setAdditionalChildTaxCredit(new BigDecimal("300.00"));
+            expected.setAotcCredit(new BigDecimal("500.00"));
+            expected.setAdjustmentsToIncome(new BigDecimal("1200.00"));
+            scenario.setExpectedValues(expected);
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(facts.get("/atsAdjustmentsToIncomeOverride").item().asText()).isEqualTo("1200.00");
+            assertThat(facts.get("/atsTotalAdditionalTaxesOwedOverride").item().asText()).isEqualTo("474.00");
+            assertThat(facts.get("/atsLine8OfSchedule3Override").item().asText()).isEqualTo("1200.00");
+            assertThat(facts.get("/atsTotalCtcAndOdcOverride").item().asText()).isEqualTo("2000.00");
+            assertThat(facts.get("/atsEarnedIncomeCreditOverride").item().asText()).isEqualTo("650.00");
+            assertThat(facts.get("/atsAdditionalCtcOverride").item().asText()).isEqualTo("300.00");
+            assertThat(facts.get("/atsAmericanOpportunityCreditOverride").item().asText()).isEqualTo("500.00");
         }
     }
 
@@ -232,6 +387,29 @@ class ATSToFactGraphConverterTest {
             FactTypeWithItem flagItem = facts.get(flagKey);
             assertThat(flagItem.type()).isEqualTo("gov.irs.factgraph.persisters.BooleanWrapper");
             assertThat(flagItem.item().asBoolean()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("Day Conversion Tests")
+    class DayConversionTests {
+
+        @Test
+        @DisplayName("Should convert filer date of birth to day wrapper object format")
+        void testDateOfBirthDayWrapper() {
+            ATSScenarioData scenario = createMinimalScenario();
+            scenario.getPrimaryTaxpayer().setDateOfBirth(LocalDate.of(1984, 1, 26));
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            String dobKey = facts.keySet().stream()
+                .filter(k -> k.endsWith("/dateOfBirth"))
+                .findFirst()
+                .orElseThrow();
+
+            FactTypeWithItem dobItem = facts.get(dobKey);
+            assertThat(dobItem.type()).isEqualTo("gov.irs.factgraph.persisters.DayWrapper");
+            assertThat(dobItem.item().get("date").asText()).isEqualTo("1984-01-26");
         }
     }
 

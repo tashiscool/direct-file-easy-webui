@@ -14,7 +14,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,11 +26,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
     private static final String BOOLEAN_WRAPPER = "gov.irs.factgraph.persisters.BooleanWrapper";
@@ -43,6 +48,17 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     void setUp() {
         converter = new ATSToFactGraphConverter();
         nodeFactory = JsonNodeFactory.instance;
+    }
+
+    @DynamicPropertySource
+    static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
+        String dbUrl = buildTestDbUrl("taxyear-2025");
+        registry.add("spring.datasource.url", () -> dbUrl);
+        registry.add("spring.liquibase.url", () -> dbUrl);
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+        registry.add("spring.liquibase.user", () -> "sa");
+        registry.add("spring.liquibase.password", () -> "");
     }
 
     @Test
@@ -80,6 +96,32 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("Schedule 1-A increases deductions without reducing AGI")
+    void testSchedule1AFlowsToDeductionsInsteadOfAgi() throws IOException {
+        Map<String, FactTypeWithItem> baseFacts = scenarioFacts("scenario-13-birch.json");
+        Graph baseGraph = factGraphService.getGraph(baseFacts);
+
+        Map<String, FactTypeWithItem> factsWithSchedule1A = new HashMap<>(baseFacts);
+        factsWithSchedule1A.put("/hasQualifiedOvertime", booleanWrapper(true));
+        factsWithSchedule1A.put("/qualifiedOvertimeIncome", dollarWrapper("25000"));
+        factsWithSchedule1A.put("/hasQualifiedTips", booleanWrapper(true));
+        factsWithSchedule1A.put("/qualifiedTipIncome", dollarWrapper("25000"));
+
+        Graph schedule1AGraph = factGraphService.getGraph(factsWithSchedule1A);
+
+        BigDecimal baseAgi = getFactAsBigDecimal(baseGraph, "/agi");
+        BigDecimal schedule1AAgi = getFactAsBigDecimal(schedule1AGraph, "/agi");
+        BigDecimal schedule1ATotal = getFactAsBigDecimal(schedule1AGraph, "/totalSchedule1ADeductions");
+        BigDecimal baseTotalDeductions = getFactAsBigDecimal(baseGraph, "/totalDeductions");
+        BigDecimal schedule1ATotalDeductions = getFactAsBigDecimal(schedule1AGraph, "/totalDeductions");
+
+        assertThat(schedule1ATotal).isEqualByComparingTo(new BigDecimal("48000.00"));
+        assertThat(schedule1AAgi).isEqualByComparingTo(baseAgi);
+        assertThat(schedule1ATotalDeductions)
+            .isEqualByComparingTo(baseTotalDeductions.add(schedule1ATotal));
+    }
+
+    @Test
     @DisplayName("Schedule 1-A disallows MFS wage deductions and senior bonus")
     void testSchedule1AMfsRestrictions() throws IOException {
         Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-8-lewis.json");
@@ -103,6 +145,7 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     void testSchedule1AAutoLoanRoundUpPhaseout() throws IOException {
         Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-1-tara-black.json");
         distributeTotalWagesAcrossW2s(facts, new BigDecimal("100001"));
+        facts.put("/hasQualifiedAutoLoanInterest", booleanWrapper(true));
         facts.put("/vehicleIsDomesticManufacture", booleanWrapper(true));
         facts.put("/qualifiedAutoLoanInterest", dollarWrapper("1000"));
 
@@ -110,6 +153,20 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
         assertThat(getFactAsBigDecimal(graph, "/autoLoanInterestDeductionAmount"))
             .isEqualByComparingTo(new BigDecimal("800.00"));
+    }
+
+    @Test
+    @DisplayName("QBI deduction rolls into total deductions and final taxable income")
+    void testQbiDeductionFeedsTotalDeductions() throws IOException {
+        Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-28-taylor-qbi.json");
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/qbiDeduction"))
+            .isEqualByComparingTo(new BigDecimal("17854.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalDeductions"))
+            .isEqualByComparingTo(new BigDecimal("33604.00"));
+        assertThat(getFactAsBigDecimal(graph, "/taxableIncome"))
+            .isEqualByComparingTo(new BigDecimal("71415.00"));
     }
 
     @Test
@@ -162,6 +219,7 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
             String basePath = wagesPath.substring(0, wagesPath.length() - "/wages".length());
             facts.put(basePath + "/wages", dollarWrapper(amount.toPlainString()));
+            facts.put(basePath + "/writableWages", dollarWrapper(amount.toPlainString()));
             facts.put(basePath + "/socialSecurityWages", dollarWrapper(amount.toPlainString()));
             facts.put(basePath + "/medicareWagesAndTips", dollarWrapper(amount.toPlainString()));
             if (facts.containsKey(basePath + "/stateWages")) {
@@ -218,5 +276,10 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         }
 
         return null;
+    }
+
+    private static String buildTestDbUrl(String prefix) {
+        return "jdbc:h2:mem:" + prefix + "_" + UUID.randomUUID().toString().replace("-", "")
+                + ";DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH";
     }
 }
