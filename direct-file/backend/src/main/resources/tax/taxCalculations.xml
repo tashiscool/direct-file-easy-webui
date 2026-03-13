@@ -63,11 +63,10 @@
       </Derived>
     </Fact>
 
-    <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterest">
-      <Description>The adjustments to income used in the calculatation of non-IRA deduction MAGIs to determine deducible
-        amounts. Used in the Student Loan Interest Deduction and Social Security Benefits Worksheets. This should
-        include be a sum of Schedule 1, lines 11 through 20, and 23 and 25. Updated for OBBBA 2025 to include
-        Schedule 1-A additional deductions.</Description>
+    <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A">
+      <Description>The adjustments to income used in the calculation of non-IRA deduction MAGIs before
+        the new Schedule 1-A deductions are applied. This should include the pre-OBBBA
+        Schedule 1 adjustments that feed AGI.</Description>
       <Export downstreamFacts="true" />
       <Derived>
         <Add>
@@ -94,7 +93,28 @@
               </Then>
             </Case>
           </Switch>
-          <!-- OBBBA 2025: Schedule 1-A Additional Deductions (overtime, tips, auto loan interest, senior bonus) -->
+          <!-- Certain business expenses of reservists, performing artists, and fee-basis government officials. -->
+          <!-- Moving expenses for members of the Armed Forces. Attach Form 3903  -->
+          <!-- Deductible part of self-employment tax. Attach Schedule SE -->
+          <!-- Self-employed SEP, SIMPLE, and qualified plans -->
+          <!-- Self-employed health insurance deduction -->
+          <!-- Penalty on early withdrawal of savings -->
+          <!-- Alimony paid -->
+          <!-- IRA deduction -->
+          <!-- Archer MSA deduction  -->
+          <!-- Total other adjustments -->
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterest">
+      <Description>The adjustments to income used in the calculation of non-IRA deduction MAGIs to determine deductible
+        amounts. Used in the Student Loan Interest Deduction and Social Security Benefits Worksheets. Updated for
+        2025 to include Schedule 1-A additional deductions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
           <Switch>
             <Case>
               <When>
@@ -115,16 +135,6 @@
               </Then>
             </Case>
           </Switch>
-          <!-- Certain business expenses of reservists, performing artists, and fee-basis government officials. -->
-          <!-- Moving expenses for members of the Armed Forces. Attach Form 3903  -->
-          <!-- Deductible part of self-employment tax. Attach Schedule SE -->
-          <!-- Self-employed SEP, SIMPLE, and qualified plans -->
-          <!-- Self-employed health insurance deduction -->
-          <!-- Penalty on early withdrawal of savings -->
-          <!-- Alimony paid -->
-          <!-- IRA deduction -->
-          <!-- Archer MSA deduction  -->
-          <!-- Total other adjustments -->
         </Add>
       </Derived>
     </Fact>
@@ -145,6 +155,37 @@
             </Subtrahends>
           </Subtract>
         </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/agiBeforeSchedule1ADeductions">
+      <Name>Adjusted Gross Income Before Schedule 1-A Deductions</Name>
+      <Description>AGI computed before the Schedule 1-A deductions are applied. This is the income base used for
+        the 2025 Schedule 1-A phaseout calculations.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Subtract>
+            <Minuend>
+              <Dependency module="income" path="/totalIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A" />
+            </Subtrahends>
+          </Subtract>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/magi">
+      <Name>Modified Adjusted Gross Income</Name>
+      <Description>The generally applicable MAGI used by 2025 credit and deduction modules. For currently supported
+        resident-return scenarios, this defaults to AGI unless a module defines a more specific MAGI worksheet.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Dependency path="/agi" />
       </Derived>
     </Fact>
 

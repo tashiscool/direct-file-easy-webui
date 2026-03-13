@@ -32,7 +32,8 @@
 
     <Fact path="/vehicleIsDomesticManufacture">
       <Name>Vehicle Is Domestic Manufacture</Name>
-      <Description>Whether the vehicle was manufactured or assembled in the United States.</Description>
+      <Description>Whether the vehicle satisfies the Schedule 1-A final-assembly-in-the-United-States requirement.
+        The fact name is retained for compatibility with existing flow wiring.</Description>
       <Writable>
         <Boolean />
       </Writable>
@@ -130,7 +131,7 @@
             <Dependency path="/hasQualifiedOvertime" />
             <GreaterThan>
               <Left>
-                <Dependency module="taxCalculations" path="/magi" />
+                <Dependency path="/schedule1APhaseoutIncome" />
               </Left>
               <Right>
                 <Dependency path="/overtimeDeductionPhaseoutThreshold" />
@@ -142,7 +143,7 @@
             <Dependency path="/hasQualifiedTips" />
             <GreaterThan>
               <Left>
-                <Dependency module="taxCalculations" path="/magi" />
+                <Dependency path="/schedule1APhaseoutIncome" />
               </Left>
               <Right>
                 <Dependency path="/tipDeductionPhaseoutThreshold" />
@@ -155,7 +156,7 @@
             <Dependency path="/vehicleIsDomesticManufacture" />
             <GreaterThan>
               <Left>
-                <Dependency module="taxCalculations" path="/magi" />
+                <Dependency path="/schedule1APhaseoutIncome" />
               </Left>
               <Right>
                 <Dependency path="/autoLoanInterestPhaseoutThreshold" />
@@ -167,7 +168,7 @@
             <Dependency path="/hasSeniorBonusEligibility" />
             <GreaterThan>
               <Left>
-                <Dependency module="taxCalculations" path="/magi" />
+                <Dependency path="/schedule1APhaseoutIncome" />
               </Left>
               <Right>
                 <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
@@ -175,6 +176,60 @@
             </GreaterThan>
           </All>
         </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1APhaseoutIncome">
+      <Name>Schedule 1-A Phase-out Income</Name>
+      <Description>The AGI base used for Schedule 1-A phaseout calculations before the Schedule 1-A deductions
+        themselves are applied.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="taxCalculations" path="/agiBeforeSchedule1ADeductions" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerHasValidSsnForSchedule1A">
+      <Name>Primary Filer Has Valid SSN for Schedule 1-A</Name>
+      <Description>Whether the primary filer has an SSN, as required for the 2025 overtime, tips, and senior
+        Schedule 1-A deductions.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="filers" path="/primaryFiler/tin/isSSN" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasValidSsnForSchedule1A">
+      <Name>Secondary Filer Has Valid SSN for Schedule 1-A</Name>
+      <Description>Whether the spouse has an SSN, as required on joint returns claiming the 2025 overtime,
+        tips, and senior Schedule 1-A deductions.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filers" path="/secondaryFiler/tin/isSSN" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsQualifiedWageDeductionRequirements">
+      <Name>Meets Schedule 1-A Qualified Wage Deduction Requirements</Name>
+      <Description>Whether the return meets the filing-status and SSN requirements for the 2025 overtime and
+        tip deductions.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          </Not>
+          <Dependency path="/primaryFilerHasValidSsnForSchedule1A" />
+          <Any>
+            <Not>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Not>
+            <Dependency path="/secondaryFilerHasValidSsnForSchedule1A" />
+          </Any>
+        </All>
       </Derived>
     </Fact>
 
@@ -250,27 +305,18 @@
       </Derived>
     </Fact>
 
-    <Fact path="/overtimeDeductionPhaseoutRange">
-      <Name>Overtime Deduction Phase-out Range</Name>
-      <Description>The income range over which the overtime deduction phases out completely ($50,000).</Description>
-      <TaxYear>2025</TaxYear>
-      <Derived>
-        <Dollar>50000</Dollar>
-      </Derived>
-    </Fact>
-
-    <Fact path="/overtimeDeductionPhaseoutMultiplier">
-      <Name>Overtime Deduction Phase-out Multiplier</Name>
-      <Description>The percentage of overtime deduction remaining after phase-out (0-1).</Description>
+    <Fact path="/overtimeDeductionPhaseoutReduction">
+      <Name>Overtime Deduction Phase-out Reduction</Name>
+      <Description>The Schedule 1-A overtime phaseout reduction. For 2025, reduce the deduction by $100
+        for each $1,000 of phaseout income over the threshold, rounded down.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Switch>
           <Case>
-            <!-- If MAGI is at or below threshold, no phase-out -->
             <When>
               <LessThanOrEqual>
                 <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
+                  <Dependency path="/schedule1APhaseoutIncome" />
                 </Left>
                 <Right>
                   <Dependency path="/overtimeDeductionPhaseoutThreshold" />
@@ -278,56 +324,29 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>0</Dollar>
             </Then>
           </Case>
           <Case>
-            <!-- If MAGI exceeds threshold + range, fully phased out -->
-            <When>
-              <GreaterThanOrEqual>
-                <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
-                </Left>
-                <Right>
-                  <Add>
-                    <Dependency path="/overtimeDeductionPhaseoutThreshold" />
-                    <Dependency path="/overtimeDeductionPhaseoutRange" />
-                  </Add>
-                </Right>
-              </GreaterThanOrEqual>
-            </When>
-            <Then>
-              <Decimal>0.0</Decimal>
-            </Then>
-          </Case>
-          <Case>
-            <!-- Partial phase-out -->
             <When>
               <True />
             </When>
             <Then>
-              <Subtract>
-                <Minuend>
-                  <Decimal>1.0</Decimal>
-                </Minuend>
-                <Subtrahends>
-                  <Divide>
-                    <Dividend>
-                      <Subtract>
-                        <Minuend>
-                          <Dependency module="taxCalculations" path="/magi" />
-                        </Minuend>
-                        <Subtrahends>
-                          <Dependency path="/overtimeDeductionPhaseoutThreshold" />
-                        </Subtrahends>
-                      </Subtract>
-                    </Dividend>
-                    <Divisors>
-                      <Dependency path="/overtimeDeductionPhaseoutRange" />
-                    </Divisors>
-                  </Divide>
-                </Subtrahends>
-              </Subtract>
+              <StepwiseMultiply>
+                <Multiplicand>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/schedule1APhaseoutIncome" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/overtimeDeductionPhaseoutThreshold" />
+                    </Subtrahends>
+                  </Subtract>
+                </Multiplicand>
+                <Rate>
+                  <Rational>100/1000</Rational>
+                </Rate>
+              </StepwiseMultiply>
             </Then>
           </Case>
         </Switch>
@@ -345,6 +364,7 @@
               <When>
                 <All>
                   <Dependency path="/hasQualifiedOvertime" />
+                  <Dependency path="/meetsQualifiedWageDeductionRequirements" />
                   <IsComplete>
                     <Dependency path="/qualifiedOvertimeIncome" />
                   </IsComplete>
@@ -376,10 +396,17 @@
       <TaxYear>2025</TaxYear>
       <Derived>
         <Round>
-          <Multiply>
-            <Dependency path="/overtimeDeductionBeforePhaseout" />
-            <Dependency path="/overtimeDeductionPhaseoutMultiplier" />
-          </Multiply>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/overtimeDeductionBeforePhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/overtimeDeductionPhaseoutReduction" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
         </Round>
       </Derived>
     </Fact>
@@ -438,18 +465,10 @@
       </Derived>
     </Fact>
 
-    <Fact path="/tipDeductionPhaseoutRange">
-      <Name>Tip Deduction Phase-out Range</Name>
-      <Description>The income range over which the tip deduction phases out completely ($50,000).</Description>
-      <TaxYear>2025</TaxYear>
-      <Derived>
-        <Dollar>50000</Dollar>
-      </Derived>
-    </Fact>
-
-    <Fact path="/tipDeductionPhaseoutMultiplier">
-      <Name>Tip Deduction Phase-out Multiplier</Name>
-      <Description>The percentage of tip deduction remaining after phase-out (0-1).</Description>
+    <Fact path="/tipDeductionPhaseoutReduction">
+      <Name>Tip Deduction Phase-out Reduction</Name>
+      <Description>The Schedule 1-A tip phaseout reduction. For 2025, reduce the deduction by $100
+        for each $1,000 of phaseout income over the threshold, rounded down.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Switch>
@@ -457,7 +476,7 @@
             <When>
               <LessThanOrEqual>
                 <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
+                  <Dependency path="/schedule1APhaseoutIncome" />
                 </Left>
                 <Right>
                   <Dependency path="/tipDeductionPhaseoutThreshold" />
@@ -465,25 +484,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
-            </Then>
-          </Case>
-          <Case>
-            <When>
-              <GreaterThanOrEqual>
-                <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
-                </Left>
-                <Right>
-                  <Add>
-                    <Dependency path="/tipDeductionPhaseoutThreshold" />
-                    <Dependency path="/tipDeductionPhaseoutRange" />
-                  </Add>
-                </Right>
-              </GreaterThanOrEqual>
-            </When>
-            <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -491,28 +492,21 @@
               <True />
             </When>
             <Then>
-              <Subtract>
-                <Minuend>
-                  <Decimal>1.0</Decimal>
-                </Minuend>
-                <Subtrahends>
-                  <Divide>
-                    <Dividend>
-                      <Subtract>
-                        <Minuend>
-                          <Dependency module="taxCalculations" path="/magi" />
-                        </Minuend>
-                        <Subtrahends>
-                          <Dependency path="/tipDeductionPhaseoutThreshold" />
-                        </Subtrahends>
-                      </Subtract>
-                    </Dividend>
-                    <Divisors>
-                      <Dependency path="/tipDeductionPhaseoutRange" />
-                    </Divisors>
-                  </Divide>
-                </Subtrahends>
-              </Subtract>
+              <StepwiseMultiply>
+                <Multiplicand>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/schedule1APhaseoutIncome" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/tipDeductionPhaseoutThreshold" />
+                    </Subtrahends>
+                  </Subtract>
+                </Multiplicand>
+                <Rate>
+                  <Rational>100/1000</Rational>
+                </Rate>
+              </StepwiseMultiply>
             </Then>
           </Case>
         </Switch>
@@ -530,6 +524,7 @@
               <When>
                 <All>
                   <Dependency path="/hasQualifiedTips" />
+                  <Dependency path="/meetsQualifiedWageDeductionRequirements" />
                   <IsComplete>
                     <Dependency path="/qualifiedTipIncome" />
                   </IsComplete>
@@ -561,10 +556,17 @@
       <TaxYear>2025</TaxYear>
       <Derived>
         <Round>
-          <Multiply>
-            <Dependency path="/tipDeductionBeforePhaseout" />
-            <Dependency path="/tipDeductionPhaseoutMultiplier" />
-          </Multiply>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/tipDeductionBeforePhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/tipDeductionPhaseoutReduction" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
         </Round>
       </Derived>
     </Fact>
@@ -575,8 +577,8 @@
 
     <Fact path="/qualifiedAutoLoanInterest">
       <Name>Qualified Auto Loan Interest</Name>
-      <Description>Interest paid on a loan used to purchase a qualified motor vehicle manufactured
-        or assembled in the United States. Per IRS Pub 6126.</Description>
+      <Description>Interest paid on a loan used to purchase a qualified motor vehicle that satisfies
+        the Schedule 1-A final-assembly-in-the-United-States requirement.</Description>
       <TaxYear>2025</TaxYear>
       <Writable>
         <Dollar>
@@ -623,18 +625,10 @@
       </Derived>
     </Fact>
 
-    <Fact path="/autoLoanInterestPhaseoutRange">
-      <Name>Auto Loan Interest Phase-out Range</Name>
-      <Description>The income range over which the auto loan interest deduction phases out ($50,000).</Description>
-      <TaxYear>2025</TaxYear>
-      <Derived>
-        <Dollar>50000</Dollar>
-      </Derived>
-    </Fact>
-
-    <Fact path="/autoLoanInterestPhaseoutMultiplier">
-      <Name>Auto Loan Interest Phase-out Multiplier</Name>
-      <Description>The percentage of auto loan interest deduction remaining after phase-out (0-1).</Description>
+    <Fact path="/autoLoanInterestPhaseoutReduction">
+      <Name>Auto Loan Interest Phase-out Reduction</Name>
+      <Description>The Schedule 1-A auto-loan phaseout reduction. For 2025, reduce the deduction by $200
+        for each $1,000 of phaseout income over the threshold, rounded up.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Switch>
@@ -642,7 +636,7 @@
             <When>
               <LessThanOrEqual>
                 <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
+                  <Dependency path="/schedule1APhaseoutIncome" />
                 </Left>
                 <Right>
                   <Dependency path="/autoLoanInterestPhaseoutThreshold" />
@@ -650,25 +644,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
-            </Then>
-          </Case>
-          <Case>
-            <When>
-              <GreaterThanOrEqual>
-                <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
-                </Left>
-                <Right>
-                  <Add>
-                    <Dependency path="/autoLoanInterestPhaseoutThreshold" />
-                    <Dependency path="/autoLoanInterestPhaseoutRange" />
-                  </Add>
-                </Right>
-              </GreaterThanOrEqual>
-            </When>
-            <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -676,28 +652,24 @@
               <True />
             </When>
             <Then>
-              <Subtract>
-                <Minuend>
-                  <Decimal>1.0</Decimal>
-                </Minuend>
-                <Subtrahends>
-                  <Divide>
-                    <Dividend>
-                      <Subtract>
-                        <Minuend>
-                          <Dependency module="taxCalculations" path="/magi" />
-                        </Minuend>
-                        <Subtrahends>
-                          <Dependency path="/autoLoanInterestPhaseoutThreshold" />
-                        </Subtrahends>
-                      </Subtract>
-                    </Dividend>
-                    <Divisors>
-                      <Dependency path="/autoLoanInterestPhaseoutRange" />
-                    </Divisors>
-                  </Divide>
-                </Subtrahends>
-              </Subtract>
+              <StepwiseMultiply>
+                <Multiplicand>
+                  <Add>
+                    <Subtract>
+                      <Minuend>
+                        <Dependency path="/schedule1APhaseoutIncome" />
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/autoLoanInterestPhaseoutThreshold" />
+                      </Subtrahends>
+                    </Subtract>
+                    <Dollar>999.99</Dollar>
+                  </Add>
+                </Multiplicand>
+                <Rate>
+                  <Rational>200/1000</Rational>
+                </Rate>
+              </StepwiseMultiply>
             </Then>
           </Case>
         </Switch>
@@ -747,10 +719,17 @@
       <TaxYear>2025</TaxYear>
       <Derived>
         <Round>
-          <Multiply>
-            <Dependency path="/autoLoanInterestBeforePhaseout" />
-            <Dependency path="/autoLoanInterestPhaseoutMultiplier" />
-          </Multiply>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/autoLoanInterestBeforePhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/autoLoanInterestPhaseoutReduction" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
         </Round>
       </Derived>
     </Fact>
@@ -797,18 +776,10 @@
       </Derived>
     </Fact>
 
-    <Fact path="/seniorBonusPhaseoutRange">
-      <Name>Senior Bonus Phase-out Range</Name>
-      <Description>The income range over which the senior bonus deduction phases out ($25,000).</Description>
-      <TaxYear>2025</TaxYear>
-      <Derived>
-        <Dollar>25000</Dollar>
-      </Derived>
-    </Fact>
-
-    <Fact path="/seniorBonusPhaseoutMultiplier">
-      <Name>Senior Bonus Phase-out Multiplier</Name>
-      <Description>The percentage of senior bonus deduction remaining after phase-out (0-1).</Description>
+    <Fact path="/seniorBonusPhaseoutReduction">
+      <Name>Senior Bonus Phase-out Reduction</Name>
+      <Description>The Schedule 1-A senior phaseout reduction. For 2025, reduce the deduction by 6% of
+        phaseout income over the threshold.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Switch>
@@ -816,7 +787,7 @@
             <When>
               <LessThanOrEqual>
                 <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
+                  <Dependency path="/schedule1APhaseoutIncome" />
                 </Left>
                 <Right>
                   <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
@@ -824,25 +795,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
-            </Then>
-          </Case>
-          <Case>
-            <When>
-              <GreaterThanOrEqual>
-                <Left>
-                  <Dependency module="taxCalculations" path="/magi" />
-                </Left>
-                <Right>
-                  <Add>
-                    <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
-                    <Dependency path="/seniorBonusPhaseoutRange" />
-                  </Add>
-                </Right>
-              </GreaterThanOrEqual>
-            </When>
-            <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -850,28 +803,19 @@
               <True />
             </When>
             <Then>
-              <Subtract>
-                <Minuend>
-                  <Decimal>1.0</Decimal>
-                </Minuend>
-                <Subtrahends>
-                  <Divide>
-                    <Dividend>
-                      <Subtract>
-                        <Minuend>
-                          <Dependency module="taxCalculations" path="/magi" />
-                        </Minuend>
-                        <Subtrahends>
-                          <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
-                        </Subtrahends>
-                      </Subtract>
-                    </Dividend>
-                    <Divisors>
-                      <Dependency path="/seniorBonusPhaseoutRange" />
-                    </Divisors>
-                  </Divide>
-                </Subtrahends>
-              </Subtract>
+              <Round>
+                <Multiply>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/schedule1APhaseoutIncome" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/seniorBonusDeductionPhaseoutThreshold" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Rational>6/100</Rational>
+                </Multiply>
+              </Round>
             </Then>
           </Case>
         </Switch>
@@ -899,6 +843,33 @@
       </Derived>
     </Fact>
 
+    <Fact path="/primaryFilerEligibleForSeniorBonus">
+      <Name>Primary Filer Eligible for Senior Bonus</Name>
+      <Description>Whether the primary filer can be counted for the 2025 senior Schedule 1-A deduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Dependency path="/primaryFilerIsSenior" />
+          <Dependency path="/primaryFilerHasValidSsnForSchedule1A" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerEligibleForSeniorBonus">
+      <Name>Secondary Filer Eligible for Senior Bonus</Name>
+      <Description>Whether the spouse can be counted for the 2025 senior Schedule 1-A deduction.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <All>
+          <Dependency path="/secondaryFilerIsSenior" />
+          <Dependency path="/secondaryFilerHasValidSsnForSchedule1A" />
+        </All>
+      </Derived>
+    </Fact>
+
     <Fact path="/eligibleSeniorsCount">
       <Name>Eligible Seniors Count</Name>
       <Description>Number of filers age 65 or older eligible for the senior bonus deduction.</Description>
@@ -908,7 +879,7 @@
           <Switch>
             <Case>
               <When>
-                <Dependency path="/primaryFilerIsSenior" />
+                <Dependency path="/primaryFilerEligibleForSeniorBonus" />
               </When>
               <Then>
                 <Int>1</Int>
@@ -926,7 +897,7 @@
           <Switch>
             <Case>
               <When>
-                <Dependency path="/secondaryFilerIsSenior" />
+                <Dependency path="/secondaryFilerEligibleForSeniorBonus" />
               </When>
               <Then>
                 <Int>1</Int>
@@ -981,10 +952,17 @@
       <TaxYear>2025</TaxYear>
       <Derived>
         <Round>
-          <Multiply>
-            <Dependency path="/seniorBonusBeforePhaseout" />
-            <Dependency path="/seniorBonusPhaseoutMultiplier" />
-          </Multiply>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/seniorBonusBeforePhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/seniorBonusPhaseoutReduction" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
         </Round>
       </Derived>
     </Fact>
