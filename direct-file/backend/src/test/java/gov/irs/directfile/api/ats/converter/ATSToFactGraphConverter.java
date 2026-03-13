@@ -94,6 +94,7 @@ public class ATSToFactGraphConverter {
 
         addScheduleCFacts(facts, scenario);
         addScheduleSEFacts(facts, scenario);
+        addScheduleEFacts(facts, scenario);
         addQbiFacts(facts, scenario);
         addNonresidentFacts(facts, scenario);
 
@@ -884,6 +885,191 @@ public class ATSToFactGraphConverter {
         }
     }
 
+    private void addScheduleEFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        Map<String, Object> scheduleE = scenario.getScheduleE();
+        List<Map<String, Object>> rentalProperties = new ArrayList<>();
+        if (scheduleE != null) {
+            Object nestedRentalProperties = scheduleE.get("rentalProperties");
+            if (nestedRentalProperties instanceof List<?> list) {
+                for (Object item : list) {
+                    rentalProperties.add(nestedMap(item));
+                }
+            }
+        }
+        if (rentalProperties.isEmpty() && scenario.getRentalProperties() != null) {
+            for (Map<String, Object> property : scenario.getRentalProperties()) {
+                rentalProperties.add(nestedMap(property));
+            }
+        }
+
+        BigDecimal royalties = sumField(scenario.getForm1099Misc(), "royalties");
+        boolean hasRentalModule =
+            (scheduleE != null && !scheduleE.isEmpty()) ||
+            !rentalProperties.isEmpty() ||
+            scenario.isHasScheduleE() ||
+            royalties.compareTo(BigDecimal.ZERO) > 0;
+        if (!hasRentalModule) {
+            return;
+        }
+
+        facts.put("/hasRentalIncome", booleanWrapper(true));
+        facts.putIfAbsent("/activeParticipation", booleanWrapper(false));
+        facts.putIfAbsent("/realEstateProfessional", booleanWrapper(false));
+        putIfAbsentDollar(facts, "/rentalIncomeReceived", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/royaltiesReceived", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalAdvertising", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalAutoTravel", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalCleaningMaintenance", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalCommissions", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalInsurance", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalLegalProfessional", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalManagementFees", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalMortgageInterest", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalOtherInterest", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalRepairs", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalSupplies", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalTaxes", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalUtilities", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalDepreciation", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/rentalOtherExpenses", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/priorYearSuspendedPassiveLoss", BigDecimal.ZERO);
+
+        if (!rentalProperties.isEmpty()) {
+            Map<String, Object> primaryProperty = rentalProperties.get(0);
+            Map<String, Object> address = nestedMap(primaryProperty.get("propertyAddress"));
+            String addressString = String.join(", ",
+                Arrays.asList(
+                    asString(address.get("street"), ""),
+                    asString(address.get("city"), ""),
+                    asString(address.get("state"), ""),
+                    asString(address.get("zip"), "")
+                )
+            ).replaceAll("(,\\s*){2,}", ", ").replaceAll("^, |, $", "");
+            putIfPresentString(facts, "/rentalPropertyAddress", addressString.isBlank() ? null : addressString);
+            putIfPresentEnum(facts, "/rentalPropertyType", "/rentalPropertyTypeOptions",
+                normalizeRentalPropertyType(asString(primaryProperty.get("propertyType"), "other")));
+            putIfPresentInt(facts, "/rentalDaysRented", integerValue(primaryProperty.get("fairRentalDays")));
+            putIfPresentInt(facts, "/rentalDaysPersonalUse", integerValue(primaryProperty.get("personalUseDays")));
+
+            BigDecimal grossRents = BigDecimal.ZERO;
+            BigDecimal advertising = BigDecimal.ZERO;
+            BigDecimal autoTravel = BigDecimal.ZERO;
+            BigDecimal cleaningMaintenance = BigDecimal.ZERO;
+            BigDecimal commissions = BigDecimal.ZERO;
+            BigDecimal insurance = BigDecimal.ZERO;
+            BigDecimal legalProfessional = BigDecimal.ZERO;
+            BigDecimal managementFees = BigDecimal.ZERO;
+            BigDecimal mortgageInterest = BigDecimal.ZERO;
+            BigDecimal otherInterest = BigDecimal.ZERO;
+            BigDecimal repairs = BigDecimal.ZERO;
+            BigDecimal supplies = BigDecimal.ZERO;
+            BigDecimal taxes = BigDecimal.ZERO;
+            BigDecimal utilities = BigDecimal.ZERO;
+            BigDecimal depreciation = BigDecimal.ZERO;
+            BigDecimal explicitOtherExpenses = BigDecimal.ZERO;
+            boolean sawExplicitOtherExpenses = false;
+            BigDecimal totalExpenses = BigDecimal.ZERO;
+            boolean sawTotalExpenses = false;
+
+            for (Map<String, Object> property : rentalProperties) {
+                grossRents = grossRents.add(defaultZero(
+                    nonZeroOrNull(decimalValue(property.get("grossRents")), decimalValue(property.get("rentReceived")))
+                ));
+
+                Map<String, Object> expenses = nestedMap(property.get("expenses"));
+                advertising = advertising.add(defaultZero(decimalValue(expenses.get("advertising"))));
+                autoTravel = autoTravel.add(defaultZero(nonZeroOrNull(
+                    decimalValue(expenses.get("autoAndTravel")),
+                    decimalValue(expenses.get("auto"))
+                )));
+                cleaningMaintenance = cleaningMaintenance.add(defaultZero(nonZeroOrNull(
+                    decimalValue(expenses.get("cleaning")),
+                    decimalValue(expenses.get("cleaningMaintenance"))
+                )));
+                commissions = commissions.add(defaultZero(decimalValue(expenses.get("commissions"))));
+                insurance = insurance.add(defaultZero(decimalValue(expenses.get("insurance"))));
+                legalProfessional = legalProfessional.add(defaultZero(nonZeroOrNull(
+                    decimalValue(expenses.get("legal")),
+                    decimalValue(expenses.get("legalProfessional"))
+                )));
+                managementFees = managementFees.add(defaultZero(nonZeroOrNull(
+                    decimalValue(expenses.get("management")),
+                    decimalValue(expenses.get("managementFees"))
+                )));
+                mortgageInterest = mortgageInterest.add(defaultZero(decimalValue(expenses.get("mortgageInterest"))));
+                otherInterest = otherInterest.add(defaultZero(decimalValue(expenses.get("otherInterest"))));
+                repairs = repairs.add(defaultZero(decimalValue(expenses.get("repairs"))));
+                supplies = supplies.add(defaultZero(decimalValue(expenses.get("supplies"))));
+                taxes = taxes.add(defaultZero(decimalValue(expenses.get("taxes"))));
+                utilities = utilities.add(defaultZero(decimalValue(expenses.get("utilities"))));
+                depreciation = depreciation.add(defaultZero(decimalValue(expenses.get("depreciation"))));
+
+                BigDecimal explicitOther = nonZeroOrNull(
+                    decimalValue(expenses.get("other")),
+                    decimalValue(expenses.get("otherExpenses"))
+                );
+                if (explicitOther != null) {
+                    explicitOtherExpenses = explicitOtherExpenses.add(explicitOther);
+                    sawExplicitOtherExpenses = true;
+                }
+
+                BigDecimal propertyTotalExpenses = decimalValue(expenses.get("totalExpenses"));
+                if (propertyTotalExpenses != null) {
+                    totalExpenses = totalExpenses.add(propertyTotalExpenses);
+                    sawTotalExpenses = true;
+                }
+            }
+
+            facts.put("/rentalIncomeReceived", createDollarWrapper(grossRents));
+            facts.put("/rentalAdvertising", createDollarWrapper(advertising));
+            facts.put("/rentalAutoTravel", createDollarWrapper(autoTravel));
+            facts.put("/rentalCleaningMaintenance", createDollarWrapper(cleaningMaintenance));
+            facts.put("/rentalCommissions", createDollarWrapper(commissions));
+            facts.put("/rentalInsurance", createDollarWrapper(insurance));
+            facts.put("/rentalLegalProfessional", createDollarWrapper(legalProfessional));
+            facts.put("/rentalManagementFees", createDollarWrapper(managementFees));
+            facts.put("/rentalMortgageInterest", createDollarWrapper(mortgageInterest));
+            facts.put("/rentalOtherInterest", createDollarWrapper(otherInterest));
+            facts.put("/rentalRepairs", createDollarWrapper(repairs));
+            facts.put("/rentalSupplies", createDollarWrapper(supplies));
+            facts.put("/rentalTaxes", createDollarWrapper(taxes));
+            facts.put("/rentalUtilities", createDollarWrapper(utilities));
+            facts.put("/rentalDepreciation", createDollarWrapper(depreciation));
+
+            BigDecimal otherExpenses = sawExplicitOtherExpenses ? explicitOtherExpenses : null;
+            if (otherExpenses == null && sawTotalExpenses) {
+                BigDecimal knownExpenses = advertising
+                    .add(autoTravel)
+                    .add(cleaningMaintenance)
+                    .add(commissions)
+                    .add(insurance)
+                    .add(legalProfessional)
+                    .add(managementFees)
+                    .add(mortgageInterest)
+                    .add(otherInterest)
+                    .add(repairs)
+                    .add(supplies)
+                    .add(taxes)
+                    .add(utilities)
+                    .add(depreciation);
+                otherExpenses = totalExpenses.subtract(knownExpenses);
+                if (otherExpenses.compareTo(BigDecimal.ZERO) < 0) {
+                    otherExpenses = BigDecimal.ZERO;
+                }
+            }
+            if (otherExpenses != null) {
+                facts.put("/rentalOtherExpenses", createDollarWrapper(otherExpenses));
+            }
+        } else if (scenario.getExpectedValues() != null) {
+            facts.put("/rentalIncomeReceived",
+                createDollarWrapper(defaultZero(scenario.getExpectedValues().getRentalIncome())));
+        }
+
+        if (royalties.compareTo(BigDecimal.ZERO) > 0) {
+            facts.put("/royaltiesReceived", createDollarWrapper(royalties));
+        }
+    }
+
     private void addCheckboxFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
         // Presidential election campaign
         facts.put("/presidentialElectionCampaignFund",
@@ -1276,6 +1462,19 @@ public class ATSToFactGraphConverter {
         return new BigDecimal(String.valueOf(value));
     }
 
+    private Integer integerValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Integer integer) {
+            return integer;
+        }
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        return Integer.parseInt(String.valueOf(value));
+    }
+
     private BigDecimal defaultZero(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
@@ -1294,6 +1493,19 @@ public class ATSToFactGraphConverter {
 
     private String asString(Object value, String defaultValue) {
         return value == null ? defaultValue : String.valueOf(value);
+    }
+
+    private String normalizeRentalPropertyType(String value) {
+        String normalized = value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+        return switch (normalized) {
+            case "single family residence", "single family", "singlefamily" -> "singleFamily";
+            case "multi family residence", "multi family", "multifamily" -> "multiFamily";
+            case "vacation home", "vacation" -> "vacation";
+            case "commercial property", "commercial" -> "commercial";
+            case "land" -> "land";
+            case "self rental", "self-rental", "selfrental" -> "selfRental";
+            default -> "other";
+        };
     }
 
     private boolean booleanValue(Object value) {

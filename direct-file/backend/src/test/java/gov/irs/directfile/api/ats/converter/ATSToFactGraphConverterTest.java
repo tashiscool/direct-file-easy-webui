@@ -132,6 +132,67 @@ class ATSToFactGraphConverterTest {
             assertThat(new BigDecimal(facts.get("/dividendsFDAP").item().asText()))
                 .isEqualByComparingTo(new BigDecimal("1000.00"));
         }
+
+        @Test
+        @DisplayName("Should map Schedule E rental property facts from ATS scenarios")
+        void testScheduleERentalConversion() throws IOException {
+            ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(facts.get("/hasRentalIncome").item().asBoolean()).isTrue();
+            assertThat(facts.get("/rentalPropertyType").item().get("value").get(0).asText())
+                .isEqualTo("singleFamily");
+            assertThat(facts.get("/rentalDaysRented").item().asInt()).isEqualTo(365);
+            assertThat(new BigDecimal(facts.get("/rentalIncomeReceived").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("28800.00"));
+            assertThat(new BigDecimal(facts.get("/rentalDepreciation").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("7273.00"));
+            assertThat(new BigDecimal(facts.get("/rentalOtherExpenses").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("500.00"));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("Should aggregate multiple rental properties into Schedule E totals")
+        void testScheduleEMultiPropertyAggregation() throws IOException {
+            ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
+
+            Map<String, Object> scheduleE = scenario.getScheduleE();
+            List<Map<String, Object>> rentalProperties =
+                new ArrayList<>((List<Map<String, Object>>) scheduleE.get("rentalProperties"));
+            Map<String, Object> secondProperty = new java.util.HashMap<>(rentalProperties.get(0));
+            Map<String, Object> secondExpenses =
+                new java.util.HashMap<>((Map<String, Object>) secondProperty.get("expenses"));
+
+            secondProperty.put("grossRents", new BigDecimal("12000.00"));
+            secondExpenses.put("advertising", new BigDecimal("150.00"));
+            secondExpenses.put("autoAndTravel", BigDecimal.ZERO);
+            secondExpenses.put("cleaning", new BigDecimal("225.00"));
+            secondExpenses.put("insurance", new BigDecimal("900.00"));
+            secondExpenses.put("management", new BigDecimal("1200.00"));
+            secondExpenses.put("mortgageInterest", new BigDecimal("3500.00"));
+            secondExpenses.put("repairs", new BigDecimal("600.00"));
+            secondExpenses.put("supplies", new BigDecimal("125.00"));
+            secondExpenses.put("taxes", new BigDecimal("1500.00"));
+            secondExpenses.put("depreciation", new BigDecimal("1800.00"));
+            secondExpenses.put("other", new BigDecimal("250.00"));
+            secondExpenses.put("totalExpenses", new BigDecimal("10250.00"));
+            secondProperty.put("expenses", secondExpenses);
+            rentalProperties.add(secondProperty);
+            scheduleE.put("rentalProperties", rentalProperties);
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(new BigDecimal(facts.get("/rentalIncomeReceived").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("40800.00"));
+            assertThat(new BigDecimal(facts.get("/rentalManagementFees").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("4080.00"));
+            assertThat(new BigDecimal(facts.get("/rentalOtherExpenses").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("750.00"));
+            assertThat(new BigDecimal(facts.get("/rentalDepreciation").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("9073.00"));
+        }
     }
 
     @Nested

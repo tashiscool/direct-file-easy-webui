@@ -271,6 +271,22 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("24000.00"));
     }
 
+    @Test
+    @DisplayName("Schedule E derives rental totals from ATS rental property facts")
+    void testScheduleERentalScenarioDerivation() throws IOException {
+        Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-18-thompson-rental.json");
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/totalRentalRoyaltyIncome"))
+            .isEqualByComparingTo(new BigDecimal("28800.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalRentalExpenses"))
+            .isEqualByComparingTo(new BigDecimal("28103.00"));
+        assertThat(getFactAsBigDecimal(graph, "/rentalNetIncomeLoss"))
+            .isEqualByComparingTo(new BigDecimal("697.00"));
+        assertThat(getFactAsBigDecimal(graph, "/scheduleETotalIncomeLoss"))
+            .isEqualByComparingTo(new BigDecimal("697.00"));
+    }
+
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
         return new HashMap<>(converter.convert(scenario));
