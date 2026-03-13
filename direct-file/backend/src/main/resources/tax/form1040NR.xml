@@ -46,6 +46,62 @@
       </Writable>
     </Fact>
 
+    <Fact path="/firstYearInUS">
+      <Name>First Year in US</Name>
+      <Description>First calendar year the taxpayer was present in the United States.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAddressStreet">
+      <Name>Foreign Address Street</Name>
+      <Description>Foreign mailing street address for Schedule OI disclosures.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAddressCity">
+      <Name>Foreign Address City</Name>
+      <Description>Foreign mailing city for Schedule OI disclosures.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAddressProvince">
+      <Name>Foreign Address Province</Name>
+      <Description>Foreign province or region for Schedule OI disclosures.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAddressPostalCode">
+      <Name>Foreign Address Postal Code</Name>
+      <Description>Foreign postal code for Schedule OI disclosures.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignAddressCountry">
+      <Name>Foreign Address Country</Name>
+      <Description>Foreign address country for Schedule OI disclosures.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasScheduleOI">
+      <Name>Has Schedule OI</Name>
+      <Description>Whether the return includes Schedule OI other-information disclosures.</Description>
+      <Derived>
+        <Dependency path="/isNonresidentAlien" />
+      </Derived>
+    </Fact>
+
     <!-- ============================================ -->
     <!-- EFFECTIVELY CONNECTED INCOME                -->
     <!-- ============================================ -->
@@ -83,9 +139,51 @@
       </Writable>
     </Fact>
 
+    <Fact path="/taxableScholarshipIncomeECI">
+      <Name>Taxable Scholarship Income - ECI</Name>
+      <Description>Scholarship income remaining after treaty exclusions.</Description>
+      <Derived>
+        <Max>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/scholarshipIncomeECI" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/treatyExemptIncome" />
+            </Subtrahends>
+          </Subtract>
+        </Max>
+      </Derived>
+    </Fact>
+
     <Fact path="/capitalGainsECI">
       <Name>Capital Gains - ECI</Name>
       <Description>Capital gains effectively connected.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentalIncomeECI">
+      <Name>Rental Income - ECI</Name>
+      <Description>Rental income effectively connected with a US trade or business.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipIncomeECI">
+      <Name>Partnership Income - ECI</Name>
+      <Description>Partnership income effectively connected with a US trade or business.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherIncomeECI">
+      <Name>Other Income - ECI</Name>
+      <Description>Other effectively connected income not reported elsewhere.</Description>
       <Writable>
         <Dollar />
       </Writable>
@@ -102,8 +200,17 @@
             <Dependency path="/businessIncomeECI" />
           </Add>
           <Add>
-            <Dependency path="/scholarshipIncomeECI" />
-            <Dependency path="/capitalGainsECI" />
+            <Add>
+              <Dependency path="/taxableScholarshipIncomeECI" />
+              <Dependency path="/capitalGainsECI" />
+            </Add>
+            <Add>
+              <Dependency path="/rentalIncomeECI" />
+              <Add>
+                <Dependency path="/partnershipIncomeECI" />
+                <Dependency path="/otherIncomeECI" />
+              </Add>
+            </Add>
           </Add>
         </Add>
       </Derived>
@@ -149,17 +256,103 @@
       </Writable>
     </Fact>
 
+    <Fact path="/rentsFDAP">
+      <Name>Rents - FDAP</Name>
+      <Description>Rents subject to 30% withholding.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gamblingFDAP">
+      <Name>Gambling Winnings - FDAP</Name>
+      <Description>Gambling winnings taxed on Schedule NEC.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityFDAP">
+      <Name>Social Security - FDAP</Name>
+      <Description>Social Security or railroad retirement income subject to Schedule NEC treatment.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalGainsFDAP">
+      <Name>Capital Gains - FDAP</Name>
+      <Description>Capital gains taxed as not effectively connected income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherFDAP">
+      <Name>Other FDAP Income</Name>
+      <Description>Other fixed, determinable, annual, or periodic income.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
     <Fact path="/totalFDAPIncome">
       <Name>Total FDAP Income</Name>
       <Description>Total fixed, determinable, annual, or periodic income.</Description>
       <Derived>
         <Add>
           <Add>
-            <Dependency path="/dividendsFDAP" />
-            <Dependency path="/interestFDAP" />
+            <Add>
+              <Dependency path="/dividendsFDAP" />
+              <Dependency path="/interestFDAP" />
+            </Add>
+            <Add>
+              <Dependency path="/royaltiesFDAP" />
+              <Dependency path="/rentsFDAP" />
+            </Add>
           </Add>
-          <Dependency path="/royaltiesFDAP" />
+          <Add>
+            <Add>
+              <Dependency path="/gamblingFDAP" />
+              <Dependency path="/socialSecurityFDAP" />
+            </Add>
+            <Add>
+              <Dependency path="/capitalGainsFDAP" />
+              <Dependency path="/otherFDAP" />
+            </Add>
+          </Add>
         </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasScheduleNEC">
+      <Name>Has Schedule NEC</Name>
+      <Description>Whether the return includes Schedule NEC flat-tax income.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/totalFDAPIncome" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
       </Derived>
     </Fact>
 
@@ -168,7 +361,23 @@
       <Description>Standard FDAP withholding rate (30%).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Decimal>0.30</Decimal>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/claimsTreatyBenefits" />
+                <IsComplete><Dependency path="/reducedTreatyRate" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/reducedTreatyRate" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Decimal>0.30</Decimal></Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -181,6 +390,14 @@
           <Dependency path="/totalFDAPIncome" />
           <Dependency path="/fdapTaxRate" />
         </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleNECTax">
+      <Name>Schedule NEC Tax</Name>
+      <Description>Tax computed on Schedule NEC for non-effectively connected income.</Description>
+      <Derived>
+        <Dependency path="/taxOnFDAP" />
       </Derived>
     </Fact>
 
@@ -228,8 +445,23 @@
       <Name>Reduced Treaty Rate</Name>
       <Description>Reduced withholding rate under treaty.</Description>
       <Writable>
-        <Decimal />
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
       </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOIRequiresTreatyDisclosure">
+      <Name>Schedule OI Requires Treaty Disclosure</Name>
+      <Description>Whether Schedule OI must disclose a treaty-based position.</Description>
+      <Derived>
+        <Dependency path="/claimsTreatyBenefits" />
+      </Derived>
     </Fact>
 
     <!-- ============================================ -->

@@ -93,7 +93,7 @@
       <Description>20% of total QBI (Line 7).</Description>
       <Derived>
         <Multiply>
-          <Dependency path="/totalQBI" />
+          <Dependency path="/netQualifiedBusinessIncomeAfterCarryover" />
           <Dependency path="/qbiDeductionRate" />
         </Multiply>
       </Derived>
@@ -311,13 +311,13 @@
           <Case>
             <When>
               <LessThan>
-                <Left><Dependency path="/totalQBI" /></Left>
+                <Left><Dependency path="/netQualifiedBusinessIncomeAfterCarryover" /></Left>
                 <Right><Dollar>0</Dollar></Right>
               </LessThan>
             </When>
             <Then>
               <Multiply>
-                <Dependency path="/totalQBI" />
+                <Dependency path="/netQualifiedBusinessIncomeAfterCarryover" />
                 <Int>-1</Int>
               </Multiply>
             </Then>
@@ -327,6 +327,17 @@
             <Then><Dollar>0</Dollar></Then>
           </Case>
         </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netQualifiedBusinessIncomeAfterCarryover">
+      <Name>Net Qualified Business Income After Carryover</Name>
+      <Description>Total QBI after applying prior-year qualified business loss carryovers.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/totalQBI" />
+          <Dependency path="/priorYearQBICarryover" />
+        </Add>
       </Derived>
     </Fact>
 

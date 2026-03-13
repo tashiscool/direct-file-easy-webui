@@ -171,6 +171,19 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("Form 8995 supplementary QBI inputs normalize for 2025")
+    void testQbiCarryoverAndReitPtpComponents() {
+        Map<String, FactTypeWithItem> facts = new HashMap<>();
+        facts.put("/priorYearQBICarryover", dollarWrapper("-2500"));
+        facts.put("/reitDividends", dollarWrapper("1500"));
+        facts.put("/ptpIncome", dollarWrapper("3000"));
+
+        assertThat(facts.get("/priorYearQBICarryover").item().asText()).isEqualTo("-2500");
+        assertThat(facts.get("/reitDividends").item().asText()).isEqualTo("1500");
+        assertThat(facts.get("/ptpIncome").item().asText()).isEqualTo("3000");
+    }
+
+    @Test
     @DisplayName("Form 4684 keeps the 10% AGI floor unless the loss is a qualified disaster loss")
     void testCasualtyLossQualifiedDisasterHandling() throws IOException {
         Map<String, FactTypeWithItem> ordinaryFacts = scenarioFacts("scenario-1-tara-black.json");
@@ -209,10 +222,19 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         facts.put("/businessIncomeECI", dollarWrapper("15000"));
         facts.put("/scholarshipIncomeECI", dollarWrapper("0"));
         facts.put("/capitalGainsECI", dollarWrapper("0"));
+        facts.put("/rentalIncomeECI", dollarWrapper("0"));
+        facts.put("/partnershipIncomeECI", dollarWrapper("0"));
+        facts.put("/otherIncomeECI", dollarWrapper("0"));
         facts.put("/itemizedDeductionsNR", dollarWrapper("10000"));
         facts.put("/dividendsFDAP", dollarWrapper("1000"));
         facts.put("/interestFDAP", dollarWrapper("0"));
         facts.put("/royaltiesFDAP", dollarWrapper("500"));
+        facts.put("/rentsFDAP", dollarWrapper("0"));
+        facts.put("/gamblingFDAP", dollarWrapper("0"));
+        facts.put("/socialSecurityFDAP", dollarWrapper("0"));
+        facts.put("/capitalGainsFDAP", dollarWrapper("0"));
+        facts.put("/otherFDAP", dollarWrapper("0"));
+        facts.put("/treatyExemptIncome", dollarWrapper("0"));
 
         Graph graph = factGraphService.getGraph(facts);
 
@@ -222,8 +244,31 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("18047.00"));
         assertThat(getFactAsBigDecimal(graph, "/taxOnFDAP"))
             .isEqualByComparingTo(new BigDecimal("450.00"));
+        assertThat(getFactAsBoolean(graph, "/hasScheduleNEC")).isTrue();
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
+            .isEqualByComparingTo(new BigDecimal("450.00"));
         assertThat(getFactAsBigDecimal(graph, "/totalTaxNR"))
             .isEqualByComparingTo(new BigDecimal("18497.00"));
+    }
+
+    @Test
+    @DisplayName("Form 1040-NR applies treaty-exempt scholarship amounts before ECI tax")
+    void testForm1040NrTreatyExemptScholarshipHandling() throws IOException {
+        Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-nr5-chen.json");
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/scholarshipIncomeECI"))
+            .isEqualByComparingTo(new BigDecimal("5000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/treatyExemptIncome"))
+            .isEqualByComparingTo(new BigDecimal("5000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/taxableScholarshipIncomeECI"))
+            .isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        assertThat(getFactAsBigDecimal(graph, "/otherIncomeECI"))
+            .isEqualByComparingTo(new BigDecimal("24000.00"));
+        assertThat(getFactAsBoolean(graph, "/hasScheduleOI")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/scheduleOIRequiresTreatyDisclosure")).isTrue();
+        assertThat(getFactAsBigDecimal(graph, "/totalECI"))
+            .isEqualByComparingTo(new BigDecimal("24000.00"));
     }
 
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {

@@ -221,6 +221,22 @@ public class ATSToFactGraphConverter {
         }
 
         facts.put("/isNonresidentAlien", booleanWrapper(true));
+        facts.putIfAbsent("/wagesECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/businessIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/scholarshipIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/capitalGainsECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/rentalIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/partnershipIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/otherIncomeECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/dividendsFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/interestFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/royaltiesFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/rentsFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/gamblingFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/socialSecurityFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/capitalGainsFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/otherFDAP", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/treatyExemptIncome", createDollarWrapper(BigDecimal.ZERO));
 
         if (scenario.getPrimaryTaxpayer() != null) {
             ATSTaxpayer taxpayer = scenario.getPrimaryTaxpayer();
@@ -230,17 +246,34 @@ public class ATSToFactGraphConverter {
             }
             putIfPresentString(facts, "/countryOfResidence", countryOfResidence);
             putIfPresentString(facts, "/visaType", taxpayer.getVisaType());
+            putIfPresentInt(facts, "/firstYearInUS", taxpayer.getFirstYearInUS());
 
             String treatyCountry = taxpayer.getTreatyCountry();
             if (treatyCountry == null) {
                 treatyCountry = taxpayer.getTaxTreatyCountry();
             }
             putIfPresentString(facts, "/treatyCountry", treatyCountry);
+
+            Map<String, Object> foreignAddress = nestedMap(taxpayer.getForeignAddress());
+            putIfPresentString(facts, "/foreignAddressStreet", foreignAddress.get("street"));
+            putIfPresentString(facts, "/foreignAddressCity", foreignAddress.get("city"));
+            putIfPresentString(facts, "/foreignAddressProvince", foreignAddress.get("province"));
+            putIfPresentString(facts, "/foreignAddressPostalCode", foreignAddress.get("postalCode"));
+            putIfPresentString(facts, "/foreignAddressCountry", foreignAddress.get("country"));
         }
 
+        Map<String, Object> treatyBenefits = nestedMap(scenario.getTaxTreatyBenefits());
         boolean claimsTreatyBenefits =
             scenario.getTaxTreatyBenefits() != null && !scenario.getTaxTreatyBenefits().isEmpty();
         facts.put("/claimsTreatyBenefits", booleanWrapper(claimsTreatyBenefits));
+        putIfPresentString(facts, "/treatyArticle", treatyBenefits.get("articleNumber"));
+        putIfPresentDollar(facts, "/treatyExemptIncome", treatyBenefits.get("exemptIncome"));
+        putIfPresentDollar(facts, "/reducedTreatyRate",
+            nonZeroOrNull(
+                decimalValue(treatyBenefits.get("reducedRate")),
+                decimalValue(treatyBenefits.get("reducedTreatyRate"))
+            )
+        );
 
         if (scenario.getExpectedValues() != null) {
             putIfPresentDollar(
@@ -250,25 +283,91 @@ public class ATSToFactGraphConverter {
             );
         }
 
+        Map<String, Object> scholarshipIncome = nestedMap(scenario.getScholarshipIncome());
         BigDecimal wagesEci = defaultZero(sumW2Wages(scenario.getW2Forms()));
-        BigDecimal businessIncomeEci = nonresidentBusinessIncomeFallback(scenario, wagesEci);
+        BigDecimal scholarshipIncomeEci = nonZeroOrNull(
+            decimalValue(scholarshipIncome.get("taxableScholarship")),
+            nonZeroOrNull(
+                sumField(scenario.getForm1099Misc(), "scholarshipIncome"),
+                scenario.getExpectedValues() != null
+                    ? scenario.getExpectedValues().getScholarshipIncome()
+                    : null
+            )
+        );
+        BigDecimal stipendIncomeEci = nonZeroOrNull(
+            sumField(scenario.getForm1099Misc(), "stipend"),
+            scenario.getExpectedValues() != null
+                ? scenario.getExpectedValues().getStipendIncome()
+                : null
+        );
+        BigDecimal capitalGainsEci =
+            scenario.isHasScheduleD()
+                ? defaultZero(scenario.getExpectedValues() != null
+                    ? scenario.getExpectedValues().getCapitalGains()
+                    : null)
+                : BigDecimal.ZERO;
+        BigDecimal rentalIncomeEci = defaultZero(
+            scenario.getExpectedValues() != null ? scenario.getExpectedValues().getRentalIncome() : null
+        );
+        BigDecimal partnershipIncomeEci = defaultZero(
+            scenario.getExpectedValues() != null ? scenario.getExpectedValues().getPartnershipIncome() : null
+        );
+        BigDecimal businessIncomeEci = nonresidentBusinessIncomeFallback(
+            scenario,
+            wagesEci,
+            scholarshipIncomeEci,
+            capitalGainsEci,
+            rentalIncomeEci,
+            partnershipIncomeEci,
+            defaultZero(stipendIncomeEci)
+        );
         BigDecimal dividendsFdap = sumField(scenario.getForm1099Div(), "ordinaryDividends");
         BigDecimal interestFdap = nonZeroOrNull(
             sumField(scenario.getForm1099Int(), "taxableInterest"),
             sumField(scenario.getForm1099Int(), "interestIncome")
         );
         BigDecimal royaltiesFdap = sumField(scenario.getForm1099Misc(), "royalties");
+        BigDecimal rentsFdap = sumField(scenario.getForm1099Misc(), "rents");
+        BigDecimal gamblingFdap = nonZeroOrNull(
+            decimalValue(nestedMap(scenario.getGamblingActivity()).get("gamblingWinnings")),
+            sumField(scenario.getFormW2G(), "winnings")
+        );
+        BigDecimal socialSecurityFdap = scenario.getExpectedValues() != null
+            ? scenario.getExpectedValues().getSocialSecurityBenefits()
+            : null;
+        BigDecimal capitalGainsFdap =
+            scenario.isHasScheduleD() ? BigDecimal.ZERO :
+                defaultZero(scenario.getExpectedValues() != null
+                    ? scenario.getExpectedValues().getCapitalGains()
+                    : null);
+        BigDecimal otherFdap = sumField(scenario.getForm1099Misc(), "otherIncome");
 
         facts.put("/wagesECI", createDollarWrapper(wagesEci));
         facts.put("/businessIncomeECI", createDollarWrapper(businessIncomeEci));
-        facts.put("/scholarshipIncomeECI", createDollarWrapper(BigDecimal.ZERO));
-        facts.put("/capitalGainsECI", createDollarWrapper(BigDecimal.ZERO));
+        facts.put("/scholarshipIncomeECI", createDollarWrapper(defaultZero(scholarshipIncomeEci)));
+        facts.put("/capitalGainsECI", createDollarWrapper(defaultZero(capitalGainsEci)));
+        facts.put("/rentalIncomeECI", createDollarWrapper(defaultZero(rentalIncomeEci)));
+        facts.put("/partnershipIncomeECI", createDollarWrapper(defaultZero(partnershipIncomeEci)));
+        facts.put("/otherIncomeECI", createDollarWrapper(defaultZero(stipendIncomeEci)));
         facts.put("/dividendsFDAP", createDollarWrapper(defaultZero(dividendsFdap)));
         facts.put("/interestFDAP", createDollarWrapper(defaultZero(interestFdap)));
         facts.put("/royaltiesFDAP", createDollarWrapper(defaultZero(royaltiesFdap)));
+        facts.put("/rentsFDAP", createDollarWrapper(defaultZero(rentsFdap)));
+        facts.put("/gamblingFDAP", createDollarWrapper(defaultZero(gamblingFdap)));
+        facts.put("/socialSecurityFDAP", createDollarWrapper(defaultZero(socialSecurityFdap)));
+        facts.put("/capitalGainsFDAP", createDollarWrapper(defaultZero(capitalGainsFdap)));
+        facts.put("/otherFDAP", createDollarWrapper(defaultZero(otherFdap)));
     }
 
-    private BigDecimal nonresidentBusinessIncomeFallback(ATSScenarioData scenario, BigDecimal wagesEci) {
+    private BigDecimal nonresidentBusinessIncomeFallback(
+        ATSScenarioData scenario,
+        BigDecimal wagesEci,
+        BigDecimal scholarshipIncomeEci,
+        BigDecimal capitalGainsEci,
+        BigDecimal rentalIncomeEci,
+        BigDecimal partnershipIncomeEci,
+        BigDecimal otherIncomeEci
+    ) {
         Map<String, Object> scheduleC = scenario.getScheduleC();
         if (scheduleC != null && !scheduleC.isEmpty()) {
             BigDecimal netProfit = nonZeroOrNull(
@@ -287,11 +386,13 @@ public class ATSToFactGraphConverter {
         BigDecimal totalIncome = defaultZero(scenario.getExpectedValues().getTotalIncome());
         BigDecimal knownNonBusinessIncome =
             wagesEci
+                .add(defaultZero(scholarshipIncomeEci))
+                .add(defaultZero(capitalGainsEci))
+                .add(defaultZero(rentalIncomeEci))
+                .add(defaultZero(partnershipIncomeEci))
+                .add(defaultZero(otherIncomeEci))
                 .add(defaultZero(scenario.getExpectedValues().getInterestIncome()))
                 .add(defaultZero(scenario.getExpectedValues().getDividendIncome()))
-                .add(defaultZero(scenario.getExpectedValues().getCapitalGains()))
-                .add(defaultZero(scenario.getExpectedValues().getRentalIncome()))
-                .add(defaultZero(scenario.getExpectedValues().getPartnershipIncome()))
                 .add(defaultZero(scenario.getExpectedValues().getSocialSecurityBenefits()))
                 .add(defaultZero(scenario.getExpectedValues().getUnemploymentCompensation()));
 
@@ -726,6 +827,22 @@ public class ATSToFactGraphConverter {
         facts.put("/isSSTB", booleanWrapper(booleanValue(form8995Qbi.get("isSpecifiedServiceBusiness"))));
         facts.put("/qualifiedPropertyBasis",
             createDollarWrapper(defaultZero(decimalValue(form8995Qbi.get("ubia")))));
+        facts.put("/reitDividends", createDollarWrapper(defaultZero(nonZeroOrNull(
+            decimalValue(form8995Qbi.get("reitDividends")),
+            sumField(scenario.getForm1099Div(), "section199ADividends")
+        ))));
+        facts.put("/ptpIncome", createDollarWrapper(defaultZero(nonZeroOrNull(
+            decimalValue(form8995Qbi.get("ptpIncome")),
+            decimalValue(form8995Qbi.get("publiclyTradedPartnershipIncome"))
+        ))));
+        BigDecimal carryover = nonZeroOrNull(
+            decimalValue(form8995Qbi.get("priorYearQBICarryover")),
+            decimalValue(form8995Qbi.get("qbiLossCarryover"))
+        );
+        if (carryover != null && carryover.compareTo(BigDecimal.ZERO) > 0) {
+            carryover = carryover.negate();
+        }
+        facts.put("/priorYearQBICarryover", createDollarWrapper(defaultZero(carryover)));
     }
 
     private void addScheduleSEFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
@@ -1065,6 +1182,12 @@ public class ATSToFactGraphConverter {
     private void putIfPresentString(Map<String, FactTypeWithItem> facts, String path, Object value) {
         if (value != null) {
             facts.put(path, createStringWrapper(String.valueOf(value)));
+        }
+    }
+
+    private void putIfPresentInt(Map<String, FactTypeWithItem> facts, String path, Integer value) {
+        if (value != null) {
+            facts.put(path, createIntWrapper(value));
         }
     }
 

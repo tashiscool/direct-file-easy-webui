@@ -1,6 +1,7 @@
 package gov.irs.directfile.api.ats.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import gov.irs.directfile.api.ats.ATSScenarioLoader;
 import gov.irs.directfile.api.ats.model.*;
 import gov.irs.directfile.models.FactTypeWithItem;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +73,64 @@ class ATSToFactGraphConverterTest {
             JsonNode itemNode = filingStatusItem.item();
             assertThat(itemNode.has("value")).isTrue();
             assertThat(itemNode.get("value").get(0).asText()).isEqualTo("single");
+        }
+    }
+
+    @Nested
+    @DisplayName("Advanced Tax Feature Conversion Tests")
+    class AdvancedTaxFeatureConversionTests {
+
+        @Test
+        @DisplayName("Should map nonresident scholarship, treaty, and stipend facts")
+        void testNonresidentScholarshipAndTreatyConversion() throws IOException {
+            ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-nr5-chen.json");
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(facts.get("/isNonresidentAlien").item().asBoolean()).isTrue();
+            assertThat(facts.get("/treatyArticle").item().asText()).isEqualTo("20");
+            assertThat(facts.get("/firstYearInUS").item().asInt()).isEqualTo(2022);
+            assertThat(facts.get("/foreignAddressCountry").item().asText()).isEqualTo("CN");
+            assertThat(new BigDecimal(facts.get("/treatyExemptIncome").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("5000.00"));
+            assertThat(new BigDecimal(facts.get("/scholarshipIncomeECI").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("5000.00"));
+            assertThat(new BigDecimal(facts.get("/otherIncomeECI").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("24000.00"));
+            assertThat(new BigDecimal(facts.get("/businessIncomeECI").item().asText()))
+                .isEqualByComparingTo(BigDecimal.ZERO);
+        }
+
+        @Test
+        @DisplayName("Should map REIT dividends, PTP income, and QBI carryover")
+        void testQbiCarryoverAndReitConversion() {
+            ATSScenarioData scenario = createMinimalScenario();
+            scenario.setHasForm8995(true);
+            scenario.setForm1099Div(List.of(Map.of("section199ADividends", new BigDecimal("1200.00"))));
+            scenario.setForm8995QBI(Map.of(
+                "qualifiedBusinessIncome", new BigDecimal("40000.00"),
+                "reitDividends", new BigDecimal("1500.00"),
+                "ptpIncome", new BigDecimal("3000.00"),
+                "priorYearQBICarryover", new BigDecimal("2500.00")
+            ));
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(facts.get("/reitDividends").item().asText()).isEqualTo("1500.00");
+            assertThat(facts.get("/ptpIncome").item().asText()).isEqualTo("3000.00");
+            assertThat(facts.get("/priorYearQBICarryover").item().asText()).isEqualTo("-2500.00");
+        }
+
+        @Test
+        @DisplayName("Should mark Schedule NEC when FDAP income is present")
+        void testNonresidentScheduleNecDetection() throws IOException {
+            ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-nr2-desilva.json");
+            scenario.setForm1099Div(List.of(Map.of("ordinaryDividends", new BigDecimal("1000.00"))));
+
+            Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+
+            assertThat(new BigDecimal(facts.get("/dividendsFDAP").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("1000.00"));
         }
     }
 
