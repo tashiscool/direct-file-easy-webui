@@ -974,7 +974,7 @@
     <Fact path="/totalSchedule1ADeductions">
       <Name>Total Schedule 1-A Additional Deductions</Name>
       <Description>Sum of all OBBBA additional deductions (overtime, tips, auto loan interest, senior bonus).
-        This amount is reported on Schedule 1-A Line 17 and transfers to Schedule 1.</Description>
+        This amount transfers to Form 1040 line 13b or Form 1040-NR line 13c.</Description>
       <Export mef="true" downstreamFacts="true" />
       <TaxYear>2025</TaxYear>
       <Derived>

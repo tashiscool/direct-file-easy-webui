@@ -10,24 +10,55 @@ object Equal extends CompNodeFactory:
   private val operator = EqualOperator()
 
   def apply(lhs: CompNode, rhs: CompNode): BooleanNode =
-    if (lhs.getClass != rhs.getClass)
-      throw new UnsupportedOperationException(
-        s"cannot compare a ${lhs.getClass.getName} and a ${rhs.getClass.getName}",
-      )
+    (lhs, rhs) match
+      case (left: EnumNode, right: StringNode) =>
+        BooleanNode(
+          Expression.Binary(
+            AsString(left).expr,
+            right.expr,
+            operator,
+          ),
+        )
+      case (left: StringNode, right: EnumNode) =>
+        BooleanNode(
+          Expression.Binary(
+            left.expr,
+            AsString(right).expr,
+            operator,
+          ),
+        )
+      case _ =>
+        if (lhs.getClass != rhs.getClass)
+          throw new UnsupportedOperationException(
+            s"cannot compare a ${lhs.getClass.getName} and a ${rhs.getClass.getName}",
+          )
 
-    BooleanNode(
-      Expression.Binary(
-        lhs.expr,
-        rhs.expr,
-        operator,
-      ),
-    )
+        BooleanNode(
+          Expression.Binary(
+            lhs.expr,
+            rhs.expr,
+            operator,
+          ),
+        )
 
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    val lhs = CompNode.getConfigChildNode(e, "Left")
-    val rhs = CompNode.getConfigChildNode(e, "Right")
+    val children = e.children.toSeq
+    val (lhs, rhs) =
+      if (children.exists(_.typeName == "Left") || children.exists(_.typeName == "Right")) then
+        (
+          CompNode.getConfigChildNode(e, "Left"),
+          CompNode.getConfigChildNode(e, "Right"),
+        )
+      else
+        val flatChildren = CompNode.getConfigChildNodes(e)
+        flatChildren match
+          case left :: right :: Nil => (left, right)
+          case _ =>
+            throw new IllegalArgumentException(
+              s"<${e.typeName}> must have exactly two child nodes: $e",
+            )
 
     this(lhs, rhs)
 

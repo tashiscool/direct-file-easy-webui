@@ -60,7 +60,7 @@
       <Derived>
         <Equals>
           <Left><Dependency path="/adoptionType" /></Left>
-          <Right><Enum>specialNeeds</Enum></Right>
+          <Right><Enum optionsPath="/__enumOptions/adoptionType">specialNeeds</Enum></Right>
         </Equals>
       </Derived>
     </Fact>
@@ -263,7 +263,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
           <!-- Above phase-out range: no credit -->
@@ -275,7 +275,7 @@
               </GreaterThanOrEqual>
             </When>
             <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0.0</Dollar>
             </Then>
           </Case>
           <!-- In phase-out range: linear reduction -->
@@ -285,7 +285,7 @@
             </When>
             <Then>
               <Subtract>
-                <Decimal>1.0</Decimal>
+                <Dollar>1.0</Dollar>
                 <Divide>
                   <Subtract>
                     <Dependency module="taxCalculations" path="/magi" />

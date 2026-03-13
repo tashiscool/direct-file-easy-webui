@@ -30,4 +30,10 @@ object RationalNode extends CompNodeFactory with WritableNodeFactory:
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    this(Rational(e.getOptionValue(CommonOptionConfigTraits.VALUE).get))
+    val rawValue = e.getOptionValue(CommonOptionConfigTraits.VALUE).get
+    try this(Rational(rawValue))
+    catch
+      case err: NumberFormatException =>
+        throw new NumberFormatException(
+          s"""For Rational value "$rawValue" in config $e"""
+        )

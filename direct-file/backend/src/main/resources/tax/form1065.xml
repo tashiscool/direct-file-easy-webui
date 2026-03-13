@@ -13,11 +13,11 @@
         <Any>
           <Equals>
             <Left><Dependency module="form1120" path="/entityType" /></Left>
-            <Right><Enum>partnership</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">partnership</Enum></Right>
           </Equals>
           <Equals>
             <Left><Dependency module="form1120" path="/entityType" /></Left>
-            <Right><Enum>llcPartnership</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">llcPartnership</Enum></Right>
           </Equals>
         </Any>
       </Derived>

@@ -134,6 +134,38 @@ class SubtractSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(Dollar("1.32")))
     }
 
+    it("supports legacy flat-child subtraction configs") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Subtract",
+          Seq(
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("12")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("1")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("2")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("3")
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(6))
+    }
+
     it("subtracts a long sequence of mixed types") {
       val node = CompNode.fromDerivedConfig(
         new CompNodeConfigElement(

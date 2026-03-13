@@ -400,6 +400,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/netCapitalGainLoss">
+      <Name>Net Capital Gain Loss</Name>
+      <Description>Legacy compatibility alias for net capital gain or loss.</Description>
+      <Derived>
+        <Dependency path="/netCapitalGainOrLoss" />
+      </Derived>
+    </Fact>
+
     <Fact path="/capitalLossDeductionLimit">
       <Name>Capital Loss Deduction Limit</Name>
       <Description>Maximum capital loss that can be deducted against ordinary income ($3,000 or $1,500 for MFS).</Description>

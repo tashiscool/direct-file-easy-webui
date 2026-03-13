@@ -445,7 +445,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
           <!-- Above phase-out: no allowance -->
@@ -462,7 +462,7 @@
               </GreaterThanOrEqual>
             </When>
             <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0.0</Dollar>
             </Then>
           </Case>
           <!-- In phase-out range: 50% of excess -->
@@ -472,7 +472,7 @@
             </When>
             <Then>
               <Subtract>
-                <Decimal>1.0</Decimal>
+                <Dollar>1.0</Dollar>
                 <Divide>
                   <Subtract>
                     <Dependency module="taxCalculations" path="/agi" />

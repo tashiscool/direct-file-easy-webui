@@ -1,6 +1,12 @@
 <?xml-model href="./FactDictionaryModule.rng"?>
 <FactDictionaryModule>
   <Facts>
+    <Fact path="/atsEarnedIncomeCreditOverride">
+      <Name>ATS Earned Income Credit Override</Name>
+      <Description>ATS-only override for aggregate earned income credit when detailed eligibility facts are not modeled.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
     <Fact path="/claimedSpouseCombatPayWithoutMFJ">
       <Name>Claimed Spouse Combat Pay without a Spouse</Name>
       <Description>Filer selected a combat pay option referencing a spouse without having a spouse</Description>
@@ -72,6 +78,16 @@
 
       <Derived>
         <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsEarnedIncomeCreditOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsEarnedIncomeCreditOverride" />
+            </Then>
+          </Case>
           <Case>
             <When>
               <Dependency path="/eitcQualified" />

@@ -132,7 +132,7 @@
       <Derived>
         <GreaterThan>
           <Left><Dependency path="/totalFuelTaxCredit" /></Left>
-          <Right><Dollar>0</Dollar></Right>
+          <Right><Decimal>0</Decimal></Right>
         </GreaterThan>
       </Derived>
     </Fact>

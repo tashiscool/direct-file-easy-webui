@@ -48,6 +48,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/claimItemizedDeductions">
+      <Name>Claim Itemized Deductions</Name>
+      <Description>Legacy compatibility alias for whether the taxpayer is itemizing deductions.</Description>
+      <Derived>
+        <Dependency path="/isItemizing" />
+      </Derived>
+    </Fact>
+
     <!-- ============================================ -->
     <!-- MEDICAL AND DENTAL EXPENSES (Lines 1-4)     -->
     <!-- ============================================ -->
@@ -458,6 +466,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/saltDeduction">
+      <Name>SALT Deduction</Name>
+      <Description>Legacy compatibility alias for the deductible state and local tax amount.</Description>
+      <Derived>
+        <Dependency path="/deductibleSalt" />
+      </Derived>
+    </Fact>
+
     <!-- ============================================ -->
     <!-- MORTGAGE INTEREST (Lines 8-10)              -->
     <!-- ============================================ -->
@@ -816,35 +832,13 @@
       </Writable>
     </Fact>
 
-    <Fact path="/deductibleCasualtyLoss">
-      <Name>Deductible Casualty Loss</Name>
-      <Description>Deductible casualty and theft losses. Schedule A Line 15.</Description>
+    <Fact path="/scheduleADeductibleCasualtyLoss">
+      <Name>Schedule A Deductible Casualty Loss</Name>
+      <Description>Deductible casualty and theft loss amount that flows from Form 4684 to Schedule A Line 15.</Description>
       <Export mef="true" />
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Switch>
-          <Case>
-            <When>
-              <All>
-                <Dependency path="/hasCasualtyLoss" />
-                <IsComplete>
-                  <Dependency path="/casualtyLossAmount" />
-                </IsComplete>
-              </All>
-            </When>
-            <Then>
-              <Dependency path="/casualtyLossAmount" />
-            </Then>
-          </Case>
-          <Case>
-            <When>
-              <True />
-            </When>
-            <Then>
-              <Dollar>0</Dollar>
-            </Then>
-          </Case>
-        </Switch>
+        <Dependency module="form4684" path="/deductibleCasualtyLoss" />
       </Derived>
     </Fact>
 
@@ -970,7 +964,7 @@
             <Dependency path="/deductibleSalt" />
             <Dependency path="/deductibleMortgageInterest" />
             <Dependency path="/deductibleCharitableContributions" />
-            <Dependency path="/deductibleCasualtyLoss" />
+            <Dependency path="/scheduleADeductibleCasualtyLoss" />
             <Dependency path="/deductibleOtherItemized" />
           </Add>
         </Round>

@@ -15,6 +15,7 @@ object WritableNode:
     CollectionNode,
     CollectionItemNode,
     DayNode,
+    LegacyDateNode,
     DollarNode,
     EinNode,
     EmailAddressNode,

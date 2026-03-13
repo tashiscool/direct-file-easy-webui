@@ -79,6 +79,38 @@ class DollarNodeSpec extends AnyFunSpec:
         val node = CompNode.fromDerivedConfig(config)
         assert(node.get(0) == Result.Complete(Dollar("2.00")))
       }
+
+      it("supports legacy case condition/result pairs") {
+        val config = new CompNodeConfigElement(
+          "Switch",
+          Seq(
+            new CompNodeConfigElement(
+              "Case",
+              Seq(
+                new CompNodeConfigElement("False"),
+                new CompNodeConfigElement(
+                  "Dollar",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("1.00")
+                )
+              )
+            ),
+            new CompNodeConfigElement(
+              "Case",
+              Seq(
+                new CompNodeConfigElement("True"),
+                new CompNodeConfigElement(
+                  "Dollar",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("2.00")
+                )
+              )
+            )
+          )
+        )
+        val node = CompNode.fromDerivedConfig(config)
+        assert(node.get(0) == Result.Complete(Dollar("2.00")))
+      }
     }
 
     describe(".dependency") {

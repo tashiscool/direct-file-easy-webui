@@ -1,6 +1,11 @@
 <?xml-model href="./FactDictionaryModule.rng"?>
 <FactDictionaryModule>
   <Facts>
+    <Fact path="/atsTotalAdditionalTaxesOwedOverride">
+      <Description>ATS-only override for aggregate Schedule 2 additional taxes when detailed source facts are unavailable.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
     <Fact path="/requiresSchedule2">
       <Description>Whether Schedule 2 is required</Description>
       <Export mef="true" />
@@ -18,6 +23,16 @@
       <Export mef="true" downstreamFacts="true" />
       <Derived>
         <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsTotalAdditionalTaxesOwedOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsTotalAdditionalTaxesOwedOverride" />
+            </Then>
+          </Case>
           <Case>
             <When>
               <IsComplete>

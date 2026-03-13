@@ -20,10 +20,40 @@ object Divide extends CompNodeFactory:
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    val dividend = CompNode.getConfigChildNode(e, "Dividend")
-    val divisors = CompNode.getConfigChildNodes(e, "Divisors")
+    try
+      val usesDividendOperands =
+        e.children.exists(child =>
+          child.typeName == "Dividend" || child.typeName == "Divisors"
+        )
+      val usesMinuendOperands =
+        e.children.exists(child =>
+          child.typeName == "Minuend" || child.typeName == "Denominator"
+        )
 
-    this(dividend +: divisors)
+      val nodes =
+        if usesDividendOperands then
+          val dividend = CompNode.getConfigChildNode(e, "Dividend")
+          val divisors = CompNode.getConfigChildNodes(e, "Divisors")
+          dividend +: divisors
+        else if usesMinuendOperands then
+          val dividend = CompNode.getConfigChildNode(e, "Minuend")
+          val divisors = CompNode.getConfigChildNodes(e, "Denominator")
+          dividend +: divisors
+        else
+          // Support legacy XML that models <Divide> as a flat ordered child list.
+          CompNode.getConfigChildNodes(e)
+
+      this(nodes)
+    catch
+      case err: UnsupportedOperationException =>
+        val childSummary = e.children
+          .map(child =>
+            s"${child.typeName}:[${child.children.map(_.typeName).mkString(", ")}]"
+          )
+          .mkString(", ")
+        throw new UnsupportedOperationException(
+          s"${err.getMessage} while loading Divide with children {$childSummary}"
+        )
 
   private def reduceDivide(nodes: Seq[CompNode]): CompNode =
     nodes.head match

@@ -146,7 +146,7 @@ class InMemoryPersisterSpec extends AnyFunSpec:
         // This /meta/migrationsApplied value needs to be incremented when you add a new migration
         persister.save()
         assert(
-          persister.toJson() == """{"/test":{"$type":"gov.irs.factgraph.persisters.IntWrapper","item":42},"/meta/migrationsApplied":{"$type":"gov.irs.factgraph.persisters.IntWrapper","item":2}}"""
+          persister.toJson() == """{"/test":{"$type":"gov.irs.factgraph.persisters.IntWrapper","item":42},"/meta/migrationsApplied":{"$type":"gov.irs.factgraph.persisters.IntWrapper","item":3}}"""
         )
       }
     }
@@ -162,6 +162,28 @@ class InMemoryPersisterSpec extends AnyFunSpec:
         given Factual = fact
 
         assert(persister.getSavedResult(path, klass) == Result.Complete(42))
+      }
+
+      it("migrates legacy DayWrapper string payloads") {
+        val dayDictionary = FactDictionary()
+        addFactConfig("/day", "Day", dayDictionary)
+
+        val jsonData =
+          """{"/day":{"$type":"gov.irs.factgraph.persisters.DayWrapper","item":"2025-02-14"}}"""
+        val persister = InMemoryPersister(jsonData)
+
+        assert(persister.getSavedResult(Path("/day"), classOf[Day]) == Result.Complete(Day("2025-02-14")))
+      }
+
+      it("migrates legacy EinWrapper suffix payloads") {
+        val einDictionary = FactDictionary()
+        addFactConfig("/ein", "Ein", einDictionary)
+
+        val jsonData =
+          """{"/ein":{"$type":"gov.irs.factgraph.persisters.EinWrapper","item":{"prefix":"12","suffix":"3456789"}}}"""
+        val persister = InMemoryPersister(jsonData)
+
+        assert(persister.getSavedResult(Path("/ein"), classOf[Ein]) == Result.Complete(Ein("12", "3456789")))
       }
     }
     describe(".syncWithDictionary") {

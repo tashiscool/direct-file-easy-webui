@@ -165,6 +165,10 @@ class RationalSpec extends AnyFunSpec:
         assert(Numeric[Rational].parseString("2/3").contains(Rational("2/3")))
       }
 
+      it("parses integer strings as denominator-1 rationals") {
+        assert(Numeric[Rational].parseString("2").contains(Rational("2/1")))
+      }
+
       it("returns None if the string is not valid") {
         assert(Numeric[Rational].parseString("yo").isEmpty)
       }

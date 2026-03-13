@@ -161,14 +161,27 @@ object FactDefinition:
     val isWritable = e.writable.isDefined
 
     val cnBuilder: Factual ?=> CompNode =
-      val node =
-        if (isWritable) WritableNode.fromConfig(e.writable.get)
-        else CompNode.fromDerivedConfig(e.derived.get)
+      try {
+        val node =
+          if (isWritable) WritableNode.fromConfig(e.writable.get)
+          else CompNode.fromDerivedConfig(e.derived.get)
 
-      e.placeholder match
-        case Some(default) =>
-          Placeholder(node, CompNode.fromDerivedConfig(default))
-        case None => node
+        e.placeholder match
+          case Some(default) =>
+            Placeholder(node, CompNode.fromDerivedConfig(default))
+          case None => node
+      } catch {
+        case exc: UnsupportedOperationException =>
+          throw new UnsupportedOperationException(
+            s"${exc.getMessage} (fact path: ${e.path})",
+            exc,
+          )
+        case exc: IllegalArgumentException =>
+          throw new IllegalArgumentException(
+            s"${exc.getMessage} (fact path: ${e.path})",
+            exc,
+          )
+      }
 
     val limits: Factual ?=> Seq[Limit] =
       if (isWritable)

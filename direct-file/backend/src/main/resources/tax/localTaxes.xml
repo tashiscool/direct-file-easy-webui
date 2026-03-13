@@ -3,6 +3,52 @@
 <FactDictionaryModule>
   <Facts>
     <!-- Local Tax Applicability -->
+    <!-- State and business aliases used by city/local modules when dedicated state modules
+         are not present in this workspace. -->
+    <Fact path="/nyAGI">
+      <Name>NY Adjusted Gross Income Alias</Name>
+      <Derived>
+        <Dependency path="/agi" />
+      </Derived>
+    </Fact>
+    <Fact path="/nyStateTax">
+      <Name>NY State Tax Alias</Name>
+      <Derived>
+        <Dependency path="/taxBeforeCredits" />
+      </Derived>
+    </Fact>
+    <Fact path="/mdTaxableIncome">
+      <Name>Maryland Taxable Income Alias</Name>
+      <Derived>
+        <Dependency path="/taxableIncome" />
+      </Derived>
+    </Fact>
+    <Fact path="/miTaxableIncome">
+      <Name>Michigan Taxable Income Alias</Name>
+      <Derived>
+        <Dependency path="/taxableIncome" />
+      </Derived>
+    </Fact>
+    <Fact path="/kyTaxableIncome">
+      <Name>Kentucky Taxable Income Alias</Name>
+      <Derived>
+        <Dependency path="/taxableIncome" />
+      </Derived>
+    </Fact>
+    <Fact path="/inTaxableIncome">
+      <Name>Indiana Taxable Income Alias</Name>
+      <Derived>
+        <Dependency path="/taxableIncome" />
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCNetProfit">
+      <Name>Schedule C Net Profit Alias</Name>
+      <Derived>
+        <Dependency path="/businessNetProfitLoss" />
+      </Derived>
+    </Fact>
+
+    <!-- Local Tax Applicability -->
     <Fact path="/hasLocalIncomeTax">
       <Name>Subject to Local Income Tax</Name>
       <Description>Whether taxpayer is subject to local income tax.</Description>

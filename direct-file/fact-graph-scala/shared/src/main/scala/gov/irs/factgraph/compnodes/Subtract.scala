@@ -20,9 +20,21 @@ object Subtract extends CompNodeFactory:
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    val minuend = CompNode.getConfigChildNode(e, "Minuend")
-    val subtrahends = CompNode.getConfigChildNodes(e, "Subtrahends")
-    this(minuend +: subtrahends)
+    val usesExplicitOperands =
+      e.children.exists(child =>
+        child.typeName == "Minuend" || child.typeName == "Subtrahends"
+      )
+
+    val nodes =
+      if usesExplicitOperands then
+        val minuend = CompNode.getConfigChildNode(e, "Minuend")
+        val subtrahends = CompNode.getConfigChildNodes(e, "Subtrahends")
+        minuend +: subtrahends
+      else
+        // Support legacy XML that models <Subtract> as a flat ordered child list.
+        CompNode.getConfigChildNodes(e)
+
+    this(nodes)
 
   private def reduceSubtract(nodes: Seq[CompNode]): CompNode =
     nodes.head match

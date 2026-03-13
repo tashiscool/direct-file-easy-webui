@@ -11,7 +11,7 @@
       <Description>Taxable income from Form 1120, line 30 (Line 1).</Description>
       <Export mef="true" />
       <Derived>
-        <Dependency module="form1120" path="/taxableIncomeBeforeNOL" />
+        <Dependency module="form1120" path="/corpTaxableIncome" />
       </Derived>
     </Fact>
 

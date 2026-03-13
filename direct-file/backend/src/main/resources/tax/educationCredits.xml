@@ -266,7 +266,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -281,7 +281,7 @@
               </GreaterThanOrEqual>
             </When>
             <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0.0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -291,7 +291,7 @@
             <Then>
               <Subtract>
                 <Minuend>
-                  <Decimal>1.0</Decimal>
+                  <Dollar>1.0</Dollar>
                 </Minuend>
                 <Subtrahends>
                   <Divide>
@@ -596,7 +596,7 @@
               </LessThanOrEqual>
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -611,7 +611,7 @@
               </GreaterThanOrEqual>
             </When>
             <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0.0</Dollar>
             </Then>
           </Case>
           <Case>
@@ -621,7 +621,7 @@
             <Then>
               <Subtract>
                 <Minuend>
-                  <Decimal>1.0</Decimal>
+                  <Dollar>1.0</Dollar>
                 </Minuend>
                 <Subtrahends>
                   <Divide>

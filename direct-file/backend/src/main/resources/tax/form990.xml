@@ -12,7 +12,7 @@
       <Derived>
         <Equals>
           <Left><Dependency module="form1120" path="/entityType" /></Left>
-          <Right><Enum>nonProfit</Enum></Right>
+          <Right><Enum optionsPath="/__enumOptions/entityType">nonProfit</Enum></Right>
         </Equals>
       </Derived>
     </Fact>
@@ -67,7 +67,7 @@
       <Derived>
         <Equals>
           <Left><Dependency path="/exemptStatusCode" /></Left>
-          <Right><Enum>501c3</Enum></Right>
+          <Right><Enum optionsPath="/__enumOptions/exemptStatusCode">501c3</Enum></Right>
         </Equals>
       </Derived>
     </Fact>
@@ -95,11 +95,11 @@
         <Any>
           <Equals>
             <Left><Dependency path="/organizationType501c3" /></Left>
-            <Right><Enum>privateFoundation</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/organizationType501c3">privateFoundation</Enum></Right>
           </Equals>
           <Equals>
             <Left><Dependency path="/organizationType501c3" /></Left>
-            <Right><Enum>privateOperatingFoundation</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/organizationType501c3">privateOperatingFoundation</Enum></Right>
           </Equals>
         </Any>
       </Derived>
@@ -164,6 +164,14 @@
           </Limit>
         </Dollar>
       </Writable>
+    </Fact>
+
+    <Fact path="/totalContributions">
+      <Name>Total Contributions</Name>
+      <Description>Legacy compatibility alias for Schedule B contributor-threshold calculations.</Description>
+      <Derived>
+        <Dependency path="/npoContributionsGiftsGrants" />
+      </Derived>
     </Fact>
 
     <Fact path="/npoFederatedCampaigns">
@@ -911,7 +919,7 @@
               <True />
             </When>
             <Then>
-              <Decimal>0</Decimal>
+              <Dollar>0</Dollar>
             </Then>
           </Case>
         </Switch>
@@ -924,7 +932,7 @@
       <Derived>
         <GreaterThanOrEqual>
           <Left><Dependency path="/npoPublicSupportPercentage" /></Left>
-          <Right><Decimal>33.33</Decimal></Right>
+          <Right><Dollar>33.33</Dollar></Right>
         </GreaterThanOrEqual>
       </Derived>
     </Fact>

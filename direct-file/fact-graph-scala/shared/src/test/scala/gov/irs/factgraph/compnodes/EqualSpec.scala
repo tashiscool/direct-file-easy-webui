@@ -73,6 +73,27 @@ class EqualSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(true))
     }
 
+    it("supports legacy flat-child equality configs") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Equal",
+          Seq(
+            new CompNodeConfigElement(
+              "String",
+              Seq.empty,
+              CommonOptionConfigTraits.value("Test")
+            ),
+            new CompNodeConfigElement(
+              "String",
+              Seq.empty,
+              CommonOptionConfigTraits.value("Test")
+            )
+          )
+        )
+      )
+      assert(node.get(0) == Result.Complete(true))
+    }
+
     it("can compare an enum") {
       val dictionary = FactDictionary();
       val node = CompNode.fromDerivedConfig(
@@ -176,6 +197,47 @@ class EqualSpec extends AnyFunSpec:
       )(using factual)(using dictionary)
 
       assert(node.get(0) == Result.Incomplete)
+    }
+
+    it("can compare an enum with a string literal") {
+      val dictionary = FactDictionary()
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Equal",
+          Seq(
+            new CompNodeConfigElement(
+              "Left",
+              Seq(
+                new CompNodeConfigElement(
+                  "Enum",
+                  Seq.empty,
+                  CommonOptionConfigTraits.create(
+                    Seq(
+                      (
+                        CommonOptionConfigTraits.ENUM_OPTIONS_PATH,
+                        "/options-path"
+                      ),
+                      (CommonOptionConfigTraits.VALUE, "A")
+                    )
+                  )
+                )
+              )
+            ),
+            new CompNodeConfigElement(
+              "Right",
+              Seq(
+                new CompNodeConfigElement(
+                  "String",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("A")
+                )
+              )
+            )
+          )
+        )
+      )(using given_Factual)(using dictionary)
+
+      assert(node.get(0) == Result.Complete(true))
     }
 
     it("can compare an enum with a dependency that has been set") {

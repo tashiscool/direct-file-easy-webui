@@ -121,7 +121,7 @@
       <Description>Whether taxable income is below the threshold for simplified calculation.</Description>
       <Derived>
         <LessThanOrEqual>
-          <Left><Dependency module="taxCalculations" path="/taxableIncome" /></Left>
+          <Left><Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" /></Left>
           <Right><Dependency path="/qbiFullDeductionThreshold" /></Right>
         </LessThanOrEqual>
       </Derived>
@@ -132,7 +132,7 @@
       <Description>Whether taxable income exceeds the phase-out threshold.</Description>
       <Derived>
         <GreaterThanOrEqual>
-          <Left><Dependency module="taxCalculations" path="/taxableIncome" /></Left>
+          <Left><Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" /></Left>
           <Right><Dependency path="/qbiFullPhaseoutThreshold" /></Right>
         </GreaterThanOrEqual>
       </Derived>
@@ -162,7 +162,7 @@
               <Dependency path="/belowQBIThreshold" />
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
           <!-- Above phase-out: 0% for SSTB -->
@@ -174,7 +174,7 @@
               </All>
             </When>
             <Then>
-              <Decimal>0.0</Decimal>
+              <Dollar>0.0</Dollar>
             </Then>
           </Case>
           <!-- In phase-out for SSTB -->
@@ -184,14 +184,26 @@
             </When>
             <Then>
               <Subtract>
-                <Decimal>1.0</Decimal>
-                <Divide>
-                  <Subtract>
-                    <Dependency module="taxCalculations" path="/taxableIncome" />
-                    <Dependency path="/qbiFullDeductionThreshold" />
-                  </Subtract>
-                  <Dependency path="/qbiPhaseoutRange" />
-                </Divide>
+                <Minuend>
+                  <Dollar>1.0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <Divide>
+                    <Minuend>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/qbiFullDeductionThreshold" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Minuend>
+                    <Denominator>
+                      <Dependency path="/qbiPhaseoutRange" />
+                    </Denominator>
+                  </Divide>
+                </Subtrahends>
               </Subtract>
             </Then>
           </Case>
@@ -201,7 +213,7 @@
               <True />
             </When>
             <Then>
-              <Decimal>1.0</Decimal>
+              <Dollar>1.0</Dollar>
             </Then>
           </Case>
         </Switch>
@@ -379,23 +391,39 @@
             </When>
             <Then>
               <Subtract>
-                <Dependency path="/qbiComponentBeforeLimitation" />
-                <Multiply>
-                  <Subtract>
-                    <Dependency path="/qbiComponentBeforeLimitation" />
-                    <Min>
-                      <Dependency path="/qbiComponentBeforeLimitation" />
-                      <Dependency path="/wageCapitalLimit" />
-                    </Min>
-                  </Subtract>
-                  <Divide>
+                <Minuend>
+                  <Dependency path="/qbiComponentBeforeLimitation" />
+                </Minuend>
+                <Subtrahends>
+                  <Multiply>
                     <Subtract>
-                      <Dependency module="taxCalculations" path="/taxableIncome" />
-                      <Dependency path="/qbiFullDeductionThreshold" />
+                      <Minuend>
+                        <Dependency path="/qbiComponentBeforeLimitation" />
+                      </Minuend>
+                      <Subtrahends>
+                        <Min>
+                          <Dependency path="/qbiComponentBeforeLimitation" />
+                          <Dependency path="/wageCapitalLimit" />
+                        </Min>
+                      </Subtrahends>
                     </Subtract>
-                    <Dependency path="/qbiPhaseoutRange" />
-                  </Divide>
-                </Multiply>
+                    <Divide>
+                      <Minuend>
+                        <Subtract>
+                          <Minuend>
+                            <Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" />
+                          </Minuend>
+                          <Subtrahends>
+                            <Dependency path="/qbiFullDeductionThreshold" />
+                          </Subtrahends>
+                        </Subtract>
+                      </Minuend>
+                      <Denominator>
+                        <Dependency path="/qbiPhaseoutRange" />
+                      </Denominator>
+                    </Divide>
+                  </Multiply>
+                </Subtrahends>
               </Subtract>
             </Then>
           </Case>
@@ -408,15 +436,20 @@
     <!-- ============================================ -->
 
     <Fact path="/taxableIncomeBeforeQBI">
-      <Name>Taxable Income Before QBI</Name>
-      <Description>Taxable income minus net capital gains.</Description>
+      <Name>Taxable Income Before QBI Less Net Capital Gain</Name>
+      <Description>Taxable income before the QBI deduction, reduced by net capital gain for the overall
+        QBI limitation.</Description>
       <Derived>
         <Subtract>
-          <Dependency module="taxCalculations" path="/taxableIncome" />
-          <Max>
-            <Dollar>0</Dollar>
-            <Dependency module="scheduleD" path="/netCapitalGainLoss" />
-          </Max>
+          <Minuend>
+            <Dependency module="taxCalculations" path="/taxableIncomeBeforeQBI" />
+          </Minuend>
+          <Subtrahends>
+            <Max>
+              <Dollar>0</Dollar>
+              <Dependency module="scheduleD" path="/netCapitalGainLoss" />
+            </Max>
+          </Subtrahends>
         </Subtract>
       </Derived>
     </Fact>
@@ -441,7 +474,32 @@
         <Switch>
           <Case>
             <When>
-              <Dependency path="/hasQualifiedBusinessIncome" />
+              <Not>
+                <Dependency path="/hasQualifiedBusinessIncome" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Not>
+                  <Dependency module="form8995" path="/canUseSimplifiedMethod" />
+                </Not>
+                <IsComplete>
+                  <Dependency module="form8995A" path="/totalQBIDeduction8995A" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="form8995A" path="/totalQBIDeduction8995A" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
             </When>
             <Then>
               <Round>
@@ -450,14 +508,6 @@
                   <Dependency path="/taxableIncomeLimitation" />
                 </Min>
               </Round>
-            </Then>
-          </Case>
-          <Case>
-            <When>
-              <True />
-            </When>
-            <Then>
-              <Dollar>0</Dollar>
             </Then>
           </Case>
         </Switch>

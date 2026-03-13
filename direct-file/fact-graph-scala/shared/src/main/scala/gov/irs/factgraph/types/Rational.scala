@@ -37,6 +37,7 @@ given Conversion[Int, Rational] = Rational(_)
 
 object Rational:
   private val Pattern: Regex = """^(-?\d+)/(-?\d+)$""".r
+  private val IntegerPattern: Regex = """^(-?\d+)$""".r
 
   @JSExportTopLevel("RationalFactory")
   def apply(n: Int, d: Int): Rational = d match
@@ -79,7 +80,10 @@ object Rational:
     def parseString(str: String): Option[Rational] =
       Pattern.findFirstMatchIn(str) match
         case Some(m) => Some(Rational(m.group(1).toInt, m.group(2).toInt))
-        case None    => None
+        case None =>
+          IntegerPattern.findFirstMatchIn(str) match
+            case Some(m) => Some(Rational(m.group(1).toInt))
+            case None    => None
 
     override def toDouble(x: Rational): Double =
       throw new UnsupportedOperationException(

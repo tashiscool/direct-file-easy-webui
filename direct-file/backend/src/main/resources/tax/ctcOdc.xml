@@ -1,6 +1,18 @@
 <?xml-model href="./FactDictionaryModule.rng"?>
 <FactDictionaryModule>
   <Facts>
+    <Fact path="/atsTotalCtcAndOdcOverride">
+      <Name>ATS Total CTC and ODC Override</Name>
+      <Description>ATS-only override for aggregate Child Tax Credit and Credit for Other Dependents.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/atsAdditionalCtcOverride">
+      <Name>ATS Additional CTC Override</Name>
+      <Description>ATS-only override for aggregate refundable Additional Child Tax Credit.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
     <Fact path="/improperClaimsNoticeOptions">
       <Name>Improper claims notice options</Name>
       <Description>Options for how long a TP has been restricted for taking CTC, ACTC, or ODC</Description>
@@ -720,10 +732,29 @@
 
       <Derived>
         <Round>
-          <LesserOf>
-            <Dependency path="/dependentCreditLessPhaseout" />
-            <Dependency path="/sched8812CreditLimit" />
-          </LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/atsTotalCtcAndOdcOverride" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/atsTotalCtcAndOdcOverride" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/dependentCreditLessPhaseout" />
+                  <Dependency path="/sched8812CreditLimit" />
+                </LesserOf>
+              </Then>
+            </Case>
+          </Switch>
         </Round>
       </Derived>
     </Fact>
@@ -1288,10 +1319,29 @@
 
       <Derived>
         <Round>
-          <LesserOf>
-            <Dependency path="/remainingPotentialActc" />
-            <Dependency path="/maximumActc" />
-          </LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/atsAdditionalCtcOverride" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/atsAdditionalCtcOverride" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/remainingPotentialActc" />
+                  <Dependency path="/maximumActc" />
+                </LesserOf>
+              </Then>
+            </Case>
+          </Switch>
         </Round>
       </Derived>
     </Fact>

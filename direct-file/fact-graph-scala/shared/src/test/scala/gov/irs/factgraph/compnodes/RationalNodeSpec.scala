@@ -25,6 +25,16 @@ class RationalNodeSpec extends AnyFunSpec:
         val node = CompNode.fromDerivedConfig(config).asInstanceOf[RationalNode]
         assert(node.get(0) == Result.Complete(Rational("2/3")))
       }
+
+      it("parses integer config values as denominator-1 rationals") {
+        val config = new CompNodeConfigElement(
+          "Rational",
+          Seq.empty,
+          CommonOptionConfigTraits.value("2")
+        )
+        val node = CompNode.fromDerivedConfig(config).asInstanceOf[RationalNode]
+        assert(node.get(0) == Result.Complete(Rational("2/1")))
+      }
     }
 
     describe(".switch") {

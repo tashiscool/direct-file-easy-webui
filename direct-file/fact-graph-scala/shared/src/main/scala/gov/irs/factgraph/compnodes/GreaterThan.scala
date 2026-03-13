@@ -46,8 +46,19 @@ object GreaterThan extends CompNodeFactory:
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    val lhs = CompNode.getConfigChildNode(e, "Left")
-    val rhs = CompNode.getConfigChildNode(e, "Right")
+    val (lhs, rhs) =
+      if e.children.exists(child => child.typeName == "Left" || child.typeName == "Right") then
+        (
+          CompNode.getConfigChildNode(e, "Left"),
+          CompNode.getConfigChildNode(e, "Right"),
+        )
+      else
+        CompNode.getConfigChildNodes(e).toList match
+          case lhs :: rhs :: Nil => (lhs, rhs)
+          case _ =>
+            throw new IllegalArgumentException(
+              s"<GreaterThan> must have explicit <Left>/<Right> nodes or a legacy flat pair: $e",
+            )
     this(lhs, rhs)
 
 private final class GreaterThanBinaryOperator[A: Ordering] extends BinaryOperator[Boolean, A, A]:

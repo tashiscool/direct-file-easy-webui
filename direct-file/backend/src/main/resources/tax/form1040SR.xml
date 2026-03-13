@@ -12,8 +12,8 @@
       <Export mef="true" />
       <Derived>
         <Any>
-          <Dependency module="filers" path="/primaryAge65OrOlder" />
-          <Dependency module="filers" path="/spouseAge65OrOlder" />
+          <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+          <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
         </Any>
       </Derived>
     </Fact>
@@ -39,8 +39,8 @@
           <Case>
             <When>
               <All>
-                <Dependency module="filers" path="/primaryAge65OrOlder" />
-                <Dependency module="filers" path="/spouseAge65OrOlder" />
+                <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+                <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
               </All>
             </When>
             <Then><Dollar>3200</Dollar></Then>
@@ -48,8 +48,8 @@
           <Case>
             <When>
               <Any>
-                <Dependency module="filers" path="/primaryAge65OrOlder" />
-                <Dependency module="filers" path="/spouseAge65OrOlder" />
+                <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+                <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
               </Any>
             </When>
             <Then><Dollar>1600</Dollar></Then>

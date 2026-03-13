@@ -769,6 +769,29 @@
         <Round>
           <Add>
             <Dependency module="form1099Misc" path="/alaskaPfdIncome" />
+            <Switch>
+              <Case>
+                <When>
+                  <All>
+                    <Dependency module="scheduleC" path="/hasSelfEmploymentIncome" />
+                    <IsComplete>
+                      <Dependency module="scheduleC" path="/businessNetProfitLoss" />
+                    </IsComplete>
+                  </All>
+                </When>
+                <Then>
+                  <Dependency module="scheduleC" path="/businessNetProfitLoss" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
           </Add>
         </Round>
       </Derived>

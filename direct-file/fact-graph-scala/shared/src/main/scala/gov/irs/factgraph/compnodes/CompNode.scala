@@ -24,8 +24,9 @@ trait CompNode:
       cases: List[(BooleanNode, CompNode)],
   ): CompNode =
     if (!itemsHaveSameRuntimeClass(cases.map(_._2)))
+      val caseTypes = cases.map(_._2.getClass.getSimpleName).distinct.mkString(", ")
       throw new UnsupportedOperationException(
-        "cannot switch between nodes of different types",
+        s"cannot switch between nodes of different types: $caseTypes",
       )
 
     fromExpression(
@@ -48,6 +49,7 @@ object CompNode:
     DollarNode,
     IntNode,
     DaysNode,
+    LegacyDateNode,
     RationalNode,
     DayNode,
     StringNode,
@@ -106,6 +108,12 @@ object CompNode:
     ToUpper,
     TruncateCents,
     TruncateNameForMeF,
+    LegacyMin,
+    LegacyMax,
+    LegacyEquals,
+    LegacySum,
+    LegacyAnd,
+    LegacyOr,
   )
 
   private val factories = mutable.Map(defaultFactories.map(_.asTuple)*)
@@ -179,3 +187,51 @@ object CompNode:
           s"<${e.typeName}> must have at least one <$label>: $e",
         )
       case _ => children.toSeq
+
+private object LegacyMin extends CompNodeFactory:
+  override val Key: String = "Min"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    LesserOf.fromDerivedConfig(e)
+
+private object LegacyMax extends CompNodeFactory:
+  override val Key: String = "Max"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    GreaterOf.fromDerivedConfig(e)
+
+private object LegacyEquals extends CompNodeFactory:
+  override val Key: String = "Equals"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    Equal.fromDerivedConfig(e)
+
+private object LegacySum extends CompNodeFactory:
+  override val Key: String = "Sum"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    Add.fromDerivedConfig(e)
+
+private object LegacyAnd extends CompNodeFactory:
+  override val Key: String = "And"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    All.fromDerivedConfig(e)
+
+private object LegacyOr extends CompNodeFactory:
+  override val Key: String = "Or"
+
+  override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
+      FactDictionary,
+  ): CompNode =
+    Any.fromDerivedConfig(e)

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
@@ -27,23 +27,30 @@ import gov.irs.directfile.models.message.email.payload.SendEmailPayloadV1;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(value = "direct-file.aws.messageQueue.sqs-message-sending-enabled", havingValue = "true")
 @EnableConfigurationProperties(MessageQueueConfigurationProperties.class)
 public class SendEmailQueueService {
     private final SqsClient sqsClient;
     private String sendEmailQueueUrl = "";
     private final String sendEmailQueue;
+    private final boolean sqsMessageSendingEnabled;
     // TODO Consider using the auto-configured ObjectMapper -
     // https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.json.jackson
     private final ObjectMapper mapper = new ObjectMapper();
 
     SendEmailQueueService(
-            SqsClient sqsClient, MessageQueueConfigurationProperties messageQueueConfigurationProperties) {
+            SqsClient sqsClient,
+            MessageQueueConfigurationProperties messageQueueConfigurationProperties,
+            @Value("${direct-file.aws.messageQueue.sqs-message-sending-enabled:true}") boolean sqsMessageSendingEnabled) {
         this.sqsClient = sqsClient;
         this.sendEmailQueue = messageQueueConfigurationProperties.getSendEmailQueue();
+        this.sqsMessageSendingEnabled = sqsMessageSendingEnabled;
     }
 
     public void enqueue(Map<HtmlTemplate, List<SendEmailQueueMessageBody>> emailSqsMessages) {
+        if (!sqsMessageSendingEnabled) {
+            log.info("Send email queue is disabled; skipping {} email template batches", emailSqsMessages.size());
+            return;
+        }
         try {
             AbstractSendEmailPayload payload = new SendEmailPayloadV1(emailSqsMessages);
             VersionedSendEmailMessage<AbstractSendEmailPayload> queueMessage = new VersionedSendEmailMessage<>(

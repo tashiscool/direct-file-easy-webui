@@ -13,11 +13,11 @@
         <Any>
           <Equals>
             <Left><Dependency module="form1120" path="/entityType" /></Left>
-            <Right><Enum>estate</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">estate</Enum></Right>
           </Equals>
           <Equals>
             <Left><Dependency module="form1120" path="/entityType" /></Left>
-            <Right><Enum>trust</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">trust</Enum></Right>
           </Equals>
         </Any>
       </Derived>
@@ -357,6 +357,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/adjustedTotalIncome">
+      <Name>Adjusted Total Income</Name>
+      <Description>Legacy compatibility alias for fiduciary adjusted total income.</Description>
+      <Derived>
+        <Dependency path="/fiduciaryAdjustedTotalIncome" />
+      </Derived>
+    </Fact>
+
     <!-- ============================================ -->
     <!-- INCOME DISTRIBUTION DEDUCTION (DNI)         -->
     <!-- ============================================ -->
@@ -442,7 +450,7 @@
             <When>
               <Equals>
                 <Left><Dependency path="/fiduciaryEntityType" /></Left>
-                <Right><Enum>decedentEstate</Enum></Right>
+                <Right><Enum optionsPath="/__enumOptions/fiduciaryEntityType">decedentEstate</Enum></Right>
               </Equals>
             </When>
             <Then>
@@ -453,7 +461,7 @@
             <When>
               <Equals>
                 <Left><Dependency path="/fiduciaryEntityType" /></Left>
-                <Right><Enum>simpleTrust</Enum></Right>
+                <Right><Enum optionsPath="/__enumOptions/fiduciaryEntityType">simpleTrust</Enum></Right>
               </Equals>
             </When>
             <Then>
@@ -464,7 +472,7 @@
             <When>
               <Equals>
                 <Left><Dependency path="/fiduciaryEntityType" /></Left>
-                <Right><Enum>qualifiedDisabilityTrust</Enum></Right>
+                <Right><Enum optionsPath="/__enumOptions/fiduciaryEntityType">qualifiedDisabilityTrust</Enum></Right>
               </Equals>
             </When>
             <Then>
@@ -680,6 +688,14 @@
             <Dependency path="/fiduciaryTaxAt37" />
           </Add>
         </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxBeforeCredits1041">
+      <Name>Tax Before Credits 1041</Name>
+      <Description>Legacy compatibility alias for fiduciary tax before credits.</Description>
+      <Derived>
+        <Dependency path="/fiduciaryTaxBeforeCredits" />
       </Derived>
     </Fact>
 

@@ -52,6 +52,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/totalTaxableInterest">
+      <Name>Total Taxable Interest</Name>
+      <Description>Legacy compatibility alias for total taxable interest.</Description>
+      <Derived>
+        <Dependency path="/interestIncome" />
+      </Derived>
+    </Fact>
+
     <Fact path="/netInvestmentIncomeThresholdForMfs">
       <Name>Net investment income threshold for MFS filing status</Name>
       <Description>The max income before someone is eligible to pay net investment income tax</Description>

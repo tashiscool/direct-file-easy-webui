@@ -193,8 +193,12 @@
       <Description>Taxable income less net capital gain (Line 15).</Description>
       <Derived>
         <Subtract>
-          <Dependency path="/taxableIncomeBeforeQBI" />
-          <Dependency path="/netCapitalGain" />
+          <Minuend>
+            <Dependency path="/taxableIncomeBeforeQBI" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/netCapitalGain" />
+          </Subtrahends>
         </Subtract>
       </Derived>
     </Fact>

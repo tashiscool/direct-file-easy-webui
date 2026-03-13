@@ -344,15 +344,28 @@
       <Description>Total SE tax (Line 14).</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
-        <Round>
-          <Add>
-            <Add>
-              <Dependency path="/seSocialSecurityTax" />
-              <Dependency path="/seMedicareTax" />
-            </Add>
-            <Dependency path="/seAdditionalMedicareTax" />
-          </Add>
-        </Round>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/importedTotalSETax" /></IsComplete>
+            </When>
+            <Then><Dependency path="/importedTotalSETax" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Round>
+                <Add>
+                  <Add>
+                    <Dependency path="/seSocialSecurityTax" />
+                    <Dependency path="/seMedicareTax" />
+                  </Add>
+                  <Dependency path="/seAdditionalMedicareTax" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -365,14 +378,51 @@
       <Description>Deductible portion of SE tax (50%) (Line 15).</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
-        <Multiply>
-          <Add>
-            <Dependency path="/seSocialSecurityTax" />
-            <Dependency path="/seMedicareTax" />
-          </Add>
-          <Decimal>0.50</Decimal>
-        </Multiply>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/importedDeductibleSETax" /></IsComplete>
+            </When>
+            <Then><Dependency path="/importedDeductibleSETax" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Multiply>
+                <Add>
+                  <Dependency path="/seSocialSecurityTax" />
+                  <Dependency path="/seMedicareTax" />
+                </Add>
+                <Decimal>0.50</Decimal>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
+    </Fact>
+
+    <Fact path="/importedTotalSETax">
+      <Name>Imported Total SE Tax</Name>
+      <Description>Optional imported or externally calculated total self-employment tax.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/importedDeductibleSETax">
+      <Name>Imported Deductible SE Tax</Name>
+      <Description>Optional imported or externally calculated deductible self-employment tax.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
     </Fact>
 
     <!-- ============================================ -->

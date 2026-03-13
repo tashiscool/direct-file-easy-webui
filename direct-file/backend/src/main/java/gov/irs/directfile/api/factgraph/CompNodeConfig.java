@@ -2,6 +2,8 @@ package gov.irs.directfile.api.factgraph;
 
 import scala.collection.Iterable;
 import scala.jdk.CollectionConverters;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class CompNodeConfig implements gov.irs.factgraph.definitions.fact.CompNodeConfigTrait {
 
@@ -31,5 +33,13 @@ public class CompNodeConfig implements gov.irs.factgraph.definitions.fact.CompNo
     @Override
     public Iterable<gov.irs.factgraph.definitions.fact.OptionConfigTrait> options() {
         return CollectionConverters.IterableHasAsScala(options).asScala().toSeq();
+    }
+
+    @Override
+    public String toString() {
+        String childTypes = StreamSupport.stream(children.spliterator(), false)
+                .map(gov.irs.factgraph.definitions.fact.CompNodeConfigTrait::typeName)
+                .collect(Collectors.joining(", "));
+        return "CompNodeConfig{typeName='" + typeName + "', childTypes=[" + childTypes + "]}";
     }
 }

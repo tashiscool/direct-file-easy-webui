@@ -1,6 +1,11 @@
 <?xml-model href="./FactDictionaryModule.rng"?>
 <FactDictionaryModule>
   <Facts>
+    <Fact path="/atsLine8OfSchedule3Override">
+      <Description>ATS-only override for aggregate Schedule 3 nonrefundable credits when detailed form inputs are unavailable.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
     <Fact path="/hasSchedule3">
       <Description>Some actual logic for when sched 3 is required goes here</Description>
       <Export mef="true" />
@@ -111,14 +116,33 @@
       <Description>Line 8 of schedule 3 (non-refundable credits) for line 20 of form 1040</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
-        <Add>
-          <Dependency path="/sched3Line1" /> <!-- PLACEHOLDER -->
-          <Dependency module="cdcc" path="/cdccTotalCredit" />
-          <Dependency path="/sched3Line3" /> <!-- PLACEHOLDER -->
-          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
-          <Dependency path="/sched3Line5b" /> <!-- PLACEHOLDER -->
-          <Dependency path="/totalOtherNonrefundableCredits" />
-        </Add>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsLine8OfSchedule3Override" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsLine8OfSchedule3Override" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/sched3Line1" /> <!-- PLACEHOLDER -->
+                <Dependency module="cdcc" path="/cdccTotalCredit" />
+                <Dependency path="/sched3Line3" /> <!-- PLACEHOLDER -->
+                <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+                <Dependency path="/sched3Line5b" /> <!-- PLACEHOLDER -->
+                <Dependency path="/totalOtherNonrefundableCredits" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

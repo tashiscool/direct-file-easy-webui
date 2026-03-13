@@ -122,9 +122,9 @@
       <Description>Percentage of credit after phaseout.</Description>
       <Derived>
         <Max>
-          <Decimal>0</Decimal>
+          <Dollar>0</Dollar>
           <Subtract>
-            <Decimal>1</Decimal>
+            <Dollar>1</Dollar>
             <Divide>
               <Max>
                 <Dollar>0</Dollar>

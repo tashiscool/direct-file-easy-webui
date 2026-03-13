@@ -89,6 +89,33 @@ class LesserOfSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(Dollar("1.23")))
     }
 
+    it("supports the legacy Min alias") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Min",
+          Seq(
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("4")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("1")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("2")
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(1))
+    }
+
     it("finds the minimum of a set of days") {
       val node = CompNode.fromDerivedConfig(
         new CompNodeConfigElement(

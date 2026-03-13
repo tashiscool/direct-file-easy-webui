@@ -32,11 +32,11 @@
         <Any>
           <Equals>
             <Left><Dependency path="/entityType" /></Left>
-            <Right><Enum>cCorporation</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">cCorporation</Enum></Right>
           </Equals>
           <Equals>
             <Left><Dependency path="/entityType" /></Left>
-            <Right><Enum>llcCorporation</Enum></Right>
+            <Right><Enum optionsPath="/__enumOptions/entityType">llcCorporation</Enum></Right>
           </Equals>
         </Any>
       </Derived>

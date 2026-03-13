@@ -95,16 +95,16 @@
     "standardDeduction": 31500.00,
     "totalDeductions": 31500.00,
     "taxableIncome": 278500.00,
-    "taxFromTaxTable": 54819.00,
+    "taxFromTaxTable": 52534.00,
     "schedule2AdditionalTax": 2015.00,
-    "totalTaxBeforeCredits": 56834.00,
+    "totalTaxBeforeCredits": 54549.00,
     "schedule3Credits": 1000.00,
     "totalCredits": 1000.00,
-    "taxAfterCredits": 55834.00,
-    "totalTax": 55834.00,
+    "taxAfterCredits": 53549.00,
+    "totalTax": 53549.00,
     "federalWithholding": 56400.00,
     "totalPayments": 56400.00,
-    "refund": 566.00,
+    "refund": 2851.00,
     "amountOwed": 0.00
   }
 }

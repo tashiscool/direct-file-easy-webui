@@ -253,7 +253,7 @@
       <Description>Base credit percentage (35%).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Decimal>0.35</Decimal>
+        <Dollar>0.35</Dollar>
       </Derived>
     </Fact>
 
@@ -262,7 +262,7 @@
       <Description>Minimum credit percentage (20%).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Decimal>0.20</Decimal>
+        <Dollar>0.20</Dollar>
       </Derived>
     </Fact>
 
@@ -289,7 +289,7 @@
       <Derived>
         <Multiply>
           <Max>
-            <Int>0</Int>
+            <Dollar>0</Dollar>
             <Divide>
               <Subtract>
                 <Dependency path="/agiForDependentCareCredit" />

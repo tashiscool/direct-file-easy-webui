@@ -447,7 +447,7 @@
                 <Dependency path="/hasForeignTaxes" />
                 <Equals>
                   <Left><Dependency path="/foreignTaxCreditMethod" /></Left>
-                  <Right><Enum>credit</Enum></Right>
+                  <Right><Enum optionsPath="/__enumOptions/foreignTaxCreditMethod">credit</Enum></Right>
                 </Equals>
               </All>
             </When>
@@ -494,7 +494,7 @@
                 <Dependency path="/hasForeignTaxes" />
                 <Equals>
                   <Left><Dependency path="/foreignTaxCreditMethod" /></Left>
-                  <Right><Enum>deduction</Enum></Right>
+                  <Right><Enum optionsPath="/__enumOptions/foreignTaxCreditMethod">deduction</Enum></Right>
                 </Equals>
               </All>
             </When>

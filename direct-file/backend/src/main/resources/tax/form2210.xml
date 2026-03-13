@@ -27,8 +27,8 @@
       <Description>Withholding and estimated tax payments (Line 2).</Description>
       <Derived>
         <Add>
-          <Dependency module="formW2s" path="/totalFederalWithheld" />
-          <Dependency module="estimatedPayments" path="/totalEstimatedPayments" />
+          <Dependency module="formW2s" path="/formW2Withholding" />
+          <Dependency module="estimatedPayments" path="/estimatedAndFromLastYear" />
         </Add>
       </Derived>
     </Fact>

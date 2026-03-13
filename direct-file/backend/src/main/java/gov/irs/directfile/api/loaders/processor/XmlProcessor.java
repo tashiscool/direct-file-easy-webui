@@ -48,6 +48,7 @@ public class XmlProcessor {
     private static final String LIMIT_TYPE_ATTRIBUTE_NAME = "type";
     private static final String LIMIT_LEVEL_ATTRIBUTE_NAME = "level";
     private static final String TEXT_NODE_VALUE_NAME = "value";
+    private static final String INLINE_ENUM_VALUES_OPTION_NAME = "values";
     private static final String COLLECTION_ATTRIBUTE_NAME = "collection";
     private static final String BLOCK_SUBMISSION_ON_TRUE_ELEMENT_NAME = "BlockSubmissionOnTrue";
     private static final String FACT_EXPORT_CHILD_NAME = "Export";
@@ -153,12 +154,14 @@ public class XmlProcessor {
         }
 
         Map<String, String> writableOptions = new HashMap<>(writable.options());
-        if (writableOptions.containsKey("optionsPath") || !writableOptions.containsKey("values")) {
+        if (writableOptions.containsKey("optionsPath")
+                || !writableOptions.containsKey(INLINE_ENUM_VALUES_OPTION_NAME)) {
             facts.add(taxFact);
             return facts;
         }
 
-        List<String> inlineValues = parseInlineEnumValues(writableOptions.remove("values"));
+        List<String> inlineValues =
+                parseInlineEnumValues(writableOptions.remove(INLINE_ENUM_VALUES_OPTION_NAME));
         if (inlineValues.isEmpty()) {
             facts.add(taxFact);
             return facts;
@@ -214,14 +217,21 @@ public class XmlProcessor {
                 writableNodeName = normalizeNodeTypeName(el.getNodeName());
 
                 String textNodeValue = "";
+                List<String> inlineEnumValues = new ArrayList<>();
                 NodeList childNodes = el.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     Node childNode = childNodes.item(i);
                     if (childNode.getNodeType() == Node.TEXT_NODE) {
                         textNodeValue = childNode.getNodeValue();
+                    } else if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                        collectInlineEnumValue((Element) childNode, inlineEnumValues);
                     }
                 }
                 options = convertTextValueAndAttributesToOptionMap(textNodeValue, el.getAttributes());
+                if (!inlineEnumValues.isEmpty()
+                        && !options.containsKey(INLINE_ENUM_VALUES_OPTION_NAME)) {
+                    options.put(INLINE_ENUM_VALUES_OPTION_NAME, String.join(",", inlineEnumValues));
+                }
                 options = normalizeOptionsForNodeType(writableNodeName, options);
 
                 // collection aliases are handled specially:  they are passed as an attribute, but
@@ -444,6 +454,25 @@ public class XmlProcessor {
         }
         normalizedPath = normalizedPath.replace('/', '_');
         return "/__enumOptions/" + normalizedPath;
+    }
+
+    private void collectInlineEnumValue(Element optionElement, List<String> inlineEnumValues) {
+        String nodeName = optionElement.getNodeName();
+        if (!"Option".equals(nodeName) && !"EnumOption".equals(nodeName)) {
+            return;
+        }
+
+        String value = optionElement.getAttribute("value");
+        if (value == null || value.isBlank()) {
+            value = optionElement.getTextContent();
+        }
+
+        if (value != null) {
+            String normalized = value.strip();
+            if (!normalized.isEmpty()) {
+                inlineEnumValues.add(normalized);
+            }
+        }
     }
 
     private Element getDirectChildElement(Element parent, String name) {

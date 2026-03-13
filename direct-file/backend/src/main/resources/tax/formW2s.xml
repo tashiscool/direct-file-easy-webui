@@ -1366,6 +1366,14 @@
       </Derived>
     </Fact>
 
+    <Fact path="/totalMedicareWages">
+      <Name>Total Medicare Wages</Name>
+      <Description>Legacy compatibility alias for aggregate Medicare wages from Form W-2.</Description>
+      <Derived>
+        <Dependency path="/formW2totalMedicareWages" />
+      </Derived>
+    </Fact>
+
     <Fact path="/primaryFilerMedicareWages">
       <Description>Medicare Wages for the primary filer</Description>
       <Derived>
@@ -6390,6 +6398,26 @@
         <Round>
           <CollectionSum>
             <Dependency path="/formW2s/*/federalWithholding" />
+          </CollectionSum>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalFederalWithheld">
+      <Name>Total Federal Withheld</Name>
+      <Description>Legacy compatibility alias for aggregate federal withholding from Forms W-2.</Description>
+      <Derived>
+        <Dependency path="/formW2Withholding" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalMedicareTaxWithheld">
+      <Name>Total Medicare Tax Withheld</Name>
+      <Description>Aggregate Medicare tax withheld from Forms W-2.</Description>
+      <Derived>
+        <Round>
+          <CollectionSum>
+            <Dependency path="/formW2s/*/medicareWithholding" />
           </CollectionSum>
         </Round>
       </Derived>

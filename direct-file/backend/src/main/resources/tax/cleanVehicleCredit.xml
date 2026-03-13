@@ -149,15 +149,15 @@
               <Any>
                 <Equals>
                   <Left><Dependency path="/newVehicleType" /></Left>
-                  <Right><Enum>van</Enum></Right>
+                  <Right><Enum optionsPath="/__enumOptions/newVehicleType">van</Enum></Right>
                 </Equals>
                 <Equals>
                   <Left><Dependency path="/newVehicleType" /></Left>
-                  <Right><Enum>suv</Enum></Right>
+                  <Right><Enum optionsPath="/__enumOptions/newVehicleType">suv</Enum></Right>
                 </Equals>
                 <Equals>
                   <Left><Dependency path="/newVehicleType" /></Left>
-                  <Right><Enum>pickup</Enum></Right>
+                  <Right><Enum optionsPath="/__enumOptions/newVehicleType">pickup</Enum></Right>
                 </Equals>
               </Any>
             </When>

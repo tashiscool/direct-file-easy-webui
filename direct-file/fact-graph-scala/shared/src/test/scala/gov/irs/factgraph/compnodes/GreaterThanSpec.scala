@@ -103,6 +103,28 @@ class GreaterThanSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(false))
     }
 
+    it("supports legacy flat-child syntax") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "GreaterThan",
+          Seq(
+            new CompNodeConfigElement(
+              "Dollar",
+              Seq.empty,
+              CommonOptionConfigTraits.value("2.00")
+            ),
+            new CompNodeConfigElement(
+              "Dollar",
+              Seq.empty,
+              CommonOptionConfigTraits.value("1.00")
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(true))
+    }
+
     it("compares days") {
       val node = CompNode.fromDerivedConfig(
         new CompNodeConfigElement(

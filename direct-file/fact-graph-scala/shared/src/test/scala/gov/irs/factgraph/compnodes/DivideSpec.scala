@@ -85,6 +85,70 @@ class DivideSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(Dollar("17.83")))
     }
 
+    it("supports legacy flat-child division configs") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Divide",
+          Seq(
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("12")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("3")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("2")
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(Rational("2/1")))
+    }
+
+    it("supports Minuend/Denominator division configs") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Divide",
+          Seq(
+            new CompNodeConfigElement(
+              "Minuend",
+              Seq(
+                new CompNodeConfigElement(
+                  "Int",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("12")
+                )
+              )
+            ),
+            new CompNodeConfigElement(
+              "Denominator",
+              Seq(
+                new CompNodeConfigElement(
+                  "Int",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("3")
+                ),
+                new CompNodeConfigElement(
+                  "Int",
+                  Seq.empty,
+                  CommonOptionConfigTraits.value("2")
+                )
+              )
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(Rational("2/1")))
+    }
+
     it("divides a long sequence of mixed types") {
       val node = CompNode.fromDerivedConfig(
         new CompNodeConfigElement(

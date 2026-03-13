@@ -1,5 +1,19 @@
 package gov.irs.directfile.api.util.base;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.sql.DataSource;
+
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +40,12 @@ public abstract class BaseIntegrationTest extends BaseControllerTest {
     @Autowired
     public TestDataFactory testDataFactory;
 
+    @Autowired
+    public DataSource dataSource;
+
     @BeforeEach
     void createUsers() {
+        ensureSchemaReady();
         for (SecurityTestConfiguration.TestUserProperties testUserProperties :
                 SecurityTestConfiguration.testUserMap.values()) {
             User user = testDataFactory.createUserFromTestUser(testUserProperties);
@@ -39,5 +57,35 @@ public abstract class BaseIntegrationTest extends BaseControllerTest {
     public void resetDb() {
         userRepository.deleteAll();
         taxReturnRepository.deleteAll();
+    }
+
+    private void ensureSchemaReady() {
+        try (Connection connection = dataSource.getConnection()) {
+            if (tableExists(connection.getMetaData(), "users")) {
+                return;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Unable to inspect test database metadata", e);
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            Database database =
+                    DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
+            Liquibase liquibase = new Liquibase("db/changelog.yaml", new ClassLoaderResourceAccessor(), database);
+            liquibase.update(new Contexts(), new LabelExpression());
+        } catch (SQLException | LiquibaseException e) {
+            throw new IllegalStateException("Unable to initialize test database schema", e);
+        }
+    }
+
+    private boolean tableExists(DatabaseMetaData metadata, String tableName) throws SQLException {
+        try (ResultSet tables = metadata.getTables(null, null, tableName, null)) {
+            if (tables.next()) {
+                return true;
+            }
+        }
+        try (ResultSet tables = metadata.getTables(null, null, tableName.toUpperCase(), null)) {
+            return tables.next();
+        }
     }
 }

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - preConditions:
+      onFail: HALT
+      onError: HALT
+  - changeSet:
+      id: add-submission-type-column-to-taxreturn-submissions
+      author: codex
+      comment: add submission_type required by TaxReturnSubmission entity for test and runtime parity
+      changes:
+        - addColumn:
+            tableName: taxreturn_submissions
+            columns:
+              - column:
+                  name: submission_type
+                  type: VARCHAR(255)
+                  defaultValue: ONLINE_FILER
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropColumn:
+            tableName: taxreturn_submissions
+            columnName: submission_type

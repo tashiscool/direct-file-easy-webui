@@ -88,6 +88,33 @@ class GreaterOfSpec extends AnyFunSpec:
       assert(node.get(0) == Result.Complete(Dollar("7.89")))
     }
 
+    it("supports the legacy Max alias") {
+      val node = CompNode.fromDerivedConfig(
+        new CompNodeConfigElement(
+          "Max",
+          Seq(
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("1")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("4")
+            ),
+            new CompNodeConfigElement(
+              "Int",
+              Seq.empty,
+              CommonOptionConfigTraits.value("2")
+            )
+          )
+        )
+      )
+
+      assert(node.get(0) == Result.Complete(4))
+    }
+
     it("finds the maximum of a set of days") {
       val node = CompNode.fromDerivedConfig(
         new CompNodeConfigElement(

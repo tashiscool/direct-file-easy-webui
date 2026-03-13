@@ -21,3 +21,11 @@ aws:
     message-use-limit: 10
     max-age-seconds: 10
     max-items: 10
+
+direct-file:
+  aws:
+    messageQueue:
+      sqs-message-handling-enabled: false
+      sqs-message-sending-enabled: false
+    sns:
+      submission-confirmation-publish-enabled: false

@@ -257,5 +257,13 @@
         </Round>
       </Derived>
     </Fact>
+
+    <Fact path="/totalEstimatedPayments">
+      <Name>Total Estimated Payments</Name>
+      <Description>Legacy compatibility alias for estimated payments and prior-year credit applied.</Description>
+      <Derived>
+        <Dependency path="/estimatedAndFromLastYear" />
+      </Derived>
+    </Fact>
   </Facts>
 </FactDictionaryModule>

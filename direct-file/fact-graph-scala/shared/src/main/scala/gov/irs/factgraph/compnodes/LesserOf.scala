@@ -13,8 +13,9 @@ object LesserOf extends CompNodeFactory:
 
   def apply(nodes: Seq[CompNode]): CompNode =
     if (!itemsHaveSameRuntimeClass(nodes))
+      val nodeTypes = nodes.map(_.getClass.getSimpleName).distinct.mkString(", ")
       throw new UnsupportedOperationException(
-        s"cannot compare nodes of different classes",
+        s"cannot compare nodes of different classes: $nodeTypes",
       )
 
     nodes.head match
@@ -54,7 +55,12 @@ object LesserOf extends CompNodeFactory:
   override def fromDerivedConfig(e: CompNodeConfigTrait)(using Factual)(using
       FactDictionary,
   ): CompNode =
-    this(CompNode.getConfigChildNodes(e))
+    try {
+      this(CompNode.getConfigChildNodes(e))
+    } catch {
+      case exc: UnsupportedOperationException =>
+        throw new UnsupportedOperationException(s"${exc.getMessage}: $e", exc)
+    }
 
 private final class LesserOfOperator[A: Ordering] extends ReduceOperator[A]:
   override protected def reduce(x: A, y: A): A =
