@@ -18,8 +18,10 @@
           </All>
           <!-- From Schedule E -->
           <All>
-            <Dependency module="scheduleE" path="/hasRentalIncome" />
-            <Dependency module="scheduleE" path="/rentalHasProfit" />
+            <GreaterThan>
+              <Left><Dependency module="scheduleE" path="/scheduleEQualifiedBusinessIncome" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
           </All>
           <!-- Direct QBI entry -->
           <GreaterThan>
@@ -308,13 +310,13 @@
             <Switch>
               <Case>
                 <When>
-                  <All>
-                    <Dependency module="scheduleE" path="/hasRentalIncome" />
-                    <Dependency module="scheduleE" path="/rentalHasProfit" />
-                  </All>
+                  <GreaterThan>
+                    <Left><Dependency module="scheduleE" path="/scheduleEQualifiedBusinessIncome" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
                 </When>
                 <Then>
-                  <Dependency module="scheduleE" path="/scheduleETotalIncomeLoss" />
+                  <Dependency module="scheduleE" path="/scheduleEQualifiedBusinessIncome" />
                 </Then>
               </Case>
               <Case>

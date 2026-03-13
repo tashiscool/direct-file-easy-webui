@@ -645,6 +645,122 @@
     </Fact>
 
     <!-- ============================================ -->
+    <!-- SCHEDULE E PAGE 2 / PASS-THROUGH INCOME     -->
+    <!-- ============================================ -->
+
+    <Fact path="/hasScheduleEPage2Activity">
+      <Name>Has Schedule E Page 2 Activity</Name>
+      <Description>Whether the return includes partnership, S corporation, estate, trust, REMIC, or farm-rental Schedule E activity.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipScheduleEIncome">
+      <Name>Partnership Schedule E Income</Name>
+      <Description>Schedule E page-2 income or loss from partnerships, including guaranteed payments and ordinary K-1 amounts that flow through Schedule E.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/partnershipQualifiedBusinessIncome">
+      <Name>Partnership Qualified Business Income</Name>
+      <Description>Qualified business income component from partnership K-1 activity for QBI purposes.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorporationScheduleEIncome">
+      <Name>S Corporation Schedule E Income</Name>
+      <Description>Schedule E page-2 income or loss from S corporation K-1 activity.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/sCorporationQualifiedBusinessIncome">
+      <Name>S Corporation Qualified Business Income</Name>
+      <Description>Qualified business income component from S corporation K-1 activity for QBI purposes.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/estateTrustScheduleEIncome">
+      <Name>Estate or Trust Schedule E Income</Name>
+      <Description>Schedule E page-2 income or loss from estates and trusts.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/remicScheduleEIncome">
+      <Name>REMIC Schedule E Income</Name>
+      <Description>Schedule E page-2 income or loss from REMIC residual interests.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/farmRentalScheduleEIncome">
+      <Name>Farm Rental Schedule E Income</Name>
+      <Description>Schedule E page-2 farm-rental income or loss from Form 4835 style activity.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleEPage1IncomeLoss">
+      <Name>Schedule E Page 1 Income or Loss</Name>
+      <Description>Net Schedule E page-1 rental and royalty income or loss after passive loss adjustments.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Subtract>
+          <Dependency path="/deductibleRentalLoss" />
+          <Dependency path="/priorLossUsedThisYear" />
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleEPage2IncomeLoss">
+      <Name>Schedule E Page 2 Income or Loss</Name>
+      <Description>Combined Schedule E page-2 income or loss from pass-through and similar activities.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/partnershipScheduleEIncome" />
+              <Dependency path="/sCorporationScheduleEIncome" />
+            </Add>
+            <Add>
+              <Dependency path="/estateTrustScheduleEIncome" />
+              <Dependency path="/remicScheduleEIncome" />
+            </Add>
+          </Add>
+          <Dependency path="/farmRentalScheduleEIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleEQualifiedBusinessIncome">
+      <Name>Schedule E Qualified Business Income</Name>
+      <Description>Qualified business income component from Schedule E activities for QBI purposes.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Add>
+          <Add>
+            <Dependency path="/scheduleEPage1IncomeLoss" />
+            <Dependency path="/partnershipQualifiedBusinessIncome" />
+          </Add>
+          <Dependency path="/sCorporationQualifiedBusinessIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
     <!-- SCHEDULE E TOTALS                           -->
     <!-- ============================================ -->
 
@@ -654,10 +770,10 @@
       <Export mef="true" downstreamFacts="true" />
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Subtract>
-          <Dependency path="/deductibleRentalLoss" />
-          <Dependency path="/priorLossUsedThisYear" />
-        </Subtract>
+        <Add>
+          <Dependency path="/scheduleEPage1IncomeLoss" />
+          <Dependency path="/scheduleEPage2IncomeLoss" />
+        </Add>
       </Derived>
     </Fact>
 
@@ -670,15 +786,17 @@
       <Description>Whether Schedule E section is complete.</Description>
       <Derived>
         <Any>
-          <!-- No rental income -->
-          <Not>
-            <Dependency path="/hasRentalIncome" />
-          </Not>
-          <!-- Has rental and basic info complete -->
           <All>
-            <Dependency path="/hasRentalIncome" />
+            <Not><Dependency path="/hasRentalIncome" /></Not>
+            <Not><Dependency path="/hasScheduleEPage2Activity" /></Not>
+          </All>
+          <All>
+            <Any>
+              <Dependency path="/hasRentalIncome" />
+              <Dependency path="/hasScheduleEPage2Activity" />
+            </Any>
             <IsComplete>
-              <Dependency path="/rentalIncomeReceived" />
+              <Dependency path="/scheduleETotalIncomeLoss" />
             </IsComplete>
           </All>
         </Any>
@@ -690,7 +808,10 @@
       <Description>Whether to include Schedule E in the tax return PDF.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dependency path="/hasRentalIncome" />
+        <Any>
+          <Dependency path="/hasRentalIncome" />
+          <Dependency path="/hasScheduleEPage2Activity" />
+        </Any>
       </Derived>
     </Fact>
   </Facts>

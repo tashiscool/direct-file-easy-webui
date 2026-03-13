@@ -162,12 +162,43 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-28-taylor-qbi.json");
         Graph graph = factGraphService.getGraph(facts);
 
+        assertThat(getFactAsBigDecimal(graph, "/totalQBI"))
+            .isEqualByComparingTo(new BigDecimal("113000.00"));
         assertThat(getFactAsBigDecimal(graph, "/qbiDeduction"))
             .isEqualByComparingTo(new BigDecimal("17854.00"));
         assertThat(getFactAsBigDecimal(graph, "/totalDeductions"))
             .isEqualByComparingTo(new BigDecimal("33604.00"));
         assertThat(getFactAsBigDecimal(graph, "/taxableIncome"))
             .isEqualByComparingTo(new BigDecimal("71415.00"));
+    }
+
+    @Test
+    @DisplayName("Detailed Form 8995-A aggregates multi-business QBI, wages, and UBIA inputs")
+    void testForm8995AAggregatesDetailedBusinessInputs() throws IOException {
+        ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
+        Map<String, Object> form8995Qbi = new HashMap<>();
+        form8995Qbi.put("businesses", List.of(
+            qbiBusiness("Alpha Advisory", "210000", "60000", "100000", false),
+            qbiBusiness("Beta Logistics", "90000", "20000", "50000", false)
+        ));
+        scenario.setForm8995QBI(form8995Qbi);
+
+        Map<String, FactTypeWithItem> facts = new HashMap<>(converter.convert(scenario));
+        distributeTotalWagesAcrossW2s(facts, new BigDecimal("300000"));
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/directQBI"))
+            .isEqualByComparingTo(new BigDecimal("300000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/w2WagesPaid"))
+            .isEqualByComparingTo(new BigDecimal("80000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/qualifiedPropertyBasis"))
+            .isEqualByComparingTo(new BigDecimal("150000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/qbi8995A"))
+            .isEqualByComparingTo(new BigDecimal("300000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/qbiComponentAfter8995A"))
+            .isEqualByComparingTo(new BigDecimal("40000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/qbiDeduction"))
+            .isEqualByComparingTo(new BigDecimal("40000.00"));
     }
 
     @Test
@@ -287,6 +318,44 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("697.00"));
     }
 
+    @Test
+    @DisplayName("Schedule E derives page 2 partnership totals without pulling in portfolio-only K-1 items")
+    void testScheduleEPage2PartnershipDerivation() throws IOException {
+        Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-29-white-k1.json");
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBoolean(graph, "/hasRentalIncome")).isFalse();
+        assertThat(getFactAsBoolean(graph, "/hasScheduleEPage2Activity")).isTrue();
+        assertThat(getFactAsBigDecimal(graph, "/partnershipScheduleEIncome"))
+            .isEqualByComparingTo(new BigDecimal("145000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/scheduleEPage2IncomeLoss"))
+            .isEqualByComparingTo(new BigDecimal("145000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/scheduleETotalIncomeLoss"))
+            .isEqualByComparingTo(new BigDecimal("145000.00"));
+    }
+
+    @Test
+    @DisplayName("Form 1040-NR uses explicit Schedule E partnership amounts as ECI")
+    void testForm1040NrPartnershipIncomeFallsBackFromScheduleE() throws IOException {
+        ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-nr2-desilva.json");
+        Map<String, Object> partnershipIncome = new HashMap<>();
+        partnershipIncome.put("ordinaryIncome", new BigDecimal("30000"));
+        partnershipIncome.put("guaranteedPayments", new BigDecimal("15000"));
+        Map<String, Object> scheduleE = new HashMap<>();
+        scheduleE.put("partnershipIncome", partnershipIncome);
+        scenario.setScheduleE(scheduleE);
+
+        Map<String, FactTypeWithItem> facts = new HashMap<>(converter.convert(scenario));
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/partnershipIncomeECI"))
+            .isEqualByComparingTo(new BigDecimal("45000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalECI"))
+            .isEqualByComparingTo(new BigDecimal("45000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalTaxNR"))
+            .isEqualByComparingTo(new BigDecimal("5162.00"));
+    }
+
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
         return new HashMap<>(converter.convert(scenario));
@@ -337,6 +406,22 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         enumNode.set("value", valueArray);
         enumNode.put("enumOptionsPath", "/filingStatusOptions");
         return new FactTypeWithItem(ENUM_WRAPPER, enumNode);
+    }
+
+    private Map<String, Object> qbiBusiness(
+        String businessName,
+        String qbi,
+        String w2Wages,
+        String ubia,
+        boolean isSstb
+    ) {
+        Map<String, Object> business = new HashMap<>();
+        business.put("businessName", businessName);
+        business.put("qualifiedBusinessIncome", new BigDecimal(qbi));
+        business.put("w2Wages", new BigDecimal(w2Wages));
+        business.put("ubia", new BigDecimal(ubia));
+        business.put("isSpecifiedServiceBusiness", isSstb);
+        return business;
     }
 
     private Boolean getFactAsBoolean(Graph graph, String path) {

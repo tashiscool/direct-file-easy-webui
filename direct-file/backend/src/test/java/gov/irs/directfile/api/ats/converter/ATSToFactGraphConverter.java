@@ -310,9 +310,10 @@ public class ATSToFactGraphConverter {
         BigDecimal rentalIncomeEci = defaultZero(
             scenario.getExpectedValues() != null ? scenario.getExpectedValues().getRentalIncome() : null
         );
-        BigDecimal partnershipIncomeEci = defaultZero(
+        BigDecimal partnershipIncomeEci = defaultZero(nonZeroOrNull(
+            scheduleEPartnershipScheduleAmount(nestedMap(scenario.getScheduleE())),
             scenario.getExpectedValues() != null ? scenario.getExpectedValues().getPartnershipIncome() : null
-        );
+        ));
         BigDecimal businessIncomeEci = nonresidentBusinessIncomeFallback(
             scenario,
             wagesEci,
@@ -806,7 +807,10 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/isSSTB", booleanWrapper(false));
         facts.putIfAbsent("/w2WagesPaid", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/qualifiedPropertyBasis", createDollarWrapper(BigDecimal.ZERO));
-        facts.putIfAbsent("/hasQualifiedBusinessIncome", booleanWrapper(false));
+        facts.putIfAbsent("/qbi8995A", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/w2Wages8995A", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/ubia8995A", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/isSSTB8995A", booleanWrapper(false));
         facts.putIfAbsent("/tradeOrBusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/tradeOrBusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/tradeOrBusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
@@ -821,13 +825,101 @@ public class ATSToFactGraphConverter {
             return;
         }
 
-        BigDecimal qbiAmount = defaultZero(decimalValue(form8995Qbi.get("qualifiedBusinessIncome")));
-        facts.put("/directQBI", createDollarWrapper(qbiAmount));
-        facts.put("/tradeOrBusiness1QBI", createDollarWrapper(qbiAmount));
-        facts.put("/hasQualifiedBusinessIncome", booleanWrapper(qbiAmount.compareTo(BigDecimal.ZERO) > 0));
-        facts.put("/isSSTB", booleanWrapper(booleanValue(form8995Qbi.get("isSpecifiedServiceBusiness"))));
-        facts.put("/qualifiedPropertyBasis",
-            createDollarWrapper(defaultZero(decimalValue(form8995Qbi.get("ubia")))));
+        List<Map<String, Object>> qbiBusinesses = listOfMaps(
+            firstNonNull(
+                form8995Qbi.get("businesses"),
+                form8995Qbi.get("tradesOrBusinesses"),
+                form8995Qbi.get("qualifiedBusinesses")
+            )
+        );
+
+        BigDecimal directQbi = BigDecimal.ZERO;
+        BigDecimal totalW2Wages = BigDecimal.ZERO;
+        BigDecimal totalUbia = BigDecimal.ZERO;
+        boolean hasDetailedBusinessInputs = !qbiBusinesses.isEmpty();
+        boolean isSstb = booleanValue(form8995Qbi.get("isSpecifiedServiceBusiness"));
+        String firstBusinessName = null;
+
+        if (hasDetailedBusinessInputs) {
+            for (int i = 0; i < qbiBusinesses.size(); i++) {
+                Map<String, Object> business = qbiBusinesses.get(i);
+                BigDecimal businessQbi = defaultZero(nonZeroOrNull(
+                    decimalValue(business.get("qualifiedBusinessIncome")),
+                    nonZeroOrNull(
+                        decimalValue(business.get("qbi")),
+                        decimalValue(business.get("ordinaryIncome"))
+                    )
+                ));
+                BigDecimal businessW2 = defaultZero(nonZeroOrNull(
+                    decimalValue(business.get("w2Wages")),
+                    nonZeroOrNull(
+                        decimalValue(business.get("w2WagesPaid")),
+                        decimalValue(business.get("wages"))
+                    )
+                ));
+                BigDecimal businessUbia = defaultZero(nonZeroOrNull(
+                    decimalValue(business.get("ubia")),
+                    decimalValue(business.get("qualifiedPropertyBasis"))
+                ));
+
+                directQbi = directQbi.add(businessQbi);
+                totalW2Wages = totalW2Wages.add(businessW2);
+                totalUbia = totalUbia.add(businessUbia);
+                isSstb = isSstb
+                    || booleanValue(business.get("isSpecifiedServiceBusiness"))
+                    || booleanValue(business.get("isSSTB"));
+
+                if (i < 5) {
+                    facts.put("/tradeOrBusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
+                }
+
+                if (firstBusinessName == null) {
+                    firstBusinessName = firstNonBlank(
+                        asString(business.get("businessName"), null),
+                        asString(business.get("name"), null),
+                        asString(business.get("entityName"), null)
+                    );
+                }
+            }
+        } else {
+            BigDecimal qbiAmount = defaultZero(decimalValue(form8995Qbi.get("qualifiedBusinessIncome")));
+            boolean scheduleCAlreadyCarriesQbi = scenario.isHasScheduleC() && scenario.getScheduleC() != null
+                && !scenario.getScheduleC().isEmpty();
+            boolean hasExplicitPassThroughContext = scenario.getScheduleK1() != null && !scenario.getScheduleK1().isEmpty();
+
+            if (!scheduleCAlreadyCarriesQbi || hasExplicitPassThroughContext) {
+                directQbi = qbiAmount;
+                facts.put("/tradeOrBusiness1QBI", createDollarWrapper(qbiAmount));
+            }
+
+            totalW2Wages = defaultZero(nonZeroOrNull(
+                decimalValue(form8995Qbi.get("w2Wages")),
+                decimalValue(form8995Qbi.get("w2WagesPaid"))
+            ));
+            totalUbia = defaultZero(decimalValue(form8995Qbi.get("ubia")));
+            firstBusinessName = firstNonBlank(
+                asString(form8995Qbi.get("businessName"), null),
+                asString(form8995Qbi.get("tradeOrBusinessName"), null)
+            );
+        }
+
+        facts.put("/directQBI", createDollarWrapper(directQbi));
+        facts.put("/isSSTB", booleanWrapper(isSstb));
+        facts.put("/w2WagesPaid", createDollarWrapper(totalW2Wages));
+        facts.put("/qualifiedPropertyBasis", createDollarWrapper(totalUbia));
+        facts.put("/qbi8995A", createDollarWrapper(directQbi));
+        facts.put("/w2Wages8995A", createDollarWrapper(totalW2Wages));
+        facts.put("/ubia8995A", createDollarWrapper(totalUbia));
+        facts.put("/isSSTB8995A", booleanWrapper(isSstb));
+        if (firstBusinessName != null) {
+            if (qbiBusinesses.size() > 1) {
+                facts.put("/businessName8995A",
+                    createStringWrapper(firstBusinessName + " +" + (qbiBusinesses.size() - 1) + " more"));
+            } else {
+                facts.put("/businessName8995A", createStringWrapper(firstBusinessName));
+            }
+        }
+
         facts.put("/reitDividends", createDollarWrapper(defaultZero(nonZeroOrNull(
             decimalValue(form8995Qbi.get("reitDividends")),
             sumField(scenario.getForm1099Div(), "section199ADividends")
@@ -889,12 +981,7 @@ public class ATSToFactGraphConverter {
         Map<String, Object> scheduleE = scenario.getScheduleE();
         List<Map<String, Object>> rentalProperties = new ArrayList<>();
         if (scheduleE != null) {
-            Object nestedRentalProperties = scheduleE.get("rentalProperties");
-            if (nestedRentalProperties instanceof List<?> list) {
-                for (Object item : list) {
-                    rentalProperties.add(nestedMap(item));
-                }
-            }
+            rentalProperties.addAll(listOfMaps(scheduleE.get("rentalProperties")));
         }
         if (rentalProperties.isEmpty() && scenario.getRentalProperties() != null) {
             for (Map<String, Object> property : scenario.getRentalProperties()) {
@@ -912,9 +999,15 @@ public class ATSToFactGraphConverter {
             return;
         }
 
-        facts.put("/hasRentalIncome", booleanWrapper(true));
+        boolean hasRentalPage1Activity = !rentalProperties.isEmpty()
+            || royalties.compareTo(BigDecimal.ZERO) > 0
+            || (scenario.getExpectedValues() != null
+                && defaultZero(scenario.getExpectedValues().getRentalIncome()).compareTo(BigDecimal.ZERO) != 0);
+
+        facts.put("/hasRentalIncome", booleanWrapper(hasRentalPage1Activity));
         facts.putIfAbsent("/activeParticipation", booleanWrapper(false));
         facts.putIfAbsent("/realEstateProfessional", booleanWrapper(false));
+        facts.putIfAbsent("/hasScheduleEPage2Activity", booleanWrapper(false));
         putIfAbsentDollar(facts, "/rentalIncomeReceived", BigDecimal.ZERO);
         putIfAbsentDollar(facts, "/royaltiesReceived", BigDecimal.ZERO);
         putIfAbsentDollar(facts, "/rentalAdvertising", BigDecimal.ZERO);
@@ -933,6 +1026,13 @@ public class ATSToFactGraphConverter {
         putIfAbsentDollar(facts, "/rentalDepreciation", BigDecimal.ZERO);
         putIfAbsentDollar(facts, "/rentalOtherExpenses", BigDecimal.ZERO);
         putIfAbsentDollar(facts, "/priorYearSuspendedPassiveLoss", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/partnershipScheduleEIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/partnershipQualifiedBusinessIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/sCorporationScheduleEIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/sCorporationQualifiedBusinessIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/estateTrustScheduleEIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/remicScheduleEIncome", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/farmRentalScheduleEIncome", BigDecimal.ZERO);
 
         if (!rentalProperties.isEmpty()) {
             Map<String, Object> primaryProperty = rentalProperties.get(0);
@@ -1068,6 +1168,124 @@ public class ATSToFactGraphConverter {
         if (royalties.compareTo(BigDecimal.ZERO) > 0) {
             facts.put("/royaltiesReceived", createDollarWrapper(royalties));
         }
+
+        boolean hasPage2Activity = false;
+        Map<String, Object> partnershipIncome = nestedMap(scheduleE == null ? null : scheduleE.get("partnershipIncome"));
+        BigDecimal partnershipScheduleAmount = scheduleEPartnershipScheduleAmount(scheduleE);
+        if (partnershipScheduleAmount.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/partnershipScheduleEIncome", createDollarWrapper(partnershipScheduleAmount));
+            hasPage2Activity = true;
+        }
+        BigDecimal partnershipQbi = defaultZero(nonZeroOrNull(
+            decimalValue(partnershipIncome.get("qualifiedBusinessIncome")),
+            decimalValue(partnershipIncome.get("qbi"))
+        ));
+        if (partnershipQbi.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/partnershipQualifiedBusinessIncome", createDollarWrapper(partnershipQbi));
+        }
+
+        Map<String, Object> sCorporationIncome = nestedMap(firstNonNull(
+            scheduleE == null ? null : scheduleE.get("sCorporationIncome"),
+            scheduleE == null ? null : scheduleE.get("sCorpIncome")
+        ));
+        BigDecimal sCorporationScheduleAmount = defaultZero(nonZeroOrNull(
+            decimalValue(sCorporationIncome.get("scheduleEIncome")),
+            nonZeroOrNull(
+                decimalValue(sCorporationIncome.get("netIncome")),
+                decimalValue(sCorporationIncome.get("ordinaryIncome"))
+            )
+        ));
+        if (sCorporationScheduleAmount.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/sCorporationScheduleEIncome", createDollarWrapper(sCorporationScheduleAmount));
+            hasPage2Activity = true;
+        }
+        BigDecimal sCorporationQbi = defaultZero(nonZeroOrNull(
+            decimalValue(sCorporationIncome.get("qualifiedBusinessIncome")),
+            decimalValue(sCorporationIncome.get("qbi"))
+        ));
+        if (sCorporationQbi.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/sCorporationQualifiedBusinessIncome", createDollarWrapper(sCorporationQbi));
+        }
+
+        Map<String, Object> estateTrustIncome = nestedMap(firstNonNull(
+            scheduleE == null ? null : scheduleE.get("estateTrustIncome"),
+            scheduleE == null ? null : scheduleE.get("trustIncome")
+        ));
+        BigDecimal estateTrustScheduleAmount = defaultZero(nonZeroOrNull(
+            decimalValue(estateTrustIncome.get("scheduleEIncome")),
+            nonZeroOrNull(
+                decimalValue(estateTrustIncome.get("netIncome")),
+                decimalValue(estateTrustIncome.get("income"))
+            )
+        ));
+        if (estateTrustScheduleAmount.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/estateTrustScheduleEIncome", createDollarWrapper(estateTrustScheduleAmount));
+            hasPage2Activity = true;
+        }
+
+        Map<String, Object> remicIncome = nestedMap(scheduleE == null ? null : scheduleE.get("remicIncome"));
+        BigDecimal remicScheduleAmount = defaultZero(nonZeroOrNull(
+            decimalValue(remicIncome.get("scheduleEIncome")),
+            nonZeroOrNull(
+                decimalValue(remicIncome.get("netIncome")),
+                decimalValue(remicIncome.get("income"))
+            )
+        ));
+        if (remicScheduleAmount.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/remicScheduleEIncome", createDollarWrapper(remicScheduleAmount));
+            hasPage2Activity = true;
+        }
+
+        Map<String, Object> farmRentalIncome = nestedMap(firstNonNull(
+            scheduleE == null ? null : scheduleE.get("farmRentalIncome"),
+            scheduleE == null ? null : scheduleE.get("farmRental")
+        ));
+        BigDecimal farmRentalScheduleAmount = defaultZero(nonZeroOrNull(
+            decimalValue(farmRentalIncome.get("scheduleEIncome")),
+            nonZeroOrNull(
+                decimalValue(farmRentalIncome.get("netIncome")),
+                decimalValue(farmRentalIncome.get("income"))
+            )
+        ));
+        if (farmRentalScheduleAmount.compareTo(BigDecimal.ZERO) != 0) {
+            facts.put("/farmRentalScheduleEIncome", createDollarWrapper(farmRentalScheduleAmount));
+            hasPage2Activity = true;
+        }
+
+        if (hasPage2Activity) {
+            facts.put("/hasScheduleEPage2Activity", booleanWrapper(true));
+        }
+    }
+
+    private BigDecimal scheduleEPartnershipScheduleAmount(Map<String, Object> scheduleE) {
+        if (scheduleE == null || scheduleE.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        Map<String, Object> partnershipIncome = nestedMap(scheduleE.get("partnershipIncome"));
+        BigDecimal explicitScheduleAmount = nonZeroOrNull(
+            decimalValue(partnershipIncome.get("scheduleEIncome")),
+            decimalValue(partnershipIncome.get("partnershipScheduleEIncome"))
+        );
+        if (explicitScheduleAmount != null) {
+            return explicitScheduleAmount;
+        }
+
+        BigDecimal ordinaryIncome = defaultZero(decimalValue(partnershipIncome.get("ordinaryIncome")));
+        BigDecimal guaranteedPayments = defaultZero(decimalValue(partnershipIncome.get("guaranteedPayments")));
+        BigDecimal rentalRealEstate = defaultZero(nonZeroOrNull(
+            decimalValue(partnershipIncome.get("rentalRealEstateIncome")),
+            decimalValue(partnershipIncome.get("netRentalIncome"))
+        ));
+        BigDecimal otherRental = defaultZero(decimalValue(partnershipIncome.get("otherRentalIncome")));
+        BigDecimal royalties = defaultZero(decimalValue(partnershipIncome.get("royalties")));
+        BigDecimal otherIncome = defaultZero(decimalValue(partnershipIncome.get("otherIncome")));
+
+        return ordinaryIncome
+            .add(guaranteedPayments)
+            .add(rentalRealEstate)
+            .add(otherRental)
+            .add(royalties)
+            .add(otherIncome);
     }
 
     private void addCheckboxFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
@@ -1438,6 +1656,19 @@ public class ATSToFactGraphConverter {
         return Collections.emptyMap();
     }
 
+    private List<Map<String, Object>> listOfMaps(Object value) {
+        List<Map<String, Object>> converted = new ArrayList<>();
+        if (value instanceof List<?> list) {
+            for (Object item : list) {
+                Map<String, Object> nested = nestedMap(item);
+                if (!nested.isEmpty()) {
+                    converted.add(nested);
+                }
+            }
+        }
+        return converted;
+    }
+
     private BigDecimal sumField(List<Map<String, Object>> items, String fieldName) {
         BigDecimal total = BigDecimal.ZERO;
         if (items == null) {
@@ -1493,6 +1724,24 @@ public class ATSToFactGraphConverter {
 
     private String asString(Object value, String defaultValue) {
         return value == null ? defaultValue : String.valueOf(value);
+    }
+
+    private Object firstNonNull(Object... values) {
+        for (Object value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private String normalizeRentalPropertyType(String value) {
