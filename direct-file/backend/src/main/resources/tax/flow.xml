@@ -456,6 +456,35 @@
       </Derived>
     </Fact>
 
+    <Fact path="/flowShowAlimonySection">
+      <Description>Whether to show the alimony section in the deductions flow.</Description>
+      <Derived>
+        <Not>
+          <Dependency module="filers" path="/isMFJDependent" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alimonySectionComplete">
+      <Description>Alimony section is complete (either no alimony or amounts entered).</Description>
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency module="income" path="/hasAlimonyToReport" />
+          </Not>
+          <All>
+            <Dependency module="income" path="/hasAlimonyToReport" />
+            <IsComplete>
+              <Dependency module="income" path="/alimonyReceived" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency module="income" path="/alimonyPaid" />
+            </IsComplete>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
     <Fact path="/deductionsSectionComplete">
       <Description>The user has completed the deductions section</Description>
 
@@ -474,6 +503,9 @@
               </IsComplete>
               <IsComplete>
                 <Dependency module="studentLoanAdjustment" path="/studentLoanInterestAdjustmentAmount" />
+              </IsComplete>
+              <IsComplete>
+                <Dependency path="/alimonySectionComplete" />
               </IsComplete>
             </All>
             <!-- MFS dependents are automatically disqualifed from our current adjustments scope and

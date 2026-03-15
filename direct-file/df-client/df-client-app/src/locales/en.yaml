@@ -174,6 +174,7 @@ subsubcategories:
     hsa-deduction: Health Savings Account (HSA) deduction
     educator-expenses-deduction: Educator expense deduction
     student-loan-int-deduction: Student loan interest deduction
+    alimony: Alimony (pre-2019 divorce)
     standard-deduction: Standard deduction
     taxable-income: Taxable income
   /flow/your-taxes/estimated-taxes-paid:
@@ -1557,6 +1558,12 @@ headings:
     Based on your answers, you can deduct <strong>{{/studentLoanInterestAdjustmentAmount}}</strong> of student loan
     interest from your income.
   /heading/credits-and-deductions/student-loan-interest-deduction: Student loan interest deduction
+  /heading/credits-and-deductions/alimony-context: Alimony (pre-2019 divorce)
+  /heading/credits-and-deductions/alimony-intro:
+    Do you have alimony to report from a divorce or separation agreement made before 2019?
+  /heading/credits-and-deductions/alimony-intro-mfj:
+    Do you or {{/secondaryFiler/firstName}} have alimony to report from a divorce or separation agreement made before 2019?
+  /heading/credits-and-deductions/alimony-amounts: Enter your alimony amounts
   /heading/credits-and-deductions/student-loan-interest-not-qualified:
     We also checked to see if you qualify for the student loan interest deduction.
   /heading/credits-and-deductions/student-loan-interest-not-qualified-mfj:
@@ -15811,6 +15818,16 @@ info:
               - p: >-
                   We used the <Link1>Student Loan Interest Deduction Worksheet</Link1> in the Form 1040 Instructions to
                   calculate the deduction for this return.
+  /info/credits-and-deductions/alimony-details:
+    helpText:
+      modals:
+        text: >-
+          <p>Alimony under divorce or separation agreements made <strong>before 2019</strong> is treated differently for tax purposes.
+          If you received alimony, it's taxable income. If you paid alimony, it's deductible. Agreements made in 2019 or later
+          don't have these tax effects.</p>
+  /info/credits-and-deductions/alimony-amounts-details:
+    body:
+      - p: Enter the amounts from your pre-2019 divorce or separation agreement. Alimony received is reported as income; alimony paid is an adjustment to income.
   /info/credits-and-deductions/paid-student-loan-interest-details:
     helpText:
       modals:
@@ -19445,6 +19462,15 @@ fields:
         twoYears: Yes — 2 years
         tenYears: Yes — 10 years
         zeroYears: No, I didn’t get a letter
+  /hasAlimonyToReport:
+    mfj:
+      boolean:
+        "yes": Yes, we have alimony to report from a pre-2019 divorce or separation agreement
+        "no": No, we don’t have alimony to report
+    self:
+      boolean:
+        "yes": Yes, I have alimony to report from a pre-2019 divorce or separation agreement
+        "no": No, I don’t have alimony to report
   /hadStudentLoanInterestPayments:
     mfj:
       boolean:
@@ -19458,6 +19484,10 @@ fields:
     boolean:
       "yes": Yes, one or more of the loans qualify
       "no": No, none of the loans qualify
+  /alimonyReceived:
+    name: Alimony received (income)
+  /alimonyPaid:
+    name: Alimony paid (deduction)
   /studentLoanInterestAmount:
     name: Enter total interest paid on qualified student loans in {{/taxYear}}
   /eitcReceivedImproperClaimsNotice:
@@ -24247,6 +24277,8 @@ dataviews:
         You’ll deduct {{/educatorExpensesAdjustment}} in education expenses from your taxable income.
       /studentLoanInterestAmount:
         You’ll deduct {{/studentLoanInterestAdjustmentAmount}} in student loan interest from your taxable income.
+      /alimony:
+        Alimony received {{/alimonyReceived}} is included in income. Alimony paid {{/alimonyPaid}} is deducted from your taxable income.
       /standardDeduction: You’ll deduct your {{/standardDeduction}} standard deduction from your taxable income.
       /taxableIncome: Your taxable income is {{/taxableIncome}}.
       /hsaDeductionNotQualified: You don’t qualify this year.

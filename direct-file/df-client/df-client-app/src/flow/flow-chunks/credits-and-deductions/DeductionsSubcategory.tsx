@@ -398,6 +398,42 @@ export const DeductionsSubcategory = (
       </Screen>
     </Gate>
 
+    <Gate condition='/flowShowAlimonySection'>
+      <SubSubcategory route='alimony'>
+        <Assertion
+          type='info'
+          i18nKey='dataviews./flow/credits-and-deductions/deductions.assertions./alimony'
+          conditions={[
+            `/flowShowAlimonySection`,
+            { operator: `isComplete`, condition: `/hasAlimonyToReport` },
+          ]}
+        />
+        <Screen route='alimony-intro'>
+          <ContextHeading displayOnlyOn='edit' i18nKey='/heading/credits-and-deductions/alimony-context' />
+          <Heading
+            i18nKey='/heading/credits-and-deductions/alimony-intro'
+            condition={{ operator: `isFalse`, condition: `/isFilingStatusMFJ` }}
+          />
+          <Heading
+            i18nKey='/heading/credits-and-deductions/alimony-intro-mfj'
+            condition='/isFilingStatusMFJ'
+          />
+          <DFModal i18nKey='/info/credits-and-deductions/alimony-details' />
+          <Boolean path='/hasAlimonyToReport' i18nKeySuffixContext='self' condition={{ operator: `isFalse`, condition: `/isFilingStatusMFJ` }} />
+          <Boolean path='/hasAlimonyToReport' i18nKeySuffixContext='mfj' condition='/isFilingStatusMFJ' />
+          <SaveAndOrContinueButton />
+        </Screen>
+        <Screen route='alimony-amounts' condition='/hasAlimonyToReport'>
+          <ContextHeading displayOnlyOn='edit' i18nKey='/heading/credits-and-deductions/alimony-context' />
+          <Heading i18nKey='/heading/credits-and-deductions/alimony-amounts' />
+          <InfoDisplay i18nKey='/info/credits-and-deductions/alimony-amounts-details' />
+          <Dollar path='/alimonyReceived' />
+          <Dollar path='/alimonyPaid' />
+          <SaveAndOrContinueButton />
+        </Screen>
+      </SubSubcategory>
+    </Gate>
+
     <SubSubcategory route='standard-deduction' editable={false}>
       <Screen route='standard-deduction-intro'>
         <IconDisplay name='InfoOutline' size={9} isCentered className='text-primary' />

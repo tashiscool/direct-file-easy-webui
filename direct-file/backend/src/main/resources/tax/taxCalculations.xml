@@ -89,6 +89,16 @@
       </Writable>
     </Fact>
 
+    <!-- Self-employed health insurance deduction for Schedule 1 line 17 (PDF factPath) -->
+    <Fact path="/selfEmployedHealthInsurance">
+      <Name>Self-employed health insurance deduction</Name>
+      <Description>Self-employed health insurance deduction from Schedule C (Schedule 1 line 17).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency module="scheduleC" path="/selfEmployedHealthInsuranceDeduction" />
+      </Derived>
+    </Fact>
+
     <Fact path="/adjustmentsToIncomeExcludingStudentLoanInterestAndSchedule1A">
       <Description>The adjustments to income used in the calculation of non-IRA deduction MAGIs before
         the new Schedule 1-A deductions are applied. This should include the pre-OBBBA
@@ -126,8 +136,10 @@
           <!-- Deductible part of self-employment tax. Attach Schedule SE -->
           <!-- Self-employed SEP, SIMPLE, and qualified plans -->
           <!-- Self-employed health insurance deduction -->
+          <Dependency module="scheduleC" path="/selfEmployedHealthInsuranceDeduction" />
           <!-- Penalty on early withdrawal of savings -->
           <!-- Alimony paid -->
+          <Dependency module="income" path="/alimonyPaid" />
           <!-- IRA deduction -->
           <!-- Archer MSA deduction  -->
           <!-- Total other adjustments -->

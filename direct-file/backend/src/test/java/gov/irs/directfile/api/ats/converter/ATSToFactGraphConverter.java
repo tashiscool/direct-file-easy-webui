@@ -246,8 +246,32 @@ public class ATSToFactGraphConverter {
                 countryOfResidence = taxpayer.getAddress().getCountry();
             }
             putIfPresentString(facts, "/countryOfResidence", countryOfResidence);
+            putIfPresentString(
+                facts,
+                "/countryOfCitizenship",
+                firstNonNull(taxpayer.getCountryOfCitizenship(), countryOfResidence)
+            );
             putIfPresentString(facts, "/visaType", taxpayer.getVisaType());
             putIfPresentInt(facts, "/firstYearInUS", taxpayer.getFirstYearInUS());
+            putIfPresentInt(facts, "/daysInUS", taxpayer.getDaysInUSThisYear());
+            putIfPresentInt(facts, "/daysInUSPriorYear", taxpayer.getDaysInUSPriorYear());
+            putIfPresentInt(facts, "/daysInUSTwoYearsPrior", taxpayer.getDaysInUSTwoYearsPrior());
+            Integer weightedDays = weightedSubstantialPresenceDays(
+                taxpayer.getDaysInUSThisYear(),
+                taxpayer.getDaysInUSPriorYear(),
+                taxpayer.getDaysInUSTwoYearsPrior()
+            );
+            putIfPresentInt(facts, "/substantialPresenceWeightedDays", weightedDays);
+            putIfPresentBoolean(facts, "/appliedForGreenCard", taxpayer.getAppliedForGreenCard());
+            putIfPresentBoolean(facts, "/filedPriorUsReturn", taxpayer.getFiledPriorUsReturn());
+            putIfPresentBoolean(facts, "/compensationOver250kOI", taxpayer.getCompensationOver250k());
+            boolean hasRealPropertyElection =
+                Boolean.TRUE.equals(taxpayer.getRealPropertyElectionFirstYear())
+                    || Boolean.TRUE.equals(taxpayer.getRealPropertyElectionPriorYear());
+            if (taxpayer.getRealPropertyElectionFirstYear() != null
+                || taxpayer.getRealPropertyElectionPriorYear() != null) {
+                facts.put("/hasRealPropertyElection", booleanWrapper(hasRealPropertyElection));
+            }
 
             String treatyCountry = taxpayer.getTreatyCountry();
             if (treatyCountry == null) {
@@ -261,6 +285,7 @@ public class ATSToFactGraphConverter {
             putIfPresentString(facts, "/foreignAddressProvince", foreignAddress.get("province"));
             putIfPresentString(facts, "/foreignAddressPostalCode", foreignAddress.get("postalCode"));
             putIfPresentString(facts, "/foreignAddressCountry", foreignAddress.get("country"));
+            facts.put("/scheduleOIHasForeignAddress", booleanWrapper(!foreignAddress.isEmpty()));
         }
 
         Map<String, Object> treatyBenefits = nestedMap(scenario.getTaxTreatyBenefits());
@@ -811,6 +836,22 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/w2Wages8995A", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/ubia8995A", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/isSSTB8995A", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ATotalBusinesses", createIntWrapper(0));
+        facts.putIfAbsent("/form8995AOverflowBusinesses", createIntWrapper(0));
+        facts.putIfAbsent("/hasForm8995AAttachmentStatement", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ABusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness1W2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness2W2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness3W2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness1UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness2UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness3UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995AOverflowQBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995AOverflowW2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995AOverflowUBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995AOverflowPatronReduction", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/tradeOrBusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/tradeOrBusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/tradeOrBusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
@@ -836,6 +877,10 @@ public class ATSToFactGraphConverter {
         BigDecimal directQbi = BigDecimal.ZERO;
         BigDecimal totalW2Wages = BigDecimal.ZERO;
         BigDecimal totalUbia = BigDecimal.ZERO;
+        BigDecimal overflowQbi = BigDecimal.ZERO;
+        BigDecimal overflowW2Wages = BigDecimal.ZERO;
+        BigDecimal overflowUbia = BigDecimal.ZERO;
+        BigDecimal overflowPatronReduction = BigDecimal.ZERO;
         boolean hasDetailedBusinessInputs = !qbiBusinesses.isEmpty();
         boolean isSstb = booleanValue(form8995Qbi.get("isSpecifiedServiceBusiness"));
         String firstBusinessName = null;
@@ -861,6 +906,15 @@ public class ATSToFactGraphConverter {
                     decimalValue(business.get("ubia")),
                     decimalValue(business.get("qualifiedPropertyBasis"))
                 ));
+                BigDecimal patronReduction = defaultZero(nonZeroOrNull(
+                    decimalValue(business.get("patronReduction")),
+                    decimalValue(business.get("section199APatronReduction"))
+                ));
+                String businessName = firstNonBlank(
+                    asString(business.get("businessName"), null),
+                    asString(business.get("name"), null),
+                    asString(business.get("entityName"), null)
+                );
 
                 directQbi = directQbi.add(businessQbi);
                 totalW2Wages = totalW2Wages.add(businessW2);
@@ -872,13 +926,22 @@ public class ATSToFactGraphConverter {
                 if (i < 5) {
                     facts.put("/tradeOrBusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
                 }
+                if (i < 3) {
+                    facts.put("/form8995ABusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
+                    facts.put("/form8995ABusiness" + (i + 1) + "W2Wages", createDollarWrapper(businessW2));
+                    facts.put("/form8995ABusiness" + (i + 1) + "UBIA", createDollarWrapper(businessUbia));
+                    if (businessName != null) {
+                        facts.put("/form8995ABusiness" + (i + 1) + "Name", createStringWrapper(businessName));
+                    }
+                } else {
+                    overflowQbi = overflowQbi.add(businessQbi);
+                    overflowW2Wages = overflowW2Wages.add(businessW2);
+                    overflowUbia = overflowUbia.add(businessUbia);
+                    overflowPatronReduction = overflowPatronReduction.add(patronReduction);
+                }
 
                 if (firstBusinessName == null) {
-                    firstBusinessName = firstNonBlank(
-                        asString(business.get("businessName"), null),
-                        asString(business.get("name"), null),
-                        asString(business.get("entityName"), null)
-                    );
+                    firstBusinessName = businessName;
                 }
             }
         } else {
@@ -901,6 +964,12 @@ public class ATSToFactGraphConverter {
                 asString(form8995Qbi.get("businessName"), null),
                 asString(form8995Qbi.get("tradeOrBusinessName"), null)
             );
+            if (firstBusinessName != null) {
+                facts.put("/form8995ABusiness1Name", createStringWrapper(firstBusinessName));
+            }
+            facts.put("/form8995ABusiness1QBI", createDollarWrapper(directQbi));
+            facts.put("/form8995ABusiness1W2Wages", createDollarWrapper(totalW2Wages));
+            facts.put("/form8995ABusiness1UBIA", createDollarWrapper(totalUbia));
         }
 
         facts.put("/directQBI", createDollarWrapper(directQbi));
@@ -911,6 +980,14 @@ public class ATSToFactGraphConverter {
         facts.put("/w2Wages8995A", createDollarWrapper(totalW2Wages));
         facts.put("/ubia8995A", createDollarWrapper(totalUbia));
         facts.put("/isSSTB8995A", booleanWrapper(isSstb));
+        facts.put("/form8995ATotalBusinesses", createIntWrapper(Math.max(1, qbiBusinesses.size())));
+        int overflowBusinesses = Math.max(0, qbiBusinesses.size() - 3);
+        facts.put("/form8995AOverflowBusinesses", createIntWrapper(overflowBusinesses));
+        facts.put("/hasForm8995AAttachmentStatement", booleanWrapper(overflowBusinesses > 0));
+        facts.put("/form8995AOverflowQBI", createDollarWrapper(overflowQbi));
+        facts.put("/form8995AOverflowW2Wages", createDollarWrapper(overflowW2Wages));
+        facts.put("/form8995AOverflowUBIA", createDollarWrapper(overflowUbia));
+        facts.put("/form8995AOverflowPatronReduction", createDollarWrapper(overflowPatronReduction));
         if (firstBusinessName != null) {
             if (qbiBusinesses.size() > 1) {
                 facts.put("/businessName8995A",
@@ -1309,6 +1386,7 @@ public class ATSToFactGraphConverter {
         putIfAbsentDollar(facts, "/ordinaryDividends", BigDecimal.ZERO);
         putIfAbsentBoolean(facts, "/hadStudentLoanInterestPayments", false);
         putIfAbsentBoolean(facts, "/studentLoansQualify", false);
+        putIfAbsentBoolean(facts, "/hasAlimonyToReport", false);
         putIfAbsentBoolean(facts, "/hasForeignAccounts", false);
         putIfAbsentBoolean(facts, "/isForeignTrustsGrantor", false);
         putIfAbsentBoolean(facts, "/hasForeignTrustsTransactions", false);
@@ -1608,6 +1686,12 @@ public class ATSToFactGraphConverter {
         }
     }
 
+    private void putIfPresentBoolean(Map<String, FactTypeWithItem> facts, String path, Boolean value) {
+        if (value != null) {
+            facts.put(path, booleanWrapper(value));
+        }
+    }
+
     private void putIfAbsentBoolean(Map<String, FactTypeWithItem> facts, String path, boolean value) {
         facts.putIfAbsent(path, booleanWrapper(value));
     }
@@ -1704,6 +1788,16 @@ public class ATSToFactGraphConverter {
             return number.intValue();
         }
         return Integer.parseInt(String.valueOf(value));
+    }
+
+    private Integer weightedSubstantialPresenceDays(Integer currentYear, Integer priorYear, Integer twoYearsPrior) {
+        if (currentYear == null && priorYear == null && twoYearsPrior == null) {
+            return null;
+        }
+        int current = currentYear == null ? 0 : currentYear;
+        int prior = priorYear == null ? 0 : priorYear / 3;
+        int secondPrior = twoYearsPrior == null ? 0 : twoYearsPrior / 6;
+        return current + prior + secondPrior;
     }
 
     private BigDecimal defaultZero(BigDecimal value) {

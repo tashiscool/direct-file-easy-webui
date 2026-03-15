@@ -760,6 +760,41 @@
       </Derived>
     </Fact>
 
+    <Fact path="/hasAlimonyToReport">
+      <Name>Has alimony to report</Name>
+      <Description>Whether the filer has alimony received or paid under a pre-2019 divorce agreement.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyReceived">
+      <Name>Alimony received</Name>
+      <Description>Alimony or separate maintenance payments received (pre-2019 divorce agreements).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyPaid">
+      <Name>Alimony paid</Name>
+      <Description>Alimony or separate maintenance payments paid (pre-2019 divorce agreements).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
     <Fact path="/schedule1TotalOtherIncome">
       <Name>Total other income</Name>
       <Description>Total other income reported on line 9 of the 1040 Schedule 1.</Description>
@@ -768,6 +803,7 @@
       <Derived>
         <Round>
           <Add>
+            <Dependency path="/alimonyReceived" />
             <Dependency module="form1099Misc" path="/alaskaPfdIncome" />
             <Switch>
               <Case>
