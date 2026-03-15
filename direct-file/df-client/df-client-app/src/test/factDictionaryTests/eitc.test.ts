@@ -17,10 +17,10 @@ import {
   createTinWrapper,
 } from '../persistenceWrappers.js';
 import { Path } from '../../flow/Path.js';
-import { CURRENT_TAX_YEAR, TAX_YEAR_2024 } from '../../constants/taxConstants.js';
+import { CURRENT_TAX_YEAR, TAX_YEAR_2025 } from '../../constants/taxConstants.js';
 import { setupFactGraph } from '../setupFactGraph.js';
 
-const THRESHOLDS = TAX_YEAR_2024.EITC_INCOME_THRESHOLDS;
+const THRESHOLDS = TAX_YEAR_2025.EITC_INCOME_THRESHOLDS;
 
 const childDependentId = `4fa3a5a7-a9d1-43a9-a0fb-277596e70d48`;
 const childDependentId2 = `71c66f78-31b0-4a92-ab5b-c211784b16c7`;
