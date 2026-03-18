@@ -74,7 +74,11 @@ public class FactGraphService {
         _digest = new XmlProcessor().process(factDictionaryXmlPattern, resources);
         exportZeroDollarFacts = _digest.getExportZeroFacts();
 
+        long initStartNanos = System.nanoTime();
+        log.info("Starting fact dictionary build from digest with {} facts", _digest.getFacts().size());
         _factDictionary = new FactGraphLoader().createFactDictionary(_digest);
+        long initElapsedMillis = (System.nanoTime() - initStartNanos) / 1_000_000L;
+        log.info("Fact dictionary build finished in {} ms", initElapsedMillis);
         log.info("Fact graph initialization complete");
     }
 

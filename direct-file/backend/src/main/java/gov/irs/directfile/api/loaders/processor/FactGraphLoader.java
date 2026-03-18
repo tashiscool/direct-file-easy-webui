@@ -1,6 +1,7 @@
 package gov.irs.directfile.api.loaders.processor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,11 +44,17 @@ public class FactGraphLoader {
         FactDictionaryConfigTrait dictConfig = convertDigestToConfig(digest);
         log.info(
                 "Loaded fact graph configuration version: {}", dictConfig.meta().version());
-        return FactDictionary.fromConfig(dictConfig);
+        long startNanos = System.nanoTime();
+        log.info("Building immutable fact dictionary from {} fact configs", digest.getFacts().size());
+        FactDictionary dictionary = FactDictionary.fromConfig(dictConfig);
+        long elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000L;
+        log.info("Built immutable fact dictionary in {} ms", elapsedMillis);
+        return dictionary;
     }
 
     private FactDictionaryConfigTrait convertDigestToConfig(final TaxDictionaryDigest digest) {
         List<FactConfigTrait> factConfigList = digest.getFacts().values().stream()
+                .sorted(Comparator.comparing(TaxFact::path))
                 .map(this::createFactConfigFromTaxFact)
                 .toList();
         log.info("Read {} facts", factConfigList.size());
