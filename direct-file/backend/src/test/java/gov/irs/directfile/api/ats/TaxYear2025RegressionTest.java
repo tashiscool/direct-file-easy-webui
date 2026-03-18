@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
     private static final String BOOLEAN_WRAPPER = "gov.irs.factgraph.persisters.BooleanWrapper";
+    private static final String INT_WRAPPER = "gov.irs.factgraph.persisters.IntWrapper";
     private static final String DOLLAR_WRAPPER = "gov.irs.factgraph.persisters.DollarWrapper";
     private static final String ENUM_WRAPPER = "gov.irs.factgraph.persisters.EnumWrapper";
 
@@ -184,6 +185,11 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         scenario.setForm8995QBI(form8995Qbi);
 
         Map<String, FactTypeWithItem> facts = new HashMap<>(converter.convert(scenario));
+        facts.remove("/qbi8995A");
+        facts.remove("/w2Wages8995A");
+        facts.remove("/ubia8995A");
+        facts.remove("/form8995AOverflowBusinesses");
+        facts.remove("/hasForm8995AAttachmentStatement");
         distributeTotalWagesAcrossW2s(facts, new BigDecimal("300000"));
         Graph graph = factGraphService.getGraph(facts);
 
@@ -199,6 +205,136 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("40000.00"));
         assertThat(getFactAsBigDecimal(graph, "/qbiDeduction"))
             .isEqualByComparingTo(new BigDecimal("40000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/w2Wages8995A"))
+            .isEqualByComparingTo(new BigDecimal("80000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/ubia8995A"))
+            .isEqualByComparingTo(new BigDecimal("150000.00"));
+    }
+
+    @Test
+    @DisplayName("Form 8995-A tracks overflow businesses for attachment-style parity")
+    void testForm8995AOverflowStatementFacts() throws IOException {
+        ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
+        Map<String, Object> form8995Qbi = new HashMap<>();
+        form8995Qbi.put("businesses", List.of(
+            qbiBusiness("Alpha Advisory", "210000", "60000", "100000", false),
+            qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
+            qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
+            qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
+            qbiBusiness("Echo Foods", "30000", "3000", "10000", false)
+        ));
+        scenario.setForm8995QBI(form8995Qbi);
+
+        Map<String, FactTypeWithItem> facts = new HashMap<>(converter.convert(scenario));
+        facts.remove("/qbi8995A");
+        facts.remove("/w2Wages8995A");
+        facts.remove("/ubia8995A");
+        facts.remove("/form8995AOverflowBusinesses");
+        facts.remove("/hasForm8995AAttachmentStatement");
+
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsInt(graph, "/form8995ATotalBusinesses")).isEqualTo(5);
+        assertThat(getFactAsInt(graph, "/form8995AOverflowBusinesses")).isEqualTo(2);
+        assertThat(getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement")).isTrue();
+        assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowQBI"))
+            .isEqualByComparingTo(new BigDecimal("70000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"))
+            .isEqualByComparingTo(new BigDecimal("8000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"))
+            .isEqualByComparingTo(new BigDecimal("25000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/qbi8995A"))
+            .isEqualByComparingTo(new BigDecimal("420000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/w2Wages8995A"))
+            .isEqualByComparingTo(new BigDecimal("98000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/ubia8995A"))
+            .isEqualByComparingTo(new BigDecimal("195000.00"));
+    }
+
+    @Test
+    @DisplayName("Form 6251 applies the MFJ AMT exemption and phaseout thresholds")
+    void testForm6251UsesMfJThresholds() throws IOException {
+        Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-33-wright-amt.json");
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/amtExemption6251"))
+            .isEqualByComparingTo(new BigDecimal("137000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/amtPhaseoutStart6251"))
+            .isEqualByComparingTo(new BigDecimal("1252700.00"));
+        assertThat(getFactAsBigDecimal(graph, "/amtRate26Threshold2025"))
+            .isEqualByComparingTo(new BigDecimal("239100.00"));
+        assertThat(getFactAsBigDecimal(graph, "/excessAMTI"))
+            .isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        assertThat(getFactAsBigDecimal(graph, "/reducedAMTExemption"))
+            .isEqualByComparingTo(new BigDecimal("137000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/amtiLessExemption"))
+            .isEqualByComparingTo(new BigDecimal("799750.00"));
+    }
+
+    @Test
+    @DisplayName("Schedule 8812 selects the MFJ threshold and rounds phaseout excess up")
+    void testForm8812AppliesMfJThresholdAndRounding() {
+        Map<String, FactTypeWithItem> facts = new HashMap<>();
+        facts.put("/filingStatus", filingStatusWrapper("marriedFilingJointly"));
+        facts.put("/hasChildOrDependentCredits", booleanWrapper(true));
+        facts.put("/numberOfQualifyingChildren", intWrapper(2));
+        facts.put("/numberOfOtherDependents", intWrapper(1));
+        facts.put("/modifiedAGI8812", dollarWrapper("400999"));
+        facts.put("/earnedIncomeForACTC", dollarWrapper("0"));
+
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBigDecimal(graph, "/applicablePhaseoutThreshold"))
+            .isEqualByComparingTo(new BigDecimal("400000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/phaseoutExcess8812"))
+            .isEqualByComparingTo(new BigDecimal("999.00"));
+        assertThat(getFactAsBigDecimal(graph, "/phaseoutReduction8812"))
+            .isEqualByComparingTo(new BigDecimal("50.00"));
+        assertThat(getFactAsBigDecimal(graph, "/ctcAfterPhaseout"))
+            .isEqualByComparingTo(new BigDecimal("4850.00"));
+    }
+
+    @Test
+    @DisplayName("Form 8949 derives transaction presence and wash sale indicators")
+    void testForm8949DerivesTransactionPresenceAndWashSales() {
+        Map<String, FactTypeWithItem> facts = new HashMap<>();
+        facts.put("/shortTermBoxA", booleanWrapper(true));
+        facts.put("/shortTermProceedsBoxA", dollarWrapper("1000"));
+        facts.put("/shortTermCostBoxA", dollarWrapper("700"));
+        facts.put("/shortTermAdjustmentsBoxA", dollarWrapper("0"));
+        facts.put("/shortTermBoxB", booleanWrapper(false));
+        facts.put("/shortTermProceedsBoxB", dollarWrapper("0"));
+        facts.put("/shortTermCostBoxB", dollarWrapper("0"));
+        facts.put("/shortTermBoxC", booleanWrapper(false));
+        facts.put("/shortTermProceedsBoxC", dollarWrapper("0"));
+        facts.put("/shortTermCostBoxC", dollarWrapper("0"));
+        facts.put("/longTermBoxE", booleanWrapper(true));
+        facts.put("/longTermProceedsBoxE", dollarWrapper("2000"));
+        facts.put("/longTermCostBoxE", dollarWrapper("2300"));
+        facts.put("/longTermBoxD", booleanWrapper(false));
+        facts.put("/longTermProceedsBoxD", dollarWrapper("0"));
+        facts.put("/longTermCostBoxD", dollarWrapper("0"));
+        facts.put("/longTermAdjustmentsBoxD", dollarWrapper("0"));
+        facts.put("/longTermBoxF", booleanWrapper(false));
+        facts.put("/longTermProceedsBoxF", dollarWrapper("0"));
+        facts.put("/longTermCostBoxF", dollarWrapper("0"));
+        facts.put("/washSaleDisallowedLoss", dollarWrapper("125"));
+
+        Graph graph = factGraphService.getGraph(facts);
+
+        assertThat(getFactAsBoolean(graph, "/hasShortTermTransactions")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/hasLongTermTransactions")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/hasWashSales")).isTrue();
+        assertThat(getFactAsBigDecimal(graph, "/shortTermGainLossBoxA"))
+            .isEqualByComparingTo(new BigDecimal("300.00"));
+        assertThat(getFactAsBigDecimal(graph, "/longTermGainLossBoxE"))
+            .isEqualByComparingTo(new BigDecimal("-300.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalShortTermGainLoss"))
+            .isEqualByComparingTo(new BigDecimal("300.00"));
+        assertThat(getFactAsBigDecimal(graph, "/totalLongTermGainLoss"))
+            .isEqualByComparingTo(new BigDecimal("-300.00"));
+        assertThat(getFactAsBoolean(graph, "/pdfIncludeForm8949")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/form8949IsDone")).isTrue();
     }
 
     @Test
@@ -286,8 +422,15 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     @DisplayName("Form 1040-NR applies treaty-exempt scholarship amounts before ECI tax")
     void testForm1040NrTreatyExemptScholarshipHandling() throws IOException {
         Map<String, FactTypeWithItem> facts = scenarioFacts("scenario-nr5-chen.json");
+        facts.remove("/scheduleOIHasForeignAddress");
         Graph graph = factGraphService.getGraph(facts);
 
+        assertThat(getFactAsString(graph, "/countryOfCitizenship")).isEqualTo("CN");
+        assertThat(getFactAsInt(graph, "/daysInUS")).isEqualTo(120);
+        assertThat(getFactAsInt(graph, "/daysInUSPriorYear")).isEqualTo(118);
+        assertThat(getFactAsInt(graph, "/daysInUSTwoYearsPrior")).isEqualTo(95);
+        assertThat(getFactAsInt(graph, "/substantialPresenceWeightedDays")).isEqualTo(174);
+        assertThat(getFactAsBoolean(graph, "/scheduleOIHasForeignAddress")).isTrue();
         assertThat(getFactAsBigDecimal(graph, "/scholarshipIncomeECI"))
             .isEqualByComparingTo(new BigDecimal("5000.00"));
         assertThat(getFactAsBigDecimal(graph, "/treatyExemptIncome"))
@@ -356,6 +499,35 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("5162.00"));
     }
 
+    @Test
+    @DisplayName("Form 1040-NR exposes Schedule NEC line-item tax detail")
+    void testForm1040NrScheduleNecLineItemTaxes() {
+        ATSScenarioData scenario = createMinimalNonresidentScenario();
+        scenario.setForm1099Div(List.of(Map.of("ordinaryDividends", new BigDecimal("1000.00"))));
+        scenario.setForm1099Int(List.of(Map.of("taxableInterest", new BigDecimal("500.00"))));
+        scenario.setForm1099Misc(List.of(
+            Map.of("royalties", new BigDecimal("200.00")),
+            Map.of("otherIncome", new BigDecimal("100.00"))
+        ));
+        Map<String, Object> treatyBenefits = new HashMap<>();
+        treatyBenefits.put("reducedRate", new BigDecimal("0.15"));
+        scenario.setTaxTreatyBenefits(treatyBenefits);
+        Graph graph = factGraphService.getGraph(new HashMap<>(converter.convert(scenario)));
+
+        assertThat(getFactAsBigDecimal(graph, "/dividendsFDAPTax"))
+            .isEqualByComparingTo(new BigDecimal("150.00"));
+        assertThat(getFactAsBigDecimal(graph, "/interestFDAPTax"))
+            .isEqualByComparingTo(new BigDecimal("75.00"));
+        assertThat(getFactAsBigDecimal(graph, "/royaltiesFDAPTax"))
+            .isEqualByComparingTo(new BigDecimal("30.00"));
+        assertThat(getFactAsBigDecimal(graph, "/capitalGainsFDAPTax"))
+            .isEqualByComparingTo(new BigDecimal("45.00"));
+        assertThat(getFactAsBigDecimal(graph, "/otherFDAPTax"))
+            .isEqualByComparingTo(new BigDecimal("15.00"));
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
+            .isEqualByComparingTo(new BigDecimal("270.00"));
+    }
+
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
         return new HashMap<>(converter.convert(scenario));
@@ -399,6 +571,10 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         return new FactTypeWithItem(DOLLAR_WRAPPER, nodeFactory.textNode(value));
     }
 
+    private FactTypeWithItem intWrapper(int value) {
+        return new FactTypeWithItem(INT_WRAPPER, nodeFactory.numberNode(value));
+    }
+
     private FactTypeWithItem filingStatusWrapper(String value) {
         var enumNode = nodeFactory.objectNode();
         var valueArray = nodeFactory.arrayNode();
@@ -406,6 +582,18 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         enumNode.set("value", valueArray);
         enumNode.put("enumOptionsPath", "/filingStatusOptions");
         return new FactTypeWithItem(ENUM_WRAPPER, enumNode);
+    }
+
+    private ATSScenarioData createMinimalNonresidentScenario() {
+        ATSScenarioData scenario = new ATSScenarioData();
+        scenario.setTaxYear(2025);
+        scenario.setFormType("1040-NR");
+        scenario.setFilingStatus(3);
+        scenario.setPrimaryTaxpayer(new gov.irs.directfile.api.ats.model.ATSTaxpayer());
+        scenario.getPrimaryTaxpayer().setFirstName("Test");
+        scenario.getPrimaryTaxpayer().setLastName("Nonresident");
+        scenario.getPrimaryTaxpayer().setSsn("123-45-6789");
+        return scenario;
     }
 
     private Map<String, Object> qbiBusiness(
@@ -458,6 +646,38 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
                 } else if (value != null) {
                     return new BigDecimal(value.toString()).setScale(2, RoundingMode.HALF_UP);
                 }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    private Integer getFactAsInt(Graph graph, String path) {
+        try {
+            Result<Object> result = graph.get(path);
+            if (result != null && result.hasValue()) {
+                Object value = result.get();
+                if (value instanceof Number) {
+                    return ((Number) value).intValue();
+                }
+                if (value != null) {
+                    return Integer.parseInt(value.toString());
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    private String getFactAsString(Graph graph, String path) {
+        try {
+            Result<Object> result = graph.get(path);
+            if (result != null && result.hasValue() && result.get() != null) {
+                return result.get().toString();
             }
         } catch (Exception e) {
             return null;

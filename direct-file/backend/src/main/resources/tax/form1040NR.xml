@@ -23,6 +23,14 @@
       </Writable>
     </Fact>
 
+    <Fact path="/countryOfCitizenship">
+      <Name>Country of Citizenship</Name>
+      <Description>Taxpayer's country of citizenship for Schedule OI.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
     <Fact path="/visaType">
       <Name>Visa Type</Name>
       <Description>Type of visa held (F, J, M, Q, etc.).</Description>
@@ -43,6 +51,30 @@
             <IntNode>366</IntNode>
           </Limit>
         </Int>
+      </Writable>
+    </Fact>
+
+    <Fact path="/daysInUSPriorYear">
+      <Name>Days in US Prior Year</Name>
+      <Description>Number of days present in the United States in the prior tax year.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/daysInUSTwoYearsPrior">
+      <Name>Days in US Two Years Prior</Name>
+      <Description>Number of days present in the United States two tax years earlier.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/substantialPresenceWeightedDays">
+      <Name>Substantial Presence Weighted Days</Name>
+      <Description>Weighted substantial presence day count for Schedule OI.</Description>
+      <Writable>
+        <Int />
       </Writable>
     </Fact>
 
@@ -92,6 +124,52 @@
       <Writable>
         <String />
       </Writable>
+    </Fact>
+
+    <Fact path="/appliedForGreenCard">
+      <Name>Applied For Green Card</Name>
+      <Description>Whether the taxpayer applied for lawful permanent residence.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filedPriorUsReturn">
+      <Name>Filed Prior US Return</Name>
+      <Description>Whether the taxpayer filed a prior US return.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/compensationOver250kOI">
+      <Name>Compensation Over 250k</Name>
+      <Description>Whether compensation exceeded $250,000 for Schedule OI.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasRealPropertyElection">
+      <Name>Has Real Property Election</Name>
+      <Description>Whether the taxpayer made a real-property income election.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOIHasForeignAddress">
+      <Name>Schedule OI Has Foreign Address</Name>
+      <Description>Whether Schedule OI includes a foreign address disclosure.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/foreignAddressStreet" />
+          <Dependency path="/foreignAddressCity" />
+          <Dependency path="/foreignAddressProvince" />
+          <Dependency path="/foreignAddressPostalCode" />
+          <Dependency path="/foreignAddressCountry" />
+        </Any>
+      </Derived>
     </Fact>
 
     <Fact path="/hasScheduleOI">
@@ -393,11 +471,120 @@
       </Derived>
     </Fact>
 
+    <Fact path="/dividendsFDAPTax">
+      <Name>Dividends FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to dividend FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/dividendsFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/interestFDAPTax">
+      <Name>Interest FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to interest FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/interestFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/royaltiesFDAPTax">
+      <Name>Royalties FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to royalty FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/royaltiesFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rentsFDAPTax">
+      <Name>Rents FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to rent FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/rentsFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/gamblingFDAPTax">
+      <Name>Gambling FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to gambling FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/gamblingFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityFDAPTax">
+      <Name>Social Security FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to Social Security FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/socialSecurityFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/capitalGainsFDAPTax">
+      <Name>Capital Gains FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to capital gain FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/capitalGainsFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/otherFDAPTax">
+      <Name>Other FDAP Tax</Name>
+      <Description>Schedule NEC tax attributable to other FDAP income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/otherFDAP" />
+          <Dependency path="/fdapTaxRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
     <Fact path="/scheduleNECTax">
       <Name>Schedule NEC Tax</Name>
       <Description>Tax computed on Schedule NEC for non-effectively connected income.</Description>
       <Derived>
-        <Dependency path="/taxOnFDAP" />
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/dividendsFDAPTax" />
+              <Dependency path="/interestFDAPTax" />
+            </Add>
+            <Add>
+              <Dependency path="/royaltiesFDAPTax" />
+              <Dependency path="/rentsFDAPTax" />
+            </Add>
+          </Add>
+          <Add>
+            <Add>
+              <Dependency path="/gamblingFDAPTax" />
+              <Dependency path="/socialSecurityFDAPTax" />
+            </Add>
+            <Add>
+              <Dependency path="/capitalGainsFDAPTax" />
+              <Dependency path="/otherFDAPTax" />
+            </Add>
+          </Add>
+        </Add>
       </Derived>
     </Fact>
 

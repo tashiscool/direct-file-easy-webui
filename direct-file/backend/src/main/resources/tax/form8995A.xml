@@ -37,37 +37,208 @@
       </Writable>
     </Fact>
 
-    <Fact path="/qbi8995A">
-      <Name>Qualified Business Income</Name>
-      <Description>QBI from trade/business (Line 1).</Description>
-      <Export mef="true" />
+    <Fact path="/form8995ATotalBusinesses">
+      <Name>Form 8995-A Total Businesses</Name>
+      <Description>Total number of qualified trades or businesses represented on Form 8995-A.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AOverflowBusinesses">
+      <Name>Form 8995-A Overflow Businesses</Name>
+      <Description>Number of additional businesses that must be carried on a supporting statement.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasForm8995AAttachmentStatement">
+      <Name>Form 8995-A Attachment Statement</Name>
+      <Description>Whether a supporting statement is needed for additional businesses.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness1Name">
+      <Name>Form 8995-A Business 1 Name</Name>
+      <Description>First displayed trade or business name on Form 8995-A.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness2Name">
+      <Name>Form 8995-A Business 2 Name</Name>
+      <Description>Second displayed trade or business name on Form 8995-A.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness3Name">
+      <Name>Form 8995-A Business 3 Name</Name>
+      <Description>Third displayed trade or business name on Form 8995-A.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness1QBI">
+      <Name>Form 8995-A Business 1 QBI</Name>
+      <Description>First displayed trade or business QBI amount.</Description>
       <Writable>
         <Dollar />
       </Writable>
     </Fact>
 
+    <Fact path="/form8995ABusiness2QBI">
+      <Name>Form 8995-A Business 2 QBI</Name>
+      <Description>Second displayed trade or business QBI amount.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness3QBI">
+      <Name>Form 8995-A Business 3 QBI</Name>
+      <Description>Third displayed trade or business QBI amount.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness1W2Wages">
+      <Name>Form 8995-A Business 1 W-2 Wages</Name>
+      <Description>First displayed trade or business W-2 wages.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness2W2Wages">
+      <Name>Form 8995-A Business 2 W-2 Wages</Name>
+      <Description>Second displayed trade or business W-2 wages.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness3W2Wages">
+      <Name>Form 8995-A Business 3 W-2 Wages</Name>
+      <Description>Third displayed trade or business W-2 wages.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness1UBIA">
+      <Name>Form 8995-A Business 1 UBIA</Name>
+      <Description>First displayed trade or business UBIA.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness2UBIA">
+      <Name>Form 8995-A Business 2 UBIA</Name>
+      <Description>Second displayed trade or business UBIA.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness3UBIA">
+      <Name>Form 8995-A Business 3 UBIA</Name>
+      <Description>Third displayed trade or business UBIA.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AOverflowQBI">
+      <Name>Form 8995-A Overflow QBI</Name>
+      <Description>Total QBI from supporting-statement businesses beyond the three displayed rows.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AOverflowW2Wages">
+      <Name>Form 8995-A Overflow W-2 Wages</Name>
+      <Description>Total W-2 wages from supporting-statement businesses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AOverflowUBIA">
+      <Name>Form 8995-A Overflow UBIA</Name>
+      <Description>Total UBIA from supporting-statement businesses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AOverflowPatronReduction">
+      <Name>Form 8995-A Overflow Patron Reduction</Name>
+      <Description>Total patron reduction from supporting-statement businesses.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/qbi8995A">
+      <Name>Qualified Business Income</Name>
+      <Description>QBI from trade/business (Line 1).</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/form8995ABusiness1QBI" />
+              <Dependency path="/form8995ABusiness2QBI" />
+            </Add>
+            <Dependency path="/form8995ABusiness3QBI" />
+          </Add>
+          <Dependency path="/form8995AOverflowQBI" />
+        </Add>
+      </Derived>
+    </Fact>
+
     <Fact path="/w2Wages8995A">
       <Name>W-2 Wages</Name>
       <Description>W-2 wages allocable to QBI (Line 2).</Description>
-      <Writable>
-        <Dollar>
-          <Limit operation="Min" level="ERROR">
-            <DollarNode>0</DollarNode>
-          </Limit>
-        </Dollar>
-      </Writable>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/form8995ABusiness1W2Wages" />
+              <Dependency path="/form8995ABusiness2W2Wages" />
+            </Add>
+            <Dependency path="/form8995ABusiness3W2Wages" />
+          </Add>
+          <Dependency path="/form8995AOverflowW2Wages" />
+        </Add>
+      </Derived>
     </Fact>
 
     <Fact path="/ubia8995A">
       <Name>UBIA of Qualified Property</Name>
       <Description>Unadjusted basis of qualified property (Line 3).</Description>
-      <Writable>
-        <Dollar>
-          <Limit operation="Min" level="ERROR">
-            <DollarNode>0</DollarNode>
-          </Limit>
-        </Dollar>
-      </Writable>
+      <Derived>
+        <Add>
+          <Add>
+            <Add>
+              <Dependency path="/form8995ABusiness1UBIA" />
+              <Dependency path="/form8995ABusiness2UBIA" />
+            </Add>
+            <Dependency path="/form8995ABusiness3UBIA" />
+          </Add>
+          <Dependency path="/form8995AOverflowUBIA" />
+        </Add>
+      </Derived>
     </Fact>
 
     <Fact path="/isSSTB8995A">

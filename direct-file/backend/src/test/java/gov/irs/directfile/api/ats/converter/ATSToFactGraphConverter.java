@@ -832,13 +832,8 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/isSSTB", booleanWrapper(false));
         facts.putIfAbsent("/w2WagesPaid", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/qualifiedPropertyBasis", createDollarWrapper(BigDecimal.ZERO));
-        facts.putIfAbsent("/qbi8995A", createDollarWrapper(BigDecimal.ZERO));
-        facts.putIfAbsent("/w2Wages8995A", createDollarWrapper(BigDecimal.ZERO));
-        facts.putIfAbsent("/ubia8995A", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/isSSTB8995A", booleanWrapper(false));
         facts.putIfAbsent("/form8995ATotalBusinesses", createIntWrapper(0));
-        facts.putIfAbsent("/form8995AOverflowBusinesses", createIntWrapper(0));
-        facts.putIfAbsent("/hasForm8995AAttachmentStatement", booleanWrapper(false));
         facts.putIfAbsent("/form8995ABusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
@@ -976,14 +971,8 @@ public class ATSToFactGraphConverter {
         facts.put("/isSSTB", booleanWrapper(isSstb));
         facts.put("/w2WagesPaid", createDollarWrapper(totalW2Wages));
         facts.put("/qualifiedPropertyBasis", createDollarWrapper(totalUbia));
-        facts.put("/qbi8995A", createDollarWrapper(directQbi));
-        facts.put("/w2Wages8995A", createDollarWrapper(totalW2Wages));
-        facts.put("/ubia8995A", createDollarWrapper(totalUbia));
         facts.put("/isSSTB8995A", booleanWrapper(isSstb));
         facts.put("/form8995ATotalBusinesses", createIntWrapper(Math.max(1, qbiBusinesses.size())));
-        int overflowBusinesses = Math.max(0, qbiBusinesses.size() - 3);
-        facts.put("/form8995AOverflowBusinesses", createIntWrapper(overflowBusinesses));
-        facts.put("/hasForm8995AAttachmentStatement", booleanWrapper(overflowBusinesses > 0));
         facts.put("/form8995AOverflowQBI", createDollarWrapper(overflowQbi));
         facts.put("/form8995AOverflowW2Wages", createDollarWrapper(overflowW2Wages));
         facts.put("/form8995AOverflowUBIA", createDollarWrapper(overflowUbia));

@@ -121,7 +121,7 @@ fields:
 
   - name: line4
     type: dollar
-    factPath: /form6251/alternativeMinimumTaxableIncome
+    factPath: /form6251/form6251AlternativeMinimumTaxableIncome
     description: "Alternative minimum taxable income"
 
   # Part II - Alternative Minimum Tax
@@ -152,7 +152,7 @@ fields:
 
   - name: line10
     type: dollar
-    factPath: /form6251/alternativeMinimumTax
+    factPath: /form6251/form6251AlternativeMinimumTax
     description: "AMT (line 8 minus line 9 if positive)"
 
   # Part III - Tax Computation Using Maximum Capital Gains Rates

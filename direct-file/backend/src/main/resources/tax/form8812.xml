@@ -122,32 +122,33 @@
     <Fact path="/applicablePhaseoutThreshold">
       <Name>Applicable Phaseout Threshold</Name>
       <Description>Applicable phaseout threshold (Line 7).</Description>
-      <Writable>
-        <Dollar>
-          <Limit operation="Min" level="ERROR">
-            <DollarNode>0</DollarNode>
-          </Limit>
-        </Dollar>
-      </Writable>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="ctcOdc" path="/dependentCreditPhaseoutThreshold" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseoutExcess8812">
+      <Name>Phaseout Excess</Name>
+      <Description>Amount of MAGI above the applicable threshold.</Description>
+      <Derived>
+        <Dependency module="ctcOdc" path="/dependentCreditMagiAboveThreshold" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedPhaseoutExcess8812">
+      <Name>Rounded Phaseout Excess</Name>
+      <Description>Phaseout excess rounded up to the next whole $1,000.</Description>
+      <Derived>
+        <Dependency module="ctcOdc" path="/roundedDependentCreditMagiAboveThreshold" />
+      </Derived>
     </Fact>
 
     <Fact path="/phaseoutReduction8812">
       <Name>Phaseout Reduction</Name>
       <Description>Credit reduction due to income (Line 9).</Description>
       <Derived>
-        <Multiply>
-          <Divide>
-            <Max>
-              <Dollar>0</Dollar>
-              <Subtract>
-                <Dependency path="/modifiedAGI8812" />
-                <Dependency path="/applicablePhaseoutThreshold" />
-              </Subtract>
-            </Max>
-            <Dollar>1000</Dollar>
-          </Divide>
-          <Dollar>50</Dollar>
-        </Multiply>
+        <Dependency module="ctcOdc" path="/dependentCreditPhaseout" />
       </Derived>
     </Fact>
 
@@ -156,13 +157,7 @@
       <Description>Child tax credit after income limitation (Line 10).</Description>
       <Export mef="true" />
       <Derived>
-        <Max>
-          <Dollar>0</Dollar>
-          <Subtract>
-            <Dependency path="/totalChildAndDependentCredits" />
-            <Dependency path="/phaseoutReduction8812" />
-          </Subtract>
-        </Max>
+        <Dependency module="ctcOdc" path="/dependentCreditLessPhaseout" />
       </Derived>
     </Fact>
 
@@ -193,25 +188,7 @@
       <Description>Refundable additional child tax credit (Line 27).</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
-        <Min>
-          <Multiply>
-            <Dependency path="/numberOfQualifyingChildren" />
-            <Dependency path="/refundableCTCPerChild" />
-          </Multiply>
-          <Max>
-            <Dollar>0</Dollar>
-            <Multiply>
-              <Max>
-                <Dollar>0</Dollar>
-                <Subtract>
-                  <Dependency path="/earnedIncomeForACTC" />
-                  <Dollar>2500</Dollar>
-                </Subtract>
-              </Max>
-              <Decimal>0.15</Decimal>
-            </Multiply>
-          </Max>
-        </Min>
+        <Dependency module="ctcOdc" path="/additionalCtc" />
       </Derived>
     </Fact>
 

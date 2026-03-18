@@ -51,7 +51,7 @@
               <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
             </When>
             <Then>
-              <Dollar>1259100</Dollar>
+              <Dollar>1252700</Dollar>
             </Then>
           </Case>
           <Case>
@@ -59,7 +59,7 @@
               <Dependency module="filingStatus" path="/isFilingStatusMFS" />
             </When>
             <Then>
-              <Dollar>629550</Dollar>
+              <Dollar>626350</Dollar>
             </Then>
           </Case>
           <Case>
@@ -89,7 +89,7 @@
               <Dependency module="filingStatus" path="/isFilingStatusMFS" />
             </When>
             <Then>
-              <Dollar>119950</Dollar>
+              <Dollar>119550</Dollar>
             </Then>
           </Case>
           <Case>
@@ -97,7 +97,7 @@
               <True />
             </When>
             <Then>
-              <Dollar>239900</Dollar>
+              <Dollar>239100</Dollar>
             </Then>
           </Case>
         </Switch>

@@ -490,9 +490,6 @@
                 <Not>
                   <Dependency module="form8995" path="/canUseSimplifiedMethod" />
                 </Not>
-                <IsComplete>
-                  <Dependency module="form8995A" path="/totalQBIDeduction8995A" />
-                </IsComplete>
               </All>
             </When>
             <Then>

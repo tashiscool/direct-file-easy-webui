@@ -54,6 +54,9 @@ public class ATSTaxpayer {
     @JsonProperty("countryOfResidence")
     private String countryOfResidence;
 
+    @JsonProperty("countryOfCitizenship")
+    private String countryOfCitizenship;
+
     @JsonProperty("isFullTimeStudent")
     private boolean isFullTimeStudent;
 
@@ -74,6 +77,30 @@ public class ATSTaxpayer {
 
     @JsonProperty("firstYearInUS")
     private Integer firstYearInUS;
+
+    @JsonProperty("daysInUSThisYear")
+    private Integer daysInUSThisYear;
+
+    @JsonProperty("daysInUSPriorYear")
+    private Integer daysInUSPriorYear;
+
+    @JsonProperty("daysInUSTwoYearsPrior")
+    private Integer daysInUSTwoYearsPrior;
+
+    @JsonProperty("appliedForGreenCard")
+    private Boolean appliedForGreenCard;
+
+    @JsonProperty("filedPriorUsReturn")
+    private Boolean filedPriorUsReturn;
+
+    @JsonProperty("compensationOver250k")
+    private Boolean compensationOver250k;
+
+    @JsonProperty("realPropertyElectionFirstYear")
+    private Boolean realPropertyElectionFirstYear;
+
+    @JsonProperty("realPropertyElectionPriorYear")
+    private Boolean realPropertyElectionPriorYear;
 
     @JsonProperty("militaryBranch")
     private String militaryBranch;
@@ -167,6 +194,9 @@ public class ATSTaxpayer {
     public String getCountryOfResidence() { return countryOfResidence; }
     public void setCountryOfResidence(String countryOfResidence) { this.countryOfResidence = countryOfResidence; }
 
+    public String getCountryOfCitizenship() { return countryOfCitizenship; }
+    public void setCountryOfCitizenship(String countryOfCitizenship) { this.countryOfCitizenship = countryOfCitizenship; }
+
     public boolean isFullTimeStudent() { return isFullTimeStudent; }
     public void setFullTimeStudent(boolean fullTimeStudent) { isFullTimeStudent = fullTimeStudent; }
 
@@ -187,6 +217,34 @@ public class ATSTaxpayer {
 
     public Integer getFirstYearInUS() { return firstYearInUS; }
     public void setFirstYearInUS(Integer firstYearInUS) { this.firstYearInUS = firstYearInUS; }
+
+    public Integer getDaysInUSThisYear() { return daysInUSThisYear; }
+    public void setDaysInUSThisYear(Integer daysInUSThisYear) { this.daysInUSThisYear = daysInUSThisYear; }
+
+    public Integer getDaysInUSPriorYear() { return daysInUSPriorYear; }
+    public void setDaysInUSPriorYear(Integer daysInUSPriorYear) { this.daysInUSPriorYear = daysInUSPriorYear; }
+
+    public Integer getDaysInUSTwoYearsPrior() { return daysInUSTwoYearsPrior; }
+    public void setDaysInUSTwoYearsPrior(Integer daysInUSTwoYearsPrior) { this.daysInUSTwoYearsPrior = daysInUSTwoYearsPrior; }
+
+    public Boolean getAppliedForGreenCard() { return appliedForGreenCard; }
+    public void setAppliedForGreenCard(Boolean appliedForGreenCard) { this.appliedForGreenCard = appliedForGreenCard; }
+
+    public Boolean getFiledPriorUsReturn() { return filedPriorUsReturn; }
+    public void setFiledPriorUsReturn(Boolean filedPriorUsReturn) { this.filedPriorUsReturn = filedPriorUsReturn; }
+
+    public Boolean getCompensationOver250k() { return compensationOver250k; }
+    public void setCompensationOver250k(Boolean compensationOver250k) { this.compensationOver250k = compensationOver250k; }
+
+    public Boolean getRealPropertyElectionFirstYear() { return realPropertyElectionFirstYear; }
+    public void setRealPropertyElectionFirstYear(Boolean realPropertyElectionFirstYear) {
+        this.realPropertyElectionFirstYear = realPropertyElectionFirstYear;
+    }
+
+    public Boolean getRealPropertyElectionPriorYear() { return realPropertyElectionPriorYear; }
+    public void setRealPropertyElectionPriorYear(Boolean realPropertyElectionPriorYear) {
+        this.realPropertyElectionPriorYear = realPropertyElectionPriorYear;
+    }
 
     public String getMilitaryBranch() { return militaryBranch; }
     public void setMilitaryBranch(String militaryBranch) { this.militaryBranch = militaryBranch; }

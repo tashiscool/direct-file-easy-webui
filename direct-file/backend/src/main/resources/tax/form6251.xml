@@ -102,7 +102,7 @@
       </Writable>
     </Fact>
 
-    <Fact path="/totalAMTAdjustments">
+    <Fact path="/form6251TotalAMTAdjustments">
       <Name>Total AMT Adjustments</Name>
       <Description>Total adjustments (Line 3).</Description>
       <Derived>
@@ -134,14 +134,14 @@
       </Derived>
     </Fact>
 
-    <Fact path="/alternativeMinimumTaxableIncome">
+    <Fact path="/form6251AlternativeMinimumTaxableIncome">
       <Name>Alternative Minimum Taxable Income</Name>
       <Description>AMTI (Line 4).</Description>
       <Export mef="true" />
       <Derived>
         <Add>
           <Dependency path="/taxableIncomeFromForm1040" />
-          <Dependency path="/totalAMTAdjustments" />
+          <Dependency path="/form6251TotalAMTAdjustments" />
         </Add>
       </Derived>
     </Fact>
@@ -161,10 +161,19 @@
 
     <Fact path="/amtExemptionMFJ2025">
       <Name>AMT Exemption MFJ 2025</Name>
-      <Description>AMT exemption for MFJ filers.</Description>
+      <Description>AMT exemption for married filing jointly or qualifying surviving spouse filers.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Dollar>137000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtExemptionMFS2025">
+      <Name>AMT Exemption MFS 2025</Name>
+      <Description>AMT exemption for married filing separately filers.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>68500</Dollar>
       </Derived>
     </Fact>
 
@@ -179,10 +188,37 @@
 
     <Fact path="/amtPhaseoutStartMFJ2025">
       <Name>AMT Phaseout Start MFJ 2025</Name>
-      <Description>AMTI at which exemption phaseout begins (MFJ).</Description>
+      <Description>AMTI at which exemption phaseout begins (MFJ/QSS).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Dollar>1252700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtPhaseoutStartMFS2025">
+      <Name>AMT Phaseout Start MFS 2025</Name>
+      <Description>AMTI at which exemption phaseout begins (MFS).</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dollar>626350</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtExemption6251">
+      <Name>Applicable AMT Exemption</Name>
+      <Description>AMT exemption selected by filing status.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="amt" path="/amtExemptionBase" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/amtPhaseoutStart6251">
+      <Name>Applicable AMT Phaseout Start</Name>
+      <Description>AMTI phaseout threshold selected by filing status.</Description>
+      <TaxYear>2025</TaxYear>
+      <Derived>
+        <Dependency module="amt" path="/amtExemptionPhaseoutThreshold" />
       </Derived>
     </Fact>
 
@@ -193,8 +229,8 @@
         <Max>
           <Dollar>0</Dollar>
           <Subtract>
-            <Dependency path="/alternativeMinimumTaxableIncome" />
-            <Dependency path="/amtPhaseoutStartSingle2025" />
+            <Dependency path="/form6251AlternativeMinimumTaxableIncome" />
+            <Dependency path="/amtPhaseoutStart6251" />
           </Subtract>
         </Max>
       </Derived>
@@ -215,13 +251,7 @@
       <Name>Reduced AMT Exemption</Name>
       <Description>Reduced AMT exemption (Line 8).</Description>
       <Derived>
-        <Max>
-          <Dollar>0</Dollar>
-          <Subtract>
-            <Dependency path="/amtExemptionSingle2025" />
-            <Dependency path="/exemptionPhaseout" />
-          </Subtract>
-        </Max>
+        <Dependency module="amt" path="/amtExemption" />
       </Derived>
     </Fact>
 
@@ -233,22 +263,16 @@
       <Name>AMTI Less Exemption</Name>
       <Description>AMTI minus exemption (Line 9).</Description>
       <Derived>
-        <Max>
-          <Dollar>0</Dollar>
-          <Subtract>
-            <Dependency path="/alternativeMinimumTaxableIncome" />
-            <Dependency path="/reducedAMTExemption" />
-          </Subtract>
-        </Max>
+        <Dependency module="amt" path="/amtTaxableExcessAMTI" />
       </Derived>
     </Fact>
 
     <Fact path="/amtRate26Threshold2025">
       <Name>AMT 26% Rate Threshold 2025</Name>
-      <Description>Threshold for 28% AMT rate ($232,600).</Description>
+      <Description>Threshold for 28% AMT rate ($239,100, or $119,550 if married filing separately).</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Dollar>232600</Dollar>
+        <Dependency module="amt" path="/amt26PercentThreshold" />
       </Derived>
     </Fact>
 
@@ -257,40 +281,7 @@
       <Description>Tentative minimum tax (Line 10).</Description>
       <Export mef="true" />
       <Derived>
-        <Switch>
-          <Case>
-            <When>
-              <LessThanOrEqual>
-                <Left><Dependency path="/amtiLessExemption" /></Left>
-                <Right><Dependency path="/amtRate26Threshold2025" /></Right>
-              </LessThanOrEqual>
-            </When>
-            <Then>
-              <Multiply>
-                <Dependency path="/amtiLessExemption" />
-                <Decimal>0.26</Decimal>
-              </Multiply>
-            </Then>
-          </Case>
-          <Case>
-            <When><True /></When>
-            <Then>
-              <Add>
-                <Multiply>
-                  <Dependency path="/amtRate26Threshold2025" />
-                  <Decimal>0.26</Decimal>
-                </Multiply>
-                <Multiply>
-                  <Subtract>
-                    <Dependency path="/amtiLessExemption" />
-                    <Dependency path="/amtRate26Threshold2025" />
-                  </Subtract>
-                  <Decimal>0.28</Decimal>
-                </Multiply>
-              </Add>
-            </Then>
-          </Case>
-        </Switch>
+        <Dependency module="amt" path="/tentativeMinimumTax" />
       </Derived>
     </Fact>
 
@@ -302,7 +293,7 @@
       </Derived>
     </Fact>
 
-    <Fact path="/alternativeMinimumTax">
+    <Fact path="/form6251AlternativeMinimumTax">
       <Name>Alternative Minimum Tax</Name>
       <Description>AMT (Line 12).</Description>
       <Export mef="true" downstreamFacts="true" />
@@ -329,18 +320,18 @@
           <Not><Dependency path="/hasAMT" /></Not>
           <All>
             <Dependency path="/hasAMT" />
-            <IsComplete><Dependency path="/alternativeMinimumTax" /></IsComplete>
+            <IsComplete><Dependency path="/form6251AlternativeMinimumTax" /></IsComplete>
           </All>
         </Any>
       </Derived>
     </Fact>
 
-    <Fact path="/pdfIncludeForm6251">
+    <Fact path="/form6251PdfInclude">
       <Name>Include Form 6251 in PDF</Name>
       <Description>Whether to include Form 6251 in the tax return PDF.</Description>
       <Derived>
         <GreaterThan>
-          <Left><Dependency path="/alternativeMinimumTax" /></Left>
+          <Left><Dependency path="/form6251AlternativeMinimumTax" /></Left>
           <Right><Dollar>0</Dollar></Right>
         </GreaterThan>
       </Derived>

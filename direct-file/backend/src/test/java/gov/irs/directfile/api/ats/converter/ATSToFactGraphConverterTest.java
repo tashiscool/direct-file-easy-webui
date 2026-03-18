@@ -88,9 +88,15 @@ class ATSToFactGraphConverterTest {
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
 
             assertThat(facts.get("/isNonresidentAlien").item().asBoolean()).isTrue();
+            assertThat(facts.get("/countryOfCitizenship").item().asText()).isEqualTo("CN");
             assertThat(facts.get("/treatyArticle").item().asText()).isEqualTo("20");
             assertThat(facts.get("/firstYearInUS").item().asInt()).isEqualTo(2022);
+            assertThat(facts.get("/daysInUS").item().asInt()).isEqualTo(120);
+            assertThat(facts.get("/daysInUSPriorYear").item().asInt()).isEqualTo(118);
+            assertThat(facts.get("/daysInUSTwoYearsPrior").item().asInt()).isEqualTo(95);
+            assertThat(facts.get("/substantialPresenceWeightedDays").item().asInt()).isEqualTo(174);
             assertThat(facts.get("/foreignAddressCountry").item().asText()).isEqualTo("CN");
+            assertThat(facts.get("/scheduleOIHasForeignAddress").item().asBoolean()).isTrue();
             assertThat(new BigDecimal(facts.get("/treatyExemptIncome").item().asText()))
                 .isEqualByComparingTo(new BigDecimal("5000.00"));
             assertThat(new BigDecimal(facts.get("/scholarshipIncomeECI").item().asText()))

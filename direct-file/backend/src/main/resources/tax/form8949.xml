@@ -9,9 +9,13 @@
     <Fact path="/hasShortTermTransactions">
       <Name>Has Short-Term Transactions</Name>
       <Description>Whether taxpayer has short-term capital transactions.</Description>
-      <Writable>
-        <Boolean />
-      </Writable>
+      <Derived>
+        <Any>
+          <Dependency path="/shortTermBoxA" />
+          <Dependency path="/shortTermBoxB" />
+          <Dependency path="/shortTermBoxC" />
+        </Any>
+      </Derived>
     </Fact>
 
     <Fact path="/shortTermBoxA">
@@ -179,9 +183,13 @@
     <Fact path="/hasLongTermTransactions">
       <Name>Has Long-Term Transactions</Name>
       <Description>Whether taxpayer has long-term capital transactions.</Description>
-      <Writable>
-        <Boolean />
-      </Writable>
+      <Derived>
+        <Any>
+          <Dependency path="/longTermBoxD" />
+          <Dependency path="/longTermBoxE" />
+          <Dependency path="/longTermBoxF" />
+        </Any>
+      </Derived>
     </Fact>
 
     <Fact path="/longTermBoxD">
@@ -349,9 +357,12 @@
     <Fact path="/hasWashSales">
       <Name>Has Wash Sales</Name>
       <Description>Whether taxpayer has wash sale losses to disallow.</Description>
-      <Writable>
-        <Boolean />
-      </Writable>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/washSaleDisallowedLoss" /></Left>
+          <Right><Dollar>0</Dollar></Right>
+        </GreaterThan>
+      </Derived>
     </Fact>
 
     <Fact path="/washSaleDisallowedLoss">
@@ -394,6 +405,7 @@
         <Any>
           <Dependency path="/hasShortTermTransactions" />
           <Dependency path="/hasLongTermTransactions" />
+          <Dependency path="/hasWashSales" />
         </Any>
       </Derived>
     </Fact>
