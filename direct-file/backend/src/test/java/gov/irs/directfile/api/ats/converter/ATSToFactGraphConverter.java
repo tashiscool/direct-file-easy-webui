@@ -9,6 +9,7 @@ import gov.irs.directfile.models.FactTypeWithItem;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -224,6 +225,8 @@ public class ATSToFactGraphConverter {
             return;
         }
 
+        ArrayNode scheduleNecItemIds = nodeFactory.arrayNode();
+
         facts.put("/isNonresidentAlien", booleanWrapper(true));
         facts.putIfAbsent("/wagesECI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/businessIncomeECI", createDollarWrapper(BigDecimal.ZERO));
@@ -337,6 +340,42 @@ public class ATSToFactGraphConverter {
             reducedRates.get("other"),
             reducedRates.get("otherIncome")
         ));
+        BigDecimal defaultTreatyRate = nonZeroOrNull(
+            decimalValue(treatyBenefits.get("reducedRate")),
+            decimalValue(treatyBenefits.get("reducedTreatyRate"))
+        );
+        BigDecimal dividendsFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("dividends"),
+            reducedRates.get("dividend")
+        );
+        BigDecimal interestFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("interest"),
+            reducedRates.get("interestIncome")
+        );
+        BigDecimal royaltiesFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("royalties"),
+            reducedRates.get("royalty")
+        );
+        BigDecimal rentsFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("rents"),
+            reducedRates.get("rent")
+        );
+        BigDecimal gamblingFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("gambling"),
+            reducedRates.get("gamblingWinnings")
+        );
+        BigDecimal socialSecurityFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("socialSecurity"),
+            reducedRates.get("socialSecurityBenefits")
+        );
+        BigDecimal capitalGainsFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("capitalGains"),
+            reducedRates.get("capitalGain")
+        );
+        BigDecimal otherFdapRate = resolveScheduleNecRate(defaultTreatyRate,
+            reducedRates.get("other"),
+            reducedRates.get("otherIncome")
+        );
 
         if (scenario.getExpectedValues() != null) {
             putIfPresentDollar(
@@ -414,15 +453,151 @@ public class ATSToFactGraphConverter {
             .filter(Objects::nonNull)
             .findFirst()
             .orElse(null);
-        int scheduleNecLineItemCount = 0;
-        scheduleNecLineItemCount += defaultZero(dividendsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(interestFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(royaltiesFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(rentsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(gamblingFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(socialSecurityFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(capitalGainsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
-        scheduleNecLineItemCount += defaultZero(otherFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+
+        int dividendsIndex = 1;
+        for (Map<String, Object> item : scenario.getForm1099Div()) {
+            BigDecimal amount = positiveOrNull(decimalValue(item.get("ordinaryDividends")));
+            if (amount == null) {
+                continue;
+            }
+            addScheduleNecItem(
+                facts,
+                scheduleNecItemIds,
+                "dividends-" + dividendsIndex++,
+                "dividends",
+                amount,
+                dividendsFdapRate,
+                firstNonBlank(asString(item.get("payerName"), null), "Dividends")
+            );
+        }
+
+        int interestIndex = 1;
+        for (Map<String, Object> item : scenario.getForm1099Int()) {
+            BigDecimal amount = positiveOrNull(nonZeroOrNull(
+                decimalValue(item.get("taxableInterest")),
+                decimalValue(item.get("interestIncome"))
+            ));
+            if (amount == null) {
+                continue;
+            }
+            addScheduleNecItem(
+                facts,
+                scheduleNecItemIds,
+                "interest-" + interestIndex++,
+                "interest",
+                amount,
+                interestFdapRate,
+                firstNonBlank(asString(item.get("payerName"), null), "Interest")
+            );
+        }
+
+        int royaltiesIndex = 1;
+        int rentsIndex = 1;
+        int otherIndex = 1;
+        for (Map<String, Object> item : scenario.getForm1099Misc()) {
+            String description = firstNonBlank(
+                asString(item.get("description"), null),
+                asString(item.get("payerName"), null)
+            );
+            BigDecimal royaltiesAmount = positiveOrNull(decimalValue(item.get("royalties")));
+            if (royaltiesAmount != null) {
+                addScheduleNecItem(
+                    facts,
+                    scheduleNecItemIds,
+                    "royalties-" + royaltiesIndex++,
+                    "royalties",
+                    royaltiesAmount,
+                    royaltiesFdapRate,
+                    firstNonBlank(description, "Royalties")
+                );
+            }
+
+            BigDecimal rentsAmount = positiveOrNull(decimalValue(item.get("rents")));
+            if (rentsAmount != null) {
+                addScheduleNecItem(
+                    facts,
+                    scheduleNecItemIds,
+                    "rents-" + rentsIndex++,
+                    "rents",
+                    rentsAmount,
+                    rentsFdapRate,
+                    firstNonBlank(description, "Rents")
+                );
+            }
+
+            BigDecimal otherIncomeAmount = positiveOrNull(decimalValue(item.get("otherIncome")));
+            if (otherIncomeAmount != null) {
+                addScheduleNecItem(
+                    facts,
+                    scheduleNecItemIds,
+                    "other-" + otherIndex++,
+                    "other",
+                    otherIncomeAmount,
+                    otherFdapRate,
+                    firstNonBlank(
+                        description,
+                        asString(item.get("otherIncomeType"), null),
+                        "Other FDAP Income"
+                    )
+                );
+            }
+        }
+
+        int gamblingIndex = 1;
+        for (Map<String, Object> item : scenario.getFormW2G()) {
+            BigDecimal amount = positiveOrNull(decimalValue(item.get("winnings")));
+            if (amount == null) {
+                continue;
+            }
+            addScheduleNecItem(
+                facts,
+                scheduleNecItemIds,
+                "gambling-" + gamblingIndex++,
+                "gambling",
+                amount,
+                gamblingFdapRate,
+                firstNonBlank(asString(item.get("payerName"), null), "Gambling Winnings")
+            );
+        }
+
+        if (gamblingIndex == 1) {
+            BigDecimal gamblingFallbackAmount = positiveOrNull(decimalValue(nestedMap(scenario.getGamblingActivity()).get("gamblingWinnings")));
+            if (gamblingFallbackAmount != null) {
+                addScheduleNecItem(
+                    facts,
+                    scheduleNecItemIds,
+                    "gambling-1",
+                    "gambling",
+                    gamblingFallbackAmount,
+                    gamblingFdapRate,
+                    "Gambling Winnings"
+                );
+            }
+        }
+
+        if (positiveOrNull(socialSecurityFdap) != null) {
+            addScheduleNecItem(
+                facts,
+                scheduleNecItemIds,
+                "social-security-1",
+                "socialSecurity",
+                socialSecurityFdap,
+                socialSecurityFdapRate,
+                "Social Security Benefits"
+            );
+        }
+
+        if (positiveOrNull(capitalGainsFdap) != null) {
+            addScheduleNecItem(
+                facts,
+                scheduleNecItemIds,
+                "capital-gains-1",
+                "capitalGains",
+                capitalGainsFdap,
+                capitalGainsFdapRate,
+                "Capital Gains"
+            );
+        }
 
         facts.put("/wagesECI", createDollarWrapper(wagesEci));
         facts.put("/businessIncomeECI", createDollarWrapper(businessIncomeEci));
@@ -440,7 +615,10 @@ public class ATSToFactGraphConverter {
         facts.put("/capitalGainsFDAP", createDollarWrapper(defaultZero(capitalGainsFdap)));
         facts.put("/otherFDAP", createDollarWrapper(defaultZero(otherFdap)));
         putIfPresentString(facts, "/otherFDAPDescription", otherFdapDescription);
-        facts.put("/scheduleNECLineItemCount", createIntWrapper(scheduleNecLineItemCount));
+        ObjectNode scheduleNecCollectionNode = nodeFactory.objectNode();
+        scheduleNecCollectionNode.set("items", scheduleNecItemIds);
+        facts.put("/scheduleNECItems", new FactTypeWithItem(COLLECTION_WRAPPER, scheduleNecCollectionNode));
+        facts.put("/scheduleNECLineItemCount", createIntWrapper(scheduleNecItemIds.size()));
     }
 
     private void addAmtFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
@@ -912,6 +1090,7 @@ public class ATSToFactGraphConverter {
 
     private void addQbiFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
         Map<String, Object> form8995Qbi = scenario.getForm8995QBI();
+        ArrayNode attachmentBusinessIds = nodeFactory.arrayNode();
         facts.putIfAbsent("/directQBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/isSSTB", booleanWrapper(false));
         facts.putIfAbsent("/w2WagesPaid", createDollarWrapper(BigDecimal.ZERO));
@@ -981,6 +1160,9 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/ptpIncome", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/netCapitalGain", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/priorYearQBICarryover", createDollarWrapper(BigDecimal.ZERO));
+        ObjectNode attachmentBusinessesNode = nodeFactory.objectNode();
+        attachmentBusinessesNode.set("items", attachmentBusinessIds);
+        facts.put("/form8995AAttachmentBusinesses", new FactTypeWithItem(COLLECTION_WRAPPER, attachmentBusinessesNode));
 
         if (form8995Qbi == null) {
             return;
@@ -1046,6 +1228,17 @@ public class ATSToFactGraphConverter {
                 boolean businessIsSstb =
                     booleanValue(business.get("isSpecifiedServiceBusiness"))
                         || booleanValue(business.get("isSSTB"));
+                addForm8995AAttachmentBusiness(
+                    facts,
+                    attachmentBusinessIds,
+                    i + 1,
+                    businessName,
+                    businessQbi,
+                    businessW2,
+                    businessUbia,
+                    patronReduction,
+                    businessIsSstb
+                );
 
                 if (i < 5) {
                     facts.put("/tradeOrBusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
@@ -1780,6 +1973,63 @@ public class ATSToFactGraphConverter {
         ObjectNode collectionNode = nodeFactory.objectNode();
         collectionNode.set("items", nodeFactory.arrayNode());
         facts.put(path, new FactTypeWithItem(COLLECTION_WRAPPER, collectionNode));
+    }
+
+    private BigDecimal resolveScheduleNecRate(BigDecimal defaultTreatyRate, Object... categoryRates) {
+        BigDecimal specificRate = positiveOrNull(decimalValue(firstNonNull(categoryRates)));
+        if (specificRate != null) {
+            return specificRate;
+        }
+        if (defaultTreatyRate != null) {
+            return defaultTreatyRate;
+        }
+        return new BigDecimal("0.30");
+    }
+
+    private void addForm8995AAttachmentBusiness(
+        Map<String, FactTypeWithItem> facts,
+        ArrayNode attachmentBusinessIds,
+        int businessIndex,
+        String businessName,
+        BigDecimal businessQbi,
+        BigDecimal businessW2,
+        BigDecimal businessUbia,
+        BigDecimal patronReduction,
+        boolean businessIsSstb
+    ) {
+        String seed = "form8995A-" + businessIndex + "-" + firstNonBlank(businessName, "business");
+        String graphItemId = UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
+        String prefix = "/form8995AAttachmentBusinesses/#" + graphItemId;
+        attachmentBusinessIds.add(graphItemId);
+        putIfPresentString(facts, prefix + "/name", businessName);
+        facts.put(prefix + "/qbi", createDollarWrapper(defaultZero(businessQbi)));
+        facts.put(prefix + "/w2Wages", createDollarWrapper(defaultZero(businessW2)));
+        facts.put(prefix + "/ubia", createDollarWrapper(defaultZero(businessUbia)));
+        facts.put(prefix + "/patronReduction", createDollarWrapper(defaultZero(patronReduction)));
+        facts.put(prefix + "/isSSTB", booleanWrapper(businessIsSstb));
+    }
+
+    private void addScheduleNecItem(
+        Map<String, FactTypeWithItem> facts,
+        ArrayNode scheduleNecItemIds,
+        String itemId,
+        String category,
+        BigDecimal amount,
+        BigDecimal rate,
+        String description
+    ) {
+        BigDecimal positiveAmount = positiveOrNull(amount);
+        if (positiveAmount == null) {
+            return;
+        }
+
+        String graphItemId = UUID.nameUUIDFromBytes(itemId.getBytes(StandardCharsets.UTF_8)).toString();
+        String prefix = "/scheduleNECItems/#" + graphItemId;
+        scheduleNecItemIds.add(graphItemId);
+        facts.put(prefix + "/category", createStringWrapper(category));
+        facts.put(prefix + "/amount", createDollarWrapper(positiveAmount));
+        facts.put(prefix + "/rate", createRationalWrapper(rate));
+        putIfPresentString(facts, prefix + "/description", description);
     }
 
     private BigDecimal putExpenseFact(

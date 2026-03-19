@@ -305,6 +305,84 @@
     </Fact>
 
     <!-- ============================================ -->
+    <!-- SCHEDULE NEC LINE ITEMS                    -->
+    <!-- ============================================ -->
+
+    <Fact path="/scheduleNECItems">
+      <Name>Schedule NEC Items</Name>
+      <Description>Explicit Schedule NEC line items used to support 1040-NR flat-tax disclosures.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECItems/*/category">
+      <Name>Schedule NEC Item Category</Name>
+      <Description>Schedule NEC category for the FDAP line item.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECItems/*/amount">
+      <Name>Schedule NEC Item Amount</Name>
+      <Description>Income amount reported on the Schedule NEC line item.</Description>
+      <Writable>
+        <Dollar>
+          <Limit operation="Min" level="ERROR">
+            <DollarNode>0</DollarNode>
+          </Limit>
+        </Dollar>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECItems/*/rate">
+      <Name>Schedule NEC Item Rate</Name>
+      <Description>Tax rate applied to the Schedule NEC line item.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECItems/*/description">
+      <Name>Schedule NEC Item Description</Name>
+      <Description>Supporting description for the Schedule NEC line item.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECItems/*/tax">
+      <Name>Schedule NEC Item Tax</Name>
+      <Description>Computed tax for the Schedule NEC line item.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="../amount" />
+            <Dependency path="../rate" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleNECItemsCount">
+      <Name>Schedule NEC Items Count</Name>
+      <Description>Number of explicit Schedule NEC line items modeled in the fact graph.</Description>
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/scheduleNECItems" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
+    <!-- ============================================ -->
     <!-- FDAP INCOME (30% WITHHOLDING)              -->
     <!-- ============================================ -->
 

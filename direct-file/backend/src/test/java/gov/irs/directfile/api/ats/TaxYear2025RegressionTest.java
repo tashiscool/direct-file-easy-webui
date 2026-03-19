@@ -22,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -237,8 +238,21 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         Graph graph = factGraphService.getGraph(facts);
 
         assertThat(getFactAsInt(graph, "/form8995ATotalBusinesses")).isEqualTo(7);
+        assertThat(getFactAsInt(graph, "/form8995AAttachmentBusinessesCount")).isEqualTo(7);
         assertThat(getFactAsInt(graph, "/form8995AOverflowBusinesses")).isEqualTo(4);
         assertThat(getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement")).isTrue();
+        assertThat(getFactAsString(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(7, "Gaia Farms") + "/name"
+        )).isEqualTo("Gaia Farms");
+        assertThat(getFactAsBigDecimal(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(7, "Gaia Farms") + "/qbi"
+        )).isEqualByComparingTo(new BigDecimal("15000.00"));
+        assertThat(getFactAsBoolean(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(6, "Foxtrot Labs") + "/isSSTB"
+        )).isTrue();
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowQBI"))
             .isEqualByComparingTo(new BigDecimal("110000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"))
@@ -571,13 +585,41 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         assertThat(getFactAsString(graph, "/otherFDAPDescription")).isEqualTo("Consulting prize payout");
         assertThat(getFactAsString(graph, "/treatyBenefitDescription")).isEqualTo("Reduced royalty withholding");
         assertThat(getFactAsString(graph, "/treatyArticle")).isEqualTo("12");
+        assertThat(getFactAsInt(graph, "/scheduleNECItemsCount")).isEqualTo(4);
         assertThat(getFactAsInt(graph, "/scheduleNECLineItemCount")).isEqualTo(4);
+        assertThat(getFactAsString(graph, "/scheduleNECItems/#" + scheduleNecItemId("dividends-1") + "/category"))
+            .isEqualTo("dividends");
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECItems/#" + scheduleNecItemId("dividends-1") + "/amount"))
+            .isEqualByComparingTo(new BigDecimal("1000.00"));
+        assertThat(getFactAsString(graph, "/scheduleNECItems/#" + scheduleNecItemId("interest-1") + "/category"))
+            .isEqualTo("interest");
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECItems/#" + scheduleNecItemId("interest-1") + "/tax"))
+            .isEqualByComparingTo(new BigDecimal("75.00"));
+        assertThat(getFactAsString(graph, "/scheduleNECItems/#" + scheduleNecItemId("royalties-1") + "/category"))
+            .isEqualTo("royalties");
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECItems/#" + scheduleNecItemId("royalties-1") + "/rate"))
+            .isEqualByComparingTo(new BigDecimal("0.10"));
+        assertThat(getFactAsString(graph, "/scheduleNECItems/#" + scheduleNecItemId("other-1") + "/description"))
+            .isEqualTo("Consulting prize payout");
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECItems/#" + scheduleNecItemId("other-1") + "/rate"))
+            .isEqualByComparingTo(new BigDecimal("0.20"));
+        assertThat(getFactAsBigDecimal(graph, "/scheduleNECItems/#" + scheduleNecItemId("other-1") + "/tax"))
+            .isEqualByComparingTo(new BigDecimal("20.00"));
         assertThat(getFactAsBigDecimal(graph, "/royaltiesFDAPRate"))
             .isEqualByComparingTo(new BigDecimal("0.10"));
         assertThat(getFactAsBigDecimal(graph, "/otherFDAPRate"))
             .isEqualByComparingTo(new BigDecimal("0.20"));
         assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
             .isEqualByComparingTo(new BigDecimal("265.00"));
+    }
+
+    private String scheduleNecItemId(String seed) {
+        return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    private String form8995AAttachmentBusinessId(int businessIndex, String businessName) {
+        String seed = "form8995A-" + businessIndex + "-" + businessName;
+        return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
     }
 
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {

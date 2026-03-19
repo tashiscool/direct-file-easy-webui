@@ -78,6 +78,72 @@
       </Derived>
     </Fact>
 
+    <Fact path="/form8995AAttachmentBusinesses">
+      <Name>Form 8995-A Attachment Businesses</Name>
+      <Description>Explicit per-business supporting-statement rows for detailed QBI computations.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/name">
+      <Name>Form 8995-A Attachment Business Name</Name>
+      <Description>Trade or business name on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/qbi">
+      <Name>Form 8995-A Attachment Business QBI</Name>
+      <Description>Qualified business income for the supporting-statement row.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/w2Wages">
+      <Name>Form 8995-A Attachment Business W-2 Wages</Name>
+      <Description>W-2 wages for the supporting-statement row.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/ubia">
+      <Name>Form 8995-A Attachment Business UBIA</Name>
+      <Description>UBIA for the supporting-statement row.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/patronReduction">
+      <Name>Form 8995-A Attachment Patron Reduction</Name>
+      <Description>Patron reduction for the supporting-statement row.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/isSSTB">
+      <Name>Form 8995-A Attachment Is SSTB</Name>
+      <Description>Whether the supporting-statement row is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinessesCount">
+      <Name>Form 8995-A Attachment Businesses Count</Name>
+      <Description>Count of explicit businesses represented on the supporting statement collection.</Description>
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/form8995AAttachmentBusinesses" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
     <Fact path="/form8995ABusiness1Name">
       <Name>Form 8995-A Business 1 Name</Name>
       <Description>First displayed trade or business name on Form 8995-A.</Description>

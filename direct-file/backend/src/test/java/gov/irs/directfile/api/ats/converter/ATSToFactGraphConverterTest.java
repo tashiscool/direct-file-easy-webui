@@ -134,8 +134,15 @@ class ATSToFactGraphConverterTest {
             scenario.setForm1099Div(List.of(Map.of("ordinaryDividends", new BigDecimal("1000.00"))));
 
             Map<String, FactTypeWithItem> facts = converter.convert(scenario);
+            String firstNecItemId = facts.get("/scheduleNECItems").item().get("items").get(0).asText();
 
             assertThat(new BigDecimal(facts.get("/dividendsFDAP").item().asText()))
+                .isEqualByComparingTo(new BigDecimal("1000.00"));
+            assertThat(facts.get("/scheduleNECItems")).isNotNull();
+            assertThat(facts.get("/scheduleNECItems").item().get("items")).hasSize(1);
+            assertThat(facts.get("/scheduleNECItems/#" + firstNecItemId + "/category").item().asText())
+                .isEqualTo("dividends");
+            assertThat(new BigDecimal(facts.get("/scheduleNECItems/#" + firstNecItemId + "/amount").item().asText()))
                 .isEqualByComparingTo(new BigDecimal("1000.00"));
         }
 
