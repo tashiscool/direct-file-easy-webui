@@ -404,6 +404,22 @@
       </Writable>
     </Fact>
 
+    <Fact path="/otherFDAPDescription">
+      <Name>Other FDAP Description</Name>
+      <Description>Description for the Schedule NEC other-income line item.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleNECLineItemCount">
+      <Name>Schedule NEC Line Item Count</Name>
+      <Description>Count of non-zero Schedule NEC category lines carried by the return.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
     <Fact path="/totalFDAPIncome">
       <Name>Total FDAP Income</Name>
       <Description>Total fixed, determinable, annual, or periodic income.</Description>
@@ -621,6 +637,14 @@
     <Fact path="/treatyArticle">
       <Name>Treaty Article</Name>
       <Description>Treaty article number claimed.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/treatyBenefitDescription">
+      <Name>Treaty Benefit Description</Name>
+      <Description>Description of the treaty-based position disclosed on Schedule OI.</Description>
       <Writable>
         <String />
       </Writable>

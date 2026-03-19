@@ -296,6 +296,7 @@ public class ATSToFactGraphConverter {
             scenario.getTaxTreatyBenefits() != null && !scenario.getTaxTreatyBenefits().isEmpty();
         facts.put("/claimsTreatyBenefits", booleanWrapper(claimsTreatyBenefits));
         putIfPresentString(facts, "/treatyArticle", treatyBenefits.get("articleNumber"));
+        putIfPresentString(facts, "/treatyBenefitDescription", treatyBenefits.get("description"));
         putIfPresentDollar(facts, "/treatyExemptIncome", treatyBenefits.get("exemptIncome"));
         putIfPresentRational(facts, "/reducedTreatyRate",
             nonZeroOrNull(
@@ -371,6 +372,30 @@ public class ATSToFactGraphConverter {
                     ? scenario.getExpectedValues().getCapitalGains()
                     : null);
         BigDecimal otherFdap = sumField(scenario.getForm1099Misc(), "otherIncome");
+        String otherFdapDescription = scenario.getForm1099Misc() == null ? null : scenario.getForm1099Misc().stream()
+            .filter(item -> defaultZero(decimalValue(item.get("otherIncome"))).compareTo(BigDecimal.ZERO) > 0)
+            .map(item -> firstNonBlank(
+                asString(item.get("description"), null),
+                asString(item.get("otherIncomeType"), null)
+            ))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+        if (otherFdapDescription == null) {
+            otherFdapDescription = firstNonBlank(
+                asString(treatyBenefits.get("description"), null),
+                asString(treatyBenefits.get("treatyBenefitDescription"), null)
+            );
+        }
+        int scheduleNecLineItemCount = 0;
+        scheduleNecLineItemCount += defaultZero(dividendsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(interestFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(royaltiesFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(rentsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(gamblingFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(socialSecurityFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(capitalGainsFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
+        scheduleNecLineItemCount += defaultZero(otherFdap).compareTo(BigDecimal.ZERO) > 0 ? 1 : 0;
 
         facts.put("/wagesECI", createDollarWrapper(wagesEci));
         facts.put("/businessIncomeECI", createDollarWrapper(businessIncomeEci));
@@ -387,6 +412,8 @@ public class ATSToFactGraphConverter {
         facts.put("/socialSecurityFDAP", createDollarWrapper(defaultZero(socialSecurityFdap)));
         facts.put("/capitalGainsFDAP", createDollarWrapper(defaultZero(capitalGainsFdap)));
         facts.put("/otherFDAP", createDollarWrapper(defaultZero(otherFdap)));
+        putIfPresentString(facts, "/otherFDAPDescription", otherFdapDescription);
+        facts.put("/scheduleNECLineItemCount", createIntWrapper(scheduleNecLineItemCount));
     }
 
     private void addAmtFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
@@ -867,12 +894,28 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/form8995ABusiness1QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness2QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness3QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness4QBI", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness5QBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness1W2Wages", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness2W2Wages", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness3W2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness4W2Wages", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness5W2Wages", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness1UBIA", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness2UBIA", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995ABusiness3UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness4UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness5UBIA", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness1PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness2PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness3PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness4PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness5PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+        facts.putIfAbsent("/form8995ABusiness1IsSSTB", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ABusiness2IsSSTB", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ABusiness3IsSSTB", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ABusiness4IsSSTB", booleanWrapper(false));
+        facts.putIfAbsent("/form8995ABusiness5IsSSTB", booleanWrapper(false));
         facts.putIfAbsent("/form8995AOverflowQBI", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995AOverflowW2Wages", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/form8995AOverflowUBIA", createDollarWrapper(BigDecimal.ZERO));
@@ -948,18 +991,23 @@ public class ATSToFactGraphConverter {
                 isSstb = isSstb
                     || booleanValue(business.get("isSpecifiedServiceBusiness"))
                     || booleanValue(business.get("isSSTB"));
+                boolean businessIsSstb =
+                    booleanValue(business.get("isSpecifiedServiceBusiness"))
+                        || booleanValue(business.get("isSSTB"));
 
                 if (i < 5) {
                     facts.put("/tradeOrBusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
-                }
-                if (i < 3) {
                     facts.put("/form8995ABusiness" + (i + 1) + "QBI", createDollarWrapper(businessQbi));
                     facts.put("/form8995ABusiness" + (i + 1) + "W2Wages", createDollarWrapper(businessW2));
                     facts.put("/form8995ABusiness" + (i + 1) + "UBIA", createDollarWrapper(businessUbia));
+                    facts.put("/form8995ABusiness" + (i + 1) + "PatronReduction",
+                        createDollarWrapper(patronReduction));
+                    facts.put("/form8995ABusiness" + (i + 1) + "IsSSTB", booleanWrapper(businessIsSstb));
                     if (businessName != null) {
                         facts.put("/form8995ABusiness" + (i + 1) + "Name", createStringWrapper(businessName));
                     }
-                } else {
+                }
+                if (i >= 3) {
                     overflowQbi = overflowQbi.add(businessQbi);
                     overflowW2Wages = overflowW2Wages.add(businessW2);
                     overflowUbia = overflowUbia.add(businessUbia);
@@ -997,6 +1045,8 @@ public class ATSToFactGraphConverter {
             facts.put("/form8995ABusiness1QBI", createDollarWrapper(directQbi));
             facts.put("/form8995ABusiness1W2Wages", createDollarWrapper(totalW2Wages));
             facts.put("/form8995ABusiness1UBIA", createDollarWrapper(totalUbia));
+            facts.put("/form8995ABusiness1PatronReduction", createDollarWrapper(BigDecimal.ZERO));
+            facts.put("/form8995ABusiness1IsSSTB", booleanWrapper(isSstb));
         }
 
         facts.put("/directQBI", createDollarWrapper(directQbi));

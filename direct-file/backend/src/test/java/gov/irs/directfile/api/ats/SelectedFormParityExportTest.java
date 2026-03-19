@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         Map<String, Map<String, Object>> export = new LinkedHashMap<>();
 
         export.put("scenario-28-taylor-qbi.json", extractQbiFacts(converter, "scenario-28-taylor-qbi.json"));
+        export.put("scenario-18-thompson-rental-qbi-overflow", extractQbiOverflowFacts(converter));
         export.put("scenario-18-thompson-rental.json", extractScheduleEFacts(converter, "scenario-18-thompson-rental.json"));
         export.put("scenario-29-white-k1.json", extractScheduleEFacts(converter, "scenario-29-white-k1.json"));
         export.put("scenario-nr2-desilva.json", extract1040NrFacts(converter, "scenario-nr2-desilva.json"));
@@ -85,12 +87,54 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("qbi8995A", getFactAsBigDecimal(graph, "/qbi8995A"));
         facts.put("w2Wages8995A", getFactAsBigDecimal(graph, "/w2Wages8995A"));
         facts.put("ubia8995A", getFactAsBigDecimal(graph, "/ubia8995A"));
+        facts.put("qbiComponentBeforeLimitation", getFactAsBigDecimal(graph, "/qbiComponentBeforeLimitation"));
+        facts.put("qbiComponentAfter8995A", getFactAsBigDecimal(graph, "/qbiComponentAfter8995A"));
+        facts.put("w2UBIALimit8995A", getFactAsBigDecimal(graph, "/w2UBIALimit8995A"));
+        facts.put("isSSTB8995A", getFactAsBoolean(graph, "/isSSTB8995A"));
         facts.put("form8995ATotalBusinesses", getFactAsInt(graph, "/form8995ATotalBusinesses"));
         facts.put("form8995AOverflowBusinesses", getFactAsInt(graph, "/form8995AOverflowBusinesses"));
         facts.put("hasForm8995AAttachmentStatement", getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement"));
         facts.put("form8995AOverflowQBI", getFactAsBigDecimal(graph, "/form8995AOverflowQBI"));
+        facts.put("form8995AOverflowW2Wages", getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"));
+        facts.put("form8995AOverflowUBIA", getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"));
+        facts.put("form8995AOverflowPatronReduction", getFactAsBigDecimal(graph, "/form8995AOverflowPatronReduction"));
         facts.put("reitDividends", getFactAsBigDecimal(graph, "/reitDividends"));
         facts.put("ptpIncome", getFactAsBigDecimal(graph, "/ptpIncome"));
+        return facts;
+    }
+
+    private Map<String, Object> extractQbiOverflowFacts(ATSToFactGraphConverter converter) throws IOException {
+        ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
+        Map<String, Object> form8995Qbi = new HashMap<>();
+        form8995Qbi.put("businesses", List.of(
+            qbiBusiness("Alpha Advisory", "210000", "60000", "100000", false),
+            qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
+            qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
+            qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
+            qbiBusiness("Echo Foods", "30000", "3000", "10000", false)
+        ));
+        scenario.setForm8995QBI(form8995Qbi);
+        Graph graph = factGraphService.getGraph(converter.convert(scenario));
+
+        Map<String, Object> facts = new LinkedHashMap<>();
+        facts.put("scenario", "scenario-18-thompson-rental-qbi-overflow");
+        facts.put("form8995ATotalBusinesses", getFactAsInt(graph, "/form8995ATotalBusinesses"));
+        facts.put("form8995AOverflowBusinesses", getFactAsInt(graph, "/form8995AOverflowBusinesses"));
+        facts.put("hasForm8995AAttachmentStatement", getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement"));
+        facts.put("form8995ABusiness4Name", getFactAsString(graph, "/form8995ABusiness4Name"));
+        facts.put("form8995ABusiness5Name", getFactAsString(graph, "/form8995ABusiness5Name"));
+        facts.put("form8995ABusiness4QBI", getFactAsBigDecimal(graph, "/form8995ABusiness4QBI"));
+        facts.put("form8995ABusiness5QBI", getFactAsBigDecimal(graph, "/form8995ABusiness5QBI"));
+        facts.put("form8995ABusiness4W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness4W2Wages"));
+        facts.put("form8995ABusiness5W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness5W2Wages"));
+        facts.put("form8995ABusiness4UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness4UBIA"));
+        facts.put("form8995ABusiness5UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness5UBIA"));
+        facts.put("form8995ABusiness3IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness3IsSSTB"));
+        facts.put("form8995ABusiness4IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness4IsSSTB"));
+        facts.put("form8995ABusiness5IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness5IsSSTB"));
+        facts.put("form8995AOverflowQBI", getFactAsBigDecimal(graph, "/form8995AOverflowQBI"));
+        facts.put("form8995AOverflowW2Wages", getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"));
+        facts.put("form8995AOverflowUBIA", getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"));
         return facts;
     }
 
@@ -126,12 +170,38 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("claimsTreatyBenefits", getFactAsBoolean(graph, "/claimsTreatyBenefits"));
         facts.put("scheduleOIRequiresTreatyDisclosure", getFactAsBoolean(graph, "/scheduleOIRequiresTreatyDisclosure"));
         facts.put("scheduleOIHasForeignAddress", getFactAsBoolean(graph, "/scheduleOIHasForeignAddress"));
+        facts.put("treatyCountry", getFactAsString(graph, "/treatyCountry"));
+        facts.put("treatyArticle", getFactAsString(graph, "/treatyArticle"));
+        facts.put("treatyBenefitDescription", getFactAsString(graph, "/treatyBenefitDescription"));
+        facts.put("reducedTreatyRate", getFactAsBigDecimal(graph, "/reducedTreatyRate"));
+        facts.put("otherFDAPDescription", getFactAsString(graph, "/otherFDAPDescription"));
+        facts.put("scheduleNECLineItemCount", getFactAsInt(graph, "/scheduleNECLineItemCount"));
         facts.put("totalECI", getFactAsBigDecimal(graph, "/totalECI"));
         facts.put("totalFDAPIncome", getFactAsBigDecimal(graph, "/totalFDAPIncome"));
         facts.put("taxOnECI", getFactAsBigDecimal(graph, "/taxOnECI"));
         facts.put("scheduleNECTax", getFactAsBigDecimal(graph, "/scheduleNECTax"));
+        facts.put("dividendsFDAPTax", getFactAsBigDecimal(graph, "/dividendsFDAPTax"));
+        facts.put("interestFDAPTax", getFactAsBigDecimal(graph, "/interestFDAPTax"));
+        facts.put("royaltiesFDAPTax", getFactAsBigDecimal(graph, "/royaltiesFDAPTax"));
+        facts.put("otherFDAPTax", getFactAsBigDecimal(graph, "/otherFDAPTax"));
         facts.put("totalTaxNR", getFactAsBigDecimal(graph, "/totalTaxNR"));
         return facts;
+    }
+
+    private Map<String, Object> qbiBusiness(
+        String businessName,
+        String qbi,
+        String w2Wages,
+        String ubia,
+        boolean isSstb
+    ) {
+        Map<String, Object> business = new HashMap<>();
+        business.put("businessName", businessName);
+        business.put("qualifiedBusinessIncome", new BigDecimal(qbi));
+        business.put("w2Wages", new BigDecimal(w2Wages));
+        business.put("ubia", new BigDecimal(ubia));
+        business.put("isSpecifiedServiceBusiness", isSstb);
+        return business;
     }
 
     private Graph graphForScenario(ATSToFactGraphConverter converter, String scenarioFileName) throws IOException {

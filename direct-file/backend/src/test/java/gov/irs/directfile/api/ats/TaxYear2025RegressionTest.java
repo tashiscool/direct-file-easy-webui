@@ -243,6 +243,23 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("8000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"))
             .isEqualByComparingTo(new BigDecimal("25000.00"));
+        assertThat(getFactAsString(graph, "/form8995ABusiness4Name")).isEqualTo("Delta Rentals");
+        assertThat(getFactAsString(graph, "/form8995ABusiness5Name")).isEqualTo("Echo Foods");
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4QBI"))
+            .isEqualByComparingTo(new BigDecimal("40000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5QBI"))
+            .isEqualByComparingTo(new BigDecimal("30000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4W2Wages"))
+            .isEqualByComparingTo(new BigDecimal("5000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5W2Wages"))
+            .isEqualByComparingTo(new BigDecimal("3000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4UBIA"))
+            .isEqualByComparingTo(new BigDecimal("15000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5UBIA"))
+            .isEqualByComparingTo(new BigDecimal("10000.00"));
+        assertThat(getFactAsBoolean(graph, "/form8995ABusiness3IsSSTB")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/form8995ABusiness4IsSSTB")).isFalse();
+        assertThat(getFactAsBoolean(graph, "/form8995ABusiness5IsSSTB")).isFalse();
         assertThat(getFactAsBigDecimal(graph, "/qbi8995A"))
             .isEqualByComparingTo(new BigDecimal("420000.00"));
         assertThat(getFactAsBigDecimal(graph, "/w2Wages8995A"))
@@ -507,9 +524,14 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         scenario.setForm1099Int(List.of(Map.of("taxableInterest", new BigDecimal("500.00"))));
         scenario.setForm1099Misc(List.of(
             Map.of("royalties", new BigDecimal("200.00")),
-            Map.of("otherIncome", new BigDecimal("100.00"))
+            Map.of(
+                "otherIncome", new BigDecimal("100.00"),
+                "description", "Consulting prize payout"
+            )
         ));
         Map<String, Object> treatyBenefits = new HashMap<>();
+        treatyBenefits.put("articleNumber", "12");
+        treatyBenefits.put("description", "Reduced royalty withholding");
         treatyBenefits.put("reducedRate", new BigDecimal("0.15"));
         scenario.setTaxTreatyBenefits(treatyBenefits);
         Graph graph = factGraphService.getGraph(new HashMap<>(converter.convert(scenario)));
@@ -524,6 +546,10 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         assertThat(getFactAsBigDecimal(graph, "/otherFDAPTax"))
             .isEqualByComparingTo(new BigDecimal("15.00"));
+        assertThat(getFactAsString(graph, "/otherFDAPDescription")).isEqualTo("Consulting prize payout");
+        assertThat(getFactAsString(graph, "/treatyBenefitDescription")).isEqualTo("Reduced royalty withholding");
+        assertThat(getFactAsString(graph, "/treatyArticle")).isEqualTo("12");
+        assertThat(getFactAsInt(graph, "/scheduleNECLineItemCount")).isEqualTo(4);
         assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
             .isEqualByComparingTo(new BigDecimal("270.00"));
     }
@@ -664,6 +690,22 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         return null;
     }
 
+    private String getFactAsString(Graph graph, String path) {
+        try {
+            Result<Object> result = graph.get(path);
+            if (result != null && result.hasValue()) {
+                Object value = result.get();
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return null;
+    }
+
     private Integer getFactAsInt(Graph graph, String path) {
         try {
             Result<Object> result = graph.get(path);
@@ -675,19 +717,6 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
                 if (value != null) {
                     return Integer.parseInt(value.toString());
                 }
-            }
-        } catch (Exception e) {
-            return null;
-        }
-
-        return null;
-    }
-
-    private String getFactAsString(Graph graph, String path) {
-        try {
-            Result<Object> result = graph.get(path);
-            if (result != null && result.hasValue() && result.get() != null) {
-                return result.get().toString();
             }
         } catch (Exception e) {
             return null;
