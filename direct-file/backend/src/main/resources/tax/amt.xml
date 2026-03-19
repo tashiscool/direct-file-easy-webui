@@ -311,8 +311,8 @@
       <Export mef="true" />
       <Derived>
         <Add>
-          <Dependency module="taxCalculations" path="/taxableIncome" />
-          <Dependency path="/totalAMTAdjustments" />
+          <Dependency module="form6251" path="/taxableIncomeFromForm1040" />
+          <Dependency module="form6251" path="/form6251TotalAMTAdjustments" />
         </Add>
       </Derived>
     </Fact>

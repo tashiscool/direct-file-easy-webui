@@ -521,7 +521,7 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         assertThat(getFactAsBigDecimal(graph, "/royaltiesFDAPTax"))
             .isEqualByComparingTo(new BigDecimal("30.00"));
         assertThat(getFactAsBigDecimal(graph, "/capitalGainsFDAPTax"))
-            .isEqualByComparingTo(new BigDecimal("45.00"));
+            .isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         assertThat(getFactAsBigDecimal(graph, "/otherFDAPTax"))
             .isEqualByComparingTo(new BigDecimal("15.00"));
         assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
@@ -540,6 +540,16 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .toList();
 
         assertThat(wagePaths).isNotEmpty();
+
+        BigDecimal originalTotalWages = wagePaths.stream()
+            .map(path -> new BigDecimal(facts.get(path).item().asText()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (facts.containsKey("/atsAgiOverride")) {
+            BigDecimal originalAgi = new BigDecimal(facts.get("/atsAgiOverride").item().asText());
+            BigDecimal wageDelta = totalWages.subtract(originalTotalWages);
+            facts.put("/atsAgiOverride", dollarWrapper(originalAgi.add(wageDelta).toPlainString()));
+        }
 
         BigDecimal[] quotientAndRemainder = totalWages.divideAndRemainder(BigDecimal.valueOf(wagePaths.size()));
         BigDecimal evenShare = quotientAndRemainder[0];

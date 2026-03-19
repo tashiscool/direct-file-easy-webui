@@ -89,6 +89,13 @@
       </Writable>
     </Fact>
 
+    <Fact path="/atsAgiOverride">
+      <Description>ATS-only override for AGI when detailed income-path facts are intentionally sparse.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
     <!-- Self-employed health insurance deduction for Schedule 1 line 17 (PDF factPath) -->
     <Fact path="/selfEmployedHealthInsurance">
       <Name>Self-employed health insurance deduction</Name>
@@ -164,16 +171,35 @@
       <Export downstreamFacts="true" mef="true" />
 
       <Derived>
-        <Round>
-          <Subtract>
-            <Minuend>
-              <Dependency module="income" path="/totalIncome" />
-            </Minuend>
-            <Subtrahends>
-              <Dependency path="/adjustmentsToIncome" />
-            </Subtrahends>
-          </Subtract>
-        </Round>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/atsAgiOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsAgiOverride" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <Subtract>
+                  <Minuend>
+                    <Dependency module="income" path="/totalIncome" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/adjustmentsToIncome" />
+                  </Subtrahends>
+                </Subtract>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

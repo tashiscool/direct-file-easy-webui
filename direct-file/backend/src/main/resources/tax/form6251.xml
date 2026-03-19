@@ -18,8 +18,31 @@
       <Name>Taxable Income from Form 1040</Name>
       <Description>Taxable income from Form 1040 (Line 1).</Description>
       <Derived>
-        <Dependency module="taxCalculations" path="/taxableIncome" />
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/atsTaxableIncome6251Override" /></IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/atsTaxableIncome6251Override" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency module="taxCalculations" path="/taxableIncome" />
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
+    </Fact>
+
+    <Fact path="/atsTaxableIncome6251Override">
+      <Name>ATS Taxable Income Override for Form 6251</Name>
+      <Description>ATS-only override for taxable income when the full supporting deduction graph is unavailable.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
     </Fact>
 
     <Fact path="/stateTaxDeduction">

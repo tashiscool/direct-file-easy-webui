@@ -717,10 +717,23 @@
       <Description>Net Schedule E page-1 rental and royalty income or loss after passive loss adjustments.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Subtract>
-          <Dependency path="/deductibleRentalLoss" />
-          <Dependency path="/priorLossUsedThisYear" />
-        </Subtract>
+        <Switch>
+          <Case>
+            <When>
+              <Not><Dependency path="/hasRentalIncome" /></Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Subtract>
+                <Dependency path="/deductibleRentalLoss" />
+                <Dependency path="/priorLossUsedThisYear" />
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -770,10 +783,28 @@
       <Export mef="true" downstreamFacts="true" />
       <TaxYear>2025</TaxYear>
       <Derived>
-        <Add>
-          <Dependency path="/scheduleEPage1IncomeLoss" />
-          <Dependency path="/scheduleEPage2IncomeLoss" />
-        </Add>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Not><Dependency path="/hasRentalIncome" /></Not>
+                <Dependency path="/hasScheduleEPage2Activity" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/scheduleEPage2IncomeLoss" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Dependency path="/scheduleEPage1IncomeLoss" />
+                <Dependency path="/scheduleEPage2IncomeLoss" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

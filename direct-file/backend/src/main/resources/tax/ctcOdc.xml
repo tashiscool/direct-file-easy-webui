@@ -32,9 +32,7 @@
       <Derived>
         <GreaterThan>
           <Left>
-            <Count>
-              <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleCtc" />
-            </Count>
+            <Dependency path="/ctcEligibleDependents" />
           </Left>
           <Right>
             <Int>0</Int>
@@ -86,9 +84,28 @@
       <Export mef="true" />
 
       <Derived>
-        <Count>
-          <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleCtc" />
-        </Count>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="form8812" path="/numberOfQualifyingChildren" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="form8812" path="/numberOfQualifyingChildren" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Count>
+                <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleCtc" />
+              </Count>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -219,9 +236,28 @@
       <Export mef="true" />
 
       <Derived>
-        <Count>
-          <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleOdc" />
-        </Count>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="form8812" path="/numberOfOtherDependents" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="form8812" path="/numberOfOtherDependents" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Count>
+                <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleOdc" />
+              </Count>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 
@@ -1539,9 +1575,30 @@
       <Export mef="true" />
 
       <Derived>
-        <Round>
-          <Dependency module="taxCalculations" path="/agi" />
-        </Round>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="form8812" path="/modifiedAGI8812" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <Dependency module="form8812" path="/modifiedAGI8812" />
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <Dependency module="taxCalculations" path="/agi" />
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

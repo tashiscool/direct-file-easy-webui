@@ -223,13 +223,28 @@
       <Description>Qualified business income deduction (Line 17).</Description>
       <Export mef="true" downstreamFacts="true" />
       <Derived>
-        <Max>
-          <Dollar>0</Dollar>
-          <Min>
-            <Dependency path="/combinedQBIComponent" />
-            <Dependency path="/taxableIncomeLimitComponent" />
-          </Min>
-        </Max>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="form8995A" path="/hasForm8995A" />
+            </When>
+            <Then>
+              <Dependency module="form8995A" path="/totalQBIDeduction8995A" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Max>
+                <Dollar>0</Dollar>
+                <Min>
+                  <Dependency path="/combinedQBIComponent" />
+                  <Dependency path="/taxableIncomeLimitComponent" />
+                </Min>
+              </Max>
+            </Then>
+          </Case>
+        </Switch>
       </Derived>
     </Fact>
 

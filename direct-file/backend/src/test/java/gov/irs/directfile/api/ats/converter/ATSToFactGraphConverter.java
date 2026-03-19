@@ -7,6 +7,7 @@ import gov.irs.directfile.api.ats.model.*;
 import gov.irs.directfile.models.FactTypeWithItem;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +36,7 @@ public class ATSToFactGraphConverter {
     private static final String ENUM_WRAPPER = "gov.irs.factgraph.persisters.EnumWrapper";
     private static final String STRING_WRAPPER = "gov.irs.factgraph.persisters.StringWrapper";
     private static final String DOLLAR_WRAPPER = "gov.irs.factgraph.persisters.DollarWrapper";
+    private static final String RATIONAL_WRAPPER = "gov.irs.factgraph.persisters.RationalWrapper";
     private static final String DAY_WRAPPER = "gov.irs.factgraph.persisters.DayWrapper";
     private static final String INT_WRAPPER = "gov.irs.factgraph.persisters.IntWrapper";
 
@@ -96,6 +98,7 @@ public class ATSToFactGraphConverter {
         addScheduleSEFacts(facts, scenario);
         addScheduleEFacts(facts, scenario);
         addQbiFacts(facts, scenario);
+        addAmtFacts(facts, scenario);
         addNonresidentFacts(facts, scenario);
 
         // Add checkboxes
@@ -294,7 +297,7 @@ public class ATSToFactGraphConverter {
         facts.put("/claimsTreatyBenefits", booleanWrapper(claimsTreatyBenefits));
         putIfPresentString(facts, "/treatyArticle", treatyBenefits.get("articleNumber"));
         putIfPresentDollar(facts, "/treatyExemptIncome", treatyBenefits.get("exemptIncome"));
-        putIfPresentDollar(facts, "/reducedTreatyRate",
+        putIfPresentRational(facts, "/reducedTreatyRate",
             nonZeroOrNull(
                 decimalValue(treatyBenefits.get("reducedRate")),
                 decimalValue(treatyBenefits.get("reducedTreatyRate"))
@@ -384,6 +387,33 @@ public class ATSToFactGraphConverter {
         facts.put("/socialSecurityFDAP", createDollarWrapper(defaultZero(socialSecurityFdap)));
         facts.put("/capitalGainsFDAP", createDollarWrapper(defaultZero(capitalGainsFdap)));
         facts.put("/otherFDAP", createDollarWrapper(defaultZero(otherFdap)));
+    }
+
+    private void addAmtFacts(Map<String, FactTypeWithItem> facts, ATSScenarioData scenario) {
+        Map<String, Object> form6251AMT = scenario.getForm6251AMT();
+        if (!scenario.isHasForm6251() && (form6251AMT == null || form6251AMT.isEmpty())) {
+            return;
+        }
+
+        facts.put("/hasAMT", booleanWrapper(true));
+        putIfAbsentDollar(facts, "/stateTaxDeduction", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/homeMortgageInterestAdjustment", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/miscItemizedDeductions", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/refundOfTaxes", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/investmentInterestAdjustment", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/depreciationAdjustment", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/incentiveStockOptions", BigDecimal.ZERO);
+        putIfAbsentDollar(facts, "/otherAMTAdjustments", BigDecimal.ZERO);
+
+        if (form6251AMT == null || form6251AMT.isEmpty()) {
+            return;
+        }
+
+        putIfPresentDollar(facts, "/stateTaxDeduction", form6251AMT.get("addBackSALT"));
+        putIfPresentDollar(facts, "/incentiveStockOptions", form6251AMT.get("isoAdjustment"));
+        putIfPresentDollar(facts, "/otherAMTAdjustments", form6251AMT.get("otherAdjustments"));
+        putIfPresentDollar(facts, "/regularTaxFor6251", form6251AMT.get("regularTax"));
+        putIfPresentDollar(facts, "/atsTaxableIncome6251Override", form6251AMT.get("regularTaxableIncome"));
     }
 
     private BigDecimal nonresidentBusinessIncomeFallback(
@@ -881,6 +911,7 @@ public class ATSToFactGraphConverter {
         String firstBusinessName = null;
 
         if (hasDetailedBusinessInputs) {
+            facts.put("/hasForm8995A", booleanWrapper(true));
             for (int i = 0; i < qbiBusinesses.size(); i++) {
                 Map<String, Object> business = qbiBusinesses.get(i);
                 BigDecimal businessQbi = defaultZero(nonZeroOrNull(
@@ -940,6 +971,7 @@ public class ATSToFactGraphConverter {
                 }
             }
         } else {
+            facts.putIfAbsent("/hasForm8995A", booleanWrapper(false));
             BigDecimal qbiAmount = defaultZero(decimalValue(form8995Qbi.get("qualifiedBusinessIncome")));
             boolean scheduleCAlreadyCarriesQbi = scenario.isHasScheduleC() && scenario.getScheduleC() != null
                 && !scenario.getScheduleC().isEmpty();
@@ -1414,6 +1446,10 @@ public class ATSToFactGraphConverter {
             facts.put("/atsAdjustmentsToIncomeOverride", createDollarWrapper(expected.getAdjustmentsToIncome()));
         }
 
+        if (expected.getAgi() != null) {
+            facts.put("/atsAgiOverride", createDollarWrapper(expected.getAgi()));
+        }
+
         if (expected.getSchedule2AdditionalTax() != null &&
             expected.getSchedule2AdditionalTax().compareTo(BigDecimal.ZERO) > 0) {
             facts.put("/atsTotalAdditionalTaxesOwedOverride",
@@ -1675,6 +1711,13 @@ public class ATSToFactGraphConverter {
         }
     }
 
+    private void putIfPresentRational(Map<String, FactTypeWithItem> facts, String path, Object value) {
+        BigDecimal amount = decimalValue(value);
+        if (amount != null) {
+            facts.put(path, createRationalWrapper(amount));
+        }
+    }
+
     private void putIfPresentBoolean(Map<String, FactTypeWithItem> facts, String path, Boolean value) {
         if (value != null) {
             facts.put(path, booleanWrapper(value));
@@ -1706,6 +1749,26 @@ public class ATSToFactGraphConverter {
 
     private FactTypeWithItem booleanWrapper(boolean value) {
         return new FactTypeWithItem(BOOLEAN_WRAPPER, BooleanNode.valueOf(value));
+    }
+
+    private FactTypeWithItem createRationalWrapper(BigDecimal value) {
+        ObjectNode rationalNode = nodeFactory.objectNode();
+        BigDecimal decimal = value.stripTrailingZeros();
+        BigInteger numerator;
+        BigInteger denominator;
+        if (decimal.scale() <= 0) {
+            numerator = decimal.toBigIntegerExact();
+            denominator = BigInteger.ONE;
+        } else {
+            numerator = decimal.unscaledValue();
+            denominator = BigInteger.TEN.pow(decimal.scale());
+            BigInteger gcd = numerator.gcd(denominator);
+            numerator = numerator.divide(gcd);
+            denominator = denominator.divide(gcd);
+        }
+        rationalNode.put("n", numerator.intValueExact());
+        rationalNode.put("d", denominator.intValueExact());
+        return new FactTypeWithItem(RATIONAL_WRAPPER, rationalNode);
     }
 
     private String deriveMaritalStatus(ATSScenarioData scenario) {

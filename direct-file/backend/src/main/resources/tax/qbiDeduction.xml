@@ -486,11 +486,12 @@
           </Case>
           <Case>
             <When>
-              <All>
+              <Any>
+                <Dependency module="form8995A" path="/hasForm8995A" />
                 <Not>
                   <Dependency module="form8995" path="/canUseSimplifiedMethod" />
                 </Not>
-              </All>
+              </Any>
             </When>
             <Then>
               <Dependency module="form8995A" path="/totalQBIDeduction8995A" />

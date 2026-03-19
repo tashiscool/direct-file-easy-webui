@@ -803,7 +803,7 @@
     <!-- SELF-EMPLOYED HEALTH INSURANCE DEDUCTION    -->
     <!-- ============================================ -->
 
-    <Fact path="/selfEmployedHealthInsurance">
+    <Fact path="/selfEmployedHealthInsurancePremiums">
       <Name>Self-Employed Health Insurance Premiums</Name>
       <Description>Health insurance premiums paid for self, spouse, and dependents.</Description>
       <Writable>
@@ -827,7 +827,7 @@
             </When>
             <Then>
               <Min>
-                <Dependency path="/selfEmployedHealthInsurance" />
+                <Dependency path="/selfEmployedHealthInsurancePremiums" />
                 <Dependency path="/businessNetProfitLoss" />
               </Min>
             </Then>

@@ -48,17 +48,34 @@
     <Fact path="/form8995AOverflowBusinesses">
       <Name>Form 8995-A Overflow Businesses</Name>
       <Description>Number of additional businesses that must be carried on a supporting statement.</Description>
-      <Writable>
-        <Int />
-      </Writable>
+      <Derived>
+        <Max>
+          <Int>0</Int>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8995ATotalBusinesses" />
+            </Minuend>
+            <Subtrahends>
+              <Int>3</Int>
+            </Subtrahends>
+          </Subtract>
+        </Max>
+      </Derived>
     </Fact>
 
     <Fact path="/hasForm8995AAttachmentStatement">
       <Name>Form 8995-A Attachment Statement</Name>
       <Description>Whether a supporting statement is needed for additional businesses.</Description>
-      <Writable>
-        <Boolean />
-      </Writable>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/form8995AOverflowBusinesses" />
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
     </Fact>
 
     <Fact path="/form8995ABusiness1Name">

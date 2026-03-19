@@ -163,11 +163,21 @@
       <Description>Whether Schedule OI includes a foreign address disclosure.</Description>
       <Derived>
         <Any>
-          <Dependency path="/foreignAddressStreet" />
-          <Dependency path="/foreignAddressCity" />
-          <Dependency path="/foreignAddressProvince" />
-          <Dependency path="/foreignAddressPostalCode" />
-          <Dependency path="/foreignAddressCountry" />
+          <IsComplete>
+            <Dependency path="/foreignAddressStreet" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/foreignAddressCity" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/foreignAddressProvince" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/foreignAddressPostalCode" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/foreignAddressCountry" />
+          </IsComplete>
         </Any>
       </Derived>
     </Fact>
