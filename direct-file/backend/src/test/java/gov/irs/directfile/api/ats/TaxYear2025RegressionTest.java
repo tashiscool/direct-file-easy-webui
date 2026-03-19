@@ -513,7 +513,7 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         assertThat(getFactAsBigDecimal(graph, "/totalECI"))
             .isEqualByComparingTo(new BigDecimal("45000.00"));
         assertThat(getFactAsBigDecimal(graph, "/totalTaxNR"))
-            .isEqualByComparingTo(new BigDecimal("5162.00"));
+            .isEqualByComparingTo(new BigDecimal("5165.00"));
     }
 
     @Test

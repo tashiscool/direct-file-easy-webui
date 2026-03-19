@@ -760,14 +760,11 @@
 
     <Fact path="/scheduleEQualifiedBusinessIncome">
       <Name>Schedule E Qualified Business Income</Name>
-      <Description>Qualified business income component from Schedule E activities for QBI purposes.</Description>
+      <Description>Qualified business income component from Schedule E activities for QBI purposes. Passive rental page-1 activity is excluded unless a dedicated qualification signal is modeled.</Description>
       <TaxYear>2025</TaxYear>
       <Derived>
         <Add>
-          <Add>
-            <Dependency path="/scheduleEPage1IncomeLoss" />
-            <Dependency path="/partnershipQualifiedBusinessIncome" />
-          </Add>
+          <Dependency path="/partnershipQualifiedBusinessIncome" />
           <Dependency path="/sCorporationQualifiedBusinessIncome" />
         </Add>
       </Derived>
