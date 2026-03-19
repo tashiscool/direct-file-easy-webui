@@ -4211,7 +4211,7 @@
       <Description>A collection of people to be claimed as EITC QCs who have not been claimed as dependents</Description>
       <Export downstreamFacts="true" />
       <Derived>
-        <Filter path="/eitcDependentsCollection">
+        <Filter path="/familyAndHousehold">
           <Dependency path="isEITCQCUnclaimedDependent" />
         </Filter>
       </Derived>
@@ -4221,7 +4221,7 @@
       <Description>A collection of people to be claimed as EITC QCs who have not been claimed as dependents that have
         TINs (that we might need to collect)</Description>
       <Derived>
-        <Filter path="/eitcDependentsCollection">
+        <Filter path="/familyAndHousehold">
           <Dependency path="isEITCQCUnclaimedDependentWithTIN" />
         </Filter>
       </Derived>
@@ -4466,8 +4466,11 @@
         has to file form 8862.</Description>
       <Export downstreamFacts="true" />
       <Derived>
-        <Filter path="/eitcDependentsCollection">
-          <Dependency path="deceased" />
+        <Filter path="/familyAndHousehold">
+          <All>
+            <Dependency path="eitcQualifyingChild" />
+            <Dependency path="deceased" />
+          </All>
         </Filter>
       </Derived>
     </Fact>
@@ -4496,7 +4499,7 @@
         <GreaterThan>
           <Left>
             <CollectionSize>
-              <Filter path="/unclaimedEITCQcsCollection">
+              <Filter path="/familyAndHousehold">
                 <Dependency path="isEITCQCUnclaimedDependentWithTIN" />
               </Filter>
             </CollectionSize>
@@ -4546,7 +4549,7 @@
           <Equal>
             <Left>
               <CollectionSize>
-                <Filter path="/unclaimedEITCQcsCollection">
+                <Filter path="/familyAndHousehold">
                   <Dependency path="isEITCQCUnclaimedDependentMissingTIN" />
                 </Filter>
               </CollectionSize>

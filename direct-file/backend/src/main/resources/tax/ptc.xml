@@ -2633,16 +2633,7 @@
     <Fact path="/1095As/*/policyStartDate">
       <Description>Start date of policy</Description>
       <Derived>
-        <Switch>
-          <Case>
-            <When>
-              <Dependency path="/potentiallyApplicableTaxPayer" />
-            </When>
-            <Then>
-              <Dependency path="../writablePolicyStartDate" />
-            </Then>
-          </Case>
-        </Switch>
+        <Dependency path="../writablePolicyStartDate" />
       </Derived>
     </Fact>
 
@@ -2760,16 +2751,7 @@
     <Fact path="/1095As/*/policyEndDate">
       <Description>End/termination date of policy</Description>
       <Derived>
-        <Switch>
-          <Case>
-            <When>
-              <Dependency path="/potentiallyApplicableTaxPayer" />
-            </When>
-            <Then>
-              <Dependency path="../writablePolicyEndDate" />
-            </Then>
-          </Case>
-        </Switch>
+        <Dependency path="../writablePolicyEndDate" />
       </Derived>
     </Fact>
 

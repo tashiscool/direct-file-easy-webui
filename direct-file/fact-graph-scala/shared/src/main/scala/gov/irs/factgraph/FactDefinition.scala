@@ -17,35 +17,89 @@ final class FactDefinition(
 ) extends Factual:
   given Factual = this
 
+  private final class GuardedLazyValue[T](phase: String, compute: => T):
+    private sealed trait State
+    private case object Uninitialized extends State
+    private final case class Initializing(owner: Thread) extends State
+    private final case class Initialized(value: T) extends State
+    private final case class Failed(error: Throwable) extends State
+
+    private var state: State = Uninitialized
+
+    def get: T =
+      synchronized {
+        state match
+          case Initialized(value) => return value
+          case Failed(error)      => throw error
+          case Initializing(owner) if owner == Thread.currentThread() =>
+            throw new IllegalStateException(
+              s"recursive fact definition detected while initializing $phase for ${path.toString}",
+            )
+          case Initializing(_) =>
+            while state.isInstanceOf[Initializing] do wait()
+            state match
+              case Initialized(value) => return value
+              case Failed(error)      => throw error
+              case _                  =>
+          case Uninitialized =>
+            state = Initializing(Thread.currentThread())
+      }
+
+      try
+        val value = FactDefinition.withRecursionGuard(path, phase)(compute)
+        synchronized {
+          state = Initialized(value)
+          notifyAll()
+        }
+        value
+      catch
+        case error: Throwable =>
+          synchronized {
+            state = Failed(error)
+            notifyAll()
+          }
+          throw error
+
+  private val valueMemo = GuardedLazyValue("value", cnBuilder)
+  private val limitsMemo = GuardedLazyValue("limits", limitsBuilder.map(x => x))
+  private val sizeMemo = GuardedLazyValue(
+    "size",
+    value.getThunk match
+      case MaybeVector.Single(_)      => Factual.Size.Single
+      case MaybeVector.Multiple(_, _) => Factual.Size.Multiple,
+  )
+  private val metaMemo = GuardedLazyValue(
+    "meta",
+    Factual.Meta(
+      size,
+      abstractPath,
+    ),
+  )
+
   def attachToGraph(parent: Fact, key: PathItem): Fact =
     Fact(value, parent, limits, key, meta)
 
   def asTuple: (Path, FactDefinition) = (path, this)
 
   @JSExport
-  lazy val value: CompNode = cnBuilder
+  def value: CompNode = valueMemo.get
 
   @JSExport
-  lazy val limits: Seq[Limit] = limitsBuilder.map(x => x)
+  def limits: Seq[Limit] = limitsMemo.get
 
   @JSExport
-  lazy val meta: Factual.Meta = Factual.Meta(
-    size,
-    abstractPath,
-  )
+  def meta: Factual.Meta = metaMemo.get
 
-  lazy val size: Factual.Size = value.getThunk match
-    case MaybeVector.Single(_)      => Factual.Size.Single
-    case MaybeVector.Multiple(_, _) => Factual.Size.Multiple
+  def size: Factual.Size = sizeMemo.get
 
   @JSExport
   def abstractPath: Path = path
 
-  override def get: MaybeVector[Result[value.Value]] = size match
+  override def get: MaybeVector[Result[?]] = size match
     case Factual.Size.Single   => MaybeVector(Result.Incomplete)
     case Factual.Size.Multiple => MaybeVector(Nil, true)
 
-  override def getThunk: MaybeVector[Thunk[Result[value.Value]]] = size match
+  override def getThunk: MaybeVector[Thunk[Result[?]]] = size match
     case Factual.Size.Single   => MaybeVector(Thunk(() => Result.Incomplete))
     case Factual.Size.Multiple => MaybeVector(Nil, true)
 
@@ -79,13 +133,16 @@ final class FactDefinition(
 
   private def apply(
       pathItems: List[PathItem],
-  ): MaybeVector[Result[FactDefinition]] = pathItems match
-    case PathItem.Parent :: next => getNext(parent, next)
-    case PathItem.Child(_) :: _  => applyChild(pathItems)
-    case PathItem.Wildcard :: _  => applyWildcard(pathItems)
-    case PathItem.Member(_) :: _ => MaybeVector(Result.Incomplete)
-    case PathItem.Unknown :: _   => applyUnknown(pathItems)
-    case Nil                     => MaybeVector(Result.Complete(this))
+  ): MaybeVector[Result[FactDefinition]] =
+    FactDefinition.withResolutionGuard(path, pathItems)(
+      pathItems match
+        case PathItem.Parent :: next => getNext(parent, next)
+        case PathItem.Child(_) :: _  => applyChild(pathItems)
+        case PathItem.Wildcard :: _  => applyWildcard(pathItems)
+        case PathItem.Member(_) :: _ => MaybeVector(Result.Incomplete)
+        case PathItem.Unknown :: _   => applyUnknown(pathItems)
+        case Nil                     => MaybeVector(Result.Complete(this))
+    )
 
   private def applyChild(
       pathItems: List[PathItem],
@@ -139,6 +196,49 @@ final class FactDefinition(
       )
 
 object FactDefinition:
+  private val recursionStack = new ThreadLocal[List[String]]:
+    override def initialValue(): List[String] = Nil
+
+  private val resolutionStack = new ThreadLocal[List[String]]:
+    override def initialValue(): List[String] = Nil
+
+  private[factgraph] def withRecursionGuard[T](
+      path: Path,
+      phase: String,
+  )(body: => T): T =
+    val token = s"$phase:${path.toString}"
+    val stack = recursionStack.get()
+    if (stack.contains(token))
+      val cycle = (token :: stack.takeWhile(_ != token)).reverse :+ token
+      throw new IllegalStateException(
+        s"recursive fact definition detected: ${cycle.mkString(" -> ")}",
+      )
+    recursionStack.set(token :: stack)
+    try body
+    finally recursionStack.set(stack)
+
+  private[factgraph] def withResolutionGuard[T](
+      path: Path,
+      pathItems: List[PathItem],
+  )(body: => T): T =
+    val suffix =
+      if (pathItems.isEmpty) "<self>" else pathItems.map(_.toString).mkString("/")
+    val token = s"${path.toString} => $suffix"
+    val stack = resolutionStack.get()
+    if (stack.contains(token))
+      val cycle = (token :: stack.takeWhile(_ != token)).reverse :+ token
+      throw new IllegalStateException(
+        s"recursive fact path resolution detected: ${cycle.mkString(" -> ")}",
+      )
+    if (stack.length >= 120)
+      val preview = (token :: stack).take(40).reverse
+      throw new IllegalStateException(
+        s"fact path resolution exceeded safe depth near ${path.toString}: ${preview.mkString(" -> ")}",
+      )
+    resolutionStack.set(token :: stack)
+    try body
+    finally resolutionStack.set(stack)
+
   def apply(
       cnBuilder: Factual ?=> CompNode,
       path: Path,

@@ -60,7 +60,7 @@ private final case class MeFName(
 ):
 
   def joinName(nameParts: Seq[Option[String | Char]]): String =
-    nameParts.flatten.map(_.toString().strip()).filter(_ != "").mkString(" ")
+    nameParts.flatten.map(_.toString().trim()).filter(_ != "").mkString(" ")
   def fullName = joinName(
     firstName :: middleInitial :: lastName :: suffix :: Nil,
   )

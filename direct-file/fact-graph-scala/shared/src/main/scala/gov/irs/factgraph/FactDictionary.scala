@@ -19,9 +19,6 @@ class FactDictionary:
     definitions.keys
 
   def freeze(): Unit =
-    for {
-      (_, definition) <- definitions
-    } definition.meta
     if (meta == Meta.empty())
       throw new UnsupportedOperationException(
         "Must provide meta information to FactDictionary",
