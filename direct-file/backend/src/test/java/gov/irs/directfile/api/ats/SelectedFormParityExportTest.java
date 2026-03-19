@@ -111,7 +111,9 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
             qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
             qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
             qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
-            qbiBusiness("Echo Foods", "30000", "3000", "10000", false)
+            qbiBusiness("Echo Foods", "30000", "3000", "10000", false),
+            qbiBusiness("Foxtrot Labs", "25000", "4000", "8000", true),
+            qbiBusiness("Gaia Farms", "15000", "2000", "6000", false)
         ));
         scenario.setForm8995QBI(form8995Qbi);
         Graph graph = factGraphService.getGraph(converter.convert(scenario));
@@ -123,15 +125,25 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("hasForm8995AAttachmentStatement", getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement"));
         facts.put("form8995ABusiness4Name", getFactAsString(graph, "/form8995ABusiness4Name"));
         facts.put("form8995ABusiness5Name", getFactAsString(graph, "/form8995ABusiness5Name"));
+        facts.put("form8995ABusiness6Name", getFactAsString(graph, "/form8995ABusiness6Name"));
+        facts.put("form8995ABusiness7Name", getFactAsString(graph, "/form8995ABusiness7Name"));
         facts.put("form8995ABusiness4QBI", getFactAsBigDecimal(graph, "/form8995ABusiness4QBI"));
         facts.put("form8995ABusiness5QBI", getFactAsBigDecimal(graph, "/form8995ABusiness5QBI"));
+        facts.put("form8995ABusiness6QBI", getFactAsBigDecimal(graph, "/form8995ABusiness6QBI"));
+        facts.put("form8995ABusiness7QBI", getFactAsBigDecimal(graph, "/form8995ABusiness7QBI"));
         facts.put("form8995ABusiness4W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness4W2Wages"));
         facts.put("form8995ABusiness5W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness5W2Wages"));
+        facts.put("form8995ABusiness6W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness6W2Wages"));
+        facts.put("form8995ABusiness7W2Wages", getFactAsBigDecimal(graph, "/form8995ABusiness7W2Wages"));
         facts.put("form8995ABusiness4UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness4UBIA"));
         facts.put("form8995ABusiness5UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness5UBIA"));
+        facts.put("form8995ABusiness6UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness6UBIA"));
+        facts.put("form8995ABusiness7UBIA", getFactAsBigDecimal(graph, "/form8995ABusiness7UBIA"));
         facts.put("form8995ABusiness3IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness3IsSSTB"));
         facts.put("form8995ABusiness4IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness4IsSSTB"));
         facts.put("form8995ABusiness5IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness5IsSSTB"));
+        facts.put("form8995ABusiness6IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness6IsSSTB"));
+        facts.put("form8995ABusiness7IsSSTB", getFactAsBoolean(graph, "/form8995ABusiness7IsSSTB"));
         facts.put("form8995AOverflowQBI", getFactAsBigDecimal(graph, "/form8995AOverflowQBI"));
         facts.put("form8995AOverflowW2Wages", getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"));
         facts.put("form8995AOverflowUBIA", getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"));
@@ -174,6 +186,10 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("treatyArticle", getFactAsString(graph, "/treatyArticle"));
         facts.put("treatyBenefitDescription", getFactAsString(graph, "/treatyBenefitDescription"));
         facts.put("reducedTreatyRate", getFactAsBigDecimal(graph, "/reducedTreatyRate"));
+        facts.put("dividendsFDAPRate", getFactAsBigDecimal(graph, "/dividendsFDAPRate"));
+        facts.put("interestFDAPRate", getFactAsBigDecimal(graph, "/interestFDAPRate"));
+        facts.put("royaltiesFDAPRate", getFactAsBigDecimal(graph, "/royaltiesFDAPRate"));
+        facts.put("otherFDAPRate", getFactAsBigDecimal(graph, "/otherFDAPRate"));
         facts.put("otherFDAPDescription", getFactAsString(graph, "/otherFDAPDescription"));
         facts.put("scheduleNECLineItemCount", getFactAsInt(graph, "/scheduleNECLineItemCount"));
         facts.put("totalECI", getFactAsBigDecimal(graph, "/totalECI"));
@@ -214,12 +230,67 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         try {
             Result<Object> result = graph.get(path);
             if (result != null && result.hasValue() && result.get() != null) {
-                return new BigDecimal(result.get().toString()).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal parsed = parseDecimalValue(result.get());
+                if (parsed != null) {
+                    return parsed.setScale(2, RoundingMode.HALF_UP);
+                }
             }
         } catch (Exception ignored) {
             return null;
         }
         return null;
+    }
+
+    private BigDecimal parseDecimalValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof scala.math.BigDecimal) {
+            return new BigDecimal(value.toString());
+        }
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal;
+        }
+        if (value instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
+        }
+        if (value instanceof java.util.Map<?, ?> map) {
+            Object numerator = map.get("n");
+            Object denominator = map.get("d");
+            if (numerator instanceof Number n && denominator instanceof Number d && d.doubleValue() != 0d) {
+                return BigDecimal.valueOf(n.doubleValue())
+                    .divide(BigDecimal.valueOf(d.doubleValue()), 8, RoundingMode.HALF_UP);
+            }
+        }
+        if (value instanceof com.fasterxml.jackson.databind.JsonNode node
+            && node.has("n") && node.has("d") && node.get("d").asDouble() != 0d) {
+            return BigDecimal.valueOf(node.get("n").asDouble())
+                .divide(BigDecimal.valueOf(node.get("d").asDouble()), 8, RoundingMode.HALF_UP);
+        }
+        try {
+            java.lang.reflect.Method numeratorMethod = value.getClass().getMethod("numerator");
+            java.lang.reflect.Method denominatorMethod = value.getClass().getMethod("denominator");
+            Object numerator = numeratorMethod.invoke(value);
+            Object denominator = denominatorMethod.invoke(value);
+            if (numerator instanceof Number n && denominator instanceof Number d && d.doubleValue() != 0d) {
+                return BigDecimal.valueOf(n.doubleValue())
+                    .divide(BigDecimal.valueOf(d.doubleValue()), 8, RoundingMode.HALF_UP);
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to string parsing.
+        }
+        String text = value.toString();
+        java.util.regex.Matcher jsonMatcher =
+            java.util.regex.Pattern.compile(".*[\\{\\(]\\s*\\\"?n\\\"?\\s*[:=]\\s*([0-9.-]+).*\\\"?d\\\"?\\s*[:=]\\s*([0-9.-]+).*")
+                .matcher(text);
+        if (jsonMatcher.matches()) {
+            BigDecimal denominator = new BigDecimal(jsonMatcher.group(2));
+            if (denominator.compareTo(BigDecimal.ZERO) != 0) {
+                return new BigDecimal(jsonMatcher.group(1))
+                    .divide(denominator, 8, RoundingMode.HALF_UP);
+            }
+        }
+        return new BigDecimal(text);
     }
 
     private Integer getFactAsInt(Graph graph, String path) {

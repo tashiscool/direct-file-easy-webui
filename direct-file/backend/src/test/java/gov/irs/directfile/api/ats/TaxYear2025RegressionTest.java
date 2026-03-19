@@ -221,7 +221,9 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
             qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
             qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
-            qbiBusiness("Echo Foods", "30000", "3000", "10000", false)
+            qbiBusiness("Echo Foods", "30000", "3000", "10000", false),
+            qbiBusiness("Foxtrot Labs", "25000", "4000", "8000", true),
+            qbiBusiness("Gaia Farms", "15000", "2000", "6000", false)
         ));
         scenario.setForm8995QBI(form8995Qbi);
 
@@ -234,38 +236,54 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
 
         Graph graph = factGraphService.getGraph(facts);
 
-        assertThat(getFactAsInt(graph, "/form8995ATotalBusinesses")).isEqualTo(5);
-        assertThat(getFactAsInt(graph, "/form8995AOverflowBusinesses")).isEqualTo(2);
+        assertThat(getFactAsInt(graph, "/form8995ATotalBusinesses")).isEqualTo(7);
+        assertThat(getFactAsInt(graph, "/form8995AOverflowBusinesses")).isEqualTo(4);
         assertThat(getFactAsBoolean(graph, "/hasForm8995AAttachmentStatement")).isTrue();
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowQBI"))
-            .isEqualByComparingTo(new BigDecimal("70000.00"));
+            .isEqualByComparingTo(new BigDecimal("110000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"))
-            .isEqualByComparingTo(new BigDecimal("8000.00"));
+            .isEqualByComparingTo(new BigDecimal("14000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"))
-            .isEqualByComparingTo(new BigDecimal("25000.00"));
+            .isEqualByComparingTo(new BigDecimal("39000.00"));
         assertThat(getFactAsString(graph, "/form8995ABusiness4Name")).isEqualTo("Delta Rentals");
         assertThat(getFactAsString(graph, "/form8995ABusiness5Name")).isEqualTo("Echo Foods");
+        assertThat(getFactAsString(graph, "/form8995ABusiness6Name")).isEqualTo("Foxtrot Labs");
+        assertThat(getFactAsString(graph, "/form8995ABusiness7Name")).isEqualTo("Gaia Farms");
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4QBI"))
             .isEqualByComparingTo(new BigDecimal("40000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5QBI"))
             .isEqualByComparingTo(new BigDecimal("30000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness6QBI"))
+            .isEqualByComparingTo(new BigDecimal("25000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness7QBI"))
+            .isEqualByComparingTo(new BigDecimal("15000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4W2Wages"))
             .isEqualByComparingTo(new BigDecimal("5000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5W2Wages"))
             .isEqualByComparingTo(new BigDecimal("3000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness6W2Wages"))
+            .isEqualByComparingTo(new BigDecimal("4000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness7W2Wages"))
+            .isEqualByComparingTo(new BigDecimal("2000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness4UBIA"))
             .isEqualByComparingTo(new BigDecimal("15000.00"));
         assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness5UBIA"))
             .isEqualByComparingTo(new BigDecimal("10000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness6UBIA"))
+            .isEqualByComparingTo(new BigDecimal("8000.00"));
+        assertThat(getFactAsBigDecimal(graph, "/form8995ABusiness7UBIA"))
+            .isEqualByComparingTo(new BigDecimal("6000.00"));
         assertThat(getFactAsBoolean(graph, "/form8995ABusiness3IsSSTB")).isTrue();
         assertThat(getFactAsBoolean(graph, "/form8995ABusiness4IsSSTB")).isFalse();
         assertThat(getFactAsBoolean(graph, "/form8995ABusiness5IsSSTB")).isFalse();
+        assertThat(getFactAsBoolean(graph, "/form8995ABusiness6IsSSTB")).isTrue();
+        assertThat(getFactAsBoolean(graph, "/form8995ABusiness7IsSSTB")).isFalse();
         assertThat(getFactAsBigDecimal(graph, "/qbi8995A"))
-            .isEqualByComparingTo(new BigDecimal("420000.00"));
+            .isEqualByComparingTo(new BigDecimal("460000.00"));
         assertThat(getFactAsBigDecimal(graph, "/w2Wages8995A"))
-            .isEqualByComparingTo(new BigDecimal("98000.00"));
+            .isEqualByComparingTo(new BigDecimal("104000.00"));
         assertThat(getFactAsBigDecimal(graph, "/ubia8995A"))
-            .isEqualByComparingTo(new BigDecimal("195000.00"));
+            .isEqualByComparingTo(new BigDecimal("209000.00"));
     }
 
     @Test
@@ -533,6 +551,10 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         treatyBenefits.put("articleNumber", "12");
         treatyBenefits.put("description", "Reduced royalty withholding");
         treatyBenefits.put("reducedRate", new BigDecimal("0.15"));
+        treatyBenefits.put("reducedRates", Map.of(
+            "royalties", new BigDecimal("0.10"),
+            "other", new BigDecimal("0.20")
+        ));
         scenario.setTaxTreatyBenefits(treatyBenefits);
         Graph graph = factGraphService.getGraph(new HashMap<>(converter.convert(scenario)));
 
@@ -541,17 +563,21 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         assertThat(getFactAsBigDecimal(graph, "/interestFDAPTax"))
             .isEqualByComparingTo(new BigDecimal("75.00"));
         assertThat(getFactAsBigDecimal(graph, "/royaltiesFDAPTax"))
-            .isEqualByComparingTo(new BigDecimal("30.00"));
+            .isEqualByComparingTo(new BigDecimal("20.00"));
         assertThat(getFactAsBigDecimal(graph, "/capitalGainsFDAPTax"))
             .isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         assertThat(getFactAsBigDecimal(graph, "/otherFDAPTax"))
-            .isEqualByComparingTo(new BigDecimal("15.00"));
+            .isEqualByComparingTo(new BigDecimal("20.00"));
         assertThat(getFactAsString(graph, "/otherFDAPDescription")).isEqualTo("Consulting prize payout");
         assertThat(getFactAsString(graph, "/treatyBenefitDescription")).isEqualTo("Reduced royalty withholding");
         assertThat(getFactAsString(graph, "/treatyArticle")).isEqualTo("12");
         assertThat(getFactAsInt(graph, "/scheduleNECLineItemCount")).isEqualTo(4);
+        assertThat(getFactAsBigDecimal(graph, "/royaltiesFDAPRate"))
+            .isEqualByComparingTo(new BigDecimal("0.10"));
+        assertThat(getFactAsBigDecimal(graph, "/otherFDAPRate"))
+            .isEqualByComparingTo(new BigDecimal("0.20"));
         assertThat(getFactAsBigDecimal(graph, "/scheduleNECTax"))
-            .isEqualByComparingTo(new BigDecimal("270.00"));
+            .isEqualByComparingTo(new BigDecimal("265.00"));
     }
 
     private Map<String, FactTypeWithItem> scenarioFacts(String scenarioFileName) throws IOException {
@@ -672,15 +698,9 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             Result<Object> result = graph.get(path);
             if (result != null && result.hasValue()) {
                 Object value = result.get();
-                if (value instanceof scala.math.BigDecimal) {
-                    return new BigDecimal(value.toString()).setScale(2, RoundingMode.HALF_UP);
-                } else if (value instanceof BigDecimal) {
-                    return ((BigDecimal) value).setScale(2, RoundingMode.HALF_UP);
-                } else if (value instanceof Number) {
-                    return BigDecimal.valueOf(((Number) value).doubleValue())
-                        .setScale(2, RoundingMode.HALF_UP);
-                } else if (value != null) {
-                    return new BigDecimal(value.toString()).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal parsed = parseDecimalValue(value);
+                if (parsed != null) {
+                    return parsed.setScale(2, RoundingMode.HALF_UP);
                 }
             }
         } catch (Exception e) {
@@ -688,6 +708,58 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         }
 
         return null;
+    }
+
+    private BigDecimal parseDecimalValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof scala.math.BigDecimal) {
+            return new BigDecimal(value.toString());
+        }
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal;
+        }
+        if (value instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
+        }
+        if (value instanceof java.util.Map<?, ?> map) {
+            Object numerator = map.get("n");
+            Object denominator = map.get("d");
+            if (numerator instanceof Number n && denominator instanceof Number d && d.doubleValue() != 0d) {
+                return BigDecimal.valueOf(n.doubleValue())
+                    .divide(BigDecimal.valueOf(d.doubleValue()), 8, RoundingMode.HALF_UP);
+            }
+        }
+        if (value instanceof com.fasterxml.jackson.databind.JsonNode node
+            && node.has("n") && node.has("d") && node.get("d").asDouble() != 0d) {
+            return BigDecimal.valueOf(node.get("n").asDouble())
+                .divide(BigDecimal.valueOf(node.get("d").asDouble()), 8, RoundingMode.HALF_UP);
+        }
+        try {
+            java.lang.reflect.Method numeratorMethod = value.getClass().getMethod("numerator");
+            java.lang.reflect.Method denominatorMethod = value.getClass().getMethod("denominator");
+            Object numerator = numeratorMethod.invoke(value);
+            Object denominator = denominatorMethod.invoke(value);
+            if (numerator instanceof Number n && denominator instanceof Number d && d.doubleValue() != 0d) {
+                return BigDecimal.valueOf(n.doubleValue())
+                    .divide(BigDecimal.valueOf(d.doubleValue()), 8, RoundingMode.HALF_UP);
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Fall through to string parsing.
+        }
+        String text = value.toString();
+        java.util.regex.Matcher jsonMatcher =
+            java.util.regex.Pattern.compile(".*[\\{\\(]\\s*\\\"?n\\\"?\\s*[:=]\\s*([0-9.-]+).*\\\"?d\\\"?\\s*[:=]\\s*([0-9.-]+).*")
+                .matcher(text);
+        if (jsonMatcher.matches()) {
+            BigDecimal denominator = new BigDecimal(jsonMatcher.group(2));
+            if (denominator.compareTo(BigDecimal.ZERO) != 0) {
+                return new BigDecimal(jsonMatcher.group(1))
+                    .divide(denominator, 8, RoundingMode.HALF_UP);
+            }
+        }
+        return new BigDecimal(text);
     }
 
     private String getFactAsString(Graph graph, String path) {

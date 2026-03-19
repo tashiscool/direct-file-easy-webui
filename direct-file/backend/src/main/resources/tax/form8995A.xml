@@ -238,6 +238,166 @@
       </Writable>
     </Fact>
 
+    <Fact path="/form8995ABusiness6Name">
+      <Name>Form 8995-A Business 6 Name</Name>
+      <Description>Sixth trade or business name carried on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7Name">
+      <Name>Form 8995-A Business 7 Name</Name>
+      <Description>Seventh trade or business name carried on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8Name">
+      <Name>Form 8995-A Business 8 Name</Name>
+      <Description>Eighth trade or business name carried on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9Name">
+      <Name>Form 8995-A Business 9 Name</Name>
+      <Description>Ninth trade or business name carried on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10Name">
+      <Name>Form 8995-A Business 10 Name</Name>
+      <Description>Tenth trade or business name carried on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness6QBI">
+      <Name>Form 8995-A Business 6 QBI</Name>
+      <Description>Sixth trade or business QBI amount carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7QBI">
+      <Name>Form 8995-A Business 7 QBI</Name>
+      <Description>Seventh trade or business QBI amount carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8QBI">
+      <Name>Form 8995-A Business 8 QBI</Name>
+      <Description>Eighth trade or business QBI amount carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9QBI">
+      <Name>Form 8995-A Business 9 QBI</Name>
+      <Description>Ninth trade or business QBI amount carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10QBI">
+      <Name>Form 8995-A Business 10 QBI</Name>
+      <Description>Tenth trade or business QBI amount carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness6W2Wages">
+      <Name>Form 8995-A Business 6 W-2 Wages</Name>
+      <Description>Sixth trade or business W-2 wages carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7W2Wages">
+      <Name>Form 8995-A Business 7 W-2 Wages</Name>
+      <Description>Seventh trade or business W-2 wages carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8W2Wages">
+      <Name>Form 8995-A Business 8 W-2 Wages</Name>
+      <Description>Eighth trade or business W-2 wages carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9W2Wages">
+      <Name>Form 8995-A Business 9 W-2 Wages</Name>
+      <Description>Ninth trade or business W-2 wages carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10W2Wages">
+      <Name>Form 8995-A Business 10 W-2 Wages</Name>
+      <Description>Tenth trade or business W-2 wages carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness6UBIA">
+      <Name>Form 8995-A Business 6 UBIA</Name>
+      <Description>Sixth trade or business UBIA carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7UBIA">
+      <Name>Form 8995-A Business 7 UBIA</Name>
+      <Description>Seventh trade or business UBIA carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8UBIA">
+      <Name>Form 8995-A Business 8 UBIA</Name>
+      <Description>Eighth trade or business UBIA carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9UBIA">
+      <Name>Form 8995-A Business 9 UBIA</Name>
+      <Description>Ninth trade or business UBIA carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10UBIA">
+      <Name>Form 8995-A Business 10 UBIA</Name>
+      <Description>Tenth trade or business UBIA carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
     <Fact path="/form8995ABusiness1PatronReduction">
       <Name>Form 8995-A Business 1 Patron Reduction</Name>
       <Description>First displayed trade or business patron reduction.</Description>
@@ -278,6 +438,46 @@
       </Writable>
     </Fact>
 
+    <Fact path="/form8995ABusiness6PatronReduction">
+      <Name>Form 8995-A Business 6 Patron Reduction</Name>
+      <Description>Sixth trade or business patron reduction carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7PatronReduction">
+      <Name>Form 8995-A Business 7 Patron Reduction</Name>
+      <Description>Seventh trade or business patron reduction carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8PatronReduction">
+      <Name>Form 8995-A Business 8 Patron Reduction</Name>
+      <Description>Eighth trade or business patron reduction carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9PatronReduction">
+      <Name>Form 8995-A Business 9 Patron Reduction</Name>
+      <Description>Ninth trade or business patron reduction carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10PatronReduction">
+      <Name>Form 8995-A Business 10 Patron Reduction</Name>
+      <Description>Tenth trade or business patron reduction carried on the supporting statement.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
     <Fact path="/form8995ABusiness1IsSSTB">
       <Name>Form 8995-A Business 1 SSTB Flag</Name>
       <Description>Whether the first displayed trade or business is an SSTB.</Description>
@@ -313,6 +513,46 @@
     <Fact path="/form8995ABusiness5IsSSTB">
       <Name>Form 8995-A Business 5 SSTB Flag</Name>
       <Description>Whether the fifth trade or business carried on the supporting statement is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness6IsSSTB">
+      <Name>Form 8995-A Business 6 SSTB Flag</Name>
+      <Description>Whether the sixth trade or business carried on the supporting statement is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness7IsSSTB">
+      <Name>Form 8995-A Business 7 SSTB Flag</Name>
+      <Description>Whether the seventh trade or business carried on the supporting statement is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness8IsSSTB">
+      <Name>Form 8995-A Business 8 SSTB Flag</Name>
+      <Description>Whether the eighth trade or business carried on the supporting statement is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness9IsSSTB">
+      <Name>Form 8995-A Business 9 SSTB Flag</Name>
+      <Description>Whether the ninth trade or business carried on the supporting statement is an SSTB.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995ABusiness10IsSSTB">
+      <Name>Form 8995-A Business 10 SSTB Flag</Name>
+      <Description>Whether the tenth trade or business carried on the supporting statement is an SSTB.</Description>
       <Writable>
         <Boolean />
       </Writable>

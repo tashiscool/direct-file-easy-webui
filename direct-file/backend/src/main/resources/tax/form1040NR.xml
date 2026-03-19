@@ -485,6 +485,126 @@
       </Derived>
     </Fact>
 
+    <Fact path="/dividendsFDAPRate">
+      <Name>Dividends FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to dividend income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/interestFDAPRate">
+      <Name>Interest FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to interest income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/royaltiesFDAPRate">
+      <Name>Royalties FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to royalty income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/rentsFDAPRate">
+      <Name>Rents FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to rent income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/gamblingFDAPRate">
+      <Name>Gambling FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to gambling income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityFDAPRate">
+      <Name>Social Security FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to Social Security income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/capitalGainsFDAPRate">
+      <Name>Capital Gains FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to capital-gain income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/otherFDAPRate">
+      <Name>Other FDAP Rate</Name>
+      <Description>Schedule NEC rate applied to other FDAP income.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
     <Fact path="/taxOnFDAP">
       <Name>Tax on FDAP</Name>
       <Description>Tax on FDAP income (30% flat rate).</Description>
@@ -503,7 +623,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/dividendsFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/dividendsFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/dividendsFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -514,7 +643,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/interestFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/interestFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/interestFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -525,7 +663,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/royaltiesFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/royaltiesFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/royaltiesFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -536,7 +683,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/rentsFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/rentsFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/rentsFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -547,7 +703,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/gamblingFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/gamblingFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/gamblingFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -558,7 +723,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/socialSecurityFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/socialSecurityFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/socialSecurityFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -569,7 +743,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/capitalGainsFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/capitalGainsFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/capitalGainsFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
@@ -580,7 +763,16 @@
       <Derived>
         <Multiply>
           <Dependency path="/otherFDAP" />
-          <Dependency path="/fdapTaxRate" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/otherFDAPRate" /></IsComplete></When>
+              <Then><Dependency path="/otherFDAPRate" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dependency path="/fdapTaxRate" /></Then>
+            </Case>
+          </Switch>
         </Multiply>
       </Derived>
     </Fact>
