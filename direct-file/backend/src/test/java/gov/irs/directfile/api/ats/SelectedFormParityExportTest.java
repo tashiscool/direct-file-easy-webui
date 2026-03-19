@@ -1,5 +1,6 @@
 package gov.irs.directfile.api.ats;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import gov.irs.directfile.api.ats.converter.ATSToFactGraphConverter;
 import gov.irs.directfile.api.ats.model.ATSScenarioData;
 import gov.irs.directfile.api.loaders.service.FactGraphService;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -106,17 +108,24 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
     private Map<String, Object> extractQbiOverflowFacts(ATSToFactGraphConverter converter) throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
         Map<String, Object> form8995Qbi = new HashMap<>();
-        form8995Qbi.put("businesses", List.of(
+        Map<String, Object> deltaRentals = qbiBusiness("Delta Rentals", "40000", "5000", "15000", false);
+        deltaRentals.put("aggregationGroup", "Rental Group A");
+        deltaRentals.put("hasAggregationElection", true);
+        Map<String, Object> gaiaFarms = qbiBusiness("Gaia Farms", "15000", "2000", "6000", false);
+        gaiaFarms.put("isAgriculturalOrHorticulturalCooperative", true);
+        List<Map<String, Object>> businesses = List.of(
             qbiBusiness("Alpha Advisory", "210000", "60000", "100000", false),
             qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
             qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
-            qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
+            deltaRentals,
             qbiBusiness("Echo Foods", "30000", "3000", "10000", false),
             qbiBusiness("Foxtrot Labs", "25000", "4000", "8000", true),
-            qbiBusiness("Gaia Farms", "15000", "2000", "6000", false)
-        ));
+            gaiaFarms
+        );
+        form8995Qbi.put("businesses", businesses);
         scenario.setForm8995QBI(form8995Qbi);
-        Graph graph = factGraphService.getGraph(converter.convert(scenario));
+        Map<String, FactTypeWithItem> rawFacts = converter.convert(scenario);
+        Graph graph = factGraphService.getGraph(rawFacts);
 
         Map<String, Object> facts = new LinkedHashMap<>();
         facts.put("scenario", "scenario-18-thompson-rental-qbi-overflow");
@@ -147,6 +156,15 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("form8995AOverflowQBI", getFactAsBigDecimal(graph, "/form8995AOverflowQBI"));
         facts.put("form8995AOverflowW2Wages", getFactAsBigDecimal(graph, "/form8995AOverflowW2Wages"));
         facts.put("form8995AOverflowUBIA", getFactAsBigDecimal(graph, "/form8995AOverflowUBIA"));
+        List<Map<String, Object>> attachmentBusinesses = new ArrayList<>();
+        for (int i = 0; i < businesses.size(); i++) {
+            attachmentBusinesses.add(extractQbiAttachmentBusiness(
+                graph,
+                i + 1,
+                String.valueOf(businesses.get(i).get("businessName"))
+            ));
+        }
+        facts.put("attachmentBusinesses", attachmentBusinesses);
         return facts;
     }
 
@@ -167,7 +185,9 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
     }
 
     private Map<String, Object> extract1040NrFacts(ATSToFactGraphConverter converter, String scenarioFileName) throws IOException {
-        Graph graph = graphForScenario(converter, scenarioFileName);
+        ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
+        Map<String, FactTypeWithItem> rawFacts = converter.convert(scenario);
+        Graph graph = factGraphService.getGraph(rawFacts);
         Map<String, Object> facts = new LinkedHashMap<>();
         facts.put("scenario", scenarioFileName);
         facts.put("hasScheduleOI", getFactAsBoolean(graph, "/hasScheduleOI"));
@@ -201,6 +221,10 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         facts.put("royaltiesFDAPTax", getFactAsBigDecimal(graph, "/royaltiesFDAPTax"));
         facts.put("otherFDAPTax", getFactAsBigDecimal(graph, "/otherFDAPTax"));
         facts.put("totalTaxNR", getFactAsBigDecimal(graph, "/totalTaxNR"));
+        facts.put("scheduleOIDisclosuresCount", getFactAsInt(graph, "/scheduleOIDisclosuresCount"));
+        facts.put("scheduleOITreatyClaimsCount", getFactAsInt(graph, "/scheduleOITreatyClaimsCount"));
+        facts.put("scheduleOIDisclosures", extractScheduleOIDisclosures(rawFacts, graph));
+        facts.put("scheduleOITreatyClaims", extractScheduleOITreatyClaims(rawFacts, graph));
         return facts;
     }
 
@@ -224,6 +248,74 @@ public class SelectedFormParityExportTest extends BaseIntegrationTest {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario(scenarioFileName);
         Map<String, FactTypeWithItem> facts = converter.convert(scenario);
         return factGraphService.getGraph(facts);
+    }
+
+    private Map<String, Object> extractQbiAttachmentBusiness(Graph graph, int businessIndex, String businessName) {
+        String basePath = "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(businessIndex, businessName);
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("businessIndex", getFactAsInt(graph, basePath + "/businessIndex"));
+        row.put("statementRowNumber", getFactAsInt(graph, basePath + "/statementRowNumber"));
+        row.put("statementSection", getFactAsString(graph, basePath + "/statementSection"));
+        row.put("isAttachmentRow", getFactAsBoolean(graph, basePath + "/isAttachmentRow"));
+        row.put("name", getFactAsString(graph, basePath + "/name"));
+        row.put("qbi", getFactAsBigDecimal(graph, basePath + "/qbi"));
+        row.put("w2Wages", getFactAsBigDecimal(graph, basePath + "/w2Wages"));
+        row.put("ubia", getFactAsBigDecimal(graph, basePath + "/ubia"));
+        row.put("patronReduction", getFactAsBigDecimal(graph, basePath + "/patronReduction"));
+        row.put("isSSTB", getFactAsBoolean(graph, basePath + "/isSSTB"));
+        row.put("aggregationGroup", getFactAsString(graph, basePath + "/aggregationGroup"));
+        row.put("hasAggregationElection", getFactAsBoolean(graph, basePath + "/hasAggregationElection"));
+        row.put("isCooperative", getFactAsBoolean(graph, basePath + "/isCooperative"));
+        return row;
+    }
+
+    private List<Map<String, Object>> extractScheduleOIDisclosures(Map<String, FactTypeWithItem> rawFacts, Graph graph) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (String itemId : getCollectionIds(rawFacts, "/scheduleOIDisclosures")) {
+            String basePath = "/scheduleOIDisclosures/#" + itemId;
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("lineCode", getFactAsString(graph, basePath + "/lineCode"));
+            row.put("response", getFactAsString(graph, basePath + "/response"));
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private List<Map<String, Object>> extractScheduleOITreatyClaims(Map<String, FactTypeWithItem> rawFacts, Graph graph) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (String itemId : getCollectionIds(rawFacts, "/scheduleOITreatyClaims")) {
+            String basePath = "/scheduleOITreatyClaims/#" + itemId;
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("country", getFactAsString(graph, basePath + "/country"));
+            row.put("article", getFactAsString(graph, basePath + "/article"));
+            row.put("description", getFactAsString(graph, basePath + "/description"));
+            row.put("incomeType", getFactAsString(graph, basePath + "/incomeType"));
+            row.put("exemptIncome", getFactAsBigDecimal(graph, basePath + "/exemptIncome"));
+            row.put("reducedRate", getFactAsBigDecimal(graph, basePath + "/reducedRate"));
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private List<String> getCollectionIds(Map<String, FactTypeWithItem> rawFacts, String path) {
+        List<String> ids = new ArrayList<>();
+        FactTypeWithItem collection = rawFacts.get(path);
+        if (collection == null || collection.item() == null) {
+            return ids;
+        }
+        JsonNode items = collection.item().get("items");
+        if (items == null || !items.isArray()) {
+            return ids;
+        }
+        for (JsonNode item : items) {
+            ids.add(item.asText());
+        }
+        return ids;
+    }
+
+    private String form8995AAttachmentBusinessId(int businessIndex, String businessName) {
+        String seed = "form8995A-" + businessIndex + "-" + businessName;
+        return UUID.nameUUIDFromBytes(seed.getBytes()).toString();
     }
 
     private BigDecimal getFactAsBigDecimal(Graph graph, String path) {

@@ -226,6 +226,14 @@ public class ATSToFactGraphConverter {
         }
 
         ArrayNode scheduleNecItemIds = nodeFactory.arrayNode();
+        ArrayNode scheduleOiDisclosureIds = nodeFactory.arrayNode();
+        ArrayNode scheduleOiTreatyClaimIds = nodeFactory.arrayNode();
+        ObjectNode scheduleOiDisclosuresNode = nodeFactory.objectNode();
+        scheduleOiDisclosuresNode.set("items", scheduleOiDisclosureIds);
+        facts.put("/scheduleOIDisclosures", new FactTypeWithItem(COLLECTION_WRAPPER, scheduleOiDisclosuresNode));
+        ObjectNode scheduleOiTreatyClaimsNode = nodeFactory.objectNode();
+        scheduleOiTreatyClaimsNode.set("items", scheduleOiTreatyClaimIds);
+        facts.put("/scheduleOITreatyClaims", new FactTypeWithItem(COLLECTION_WRAPPER, scheduleOiTreatyClaimsNode));
 
         facts.put("/isNonresidentAlien", booleanWrapper(true));
         facts.putIfAbsent("/wagesECI", createDollarWrapper(BigDecimal.ZERO));
@@ -245,8 +253,9 @@ public class ATSToFactGraphConverter {
         facts.putIfAbsent("/otherFDAP", createDollarWrapper(BigDecimal.ZERO));
         facts.putIfAbsent("/treatyExemptIncome", createDollarWrapper(BigDecimal.ZERO));
 
-        if (scenario.getPrimaryTaxpayer() != null) {
-            ATSTaxpayer taxpayer = scenario.getPrimaryTaxpayer();
+        ATSTaxpayer primaryTaxpayer = scenario.getPrimaryTaxpayer();
+        if (primaryTaxpayer != null) {
+            ATSTaxpayer taxpayer = primaryTaxpayer;
             String countryOfResidence = taxpayer.getCountryOfResidence();
             if (countryOfResidence == null && taxpayer.getAddress() != null) {
                 countryOfResidence = taxpayer.getAddress().getCountry();
@@ -257,26 +266,125 @@ public class ATSToFactGraphConverter {
                 "/countryOfCitizenship",
                 firstNonNull(taxpayer.getCountryOfCitizenship(), countryOfResidence)
             );
+            addScheduleOIDisclosure(
+                facts,
+                scheduleOiDisclosureIds,
+                "countryOfResidence",
+                countryOfResidence
+            );
+            addScheduleOIDisclosure(
+                facts,
+                scheduleOiDisclosureIds,
+                "countryOfCitizenship",
+                firstNonBlank(taxpayer.getCountryOfCitizenship(), countryOfResidence)
+            );
             putIfPresentString(facts, "/visaType", taxpayer.getVisaType());
+            addScheduleOIDisclosure(facts, scheduleOiDisclosureIds, "visaType", taxpayer.getVisaType());
             putIfPresentInt(facts, "/firstYearInUS", taxpayer.getFirstYearInUS());
+            if (taxpayer.getFirstYearInUS() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "firstYearInUS",
+                    String.valueOf(taxpayer.getFirstYearInUS())
+                );
+            }
             putIfPresentInt(facts, "/daysInUS", taxpayer.getDaysInUSThisYear());
             putIfPresentInt(facts, "/daysInUSPriorYear", taxpayer.getDaysInUSPriorYear());
             putIfPresentInt(facts, "/daysInUSTwoYearsPrior", taxpayer.getDaysInUSTwoYearsPrior());
+            if (taxpayer.getDaysInUSThisYear() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "daysInUSThisYear",
+                    String.valueOf(taxpayer.getDaysInUSThisYear())
+                );
+            }
+            if (taxpayer.getDaysInUSPriorYear() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "daysInUSPriorYear",
+                    String.valueOf(taxpayer.getDaysInUSPriorYear())
+                );
+            }
+            if (taxpayer.getDaysInUSTwoYearsPrior() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "daysInUSTwoYearsPrior",
+                    String.valueOf(taxpayer.getDaysInUSTwoYearsPrior())
+                );
+            }
             Integer weightedDays = weightedSubstantialPresenceDays(
                 taxpayer.getDaysInUSThisYear(),
                 taxpayer.getDaysInUSPriorYear(),
                 taxpayer.getDaysInUSTwoYearsPrior()
             );
             putIfPresentInt(facts, "/substantialPresenceWeightedDays", weightedDays);
+            if (weightedDays != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "substantialPresenceWeightedDays",
+                    String.valueOf(weightedDays)
+                );
+            }
             putIfPresentBoolean(facts, "/appliedForGreenCard", taxpayer.getAppliedForGreenCard());
             putIfPresentBoolean(facts, "/filedPriorUsReturn", taxpayer.getFiledPriorUsReturn());
             putIfPresentBoolean(facts, "/compensationOver250kOI", taxpayer.getCompensationOver250k());
+            if (taxpayer.getAppliedForGreenCard() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "appliedForGreenCard",
+                    taxpayer.getAppliedForGreenCard() ? "Yes" : "No"
+                );
+            }
+            if (taxpayer.getFiledPriorUsReturn() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "filedPriorUsReturn",
+                    taxpayer.getFiledPriorUsReturn() ? "Yes" : "No"
+                );
+            }
+            if (taxpayer.getCompensationOver250k() != null) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "compensationOver250k",
+                    taxpayer.getCompensationOver250k() ? "Yes" : "No"
+                );
+            }
             boolean hasRealPropertyElection =
                 Boolean.TRUE.equals(taxpayer.getRealPropertyElectionFirstYear())
                     || Boolean.TRUE.equals(taxpayer.getRealPropertyElectionPriorYear());
             if (taxpayer.getRealPropertyElectionFirstYear() != null
                 || taxpayer.getRealPropertyElectionPriorYear() != null) {
                 facts.put("/hasRealPropertyElection", booleanWrapper(hasRealPropertyElection));
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "realPropertyElection",
+                    hasRealPropertyElection ? "Yes" : "No"
+                );
+                if (taxpayer.getRealPropertyElectionFirstYear() != null) {
+                    addScheduleOIDisclosure(
+                        facts,
+                        scheduleOiDisclosureIds,
+                        "realPropertyElectionFirstYear",
+                        taxpayer.getRealPropertyElectionFirstYear() ? "Yes" : "No"
+                    );
+                }
+                if (taxpayer.getRealPropertyElectionPriorYear() != null) {
+                    addScheduleOIDisclosure(
+                        facts,
+                        scheduleOiDisclosureIds,
+                        "realPropertyElectionPriorYear",
+                        taxpayer.getRealPropertyElectionPriorYear() ? "Yes" : "No"
+                    );
+                }
             }
 
             String treatyCountry = taxpayer.getTreatyCountry();
@@ -292,6 +400,18 @@ public class ATSToFactGraphConverter {
             putIfPresentString(facts, "/foreignAddressPostalCode", foreignAddress.get("postalCode"));
             putIfPresentString(facts, "/foreignAddressCountry", foreignAddress.get("country"));
             facts.put("/scheduleOIHasForeignAddress", booleanWrapper(!foreignAddress.isEmpty()));
+            if (!foreignAddress.isEmpty()) {
+                addScheduleOIDisclosure(
+                    facts,
+                    scheduleOiDisclosureIds,
+                    "foreignAddress",
+                    firstNonBlank(
+                        asString(foreignAddress.get("street"), null),
+                        asString(foreignAddress.get("city"), null),
+                        asString(foreignAddress.get("country"), null)
+                    )
+                );
+            }
         }
 
         Map<String, Object> treatyBenefits = nestedMap(scenario.getTaxTreatyBenefits());
@@ -301,12 +421,40 @@ public class ATSToFactGraphConverter {
         putIfPresentString(facts, "/treatyArticle", treatyBenefits.get("articleNumber"));
         putIfPresentString(facts, "/treatyBenefitDescription", treatyBenefits.get("description"));
         putIfPresentDollar(facts, "/treatyExemptIncome", treatyBenefits.get("exemptIncome"));
-        putIfPresentRational(facts, "/reducedTreatyRate",
-            nonZeroOrNull(
-                decimalValue(treatyBenefits.get("reducedRate")),
-                decimalValue(treatyBenefits.get("reducedTreatyRate"))
-            )
+        BigDecimal reducedTreatyRate = nonZeroOrNull(
+            decimalValue(treatyBenefits.get("reducedRate")),
+            decimalValue(treatyBenefits.get("reducedTreatyRate"))
         );
+        putIfPresentRational(facts, "/reducedTreatyRate", reducedTreatyRate);
+        if (claimsTreatyBenefits) {
+            BigDecimal exemptTreatyIncome = decimalValue(treatyBenefits.get("exemptIncome"));
+            String treatyClaimCountry = firstNonBlank(
+                asString(treatyBenefits.get("treatyCountry"), null),
+                asString(treatyBenefits.get("country"), null),
+                asString(treatyBenefits.get("countryOfResidence"), null),
+                asString(treatyBenefits.get("countryCode"), null),
+                primaryTaxpayer != null
+                    ? firstNonBlank(primaryTaxpayer.getTaxTreatyCountry(), primaryTaxpayer.getTreatyCountry())
+                    : null
+            );
+            String treatyClaimIncomeType = firstNonBlank(
+                asString(treatyBenefits.get("incomeType"), null),
+                asString(treatyBenefits.get("category"), null),
+                asString(treatyBenefits.get("benefitType"), null),
+                exemptTreatyIncome != null ? "exemptIncome" : null,
+                reducedTreatyRate != null ? "reducedRate" : null
+            );
+            addScheduleOITreatyClaim(
+                facts,
+                scheduleOiTreatyClaimIds,
+                treatyClaimCountry,
+                asString(treatyBenefits.get("articleNumber"), null),
+                asString(treatyBenefits.get("description"), null),
+                treatyClaimIncomeType,
+                exemptTreatyIncome,
+                reducedTreatyRate
+            );
+        }
         Map<String, Object> reducedRates = nestedMap(treatyBenefits.get("reducedRates"));
         putIfPresentRational(facts, "/dividendsFDAPRate", firstNonNull(
             reducedRates.get("dividends"),
@@ -1228,6 +1376,17 @@ public class ATSToFactGraphConverter {
                 boolean businessIsSstb =
                     booleanValue(business.get("isSpecifiedServiceBusiness"))
                         || booleanValue(business.get("isSSTB"));
+                String aggregationGroup = firstNonBlank(
+                    asString(business.get("aggregationGroup"), null),
+                    asString(business.get("aggregationGroupName"), null),
+                    asString(business.get("aggregationElectionGroup"), null)
+                );
+                boolean hasAggregationElection =
+                    booleanValue(business.get("hasAggregationElection")) || aggregationGroup != null;
+                boolean isCooperative = booleanValue(firstNonNull(
+                    business.get("isAgriculturalOrHorticulturalCooperative"),
+                    business.get("isCooperative")
+                ));
                 addForm8995AAttachmentBusiness(
                     facts,
                     attachmentBusinessIds,
@@ -1237,7 +1396,10 @@ public class ATSToFactGraphConverter {
                     businessW2,
                     businessUbia,
                     patronReduction,
-                    businessIsSstb
+                    businessIsSstb,
+                    aggregationGroup,
+                    hasAggregationElection,
+                    isCooperative
                 );
 
                 if (i < 5) {
@@ -1986,6 +2148,56 @@ public class ATSToFactGraphConverter {
         return new BigDecimal("0.30");
     }
 
+    private void addScheduleOIDisclosure(
+        Map<String, FactTypeWithItem> facts,
+        ArrayNode scheduleOiDisclosureIds,
+        String lineCode,
+        String response
+    ) {
+        String nonBlankResponse = firstNonBlank(response);
+        if (lineCode == null || lineCode.isBlank() || nonBlankResponse == null) {
+            return;
+        }
+        String graphItemId = UUID.nameUUIDFromBytes(
+            ("scheduleOI-" + lineCode).getBytes(StandardCharsets.UTF_8)
+        ).toString();
+        String prefix = "/scheduleOIDisclosures/#" + graphItemId;
+        scheduleOiDisclosureIds.add(graphItemId);
+        facts.put(prefix + "/lineCode", createStringWrapper(lineCode));
+        facts.put(prefix + "/response", createStringWrapper(nonBlankResponse));
+    }
+
+    private void addScheduleOITreatyClaim(
+        Map<String, FactTypeWithItem> facts,
+        ArrayNode scheduleOiTreatyClaimIds,
+        String country,
+        String article,
+        String description,
+        String incomeType,
+        BigDecimal exemptIncome,
+        BigDecimal reducedRate
+    ) {
+        String claimCountry = firstNonBlank(country, "treaty");
+        String claimArticle = firstNonBlank(article, "article");
+        String claimIncomeType = firstNonBlank(incomeType, "generic");
+        String graphItemId = UUID.nameUUIDFromBytes(
+            ("scheduleOITreaty-" + claimCountry + "-" + claimArticle + "-" + claimIncomeType)
+                .getBytes(StandardCharsets.UTF_8)
+        ).toString();
+        String prefix = "/scheduleOITreatyClaims/#" + graphItemId;
+        scheduleOiTreatyClaimIds.add(graphItemId);
+        putIfPresentString(facts, prefix + "/country", claimCountry);
+        putIfPresentString(facts, prefix + "/article", article);
+        putIfPresentString(facts, prefix + "/description", description);
+        putIfPresentString(facts, prefix + "/incomeType", claimIncomeType);
+        if (exemptIncome != null) {
+            facts.put(prefix + "/exemptIncome", createDollarWrapper(exemptIncome));
+        }
+        if (reducedRate != null) {
+            facts.put(prefix + "/reducedRate", createRationalWrapper(reducedRate));
+        }
+    }
+
     private void addForm8995AAttachmentBusiness(
         Map<String, FactTypeWithItem> facts,
         ArrayNode attachmentBusinessIds,
@@ -1995,11 +2207,16 @@ public class ATSToFactGraphConverter {
         BigDecimal businessW2,
         BigDecimal businessUbia,
         BigDecimal patronReduction,
-        boolean businessIsSstb
+        boolean businessIsSstb,
+        String aggregationGroup,
+        boolean hasAggregationElection,
+        boolean isCooperative
     ) {
         String seed = "form8995A-" + businessIndex + "-" + firstNonBlank(businessName, "business");
         String graphItemId = UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
         String prefix = "/form8995AAttachmentBusinesses/#" + graphItemId;
+        boolean isAttachmentRow = businessIndex > 3;
+        int statementRowNumber = isAttachmentRow ? businessIndex - 3 : businessIndex;
         attachmentBusinessIds.add(graphItemId);
         putIfPresentString(facts, prefix + "/name", businessName);
         facts.put(prefix + "/qbi", createDollarWrapper(defaultZero(businessQbi)));
@@ -2007,6 +2224,13 @@ public class ATSToFactGraphConverter {
         facts.put(prefix + "/ubia", createDollarWrapper(defaultZero(businessUbia)));
         facts.put(prefix + "/patronReduction", createDollarWrapper(defaultZero(patronReduction)));
         facts.put(prefix + "/isSSTB", booleanWrapper(businessIsSstb));
+        facts.put(prefix + "/businessIndex", createIntWrapper(businessIndex));
+        facts.put(prefix + "/statementRowNumber", createIntWrapper(statementRowNumber));
+        facts.put(prefix + "/statementSection", createStringWrapper(isAttachmentRow ? "Attachment Statement" : "Form 8995-A"));
+        facts.put(prefix + "/isAttachmentRow", booleanWrapper(isAttachmentRow));
+        putIfPresentString(facts, prefix + "/aggregationGroup", aggregationGroup);
+        facts.put(prefix + "/hasAggregationElection", booleanWrapper(hasAggregationElection));
+        facts.put(prefix + "/isCooperative", booleanWrapper(isCooperative));
     }
 
     private void addScheduleNecItem(

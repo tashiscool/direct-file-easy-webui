@@ -134,6 +134,62 @@
       </Writable>
     </Fact>
 
+    <Fact path="/form8995AAttachmentBusinesses/*/businessIndex">
+      <Name>Form 8995-A Attachment Business Index</Name>
+      <Description>Original 1-based business ordering used for Form 8995-A and its supporting statement.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/statementRowNumber">
+      <Name>Form 8995-A Attachment Statement Row Number</Name>
+      <Description>1-based row number within the rendered form or supporting statement section.</Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/statementSection">
+      <Name>Form 8995-A Attachment Statement Section</Name>
+      <Description>Whether the rendered row appears on Form 8995-A directly or on the supporting statement.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/isAttachmentRow">
+      <Name>Form 8995-A Attachment Is Overflow Row</Name>
+      <Description>Whether the rendered row appears on the supporting statement instead of the primary form slots.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/aggregationGroup">
+      <Name>Form 8995-A Attachment Aggregation Group</Name>
+      <Description>Named aggregation group or election grouping for the rendered business row.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/hasAggregationElection">
+      <Name>Form 8995-A Attachment Has Aggregation Election</Name>
+      <Description>Whether the rendered business row participates in an aggregation election.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8995AAttachmentBusinesses/*/isCooperative">
+      <Name>Form 8995-A Attachment Is Cooperative</Name>
+      <Description>Whether the rendered business row represents cooperative or patronage-sensitive QBI data.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
     <Fact path="/form8995AAttachmentBusinessesCount">
       <Name>Form 8995-A Attachment Businesses Count</Name>
       <Description>Count of explicit businesses represented on the supporting statement collection.</Description>

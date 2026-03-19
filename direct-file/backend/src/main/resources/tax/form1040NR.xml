@@ -190,6 +190,113 @@
       </Derived>
     </Fact>
 
+    <Fact path="/scheduleOIDisclosures">
+      <Name>Schedule OI Disclosures</Name>
+      <Description>Explicit Schedule OI disclosure rows represented in the fact graph.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOIDisclosures/*/lineCode">
+      <Name>Schedule OI Disclosure Line Code</Name>
+      <Description>Identifier for the Schedule OI disclosure row.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOIDisclosures/*/response">
+      <Name>Schedule OI Disclosure Response</Name>
+      <Description>Rendered response for the Schedule OI disclosure row.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOIDisclosuresCount">
+      <Name>Schedule OI Disclosures Count</Name>
+      <Description>Count of explicit Schedule OI disclosure rows.</Description>
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/scheduleOIDisclosures" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims">
+      <Name>Schedule OI Treaty Claims</Name>
+      <Description>Explicit treaty-claim disclosures represented for Schedule OI.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/country">
+      <Name>Schedule OI Treaty Claim Country</Name>
+      <Description>Country for the treaty claim disclosure.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/article">
+      <Name>Schedule OI Treaty Claim Article</Name>
+      <Description>Article number for the treaty claim disclosure.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/description">
+      <Name>Schedule OI Treaty Claim Description</Name>
+      <Description>Description for the treaty claim disclosure.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/incomeType">
+      <Name>Schedule OI Treaty Claim Income Type</Name>
+      <Description>Income type or treaty-claim category disclosed on Schedule OI.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/exemptIncome">
+      <Name>Schedule OI Treaty Claim Exempt Income</Name>
+      <Description>Income exempt under the disclosed treaty claim.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaims/*/reducedRate">
+      <Name>Schedule OI Treaty Claim Reduced Rate</Name>
+      <Description>Reduced treaty withholding rate disclosed on Schedule OI.</Description>
+      <Writable>
+        <Decimal>
+          <Limit operation="Min" level="ERROR">
+            <DecimalNode>0</DecimalNode>
+          </Limit>
+          <Limit operation="Max" level="ERROR">
+            <DecimalNode>0.30</DecimalNode>
+          </Limit>
+        </Decimal>
+      </Writable>
+    </Fact>
+
+    <Fact path="/scheduleOITreatyClaimsCount">
+      <Name>Schedule OI Treaty Claims Count</Name>
+      <Description>Count of explicit treaty claims disclosed for Schedule OI.</Description>
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/scheduleOITreatyClaims" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
     <!-- ============================================ -->
     <!-- EFFECTIVELY CONNECTED INCOME                -->
     <!-- ============================================ -->

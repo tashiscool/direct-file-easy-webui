@@ -217,14 +217,19 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
     void testForm8995AOverflowStatementFacts() throws IOException {
         ATSScenarioData scenario = ATSScenarioLoader.loadScenario("scenario-18-thompson-rental.json");
         Map<String, Object> form8995Qbi = new HashMap<>();
+        Map<String, Object> deltaRentals = qbiBusiness("Delta Rentals", "40000", "5000", "15000", false);
+        deltaRentals.put("aggregationGroup", "Rental Group A");
+        deltaRentals.put("hasAggregationElection", true);
+        Map<String, Object> gaiaFarms = qbiBusiness("Gaia Farms", "15000", "2000", "6000", false);
+        gaiaFarms.put("isAgriculturalOrHorticulturalCooperative", true);
         form8995Qbi.put("businesses", List.of(
             qbiBusiness("Alpha Advisory", "210000", "60000", "100000", false),
             qbiBusiness("Beta Logistics", "90000", "20000", "50000", false),
             qbiBusiness("Gamma Studio", "50000", "10000", "20000", true),
-            qbiBusiness("Delta Rentals", "40000", "5000", "15000", false),
+            deltaRentals,
             qbiBusiness("Echo Foods", "30000", "3000", "10000", false),
             qbiBusiness("Foxtrot Labs", "25000", "4000", "8000", true),
-            qbiBusiness("Gaia Farms", "15000", "2000", "6000", false)
+            gaiaFarms
         ));
         scenario.setForm8995QBI(form8995Qbi);
 
@@ -252,6 +257,34 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
         assertThat(getFactAsBoolean(
             graph,
             "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(6, "Foxtrot Labs") + "/isSSTB"
+        )).isTrue();
+        assertThat(getFactAsInt(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/businessIndex"
+        )).isEqualTo(4);
+        assertThat(getFactAsInt(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/statementRowNumber"
+        )).isEqualTo(1);
+        assertThat(getFactAsString(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/statementSection"
+        )).isEqualTo("Attachment Statement");
+        assertThat(getFactAsBoolean(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/isAttachmentRow"
+        )).isTrue();
+        assertThat(getFactAsString(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/aggregationGroup"
+        )).isEqualTo("Rental Group A");
+        assertThat(getFactAsBoolean(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(4, "Delta Rentals") + "/hasAggregationElection"
+        )).isTrue();
+        assertThat(getFactAsBoolean(
+            graph,
+            "/form8995AAttachmentBusinesses/#" + form8995AAttachmentBusinessId(7, "Gaia Farms") + "/isCooperative"
         )).isTrue();
         assertThat(getFactAsBigDecimal(graph, "/form8995AOverflowQBI"))
             .isEqualByComparingTo(new BigDecimal("110000.00"));
@@ -613,7 +646,77 @@ public class TaxYear2025RegressionTest extends BaseIntegrationTest {
             .isEqualByComparingTo(new BigDecimal("265.00"));
     }
 
+    @Test
+    @DisplayName("Form 1040-NR models explicit Schedule OI disclosure and treaty rows")
+    void testForm1040NrScheduleOiDisclosureRows() throws IOException {
+        Graph graph = factGraphService.getGraph(scenarioFacts("scenario-nr5-chen.json"));
+
+        assertThat(getFactAsInt(graph, "/scheduleOIDisclosuresCount")).isGreaterThanOrEqualTo(15);
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("visaType") + "/response"
+        )).isEqualTo("F-1");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("countryOfCitizenship") + "/response"
+        )).isEqualTo("CN");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("firstYearInUS") + "/response"
+        )).isEqualTo("2022");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("foreignAddress") + "/response"
+        )).isEqualTo("123 Nanjing Road");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("appliedForGreenCard") + "/response"
+        )).isEqualTo("No");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("realPropertyElection") + "/response"
+        )).isEqualTo("No");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("realPropertyElectionFirstYear") + "/response"
+        )).isEqualTo("No");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOIDisclosures/#" + scheduleOidDisclosureId("realPropertyElectionPriorYear") + "/response"
+        )).isEqualTo("No");
+        assertThat(getFactAsInt(graph, "/scheduleOITreatyClaimsCount")).isEqualTo(1);
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOITreatyClaims/#" + scheduleOiTreatyClaimId("China", "20", "exemptIncome") + "/country"
+        )).isEqualTo("China");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOITreatyClaims/#" + scheduleOiTreatyClaimId("China", "20", "exemptIncome") + "/article"
+        )).isEqualTo("20");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOITreatyClaims/#" + scheduleOiTreatyClaimId("China", "20", "exemptIncome") + "/description"
+        )).isEqualTo("Student/Trainee Article - Up to $5,000 exempt");
+        assertThat(getFactAsString(
+            graph,
+            "/scheduleOITreatyClaims/#" + scheduleOiTreatyClaimId("China", "20", "exemptIncome") + "/incomeType"
+        )).isEqualTo("exemptIncome");
+        assertThat(getFactAsBigDecimal(
+            graph,
+            "/scheduleOITreatyClaims/#" + scheduleOiTreatyClaimId("China", "20", "exemptIncome") + "/exemptIncome"
+        )).isEqualByComparingTo(new BigDecimal("5000.00"));
+    }
+
     private String scheduleNecItemId(String seed) {
+        return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    private String scheduleOidDisclosureId(String lineCode) {
+        return UUID.nameUUIDFromBytes(("scheduleOI-" + lineCode).getBytes(StandardCharsets.UTF_8)).toString();
+    }
+
+    private String scheduleOiTreatyClaimId(String country, String article, String incomeType) {
+        String seed = "scheduleOITreaty-" + country + "-" + article + "-" + incomeType;
         return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
     }
 
