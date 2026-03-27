@@ -1,5 +1,8 @@
 import { StateOrProvince } from './StateOrProvince.js';
 
+export type StateCapabilityLane = `native` | `transfer_export` | `expert_route`;
+export type StateCapabilitySubmissionMode = `self_service` | `handoff` | `expert_review`;
+
 // Align with state-tax StateProfile
 export type StateProfile = {
   stateCode: StateOrProvince;
@@ -13,6 +16,11 @@ export type StateProfile = {
   languages: Record<string, string>;
   taxSystemName: string;
   acceptedOnly: boolean;
+  lane?: StateCapabilityLane;
+  submissionMode?: StateCapabilitySubmissionMode;
+  statusSupport?: string[];
+  supportedForms?: string[];
+  expertHandoffUrl?: string | null;
   // customFilingDeadline is timezone agnostic.
   // e.g. A value of 04-17 23:59:59.999999 is 04-17 23:59:59.999999 regardless of the user's timezone
   customFilingDeadline: string | null;
