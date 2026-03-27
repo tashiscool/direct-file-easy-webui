@@ -14,6 +14,7 @@ import { Path } from '../../flow/Path.js';
 import useFact from '../../hooks/useFact.js';
 import ErroredReturnDetails from './ErroredReturnDetails/ErroredReturnDetails.js';
 import { TaxReturnsContext } from '../../context/TaxReturnsContext.js';
+import FederalReturnStatusAlert from '../../components/FederalReturnStatusAlert/FederalReturnStatusAlert.js';
 
 export const TaxReturnDetails = () => {
   const { i18n } = useTranslation(`translation`);
@@ -52,6 +53,12 @@ export const TaxReturnDetails = () => {
         </>
       )}
       <Heading i18nKey='/heading/federal-tax-return' collectionId={null} />
+      {submissionStatus && (
+        <>
+          <FederalReturnStatusAlert taxReturn={currentTaxReturn} submissionStatus={submissionStatus} className='margin-bottom-4' />
+          <HorizontalRule />
+        </>
+      )}
       <p>
         <Translation
           i18nKey='info./info/federal-tax-return/tax-return-id.body'
