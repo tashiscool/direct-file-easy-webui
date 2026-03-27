@@ -24,6 +24,7 @@ import { ConcretePath } from '@irs/js-factgraph-scala';
 import { TaxProfileContextOrSpinnerGate } from '../../screens/TaxProfileContextOrSpinnerGate.js';
 import { useFactGraph } from '../../factgraph/FactGraphContext.js';
 import { PriorYearTaxReturnCard } from '../../components/TaxReturnCard/PriorYearTaxReturnCard.js';
+import SubmissionLifecycleAlert from '../../components/SubmissionLifecycleAlert/SubmissionLifecycleAlert.js';
 
 const Account = () => {
   const { currentTaxReturnId } = useContext(TaxReturnsContext);
@@ -47,7 +48,7 @@ export const AccountContent = () => {
   const { factGraph } = useFactGraph();
   const currentTaxReturn = getTaxReturnById(taxReturns, currentTaxReturnId);
   const hasSubmitted = currentTaxReturn && hasBeenSubmitted(currentTaxReturn);
-  const { submissionStatus } = useContext(SubmissionStatusContext);
+  const { submissionStatus, isFetching, fetchError, lastFetchAttempt, fetchSubmissionStatus } = useContext(SubmissionStatusContext);
   const statusIsRejected = submissionStatus && submissionStatus.status === FEDERAL_RETURN_STATUS.REJECTED;
   const resetDisabled = !!(hasSubmitted && !statusIsRejected);
 
@@ -67,6 +68,15 @@ export const AccountContent = () => {
   return (
     <>
       <SystemAlertAggregator />
+      <SubmissionLifecycleAlert
+        taxReturn={currentTaxReturn}
+        submissionStatus={submissionStatus}
+        isFetching={isFetching}
+        fetchError={fetchError}
+        lastFetchAttempt={lastFetchAttempt}
+        onRetry={currentTaxReturnId ? () => fetchSubmissionStatus(currentTaxReturnId) : undefined}
+        className='margin-bottom-3'
+      />
       <PageTitle redactedTitle={redacted}>{t(`account.title`)}</PageTitle>
       <USAIconList>
         <IconListItem key={1}>

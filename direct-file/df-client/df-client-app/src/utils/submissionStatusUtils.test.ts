@@ -1,8 +1,32 @@
-import { areAnyRejectionsNotFixable } from './submissionStatusUtils.js';
-import { RejectedStatus } from '../types/core.js';
+import { areAnyRejectionsNotFixable, getSubmissionLifecycleState } from './submissionStatusUtils.js';
+import { RejectedStatus, TaxReturn, TaxReturnSubmissionStatus } from '../types/core.js';
 import { MEF_REJECTION_ERROR_CODES } from '../constants/rejectionConstants.js';
+import { CURRENT_TAX_YEAR, FEDERAL_RETURN_STATUS } from '../constants/taxConstants.js';
 
 describe(`submissionStatusUtils`, () => {
+  const submittedTaxReturn: TaxReturn = {
+    id: `tax-return-1`,
+    createdAt: new Date().toISOString(),
+    taxYear: parseInt(CURRENT_TAX_YEAR),
+    facts: {},
+    taxReturnSubmissions: [
+      {
+        id: `submission-1`,
+        receiptId: `receipt-1`,
+        submitUserId: `user-1`,
+        createdAt: new Date().toISOString(),
+        submissionReceivedAt: new Date().toISOString(),
+      },
+    ],
+    isEditable: true,
+    surveyOptIn: null,
+  };
+  const acceptedStatus: TaxReturnSubmissionStatus = {
+    status: FEDERAL_RETURN_STATUS.ACCEPTED,
+    rejectionCodes: [],
+    createdAt: new Date().toISOString(),
+  };
+
   describe(areAnyRejectionsNotFixable.name, () => {
     it(`returns true if even one rejection code is not fixable`, () => {
       const rejectionCodes: RejectedStatus[] = [
@@ -41,6 +65,56 @@ describe(`submissionStatusUtils`, () => {
       ];
 
       expect(areAnyRejectionsNotFixable(rejectionCodes)).toBeFalsy();
+    });
+  });
+
+  describe(getSubmissionLifecycleState.name, () => {
+    it(`returns checking_status before the first fetch finishes`, () => {
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: submittedTaxReturn,
+          submissionStatus: undefined,
+          isFetching: true,
+          fetchError: undefined,
+          lastFetchAttempt: null,
+        })
+      ).toEqual(`checking_status`);
+    });
+
+    it(`returns status_fetch_error when status lookup fails`, () => {
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: submittedTaxReturn,
+          submissionStatus: undefined,
+          isFetching: false,
+          fetchError: new Error(`boom`),
+          lastFetchAttempt: new Date(),
+        })
+      ).toEqual(`status_fetch_error`);
+    });
+
+    it(`returns status_unavailable when we submitted but still have no status object`, () => {
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: submittedTaxReturn,
+          submissionStatus: undefined,
+          isFetching: false,
+          fetchError: undefined,
+          lastFetchAttempt: new Date(),
+        })
+      ).toEqual(`status_unavailable`);
+    });
+
+    it(`returns status_ready when a submission status is present`, () => {
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: submittedTaxReturn,
+          submissionStatus: acceptedStatus,
+          isFetching: false,
+          fetchError: undefined,
+          lastFetchAttempt: new Date(),
+        })
+      ).toEqual(`status_ready`);
     });
   });
 });

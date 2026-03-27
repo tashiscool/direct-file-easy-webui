@@ -15,10 +15,11 @@ import useFact from '../../hooks/useFact.js';
 import ErroredReturnDetails from './ErroredReturnDetails/ErroredReturnDetails.js';
 import { TaxReturnsContext } from '../../context/TaxReturnsContext.js';
 import FederalReturnStatusAlert from '../../components/FederalReturnStatusAlert/FederalReturnStatusAlert.js';
+import SubmissionLifecycleAlert from '../../components/SubmissionLifecycleAlert/SubmissionLifecycleAlert.js';
 
 export const TaxReturnDetails = () => {
   const { i18n } = useTranslation(`translation`);
-  const { submissionStatus } = useContext(SubmissionStatusContext);
+  const { submissionStatus, isFetching, fetchError, lastFetchAttempt, fetchSubmissionStatus } = useContext(SubmissionStatusContext);
   const { currentTaxReturnId, taxReturns } = useContext(TaxReturnsContext);
   const currentTaxReturn = getTaxReturnById(taxReturns, currentTaxReturnId);
   const [selfSelectPin] = useFact<boolean>(Path.concretePath(`/selfSelectPin`, null));
@@ -53,6 +54,15 @@ export const TaxReturnDetails = () => {
         </>
       )}
       <Heading i18nKey='/heading/federal-tax-return' collectionId={null} />
+      <SubmissionLifecycleAlert
+        taxReturn={currentTaxReturn}
+        submissionStatus={submissionStatus}
+        isFetching={isFetching}
+        fetchError={fetchError}
+        lastFetchAttempt={lastFetchAttempt}
+        onRetry={currentTaxReturnId ? () => fetchSubmissionStatus(currentTaxReturnId) : undefined}
+        className='margin-bottom-4'
+      />
       {submissionStatus && (
         <>
           <FederalReturnStatusAlert taxReturn={currentTaxReturn} submissionStatus={submissionStatus} className='margin-bottom-4' />
