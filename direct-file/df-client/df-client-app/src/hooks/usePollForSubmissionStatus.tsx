@@ -4,6 +4,7 @@ import { TaxReturn } from '../types/core.js';
 import { TaxReturnsContext } from '../context/TaxReturnsContext.js';
 import { FEDERAL_RETURN_STATUS } from '../constants/taxConstants.js';
 import { assertNever } from 'assert-never';
+import { hasBeenSubmitted } from '../utils/taxReturnUtils.js';
 
 // For local testing, altering these settings can be handy
 const POLLING_INTERVAL_MILLISECONDS = 60 * 1000;
@@ -31,6 +32,7 @@ export const usePollForSubmissionStatus = (
 
   useEffect(() => {
     const refreshStatus = () => {
+      fetchTaxReturns();
       fetchSubmissionStatus(taxReturn.id);
       setNumPollsAttempted((currentPollingAttempts) => currentPollingAttempts + 1);
     };
@@ -44,31 +46,48 @@ export const usePollForSubmissionStatus = (
       clearInterval(pollingTimerRef.current);
     };
 
-    // If the backend gave us a status, assume is correct
-    if (retrievedSubmissionStatus) {
-      const { status } = retrievedSubmissionStatus;
-      if (status === FEDERAL_RETURN_STATUS.PENDING) {
-        // If pending, we need to poll
-        if (numPollsAttempted < maximumPollingAttempts) {
-          setHasFinishedPolling(false);
-          startPollingStatus();
-        } else {
-          setHasFinishedPolling(true);
-          stopPolling();
-        }
+    if (!hasBeenSubmitted(taxReturn)) {
+      stopPolling();
+      setHasFinishedPolling(false);
+      return () => {
+        stopPolling();
+      };
+    }
+
+    if (!retrievedSubmissionStatus) {
+      if (numPollsAttempted < maximumPollingAttempts) {
+        setHasFinishedPolling(false);
+        startPollingStatus();
       } else {
-        if (
-          status !== FEDERAL_RETURN_STATUS.ACCEPTED &&
-          status !== FEDERAL_RETURN_STATUS.REJECTED &&
-          status !== FEDERAL_RETURN_STATUS.ERROR
-        ) {
-          // Ensure that if a new non-final status were to be added (e.g. SUBMITTED),
-          // that this logic would need to be updated simultaneously
-          assertNever(status);
-        }
         stopPolling();
         setHasFinishedPolling(true);
       }
+      return () => {
+        stopPolling();
+      };
+    }
+
+    const { status } = retrievedSubmissionStatus;
+    if (status === FEDERAL_RETURN_STATUS.PENDING) {
+      if (numPollsAttempted < maximumPollingAttempts) {
+        setHasFinishedPolling(false);
+        startPollingStatus();
+      } else {
+        setHasFinishedPolling(true);
+        stopPolling();
+      }
+    } else {
+      if (
+        status !== FEDERAL_RETURN_STATUS.ACCEPTED &&
+        status !== FEDERAL_RETURN_STATUS.REJECTED &&
+        status !== FEDERAL_RETURN_STATUS.ERROR
+      ) {
+        // Ensure that if a new non-final status were to be added (e.g. SUBMITTED),
+        // that this logic would need to be updated simultaneously
+        assertNever(status);
+      }
+      stopPolling();
+      setHasFinishedPolling(true);
     }
 
     return () => {

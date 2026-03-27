@@ -12,6 +12,7 @@ import Subheading from '../Subheading.js';
 import InfoDisplay from '../InfoDisplay.js';
 import useFact from '../../hooks/useFact.js';
 import { SubmissionStatusContext } from '../../context/SubmissionStatusContext/SubmissionStatusContext.js';
+import { TaxReturnsContext } from '../../context/TaxReturnsContext.js';
 import {
   isBeforeEndOfPerfectionDeadline,
   isBetweenFilingDeadlineAndPerfectionDeadline,
@@ -28,6 +29,7 @@ import useFetchStateProfile from '../../hooks/useFetchStateProfile.js';
 import { QuestionsReminderCard } from '../TaxReturnCard/SimpleReminderTaxReturnCard.js';
 import IntroContent from '../IntroContent/IntroContent.js';
 import { getLatestSubmission } from '../../utils/taxReturnUtils.js';
+import SubmissionLifecycleAlert from '../SubmissionLifecycleAlert/SubmissionLifecycleAlert.js';
 
 export interface TaxReturnPostSubmissionProps {
   taxReturn: TaxReturn;
@@ -40,7 +42,11 @@ export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ 
     submissionStatus: retrievedSubmissionStatus,
     isFetching: isFetchingStatus,
     fetchSuccess,
+    fetchError,
+    fetchSubmissionStatus,
+    lastFetchAttempt,
   } = useContext(SubmissionStatusContext);
+  const { fetchTaxReturns } = useContext(TaxReturnsContext);
   const latestSubmission = getLatestSubmission(taxReturn);
 
   const [owesBalance] = useFact<boolean>(Path.concretePath(`/owesBalance`, null));
@@ -110,6 +116,18 @@ export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ 
         </h2>
         {!isFetching && fetchSuccess && (
           <div className='padding-205'>
+            <SubmissionLifecycleAlert
+              taxReturn={taxReturn}
+              submissionStatus={submissionStatus}
+              isFetching={isFetchingStatus}
+              fetchError={fetchError}
+              lastFetchAttempt={lastFetchAttempt}
+              onRetry={() => {
+                fetchTaxReturns();
+                fetchSubmissionStatus(taxReturn.id);
+              }}
+              className='margin-bottom-3'
+            />
             {submissionStatus && <FederalReturnStatusAlert taxReturn={taxReturn} submissionStatus={submissionStatus} />}
             {isPaperPath && <PaperPathStatusAlert />}
             {!returnWasRejected && (

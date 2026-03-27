@@ -12,6 +12,7 @@ import { useSystemAlertContext } from '../../context/SystemAlertContext/SystemAl
 import SystemAlertAggregator from '../SystemAlertAggregator/SystemAlertAggregator.js';
 import { TaxReturnsContext } from '../../context/TaxReturnsContext.js';
 import { useKnockoutCheck } from '../../hooks/useKnockoutCheck.js';
+import SubmissionLifecycleAlert from '../SubmissionLifecycleAlert/SubmissionLifecycleAlert.js';
 
 export type SectionsAlertAggregatorProps = {
   showStatusAlert?: boolean;
@@ -38,8 +39,15 @@ const SectionsAlertAggregator = ({
   collectionName = ``,
   collectionId = null,
 }: SectionsAlertAggregatorProps) => {
-  const { submissionStatus } = useContext(SubmissionStatusContext);
-  const { taxReturns, currentTaxReturnId } = useContext(TaxReturnsContext);
+  const {
+    submissionStatus,
+    isFetching,
+    fetchError,
+    lastFetchAttempt,
+    fetchSubmissionStatus,
+  } = useContext(SubmissionStatusContext);
+  const { taxReturns, currentTaxReturnId, fetchTaxReturns } =
+    useContext(TaxReturnsContext);
   const { systemAlerts } = useSystemAlertContext();
 
   const currentTaxReturn = getTaxReturnById(taxReturns, currentTaxReturnId);
@@ -48,6 +56,8 @@ const SectionsAlertAggregator = ({
   const hasSystemAlerts = Object.keys(systemAlerts).length > 0;
   const hasErrors = summaryErrorSections.length > 0;
   const hasWarnings = summaryWarningSections.length > 0;
+  const shouldShowSubmissionLifecycleAlert =
+    showStatusAlert && currentTaxReturn && hasBeenSubmitted(currentTaxReturn);
   const shouldShowFederalReturnStatusAlert =
     showStatusAlert && currentTaxReturn && hasBeenSubmitted(currentTaxReturn) && submissionStatus;
   const shouldShowPaperPathStatusAlert = showStatusAlert && isPaperPath;
@@ -56,7 +66,11 @@ const SectionsAlertAggregator = ({
   const isKnockedOut = getIsKnockedOut();
 
   const shouldRender =
-    hasSystemAlerts || shouldShowFederalReturnStatusAlert || shouldShowPaperPathStatusAlert || shouldShowSummaryAlerts;
+    hasSystemAlerts ||
+    shouldShowSubmissionLifecycleAlert ||
+    shouldShowFederalReturnStatusAlert ||
+    shouldShowPaperPathStatusAlert ||
+    shouldShowSummaryAlerts;
 
   return (
     shouldRender && (
@@ -64,6 +78,23 @@ const SectionsAlertAggregator = ({
         {
           // System alerts
           <SystemAlertAggregator />
+        }
+        {
+          shouldShowSubmissionLifecycleAlert && (
+            <SubmissionLifecycleAlert
+              taxReturn={currentTaxReturn}
+              submissionStatus={submissionStatus}
+              isFetching={isFetching}
+              fetchError={fetchError}
+              lastFetchAttempt={lastFetchAttempt}
+              onRetry={() => {
+                if (!currentTaxReturn) return;
+                fetchTaxReturns();
+                fetchSubmissionStatus(currentTaxReturn.id);
+              }}
+              className='margin-bottom-2'
+            />
+          )
         }
         {
           // Return status banner

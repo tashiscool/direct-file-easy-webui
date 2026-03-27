@@ -75,7 +75,16 @@ const SubmissionLifecycleAlert = ({
       heading='Your return was submitted and is waiting on a status update'
       className={className}
     >
-      Direct File has your submission, but the status app has not returned a current acknowledgement yet. Check back again soon.
+      <p>
+        Direct File has your submission, but the status app has not returned a current acknowledgement yet.
+      </p>
+      {onRetry && (
+        <div className='margin-top-2'>
+          <Button type='button' outline onClick={onRetry}>
+            Refresh status now
+          </Button>
+        </div>
+      )}
     </Alert>
   );
 };
