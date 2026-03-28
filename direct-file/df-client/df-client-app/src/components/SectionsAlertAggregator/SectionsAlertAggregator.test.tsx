@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import SectionsAlertAggregator, { SectionsAlertAggregatorProps } from './SectionsAlertAggregator.js';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MutableRefObject } from 'react';
 import {
   SubmissionStatusContext,
@@ -257,5 +258,66 @@ describe(SectionsAlertAggregator.name, () => {
     expect(errorSummaryAlert!.compareDocumentPosition(warningSummaryAlert!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 
     expect(aggregateSummaryAlert).not.toBeInTheDocument();
+  });
+
+  it(`retries both tax return and status fetches from the submission lifecycle alert`, async () => {
+    useFact.mockReturnValue([false]);
+    const fetchTaxReturns = vi.fn();
+    const fetchSubmissionStatus = vi.fn();
+    const currentTaxReturnId = uuidv4();
+    const user = userEvent.setup();
+
+    render(
+      <BrowserRouter>
+        <SystemAlertContext.Provider
+          value={{
+            systemAlerts: getEmptySystemAlertsMap(),
+            setSystemAlert: vi.fn(),
+            deleteSystemAlert: vi.fn(),
+          }}
+        >
+          <TaxReturnsContext.Provider
+            value={
+              {
+                currentTaxReturnId,
+                taxReturns: [
+                  {
+                    id: currentTaxReturnId,
+                    createdAt: new Date().toISOString(),
+                    taxYear: 2025,
+                    facts: {},
+                    taxReturnSubmissions: [{ id: uuidv4() }],
+                    isEditable: false,
+                    surveyOptIn: null,
+                  } as TaxReturn,
+                ],
+                fetchTaxReturns,
+              } as TaxReturnsContextType
+            }
+          >
+            <SubmissionStatusContext.Provider
+              value={
+                {
+                  submissionStatus: undefined,
+                  fetchSubmissionStatus,
+                  isFetching: false,
+                  fetchSuccess: false,
+                  fetchError: false,
+                  lastFetchAttempt: new Date(),
+                } as SubmissionStatusContextType
+              }
+            >
+              <SectionsAlertAggregator {...DEFAULT_PROPS} showStatusAlert />
+            </SubmissionStatusContext.Provider>
+          </TaxReturnsContext.Provider>
+        </SystemAlertContext.Provider>
+      </BrowserRouter>
+    );
+
+    await user.click(screen.getByRole(`button`, { name: `Refresh status now` }));
+
+    expect(fetchTaxReturns).toHaveBeenCalledTimes(1);
+    expect(fetchSubmissionStatus).toHaveBeenCalledTimes(1);
+    expect(fetchSubmissionStatus).toHaveBeenCalledWith(currentTaxReturnId);
   });
 });

@@ -54,15 +54,15 @@ const SubmissionLifecycleAlert = ({
         heading='We could not refresh your submission status'
         className={className}
       >
-        <p>
+        <span>
           Your return may still be progressing normally, but Direct File could not refresh the latest status just now.
-        </p>
+        </span>
         {onRetry && (
-          <div className='margin-top-2'>
+          <span className='display-block margin-top-2'>
             <Button type='button' outline onClick={onRetry}>
               Try again
             </Button>
-          </div>
+          </span>
         )}
       </Alert>
     );
@@ -75,15 +75,15 @@ const SubmissionLifecycleAlert = ({
       heading='Your return was submitted and is waiting on a status update'
       className={className}
     >
-      <p>
+      <span>
         Direct File has your submission, but the status app has not returned a current acknowledgement yet.
-      </p>
+      </span>
       {onRetry && (
-        <div className='margin-top-2'>
+        <span className='display-block margin-top-2'>
           <Button type='button' outline onClick={onRetry}>
             Refresh status now
           </Button>
-        </div>
+        </span>
       )}
     </Alert>
   );

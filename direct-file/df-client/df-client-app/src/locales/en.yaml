@@ -74,6 +74,10 @@ subsubcategories:
     benefit-income-basic-info: Benefit income information
     net-benefits: Net benefits
     federal-income-taxes-withheld: Federal income tax withheld
+  /flow/income/obbba-deductions:
+    overtime: Overtime income exemption
+    tips: Tip income exemption
+    auto-loan: Auto loan interest deduction
   /flow/income/retirement:
     1099-r-information: 1099-R information
     1099-r-payer-information: Payer information
@@ -24515,9 +24519,3 @@ dataviews:
     You can continue to the next section.
 
   /info/income/obbba/learn-more: Learn more about OBBBA deductions
-
-subsubcategories:
-  /flow/income/obbba-deductions:
-    overtime: Overtime income exemption
-    tips: Tip income exemption
-    auto-loan: Auto loan interest deduction

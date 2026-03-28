@@ -1,8 +1,9 @@
 import { Provider } from 'react-redux';
 import { mockUseTranslation } from '../../test/mocks/mockFunctions.js';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ReactNode } from 'react';
 import { CURRENT_TAX_YEAR, FEDERAL_RETURN_STATUS } from '../../constants/taxConstants.js';
-import { FactGraphContextProvider } from '../../factgraph/FactGraphContext.js';
 import { TaxReturnCardPostSubmission, TaxReturnPostSubmissionProps } from './TaxReturnCardPostSubmission.js';
 import { v4 as uuidv4 } from 'uuid';
 import { vi } from 'vitest';
@@ -25,6 +26,55 @@ const { mockUseFetchStateProfile } = vi.hoisted(() => {
 
 vi.mock(`../../hooks/useFetchStateProfile.js`, () => ({
   default: mockUseFetchStateProfile,
+}));
+
+vi.mock(`../../factgraph/FactGraphContext.js`, () => ({
+  FactGraphContextProvider: ({ children }: { children: ReactNode }) => children,
+  useFactGraph: () => ({ factGraph: {} }),
+}));
+
+vi.mock(`../FederalReturnStatusAlert/FederalReturnStatusAlert.js`, () => ({
+  default: () => <div data-testid='federal-return-status-alert' />,
+}));
+
+vi.mock(`../PaperPathStatusAlert/PaperPathStatusAlert.js`, () => ({
+  default: () => <div data-testid='paper-path-status-alert' />,
+}));
+
+vi.mock(`../StateTaxesCard/StateTaxesCard.js`, () => ({
+  default: () => <div data-testid='state-taxes-card' />,
+}));
+
+vi.mock(`../DownloadPDFButton/index.js`, () => ({
+  default: () => <button type='button'>Download PDF</button>,
+}));
+
+vi.mock(`../Subheading.js`, () => ({
+  default: () => <h2>Next steps</h2>,
+}));
+
+vi.mock(`../InfoDisplay.js`, () => ({
+  default: () => <div data-testid='info-display' />,
+}));
+
+vi.mock(`../IntroContent/IntroContent.js`, () => ({
+  default: () => <span>Intro content</span>,
+}));
+
+vi.mock(`../TaxReturnCard/SimpleReminderTaxReturnCard.js`, () => ({
+  QuestionsReminderCard: () => <div data-testid='questions-reminder-card' />,
+}));
+
+vi.mock(`../Translation/index.js`, () => ({
+  default: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
+}));
+
+vi.mock(`df-common-link-renderer`, () => ({
+  CommonLinkRenderer: ({ children, url, ...props }: { children: ReactNode; url: string }) => (
+    <a href={url} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock(`../../hooks/useFact`, () => ({
@@ -59,6 +109,19 @@ describe(`TaxReturnCardPostSubmission`, () => {
     isEditable: true,
     createdAt: ``,
     surveyOptIn: null,
+  };
+
+  const submittedTaxReturn: TaxReturn = {
+    ...taxReturn,
+    taxReturnSubmissions: [
+      {
+        id: uuidv4(),
+        submitUserId: uuidv4(),
+        createdAt: new Date().toISOString(),
+        submissionReceivedAt: new Date().toISOString(),
+        receiptId: uuidv4(),
+      },
+    ],
   };
 
   const defaultProps: TaxReturnPostSubmissionProps = {
@@ -128,9 +191,7 @@ describe(`TaxReturnCardPostSubmission`, () => {
                 ...submissionStatusContextOverrides,
               }}
             >
-              <FactGraphContextProvider>
-                <TaxReturnCardPostSubmission {...defaultProps} />
-              </FactGraphContextProvider>
+              <TaxReturnCardPostSubmission {...defaultProps} />
             </SubmissionStatusContext.Provider>
           </TaxReturnsContext.Provider>
         </Provider>
@@ -179,5 +240,48 @@ describe(`TaxReturnCardPostSubmission`, () => {
     const stateTaxesCardContent = screen.queryByTestId(`state-taxes-card`);
     expect(stateTaxesCardContent).toBeNull();
     // TODO: This test fails, but see what actually happens at runtime when status is hardcoded to return e.g a 404
+  });
+
+  it(`retries both tax return and submission status fetches when acknowledgement is unavailable`, async () => {
+    mockUseFetchStateProfile.mockReturnValue({});
+    const fetchTaxReturns = vi.fn();
+    const fetchSubmissionStatus = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      wrapComponent(
+        <Provider store={setupStore()}>
+          <TaxReturnsContext.Provider
+            value={{
+              taxReturns: [],
+              currentTaxReturnId: taxReturn.id,
+              fetchTaxReturns,
+              isFetching: false,
+              fetchSuccess: false,
+            }}
+          >
+            <SubmissionStatusContext.Provider
+              value={{
+                submissionStatus: undefined,
+                setSubmissionStatus: vi.fn(),
+                fetchSubmissionStatus,
+                isFetching: false,
+                fetchSuccess: true,
+                fetchError: false,
+                lastFetchAttempt: new Date(),
+              }}
+            >
+              <TaxReturnCardPostSubmission taxReturn={submittedTaxReturn} />
+            </SubmissionStatusContext.Provider>
+          </TaxReturnsContext.Provider>
+        </Provider>
+      )
+    );
+
+    await user.click(screen.getByRole(`button`, { name: `Refresh status now` }));
+
+    expect(fetchTaxReturns).toHaveBeenCalledTimes(1);
+    expect(fetchSubmissionStatus).toHaveBeenCalledTimes(1);
+    expect(fetchSubmissionStatus).toHaveBeenCalledWith(taxReturn.id);
   });
 });
