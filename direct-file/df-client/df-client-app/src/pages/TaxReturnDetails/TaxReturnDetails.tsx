@@ -7,7 +7,13 @@ import { useContext } from 'react';
 import { SubmissionStatusContext } from '../../context/SubmissionStatusContext/SubmissionStatusContext.js';
 import { FEDERAL_RETURN_STATUS } from '../../constants/taxConstants.js';
 import RejectedReturnDetails from './RejectedReturnDetails/RejectedReturnDetails.js';
-import { getLatestSubmission, getTaxReturnById } from '../../utils/taxReturnUtils.js';
+import {
+  getLatestSubmission,
+  getLatestSubmissionStage,
+  getTaxReturnById,
+  hasSubmissionAcknowledgement,
+  isSubmissionStatusStaleForLatestSubmission,
+} from '../../utils/taxReturnUtils.js';
 import { formatAsContentDate } from '../../utils/dateUtils.js';
 import { useTranslation } from 'react-i18next';
 import { Path } from '../../flow/Path.js';
@@ -28,6 +34,12 @@ export const TaxReturnDetails = () => {
 
   const numberOfSubmissions = currentTaxReturn.taxReturnSubmissions.length;
   const latestSubmission = getLatestSubmission(currentTaxReturn);
+  const latestSubmissionStage = getLatestSubmissionStage(currentTaxReturn);
+  const latestSubmissionAcknowledged = hasSubmissionAcknowledgement(latestSubmission);
+  const statusIsStaleForLatestSubmission = isSubmissionStatusStaleForLatestSubmission(
+    currentTaxReturn,
+    submissionStatus
+  );
   // TODO: Make sure this isn't messed up by time zones
   const submissionDate = latestSubmission ? new Date(latestSubmission.createdAt) : null;
 
@@ -89,6 +101,22 @@ export const TaxReturnDetails = () => {
           />
         )}
       </p>
+      {latestSubmissionAcknowledged && latestSubmission?.submissionReceivedAt && (
+        <p>
+          IRS acknowledged receipt on {formatAsContentDate(new Date(latestSubmission.submissionReceivedAt), i18n)}.
+        </p>
+      )}
+      {latestSubmission?.receiptId && (
+        <p>
+          Submission receipt ID: <code>{latestSubmission.receiptId}</code>
+        </p>
+      )}
+      {statusIsStaleForLatestSubmission && latestSubmissionStage.startsWith(`resubmitted`) && (
+        <p>
+          Your latest submission is newer than the status shown below. Refresh to get the newest acknowledgement and
+          IRS result.
+        </p>
+      )}
       {isAccepted && (
         <p>
           <Translation

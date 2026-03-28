@@ -28,15 +28,21 @@ import { usePollForSubmissionStatus } from '../../hooks/usePollForSubmissionStat
 import useFetchStateProfile from '../../hooks/useFetchStateProfile.js';
 import { QuestionsReminderCard } from '../TaxReturnCard/SimpleReminderTaxReturnCard.js';
 import IntroContent from '../IntroContent/IntroContent.js';
-import { getLatestSubmission } from '../../utils/taxReturnUtils.js';
+import {
+  getLatestSubmission,
+  getLatestSubmissionStage,
+  hasSubmissionAcknowledgement,
+  isSubmissionStatusStaleForLatestSubmission,
+} from '../../utils/taxReturnUtils.js';
 import SubmissionLifecycleAlert from '../SubmissionLifecycleAlert/SubmissionLifecycleAlert.js';
+import { formatAsContentDate } from '../../utils/dateUtils.js';
 
 export interface TaxReturnPostSubmissionProps {
   taxReturn: TaxReturn;
 }
 
 export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ taxReturn }) => {
-  const { t } = useTranslation(`translation`);
+  const { t, i18n } = useTranslation(`translation`);
   const now = new Date();
   const {
     submissionStatus: retrievedSubmissionStatus,
@@ -48,6 +54,8 @@ export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ 
   } = useContext(SubmissionStatusContext);
   const { fetchTaxReturns } = useContext(TaxReturnsContext);
   const latestSubmission = getLatestSubmission(taxReturn);
+  const latestSubmissionStage = getLatestSubmissionStage(taxReturn);
+  const latestSubmissionAcknowledged = hasSubmissionAcknowledgement(latestSubmission);
 
   const [owesBalance] = useFact<boolean>(Path.concretePath(`/owesBalance`, null));
   const [payViaAch] = useFact<boolean>(Path.concretePath(`/payViaAch`, null));
@@ -95,6 +103,10 @@ export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ 
   const hasUnfixableRejection = submissionStatus ? areAnyRejectionsNotFixable(submissionStatus.rejectionCodes) : false;
   const returnRejectedButFixable = returnWasRejected && !hasUnfixableRejection;
   const returnRejectedAndNotFixable = returnWasRejected && hasUnfixableRejection;
+  const statusIsStaleForLatestSubmission = isSubmissionStatusStaleForLatestSubmission(
+    taxReturn,
+    submissionStatus
+  );
 
   const stateTaxActionMayBeNeeded = filingStateCode && stateProfile;
 
@@ -128,6 +140,23 @@ export const TaxReturnCardPostSubmission: FC<TaxReturnPostSubmissionProps> = ({ 
               }}
               className='margin-bottom-3'
             />
+            {latestSubmissionAcknowledged && latestSubmission?.submissionReceivedAt && (
+              <p>
+                IRS acknowledged receipt on{' '}
+                {formatAsContentDate(new Date(latestSubmission.submissionReceivedAt), i18n)}.
+              </p>
+            )}
+            {latestSubmission?.receiptId && (
+              <p>
+                Submission receipt ID: <code>{latestSubmission.receiptId}</code>
+              </p>
+            )}
+            {statusIsStaleForLatestSubmission && latestSubmissionStage.startsWith(`resubmitted`) && (
+              <p>
+                Your latest resubmission is newer than the status shown below. Refresh to get the newest acknowledgement
+                and IRS result.
+              </p>
+            )}
             {submissionStatus && <FederalReturnStatusAlert taxReturn={taxReturn} submissionStatus={submissionStatus} />}
             {isPaperPath && <PaperPathStatusAlert />}
             {!returnWasRejected && (

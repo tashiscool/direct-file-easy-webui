@@ -284,4 +284,95 @@ describe(`TaxReturnCardPostSubmission`, () => {
     expect(fetchSubmissionStatus).toHaveBeenCalledTimes(1);
     expect(fetchSubmissionStatus).toHaveBeenCalledWith(taxReturn.id);
   });
+
+  it(`renders the latest submission acknowledgement metadata when receipt details exist`, () => {
+    mockUseFetchStateProfile.mockReturnValue({});
+
+    render(
+      wrapComponent(
+        <Provider store={setupStore()}>
+          <TaxReturnsContext.Provider
+            value={{
+              taxReturns: [],
+              currentTaxReturnId: taxReturn.id,
+              fetchTaxReturns: vi.fn(),
+              isFetching: false,
+              fetchSuccess: false,
+            }}
+          >
+            <SubmissionStatusContext.Provider
+              value={{
+                submissionStatus: pendingStatus,
+                setSubmissionStatus: vi.fn(),
+                fetchSubmissionStatus: vi.fn(),
+                isFetching: false,
+                fetchSuccess: true,
+                fetchError: false,
+                lastFetchAttempt: new Date(),
+              }}
+            >
+              <TaxReturnCardPostSubmission taxReturn={submittedTaxReturn} />
+            </SubmissionStatusContext.Provider>
+          </TaxReturnsContext.Provider>
+        </Provider>
+      )
+    );
+
+    expect(screen.getByText(/IRS acknowledged receipt on/i)).toBeInTheDocument();
+    expect(screen.getByText(/Submission receipt ID:/i)).toBeInTheDocument();
+  });
+
+  it(`surfaces when a newer resubmission has outrun the displayed status`, () => {
+    mockUseFetchStateProfile.mockReturnValue({});
+    const resubmittedTaxReturn: TaxReturn = {
+      ...submittedTaxReturn,
+      taxReturnSubmissions: [
+        ...submittedTaxReturn.taxReturnSubmissions,
+        {
+          id: uuidv4(),
+          submitUserId: uuidv4(),
+          createdAt: new Date(Date.now() + 61_000).toISOString(),
+          submissionReceivedAt: new Date(Date.now() + 62_000).toISOString(),
+          receiptId: uuidv4(),
+        },
+      ],
+    };
+
+    render(
+      wrapComponent(
+        <Provider store={setupStore()}>
+          <TaxReturnsContext.Provider
+            value={{
+              taxReturns: [],
+              currentTaxReturnId: taxReturn.id,
+              fetchTaxReturns: vi.fn(),
+              isFetching: false,
+              fetchSuccess: false,
+            }}
+          >
+            <SubmissionStatusContext.Provider
+              value={{
+                submissionStatus: {
+                  ...pendingStatus,
+                  createdAt: submittedTaxReturn.taxReturnSubmissions[0].createdAt,
+                },
+                setSubmissionStatus: vi.fn(),
+                fetchSubmissionStatus: vi.fn(),
+                isFetching: false,
+                fetchSuccess: true,
+                fetchError: false,
+                lastFetchAttempt: new Date(),
+              }}
+            >
+              <TaxReturnCardPostSubmission taxReturn={resubmittedTaxReturn} />
+            </SubmissionStatusContext.Provider>
+          </TaxReturnsContext.Provider>
+        </Provider>
+      )
+    );
+
+    expect(
+      screen.getByText(/Your latest resubmission is newer than the status shown below/i)
+    ).toBeInTheDocument();
+  });
 });
