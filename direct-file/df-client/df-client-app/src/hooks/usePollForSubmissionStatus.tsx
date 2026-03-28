@@ -4,7 +4,7 @@ import { TaxReturn } from '../types/core.js';
 import { TaxReturnsContext } from '../context/TaxReturnsContext.js';
 import { FEDERAL_RETURN_STATUS } from '../constants/taxConstants.js';
 import { assertNever } from 'assert-never';
-import { hasBeenSubmitted } from '../utils/taxReturnUtils.js';
+import { hasBeenSubmitted, isSubmissionStatusStaleForLatestSubmission } from '../utils/taxReturnUtils.js';
 
 // For local testing, altering these settings can be handy
 const POLLING_INTERVAL_MILLISECONDS = 60 * 1000;
@@ -55,6 +55,19 @@ export const usePollForSubmissionStatus = (
     }
 
     if (!retrievedSubmissionStatus) {
+      if (numPollsAttempted < maximumPollingAttempts) {
+        setHasFinishedPolling(false);
+        startPollingStatus();
+      } else {
+        stopPolling();
+        setHasFinishedPolling(true);
+      }
+      return () => {
+        stopPolling();
+      };
+    }
+
+    if (isSubmissionStatusStaleForLatestSubmission(taxReturn, retrievedSubmissionStatus)) {
       if (numPollsAttempted < maximumPollingAttempts) {
         setHasFinishedPolling(false);
         startPollingStatus();

@@ -68,15 +68,35 @@ const SubmissionLifecycleAlert = ({
     );
   }
 
+  const awaitingAcknowledgement = lifecycleState === `awaiting_acknowledgement`;
+  const awaitingResubmissionAcknowledgement =
+    lifecycleState === `resubmission_awaiting_acknowledgement`;
+  const awaitingStatus = lifecycleState === `awaiting_status`;
+  const awaitingResubmissionStatus = lifecycleState === `resubmission_awaiting_status`;
+
   return (
     <Alert
       type='info'
       headingLevel='h3'
-      heading='Your return was submitted and is waiting on a status update'
+      heading={
+        awaitingAcknowledgement
+          ? 'Your return was submitted and is waiting for acknowledgement'
+          : awaitingResubmissionAcknowledgement
+            ? 'Your resubmission is waiting for acknowledgement'
+            : awaitingResubmissionStatus
+              ? 'Your resubmission is acknowledged and waiting on a status update'
+              : 'Your return is acknowledged and waiting on a status update'
+      }
       className={className}
     >
       <span>
-        Direct File has your submission, but the status app has not returned a current acknowledgement yet.
+        {awaitingAcknowledgement
+          ? 'Direct File has the submission request, but the latest filing has not been registered with the status service yet.'
+          : awaitingResubmissionAcknowledgement
+            ? 'Direct File recorded a newer submission attempt, and we are waiting for the status service to register that resubmission.'
+            : awaitingStatus
+              ? 'The latest submission has been acknowledged, and we are waiting for the IRS status response.'
+              : 'The latest resubmission has been acknowledged, and we are waiting for the IRS status response.'}
       </span>
       {onRetry && (
         <span className='display-block margin-top-2'>

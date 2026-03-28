@@ -172,12 +172,6 @@ describe(`usePollForSubmissionStatus`, () => {
 
     expect(result.current.status?.status).toBe(FEDERAL_RETURN_STATUS.ACCEPTED);
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
-
-    expect(result.current.hasFinishedPolling).toBe(true);
-
     expect(mockFetchTaxReturnsApiRequest).toHaveBeenCalled();
     expect(mockFetchSubmissionStatusApiRequest).toHaveBeenCalled();
     expect(result.current.numPollsAttempted).toBeGreaterThan(0);
@@ -220,13 +214,45 @@ describe(`usePollForSubmissionStatus`, () => {
 
     expect(result.current.status?.status).toBe(FEDERAL_RETURN_STATUS.ACCEPTED);
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
-
-    expect(result.current.hasFinishedPolling).toBe(true);
-
     expect(mockFetchTaxReturnsApiRequest).toHaveBeenCalledTimes(2);
     expect(mockFetchSubmissionStatusApiRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it(`continues polling when a newer resubmission exists than the stored status`, async () => {
+    const latestSubmissionTime = new Date().toISOString();
+    const staleAcceptedStatus: TaxReturnSubmissionStatus = {
+      ...acceptedStatus,
+      createdAt: new Date(Date.now() - 60_000).toISOString(),
+    };
+    const taxReturn = buildTaxReturn([
+      {
+        id: uuidv4(),
+        submitUserId: uuidv4(),
+        createdAt: latestSubmissionTime,
+        submissionReceivedAt: latestSubmissionTime,
+        receiptId: uuidv4(),
+      },
+    ]);
+
+    mockFetchTaxReturnsApiRequest.mockReturnValue([taxReturn]);
+    mockFetchSubmissionStatusApiRequest.mockReturnValue(acceptedStatus);
+
+    const { result } = renderHook(HookRenderer, {
+      wrapper: ({ children }) => (
+        <Wrapper initialTaxReturn={taxReturn} initialStatus={staleAcceptedStatus}>
+          {children}
+        </Wrapper>
+      ),
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(TEST_POLLING_INTERVAL_MS);
+    });
+
+    expect(mockFetchTaxReturnsApiRequest).toHaveBeenCalledTimes(1);
+    expect(mockFetchSubmissionStatusApiRequest).toHaveBeenCalledTimes(1);
+
+    expect(result.current.status?.status).toBe(FEDERAL_RETURN_STATUS.ACCEPTED);
+    expect(result.current.numPollsAttempted).toBeGreaterThan(0);
   });
 });

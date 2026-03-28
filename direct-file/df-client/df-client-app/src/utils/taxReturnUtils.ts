@@ -1,4 +1,4 @@
-import { TaxReturn } from '../types/core.js';
+import { TaxReturn, TaxReturnSubmission, TaxReturnSubmissionStatus } from '../types/core.js';
 import { CURRENT_TAX_YEAR } from '../constants/taxConstants.js';
 
 export const anyHasStarted = (taxReturns: TaxReturn[]) => {
@@ -20,6 +20,52 @@ export const getLatestSubmission = (taxReturn: TaxReturn) => {
     .slice()
     .sort((s1, s2) => new Date(s2.createdAt).getTime() - new Date(s1.createdAt).getTime())
     .at(0);
+};
+
+export const hasSubmissionAcknowledgement = (submission?: TaxReturnSubmission | null): boolean =>
+  Boolean(submission?.receiptId && submission?.submissionReceivedAt);
+
+export type LatestSubmissionStage =
+  | `not_submitted`
+  | `submitted_unacknowledged`
+  | `submitted_acknowledged`
+  | `resubmitted_unacknowledged`
+  | `resubmitted_acknowledged`;
+
+export const getLatestSubmissionStage = (taxReturn?: TaxReturn | null): LatestSubmissionStage => {
+  if (!taxReturn || !hasBeenSubmitted(taxReturn)) {
+    return `not_submitted`;
+  }
+
+  const latestSubmission = getLatestSubmission(taxReturn);
+  if (!latestSubmission) {
+    return `not_submitted`;
+  }
+
+  const isResubmission = taxReturn.taxReturnSubmissions.length > 1;
+  const acknowledged = hasSubmissionAcknowledgement(latestSubmission);
+
+  if (isResubmission) {
+    return acknowledged ? `resubmitted_acknowledged` : `resubmitted_unacknowledged`;
+  }
+
+  return acknowledged ? `submitted_acknowledged` : `submitted_unacknowledged`;
+};
+
+export const isSubmissionStatusStaleForLatestSubmission = (
+  taxReturn?: TaxReturn | null,
+  submissionStatus?: TaxReturnSubmissionStatus
+): boolean => {
+  if (!taxReturn || !submissionStatus) {
+    return false;
+  }
+
+  const latestSubmission = getLatestSubmission(taxReturn);
+  if (!latestSubmission) {
+    return false;
+  }
+
+  return new Date(submissionStatus.createdAt).getTime() < new Date(latestSubmission.createdAt).getTime();
 };
 
 export const getTaxReturnById = (taxReturns: TaxReturn[], taxId: string | null) =>

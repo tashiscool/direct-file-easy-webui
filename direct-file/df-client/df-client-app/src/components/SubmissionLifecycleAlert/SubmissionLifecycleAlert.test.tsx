@@ -88,4 +88,33 @@ describe(`SubmissionLifecycleAlert`, () => {
     ).toBeInTheDocument();
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
+
+  it(`renders acknowledgement-specific copy when the latest submission has not been registered yet`, () => {
+    const unacknowledgedTaxReturn: TaxReturn = {
+      ...submittedTaxReturn,
+      taxReturnSubmissions: [
+        {
+          id: `submission-2`,
+          receiptId: null,
+          submitUserId: `user-2`,
+          createdAt: new Date().toISOString(),
+          submissionReceivedAt: null,
+        },
+      ],
+    };
+
+    render(
+      <SubmissionLifecycleAlert
+        taxReturn={unacknowledgedTaxReturn}
+        submissionStatus={undefined}
+        isFetching={false}
+        fetchError={undefined}
+        lastFetchAttempt={new Date()}
+      />
+    );
+
+    expect(
+      screen.getByText(/waiting for acknowledgement/i)
+    ).toBeInTheDocument();
+  });
 });

@@ -1,5 +1,10 @@
 import { setupFactGraph } from '../test/setupFactGraph.js';
-import { ExportableCollection, getFactKeyFromPath, getStateExportableFactsFromGraph } from './exportUtils.js';
+import {
+  ExportableCollection,
+  getFactKeyFromPath,
+  getStateExportableFactsFromGraph,
+  summarizeStateExportableFacts,
+} from './exportUtils.js';
 import fs from 'fs';
 
 const SCENARIO_FOLDER = `./src/test/factDictionaryTests/backend-scenarios`;
@@ -1455,5 +1460,46 @@ describe(getFactKeyFromPath.name, () => {
     const result = getFactKeyFromPath(abstractPath);
 
     expect(result).toEqual(`theFactKey`);
+  });
+});
+
+describe(summarizeStateExportableFacts.name, () => {
+  it(`summarizes populated and sensitive exported facts across singular and collection values`, () => {
+    const summary = summarizeStateExportableFacts({
+      filingStatus: {
+        value: `headOfHousehold`,
+        sensitive: false,
+      },
+      filers: [
+        {
+          firstName: {
+            value: `Taylor`,
+            sensitive: false,
+          },
+          tin: {
+            value: `923-00-6789`,
+            sensitive: true,
+          },
+        },
+        {
+          firstName: {
+            value: null,
+            sensitive: false,
+          },
+          tin: {
+            value: null,
+            sensitive: true,
+          },
+        },
+      ],
+    });
+
+    expect(summary).toEqual({
+      collectionCount: 1,
+      collectionItemCount: 2,
+      factCount: 5,
+      populatedFactCount: 3,
+      sensitiveFactCount: 1,
+    });
   });
 });

@@ -93,7 +93,32 @@ describe(`submissionStatusUtils`, () => {
       ).toEqual(`status_fetch_error`);
     });
 
-    it(`returns status_unavailable when we submitted but still have no status object`, () => {
+    it(`returns awaiting_acknowledgement when the latest submission is not yet acknowledged`, () => {
+      const unacknowledgedTaxReturn: TaxReturn = {
+        ...submittedTaxReturn,
+        taxReturnSubmissions: [
+          {
+            id: `submission-1`,
+            receiptId: null,
+            submitUserId: `user-1`,
+            createdAt: new Date().toISOString(),
+            submissionReceivedAt: null,
+          },
+        ],
+      };
+
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: unacknowledgedTaxReturn,
+          submissionStatus: undefined,
+          isFetching: false,
+          fetchError: undefined,
+          lastFetchAttempt: new Date(),
+        })
+      ).toEqual(`awaiting_acknowledgement`);
+    });
+
+    it(`returns awaiting_status when the latest submission is acknowledged but still has no status object`, () => {
       expect(
         getSubmissionLifecycleState({
           taxReturn: submittedTaxReturn,
@@ -102,7 +127,33 @@ describe(`submissionStatusUtils`, () => {
           fetchError: undefined,
           lastFetchAttempt: new Date(),
         })
-      ).toEqual(`status_unavailable`);
+      ).toEqual(`awaiting_status`);
+    });
+
+    it(`returns resubmission_awaiting_status when the latest acknowledged resubmission is newer than the stored status`, () => {
+      const resubmittedTaxReturn: TaxReturn = {
+        ...submittedTaxReturn,
+        taxReturnSubmissions: [
+          ...submittedTaxReturn.taxReturnSubmissions,
+          {
+            id: `submission-2`,
+            receiptId: `receipt-2`,
+            submitUserId: `user-1`,
+            createdAt: new Date(Date.now() + 60_000).toISOString(),
+            submissionReceivedAt: new Date(Date.now() + 61_000).toISOString(),
+          },
+        ],
+      };
+
+      expect(
+        getSubmissionLifecycleState({
+          taxReturn: resubmittedTaxReturn,
+          submissionStatus: acceptedStatus,
+          isFetching: false,
+          fetchError: undefined,
+          lastFetchAttempt: new Date(),
+        })
+      ).toEqual(`resubmission_awaiting_status`);
     });
 
     it(`returns status_ready when a submission status is present`, () => {

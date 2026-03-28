@@ -38,6 +38,14 @@ export type ExportableFacts = {
   [key: string]: ExportableFact | ExportableCollection;
 };
 
+export type ExportableFactsSummary = {
+  collectionCount: number;
+  collectionItemCount: number;
+  factCount: number;
+  populatedFactCount: number;
+  sensitiveFactCount: number;
+};
+
 export const getStateExportableFactsFromGraph = (factGraph: FactGraph): ExportableFacts => {
   // TODO: Instead of this, next filing season, just call the backend API endpoint to get the exported values.
   //       (Requires EAG UWR).
@@ -146,6 +154,45 @@ export const getFactKeyFromPath = (path: string) => {
   }
 
   return removeSlashes(path);
+};
+
+export const summarizeStateExportableFacts = (exportableFacts: ExportableFacts): ExportableFactsSummary => {
+  return Object.values(exportableFacts).reduce<ExportableFactsSummary>(
+    (summary, value) => {
+      if (Array.isArray(value)) {
+        summary.collectionCount += 1;
+        summary.collectionItemCount += value.length;
+        value.forEach((item) => {
+          Object.values(item).forEach((fact) => {
+            summary.factCount += 1;
+            if (fact.value !== null) {
+              summary.populatedFactCount += 1;
+              if (fact.sensitive) {
+                summary.sensitiveFactCount += 1;
+              }
+            }
+          });
+        });
+        return summary;
+      }
+
+      summary.factCount += 1;
+      if (value.value !== null) {
+        summary.populatedFactCount += 1;
+        if (value.sensitive) {
+          summary.sensitiveFactCount += 1;
+        }
+      }
+      return summary;
+    },
+    {
+      collectionCount: 0,
+      collectionItemCount: 0,
+      factCount: 0,
+      populatedFactCount: 0,
+      sensitiveFactCount: 0,
+    }
+  );
 };
 
 const removeSlashes = (path: string) => {
