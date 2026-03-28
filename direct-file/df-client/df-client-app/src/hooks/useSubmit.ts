@@ -13,6 +13,7 @@ import {
 import { FactGraph } from '@irs/js-factgraph-scala';
 import { TaxReturnsContext } from '../context/TaxReturnsContext.js';
 import { Condition } from '../flow/Condition.js';
+import { SubmissionStatusContext } from '../context/SubmissionStatusContext/SubmissionStatusContext.js';
 
 const NONRETRIABLE_ERRORS = [`tinMismatch`, `uneditableTaxReturn`];
 
@@ -41,7 +42,8 @@ export const useSubmit = () => {
   const dispatch = useAppDispatch();
   const electronicSigningFailed = useAppSelector((state) => state.electronicSignature.electronicSigningFailed);
   const { setSystemAlert } = useSystemAlertContext();
-  const { currentTaxReturnId } = useContext(TaxReturnsContext);
+  const { currentTaxReturnId, fetchTaxReturns } = useContext(TaxReturnsContext);
+  const { fetchSubmissionStatus, setSubmissionStatus } = useContext(SubmissionStatusContext);
 
   const { factGraph } = useFactGraph();
   const { i18n, t } = useTranslation();
@@ -70,6 +72,13 @@ export const useSubmit = () => {
         await submitTaxReturn(currentTaxReturnId as string, factGraph);
       } else {
         await signTaxReturn(currentTaxReturnId as string, intentStatement, factGraph);
+      }
+
+      if (currentTaxReturnId) {
+        // Reset stale status and immediately refresh both the return and its acknowledgement lifecycle.
+        setSubmissionStatus(undefined);
+        fetchTaxReturns();
+        fetchSubmissionStatus(currentTaxReturnId);
       }
     } catch (e) {
       hasSubmitError = true;
@@ -109,9 +118,12 @@ export const useSubmit = () => {
     factGraph,
     setSystemAlert,
     currentTaxReturnId,
+    fetchSubmissionStatus,
+    fetchTaxReturns,
     i18n,
     intentStatement,
     isEssarSigningPath,
     electronicSigningFailed,
+    setSubmissionStatus,
   ]);
 };

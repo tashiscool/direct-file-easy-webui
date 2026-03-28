@@ -1,12 +1,11 @@
-import { act, ReactNode } from 'react';
+import { act, Dispatch, ReactNode, SetStateAction } from 'react';
 import { renderHook } from '@testing-library/react';
 import { i18n } from '../test/test-utils.js';
 import { useSubmit as useSubmit } from './useSubmit.js';
-import { TaxReturn } from '../types/core.js';
+import { TaxReturn, TaxReturnSubmissionStatus } from '../types/core.js';
 import { v4 as uuidv4 } from 'uuid';
 import { CURRENT_TAX_YEAR } from '../constants/taxConstants.js';
 import { TaxReturnsContext } from '../context/TaxReturnsContext.js';
-import { FactGraphContextProvider } from '../factgraph/FactGraphContext.js';
 import { AppStore, setupStore } from '../redux/store.js';
 import { Provider } from 'react-redux';
 import { I18nextProvider } from 'react-i18next';
@@ -15,12 +14,17 @@ import {
   SystemAlertContext,
   SystemAlertKey,
 } from '../context/SystemAlertContext/SystemAlertContext.js';
+import { SubmissionStatusContext } from '../context/SubmissionStatusContext/SubmissionStatusContext.js';
 
 const mocks = vi.hoisted(() => {
   return {
     save: vi.fn(),
     setSystemAlert: vi.fn(),
     set: vi.fn(),
+    factGraph: {
+      toJSON: vi.fn(() => JSON.stringify({})),
+      __completeFacts: new Set<string>(),
+    },
   };
 });
 
@@ -39,6 +43,49 @@ vi.mock(`./useApiHook.js`, async (importOriginal) => {
     default: { myDefaultKey: vi.fn() },
     save: mocks.save,
   };
+});
+
+vi.mock(`../factgraph/FactGraphContext.js`, () => {
+  return {
+    useFactGraph: () => ({
+      factGraph: mocks.factGraph,
+    }),
+  };
+});
+
+vi.mock(`../flow/Condition.js`, () => {
+  class Condition {
+    private readonly rawCondition: string | { operator?: string; condition: string };
+
+    constructor(rawCondition: string | { operator?: string; condition: string }) {
+      this.rawCondition = rawCondition;
+    }
+
+    evaluate(factGraph: { __completeFacts?: Set<string> }) {
+      const condition =
+        typeof this.rawCondition === `string`
+          ? this.rawCondition
+          : this.rawCondition.condition;
+
+      if (condition === `isEssarSigningPath`) {
+        return (
+          import.meta.env.VITE_ENABLE_ESSAR_SIGNING === true ||
+          import.meta.env.VITE_ENABLE_ESSAR_SIGNING === `true`
+        );
+      }
+
+      if (
+        typeof this.rawCondition === `object` &&
+        this.rawCondition.operator === `isComplete`
+      ) {
+        return factGraph.__completeFacts?.has(condition) ?? false;
+      }
+
+      return false;
+    }
+  }
+
+  return { Condition };
 });
 
 // Configure i18n structure
@@ -98,8 +145,21 @@ type WrapperProps = {
   children: ReactNode;
   initialTaxReturn: TaxReturn;
   store: AppStore;
+  fetchTaxReturns?: () => void;
+  fetchSubmissionStatus?: (taxReturnId: string) => void;
+  setSubmissionStatus?: Dispatch<SetStateAction<TaxReturnSubmissionStatus | undefined>>;
 };
-const Wrapper = ({ store, children, initialTaxReturn }: WrapperProps) => {
+const Wrapper = ({
+  store,
+  children,
+  initialTaxReturn,
+  fetchTaxReturns = vi.fn(),
+  fetchSubmissionStatus = vi.fn(),
+  setSubmissionStatus = vi.fn(),
+}: WrapperProps) => {
+  mocks.factGraph.__completeFacts = new Set(Object.keys(initialTaxReturn.facts ?? {}));
+  mocks.factGraph.toJSON.mockReturnValue(JSON.stringify(initialTaxReturn.facts ?? {}));
+
   return (
     <Provider store={store}>
       <I18nextProvider i18n={i18n}>
@@ -114,18 +174,24 @@ const Wrapper = ({ store, children, initialTaxReturn }: WrapperProps) => {
             value={{
               taxReturns: [initialTaxReturn],
               currentTaxReturnId: initialTaxReturn.id,
-              fetchTaxReturns: vi.fn(),
+              fetchTaxReturns,
               isFetching: false,
               fetchSuccess: false,
             }}
           >
-            <FactGraphContextProvider
-              existingFacts={initialTaxReturn.facts}
-              taxReturnSubmissions={initialTaxReturn.taxReturnSubmissions}
-              forceNewInstance
+            <SubmissionStatusContext.Provider
+              value={{
+                submissionStatus: undefined,
+                setSubmissionStatus,
+                fetchSubmissionStatus,
+                isFetching: false,
+                fetchSuccess: false,
+                fetchError: undefined,
+                lastFetchAttempt: null,
+              }}
             >
               {children}
-            </FactGraphContextProvider>
+            </SubmissionStatusContext.Provider>
           </TaxReturnsContext.Provider>
         </SystemAlertContext.Provider>
       </I18nextProvider>
@@ -152,11 +218,20 @@ describe(useSubmit.name, () => {
     });
 
     it(`makes a request to the /sign endpoint`, async () => {
+      const fetchTaxReturns = vi.fn();
+      const fetchSubmissionStatus = vi.fn();
+      const setSubmissionStatus = vi.fn();
       const {
         result: { current: signAndSubmit },
       } = renderHook(() => useSubmit(), {
         wrapper: ({ children }) => (
-          <Wrapper store={setupStore()} initialTaxReturn={TAX_RETURN}>
+          <Wrapper
+            store={setupStore()}
+            initialTaxReturn={TAX_RETURN}
+            fetchTaxReturns={fetchTaxReturns}
+            fetchSubmissionStatus={fetchSubmissionStatus}
+            setSubmissionStatus={setSubmissionStatus}
+          >
             {children}
           </Wrapper>
         ),
@@ -178,6 +253,9 @@ describe(useSubmit.name, () => {
           }),
         })
       );
+      expect(setSubmissionStatus).toHaveBeenCalledWith(undefined);
+      expect(fetchTaxReturns).toHaveBeenCalledTimes(1);
+      expect(fetchSubmissionStatus).toHaveBeenCalledWith(TAX_RETURN.id);
     });
 
     it(`sets the electronicSigningFailed value for ESSAR errors`, async () => {
@@ -330,11 +408,20 @@ describe(useSubmit.name, () => {
 
   describe(`when the user is *not* on the ESSAR signing path`, () => {
     it(`makes a request to the /sign endpoint`, async () => {
+      const fetchTaxReturns = vi.fn();
+      const fetchSubmissionStatus = vi.fn();
+      const setSubmissionStatus = vi.fn();
       const {
         result: { current: signAndSubmit },
       } = renderHook(() => useSubmit(), {
         wrapper: ({ children }) => (
-          <Wrapper store={setupStore()} initialTaxReturn={TAX_RETURN}>
+          <Wrapper
+            store={setupStore()}
+            initialTaxReturn={TAX_RETURN}
+            fetchTaxReturns={fetchTaxReturns}
+            fetchSubmissionStatus={fetchSubmissionStatus}
+            setSubmissionStatus={setSubmissionStatus}
+          >
             {children}
           </Wrapper>
         ),
@@ -355,6 +442,9 @@ describe(useSubmit.name, () => {
           }),
         })
       );
+      expect(setSubmissionStatus).toHaveBeenCalledWith(undefined);
+      expect(fetchTaxReturns).toHaveBeenCalledTimes(1);
+      expect(fetchSubmissionStatus).toHaveBeenCalledWith(TAX_RETURN.id);
     });
   });
 

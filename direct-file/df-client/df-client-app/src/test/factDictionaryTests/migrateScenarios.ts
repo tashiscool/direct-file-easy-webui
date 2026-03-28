@@ -86,7 +86,12 @@ function setupFactGraph(existingFacts) {
   // TODO: Write a type for the digest stuff
   const facts = wrappedFacts.map((fact) =>
     sfg.DigestNodeWrapperFactory.toNative(
-      new sfg.DigestNodeWrapper(fact.path, fact.writable, fact.derived, fact.placeholder)
+      new sfg.DigestNodeWrapper(
+        fact.path,
+        fact.writable,
+        normalizeDerivedDigest(fact.path, fact.derived),
+        fact.placeholder
+      )
     )
   );
 
@@ -99,4 +104,75 @@ function setupFactGraph(existingFacts) {
 
   const factGraph = sfg.GraphFactory.apply(factDictionary, persister);
   return factGraph;
+}
+
+function normalizeDerivedDigest(path, derived) {
+  if (Array.isArray(derived)) {
+    const normalizedChildren = derived.map((child) =>
+      normalizeDerivedDigest(path, child)
+    );
+
+    if (path === `/businessTotalExpenses`) {
+      return {
+        typeName: `Add`,
+        options: {},
+        children: normalizedChildren,
+      };
+    }
+
+    return normalizedChildren;
+  }
+
+  if (derived === null || typeof derived !== `object`) {
+    return derived;
+  }
+
+  return {
+    ...derived,
+    typeName: derived.typeName === `Decimal` ? `Rational` : derived.typeName,
+    options:
+      derived.typeName === `Decimal` &&
+      derived.options &&
+      typeof derived.options === `object` &&
+      typeof derived.options.value === `string`
+        ? {
+            ...derived.options,
+            value: decimalStringToRationalValue(derived.options.value),
+          }
+        : derived.options,
+    children: Array.isArray(derived.children)
+      ? derived.children.map((child) => normalizeDerivedDigest(path, child))
+      : derived.children,
+  };
+}
+
+function decimalStringToRationalValue(value) {
+  const trimmed = value.trim();
+  if (/^-?\d+$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  const match = trimmed.match(/^(-?)(\d*)\.(\d+)$/);
+  if (!match) {
+    return trimmed;
+  }
+
+  const [, signToken, wholePartRaw, fractionalPart] = match;
+  const wholePart = wholePartRaw.length > 0 ? wholePartRaw : `0`;
+  const sign = signToken === `-` ? -1 : 1;
+  const denominator = 10 ** fractionalPart.length;
+  const numerator = sign * (Number(wholePart) * denominator + Number(fractionalPart));
+  const divisor = greatestCommonDivisor(Math.abs(numerator), denominator);
+  return `${numerator / divisor}/${denominator / divisor}`;
+}
+
+function greatestCommonDivisor(a, b) {
+  let left = Math.abs(a);
+  let right = Math.abs(b);
+  while (right !== 0) {
+    const remainder = left % right;
+    left = right;
+    right = remainder;
+  }
+  return left === 0 ? 1 : left;
 }

@@ -119,7 +119,12 @@ export class InterceptingFactGraph implements sfg.FactGraph {
     // TODO: Write a type for the digest stuff
     const facts = wrappedFacts.map((fact) =>
       sfg.DigestNodeWrapperFactory.toNative(
-        new sfg.DigestNodeWrapper(fact.path, fact.writable, fact.derived, fact.placeholder)
+        new sfg.DigestNodeWrapper(
+          fact.path,
+          fact.writable,
+          normalizeDerivedDigest(fact.path, fact.derived),
+          fact.placeholder
+        )
       )
     );
 
@@ -326,6 +331,88 @@ export class InterceptingFactGraph implements sfg.FactGraph {
   public checkPersister() {
     return this.sfgGraph.checkPersister();
   }
+}
+
+const normalizeDerivedDigest = (path: string, derived: unknown): unknown => {
+  if (Array.isArray(derived)) {
+    const normalizedChildren = derived.map((child) =>
+      normalizeDerivedDigest(path, child)
+    );
+
+    // `/businessTotalExpenses` is currently generated as a top-level array of additive
+    // nodes, but the Scala bridge expects a single derived node tree.
+    if (path === `/businessTotalExpenses`) {
+      return {
+        typeName: `Add`,
+        options: {},
+        children: normalizedChildren,
+      };
+    }
+
+    return normalizedChildren;
+  }
+
+  if (derived === null || typeof derived !== `object`) {
+    return derived;
+  }
+
+  const node = derived as {
+    typeName?: string
+    options?: unknown
+    children?: unknown[]
+    [key: string]: unknown
+  }
+
+  return {
+    ...node,
+    typeName: node.typeName === `Decimal` ? `Rational` : node.typeName,
+    options:
+      node.typeName === `Decimal` &&
+      node.options !== null &&
+      typeof node.options === `object` &&
+      `value` in node.options &&
+      typeof node.options.value === `string`
+        ? {
+            ...node.options,
+            value: decimalStringToRationalValue(node.options.value),
+          }
+        : node.options,
+    children: Array.isArray(node.children)
+      ? node.children.map((child) => normalizeDerivedDigest(path, child))
+      : node.children
+  };
+};
+
+const decimalStringToRationalValue = (value: string): string => {
+  const trimmed = value.trim()
+  if (/^-?\d+$/.test(trimmed)) {
+    return trimmed
+  }
+
+  const match = trimmed.match(/^(-?)(\d*)\.(\d+)$/)
+  if (!match) {
+    return trimmed
+  }
+
+  const [, signToken, wholePartRaw, fractionalPart] = match
+  const wholePart = wholePartRaw.length > 0 ? wholePartRaw : `0`
+  const sign = signToken === `-` ? -1 : 1
+  const denominator = 10 ** fractionalPart.length
+  const numerator =
+    sign * (Number(wholePart) * denominator + Number(fractionalPart))
+  const divisor = greatestCommonDivisor(Math.abs(numerator), denominator)
+  return `${numerator / divisor}/${denominator / divisor}`
+}
+
+const greatestCommonDivisor = (a: number, b: number): number => {
+  let left = Math.abs(a)
+  let right = Math.abs(b)
+  while (right !== 0) {
+    const remainder = left % right
+    left = right
+    right = remainder
+  }
+  return left === 0 ? 1 : left
 }
 
 function downloadFactGraph(factGraph: sfg.FactGraph, filename: string | undefined) {
